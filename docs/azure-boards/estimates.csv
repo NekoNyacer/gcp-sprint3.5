@@ -1,0 +1,103 @@
+Level,ID,Parent ID,Title,Priority,Target,Estimate Unit,Estimate,Hours,Story Points,Primary Owner,Notes
+Epic,E01,,體驗基礎與身份,Must,S0-S1,pd,12,96,,PO / UIUX / Java 1,Feature rollup
+Feature,F01,E01,應用殼層品牌與導航,Must,S0-S1,pd,3,24,,PO + UIUX,含 1 UIUX pd
+User Story,US01.1,F01,建立響應式應用殼層,Must,S0,hour,8,8,2,PO,Angular Signals 與頁面框架
+User Story,US01.2,F01,建立四頁籤與頭像選單,Must,S1,hour,8,8,2,PO,首頁任務森林小樹點
+User Story,US01.3,F01,套用大樹品牌主題與共用狀態,Must,S1,hour,8,8,2,PO + UIUX,loading empty error demo badge
+Feature,F02,E01,Google 登入 Onboarding 與隱私錨點,Must,S1,pd,4,32,,Java 1 + PO,
+User Story,US02.1,F02,Web Google Sign-In 與 Demo identity fallback,Must,S1,hour,12,12,3,Java 1,
+User Story,US02.2,F02,每日目標起始種子與漸進式 onboarding,Must,S1,hour,12,12,3,PO,
+User Story,US02.3,F02,本機住家／公司錨點與隱私設定,Must,S1,hour,8,8,2,PO,精確座標不可持久化到 cloud
+Feature,F03,E01,每日步數資源首頁與提醒卡,Must,S1,pd,5,40,,Java 2 + PO,
+User Story,US03.1,F03,同步每日步數並計算光能,Must,S1,hour,12,12,3,Java 2,Asia Taipei 與跨來源 max
+User Story,US03.2,F03,顯示步數三資源與三棵追蹤樹,Must,S1,hour,12,12,3,PO,
+User Story,US03.3,F03,下班提醒卡設定與預覽,Must,S1,hour,8,8,2,PO,預設 17:30 且達標抑制
+User Story,US03.4,F03,Demo 步數速度與隔離資料,Must,S1,hour,8,8,2,Java 2 + PO,isDemo true
+Epic,E02,,健走路線與任務,Must,S2-S3,pd,12,96,,Java 2 / Java 3 / PO,Feature rollup
+Feature,F04,E02,六個任務 seed 與規則式推薦,Must,S2,pd,3,24,,Java 3 + PO,模板路線日期安全版
+User Story,US04.1,F04,建立兩區六個版本化任務與路線 seed,Must,S2,hour,8,8,2,Java 3,確切 POI 需現勘
+User Story,US04.2,F04,建立額外時間任務類型與行程型態偏好,Must,S2,hour,6,6,2,PO,
+User Story,US04.3,F04,以 recommendRoute 排名模板且不保存敏感錨點,Must,S2,hour,10,10,3,Java 3,相同輸入相同結果
+Feature,F05,E02,地圖路線預覽與進行中任務,Must,S2,pd,4,32,,Java 3 + PO,含 0.5 UIUX pd
+User Story,US05.1,F05,顯示任務地圖路線與 grove markers,Must,S2,hour,8,8,2,PO,
+User Story,US05.2,F05,預覽單程返回起點距離與時間,Must,S2,hour,8,8,2,Java 3 + PO,
+User Story,US05.3,F05,執行 checkpoint 與任務進度,Must,S2,hour,8,8,2,PO,
+User Story,US05.4,F05,處理安全警語 GPS 拒絕與模擬到達,Must,S2,hour,8,8,2,PO,
+Feature,F06,E02,三種任務拍照與每日資源發放,Must,S2-S3,pd,5,40,,Java 2 + PO,含 0.5 UIUX pd
+User Story,US06.1,F06,建立拍照選檔 pending 與 retry 共用流程,Must,S2,hour,10,10,3,PO,
+User Story,US06.2,F06,完成種植任務並原子消耗種子,Must,S2,hour,10,10,3,Java 2 + PO,
+User Story,US06.3,F06,完成取水任務並發放水滴,Must,S3,hour,8,8,2,Java 2,
+User Story,US06.4,F06,完成 pickup delivery 並發放肥料,Must,S3,hour,10,10,3,Java 2 + PO,
+User Story,US06.5,F06,限制每日首次獎勵且允許重玩,Must,S3,hour,2,2,1,Java 2,沿用 idempotency pattern
+Epic,E03,,大樹回憶與回饋,Mixed,S1-S4,pd,23,184,,PO / Java 1 / Java 2,含 Should 2 pd
+Feature,F07,E03,多樹種植與私人回憶林,Must,S1-S3,pd,6,48,,Java 1 + PO + UIUX,含 1 UIUX pd
+User Story,US07.1,F07,建立持續樹資料與五個成長階段,Must,S1,hour,12,12,3,Java 1 + PO,
+User Story,US07.2,F07,同地點多樹群組為私人 grove,Must,S2,hour,12,12,3,Java 1,
+User Story,US07.3,F07,建立森林清單地圖與模糊座標,Must,S3,hour,12,12,3,PO,
+User Story,US07.4,F07,追蹤最多三棵並選擇培育目標,Must,S3,hour,8,8,2,PO,
+User Story,US07.5,F07,提供所有階段的 2D 樹 fallback,Must,S1,hour,4,4,1,PO + UIUX,不得依賴 Three.js
+Feature,F08,E03,養分配置成長與收成完整性,Must,S2-S3,pd,7,56,,Java 2 + PO,
+User Story,US08.1,F08,預覽光能水滴肥料與結果,Must,S2,hour,12,12,3,PO,
+User Story,US08.2,F08,以 transaction 扣資源並寫 immutable ledger,Must,S3,hour,16,16,5,Java 2,
+User Story,US08.3,F08,原子保護單一 ready milestone 與每日收成,Must,S3,hour,16,16,5,Java 2 + PO,
+User Story,US08.4,F08,支援遠端照顧與近距離 harvest,Must,S3,hour,12,12,3,PO,
+Feature,F09,E03,Mock 小樹點錢包兌換與 ESG,Must,S3,pd,4,32,,Java 2 + PO + UIUX,含 0.5 UIUX pd
+User Story,US09.1,F09,顯示 mock wallet 與 ledger 歷史,Must,S3,hour,10,10,3,Java 2 + PO,
+User Story,US09.2,F09,兌換版本化 mock catalog 項目,Must,S3,hour,10,10,3,Java 2,
+User Story,US09.3,F09,完成 ESG 捐贈與 Demo 免責標示,Must,S3,hour,12,12,3,PO + UIUX,
+Feature,F10,E03,回憶重訪與遠端照顧體驗,Must,S4,pd,4,32,,Java 1 + PO + UIUX,含 0.5 UIUX pd
+User Story,US10.1,F10,顯示日期照片步數與任務回憶,Must,S4,hour,12,12,3,PO,
+User Story,US10.2,F10,重訪取得季節收藏但不重發點數,Must,S4,hour,8,8,2,Java 1 + PO,
+User Story,US10.3,F10,在 grove 內選歷史樹並遠端照顧,Must,S4,hour,12,12,3,PO,
+Feature,F11,E03,Seeded 排行榜與好友投入,Should,Earned,pd,2,16,,Java 2,不實作真好友
+User Story,US11.1,F11,顯示 seeded weekly leaderboard,Should,Earned,hour,8,8,2,Java 2,
+User Story,US11.2,F11,顯示非金錢成長的好友投入紀錄,Should,Earned,hour,8,8,2,Java 2,
+Epic,E04,,Serverless 平台與 Demo 韌性,Must,S0-S3,pd,11,88,,Java 1 / Ops / PO,Feature rollup
+Feature,F12,E04,Firebase 環境資料安全與可觀察性,Must,S0-S2,pd,6,48,,Java 1 + Ops + PO,含 3 Ops pd
+User Story,US12.1,F12,建立 Firebase Emulator Hosting Preview 與設定,Must,S0,hour,12,12,3,Ops + Java 1,
+User Story,US12.2,F12,建立 Firestore Storage 模型與索引,Must,S0,hour,12,12,3,Java 1 + PO,
+User Story,US12.3,F12,建立 Rules App Check Secrets 與測試,Must,S1,hour,16,16,5,Java 1 + Ops,
+User Story,US12.4,F12,建立結構化 log 預算警示與清除流程,Must,S2,hour,8,8,2,Ops + Java 1,
+Feature,F13,E04,Demo Mode seed reset 與故障切換,Must,S1-S3,pd,5,40,,Java 1 + Ops + PO,含 2 Ops pd
+User Story,US13.1,F13,建立明顯 Demo badge 與隔離 repository,Must,S1,hour,10,10,3,PO + Java 1,
+User Story,US13.2,F13,建立五分鐘兩分鐘 seed 與 reset,Must,S3,hour,12,12,3,Java 1 + Ops,
+User Story,US13.3,F13,編排登入 GCP Gemini 路線 WebGL fallback,Must,S3,hour,10,10,3,PO,
+User Story,US13.4,F13,讓 seeded local mode 無網路完成主流程,Must,S3,hour,8,8,2,Java 1 + PO,
+Epic,E05,,品質裝置與展示,Mixed,S3-S4,pd,19,152,,PO / Ops / UIUX,含 Should 12 pd
+Feature,F14,E05,跨瀏覽器響應式無障礙與效能,Must,S4,pd,4,32,,全員 + PO,含 0.5 Ops 與 0.5 UIUX pd
+User Story,US14.1,F14,完成核心 domain unit 與 Rules tests,Must,S4,hour,12,12,3,全員,
+User Story,US14.2,F14,驗證 Chrome Edge 360x800 與 S22 browser,Must,S4,hour,8,8,2,PO + Ops,
+User Story,US14.3,F14,完成鍵盤焦點語意與 reduced motion,Must,S4,hour,6,6,2,PO + UIUX,
+User Story,US14.4,F14,驗證首頁延遲 timeout 與資源釋放,Must,S4,hour,6,6,2,PO,
+Feature,F15,E05,五兩分鐘腳本錄影與彩排,Must,S4,pd,3,24,,PO + UIUX + Ops,含 0.5 Ops 與 1 UIUX pd
+User Story,US15.1,F15,完成五分鐘兩分鐘 presenter runbook,Must,S4,hour,8,8,2,PO + UIUX,
+User Story,US15.2,F15,錄製完整端到端 fallback 影片,Must,S4,hour,8,8,2,PO + Ops,
+User Story,US15.3,F15,完成兩次現場條件彩排與 release freeze,Must,S4,hour,8,8,2,全員,
+Feature,F16,E05,Android APK native auth camera notification,Should,Earned,pd,9,72,,PO + Java 1 + Ops,需公司政策允許
+User Story,US16.1,F16,導入 Capacitor signed APK 與 App Distribution,Should,Earned,hour,16,16,5,PO + Ops,
+User Story,US16.2,F16,執行 native Google auth plugin spike,Should,Earned,hour,8,8,2,Java 1 + PO,
+User Story,US16.3,F16,完成 native Google auth 或 Credential Manager bridge,Should,Earned,hour,12,12,3,Java 1 + PO,
+User Story,US16.4,F16,完成 native camera 與拒絕權限 fallback,Should,Earned,hour,12,12,3,PO,
+User Story,US16.5,F16,完成 opt-in 17:30 local notification,Should,Earned,hour,16,16,5,PO,
+User Story,US16.6,F16,完成 S22 安裝測試與操作 runbook,Should,Earned,hour,8,8,2,Ops + PO,
+Feature,F17,E05,Gemini 受限偏好解析,Should,Earned,pd,3,24,,Java 3 + PO,
+User Story,US17.1,F17,由 server 呼叫 Gemini 解析自由文字,Should,Earned,hour,12,12,3,Java 3,
+User Story,US17.2,F17,驗證受控 JSON schema 與規則 fallback,Should,Earned,hour,8,8,2,Java 3 + PO,
+User Story,US17.3,F17,建立 timeout telemetry 與展示案例,Should,Earned,hour,4,4,1,PO,
+Epic,E06,,可選沉浸體驗,Could,Earned,pd,18.5,148,,依 gate 指派,不進承諾容量
+Feature,F18,E06,Health Connect 真實日步數,Could,Earned,pd,4,32,,Java 2 + PO,
+User Story,US18.1,F18,執行 Health Connect 權限與讀取 spike,Could,Earned,hour,8,8,2,Java 2 + PO,
+User Story,US18.2,F18,完成 Health Connect adapter,Could,Earned,hour,16,16,5,Java 2,
+User Story,US18.3,F18,接入跨來源 max 合併,Could,Earned,hour,4,4,1,Java 2,
+User Story,US18.4,F18,完成 S22 測試與模擬 fallback,Could,Earned,hour,4,4,1,PO,
+Feature,F19,E06,真實連續 GPS 任務進度,Could,Earned,pd,2,16,,Java 3 + PO,
+User Story,US19.1,F19,建立 GPS adapter 與路線進度,Could,Earned,hour,12,12,3,Java 3 + PO,
+User Story,US19.2,F19,驗證拒絕權限耗電與模擬 fallback,Could,Earned,hour,4,4,1,PO,
+Feature,F20,E06,Three.js 低多邊形樹與粒子,Could,Earned,pd,11,88,,PO + UIUX,先過 2 pd spike
+User Story,US20.1,F20,執行 S22 WebView Three.js spike gate,Could,Earned,hour,16,16,5,PO,
+User Story,US20.2,F20,建立共用 scene 與三樹種四階段,Could,Earned,hour,32,32,8,PO + UIUX,
+User Story,US20.3,F20,建立粒子 lifecycle dispose 與 2D fallback,Could,Earned,hour,20,20,5,PO,
+User Story,US20.4,F20,驗證 FPS memory 與 lazy chunk,Could,Earned,hour,20,20,5,PO,
+Feature,F21,E06,鳥巢居民與季節 polish,Could,Earned,pd,1.5,12,,PO + UIUX,
+User Story,US21.1,F21,顯示 seeded 鳥巢與居民外觀,Could,Earned,hour,8,8,2,PO + UIUX,
+User Story,US21.2,F21,加入季節視覺 polish,Could,Earned,hour,4,4,1,PO + UIUX,
