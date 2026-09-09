@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+html { background: #f7f8f3; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: #21362d;
+  font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  background: #f7f8f3;
+}
+
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible { outline: 3px solid rgba(0, 133, 102, .28); outline-offset: 2px; }
+
+ion-card {
+  --background: #eaf1fd09;
+  border: 1px solid transparent;
+  border-image: linear-gradient(48.68deg, #7cda97 -2.91%, #80e1f7, #b3afff, #80e1f7, #7cda97 87.43%) 1;
+}

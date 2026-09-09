@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Cathay Walk</string>
+    <string name="title_activity_main">Cathay Walk</string>
+    <string name="package_name">com.cathay.catwalk</string>
+    <string name="custom_url_scheme">com.cathay.catwalk</string>
+</resources>

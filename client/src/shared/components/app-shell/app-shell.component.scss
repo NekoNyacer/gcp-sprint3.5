@@ -1,0 +1,39 @@
+
+.tabBar{
+  --background: #eaf1fd09; 
+  --color: #1f2d44; 
+  --color-selected: #1f2d44
+}
+
+.menu-toggle-fab {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  right: 1rem;
+  z-index: 1000;
+}
+
+.menu-toggle-fab ion-button {
+  --border-radius: 999px;
+}
+
+.avatar {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  box-shadow: 0 8px 22px rgba(1, 53, 36, 0.24);
+  color: #fff;
+  display: flex;
+  flex: 0 0 72px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  height: 50px;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+}

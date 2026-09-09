@@ -1,0 +1,30 @@
+<app-menu />
+<ion-menu-toggle class="menu-toggle-fab">
+  <ion-button color="light"> <ion-icon [name]="'list'" /></ion-button>
+</ion-menu-toggle>
+
+<ion-tabs id="main-content">
+  <ion-tab-bar slot="bottom" class="tabBar">
+    <ion-tab-button tab="home">
+      <ion-icon [name]="currentUrl() === '/home' ? 'navigate-circle' : 'navigate-circle-outline'" />
+      <ion-label>健走</ion-label>
+      <ion-badge color="danger"></ion-badge>
+    </ion-tab-button>
+
+    <ion-tab-button tab="task">
+      <ion-icon [name]="currentUrl() === '/task' ? 'receipt' : 'receipt-outline'" />
+      <ion-label>任務</ion-label>
+      <ion-badge color="danger">47</ion-badge>
+    </ion-tab-button>
+
+    <ion-tab-button tab="collection">
+      <ion-icon [name]="currentUrl() === '/collection' ? 'leaf' : 'leaf-outline'" />
+      <ion-label>收藏</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="shop">
+      <ion-icon [name]="currentUrl() === '/shop' ? 'gift' : 'gift-outline'" />
+      <ion-label>樹屋</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

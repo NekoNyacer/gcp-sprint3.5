@@ -1,0 +1,129 @@
+ion-menu {
+  --width: min(86vw, 340px);
+  --ion-background-color: #f7faf7;
+}
+
+.menu-header {
+  box-shadow: none;
+
+  ion-toolbar {
+    --background: linear-gradient(145deg, #00994e 0%, #07ba51 100%);
+    --border-width: 0;
+    --padding-bottom: 20px;
+    --padding-end: 22px;
+    --padding-start: 22px;
+    --padding-top: max(20px, env(safe-area-inset-top));
+  }
+}
+
+.profile-card {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  min-width: 0;
+}
+
+.avatar {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+  box-shadow: 0 8px 22px rgba(1, 53, 36, 0.24);
+  color: #fff;
+  display: flex;
+  flex: 0 0 72px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  height: 72px;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+}
+
+.profile-copy {
+  min-width: 0;
+
+  h1 {
+    margin:0 auto;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    overflow: hidden;
+    padding: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.welcome,
+.email {
+  margin: 0;
+}
+
+.welcome {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.email {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1rem;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+ion-content {
+  --background: #f7faf7;
+}
+
+.menu-list {
+  background: transparent;
+  padding: 18px 12px 96px;
+
+  ion-item {
+    --background: transparent;
+    --border-radius: 14px;
+    --color: #23342e;
+    --min-height: 54px;
+    --padding-start: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+
+    ion-icon {
+      color: #087a54;
+      font-size: 1.3rem;
+      margin-right: 16px;
+    }
+  }
+}
+
+.logout-area {
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 12px;
+  position: absolute;
+  right: 12px;
+}
+
+.logout-item {
+  --background: #fff;
+  --border-radius: 14px;
+  --color: #a33a3a;
+  --min-height: 52px;
+  --padding-start: 16px;
+  box-shadow: 0 6px 20px rgba(26, 56, 45, 0.07);
+  font-weight: 600;
+
+  ion-icon {
+    color: #b54848;
+    margin-right: 16px;
+  }
+}

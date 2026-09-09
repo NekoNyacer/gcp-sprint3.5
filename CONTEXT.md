@@ -1,6 +1,6 @@
 # CAT WALK project context
 
-Last updated: 2026-09-03
+Last updated: 2026-09-08
 
 ## Status
 
@@ -12,13 +12,13 @@ CAT WALK is a standalone, public-facing walking app inspired by the motivational
 
 `CAT` is the company's standard three-character project prefix, derived from Cathay. It does not mean that the product has a cat theme. The relevant company image is a large tree, so planting and growing trees is the intended product metaphor.
 
-`CAT-WALK` is an internal project code, not the intended public product name. The working Demo name is `Cathay Go｜大樹同行`. If the group adopts the Demo, internal brand and legal owners will make the final naming decision.
+`CAT-WALK` is an internal project code, not the intended public product name. The working Demo name is `Cathay Walk | 國泰健康走`. If the group adopts the Demo, internal brand and legal owners will make the final naming decision.
 
 Public-name research found no exact public product with either proposed name, but it did find material collision risk:
 
 - `Cathay Walk` is high risk because Cathay previously operated `Cathay Walker` and `Cathay Walker Plus`, later integrated or renamed as FitBack. The earlier concept also combined steps, rewards, and physical check-in points.
 - `Cathay Go` has moderate risk: no exact product collision was found, but `Go` is generic, weakly communicates walking/tree growth, and appears in other Cathay product or event language.
-- Current working Demo name is `Cathay Go｜大樹同行`.
+- Current working Demo name is `Cathay Walk | 國泰健康走`.
 - This research is not a legal trademark clearance. Brand/legal should check Taiwan trademark classes and internal product registries before any public launch.
 
 The Pikmin Bloom inspiration describes the desired motivational pattern, not permission to copy its protected characters, artwork, names, mechanics, or exact presentation.
@@ -36,11 +36,11 @@ The company group already offers a related feature called `健康吧` inside the
 - Intended business value: strengthen public familiarity with the Cathay brand and broaden awareness and usage of `小樹點`.
 - The demo may represent `小樹點` with mock balances and transactions; no production loyalty integration is required.
 - Support two activity modes in the intended experience:
-  - Active walk: the user deliberately starts a walk and receives a route or objective shaped like a game mission.
+  - Active walk: the user deliberately starts a walk and receives a route or objective shaped like a game task.
   - Passive activity: the Android app reads background step totals for users who do not want an explicitly game-like session.
 - The active-walk concept uses smart route recommendations and pickup-and-delivery-style objectives. Generative AI is not required by the event; rules-based recommendations are Must, while a Gemini enhancement is Should because the demo takes place at a Google office.
-- All unique daily steps contribute once to tree growth. Active-mission steps remain part of that daily total rather than being counted twice.
-- Completing an active mission grants an additional mission reward. Reaching a passive daily-step goal grants a smaller reward.
+- All unique daily steps contribute once to tree growth. Active-task steps remain part of that daily total rather than being counted twice.
+- Completing an active task grants an additional task reward. Reaching a passive daily-step goal grants a smaller reward.
 - A mature tree becomes part of the user's personal forest and remains associated with the place where it was planted. Returning to that place should evoke a memory and sense of accomplishment.
 - A location-associated tree stores a Place ID, landmark name, and obfuscated coordinate rather than publicly exposing an exact GPS point. The personal forest is private by default.
 - Trees are persistent rather than consumed on maturity or harvest. A tree can continue growing into a larger representation of the Cathay tree identity across repeated growth milestones.
@@ -53,11 +53,11 @@ The company group already offers a related feature called `健康吧` inside the
 - Each account can trigger at most one `小樹點` tree harvest per day in the Demo.
 - The intended product lets invited friends contribute resources to collaborative visual growth, decoration, or resident animals. Friend contributions do not count toward the owner's monetary-value `小樹點` harvest.
 - The Demo represents one friend contribution with seeded data rather than implementing real invitations, friend search, or resource transfer.
-- Revisiting a planted tree shows its date, photo, steps, and mission memory, and may award a seasonal badge or collectible leaf. Revisits do not repeatedly award `小樹點`.
+- Revisiting a planted tree shows its date, photo, steps, and task memory, and may award a seasonal badge or collectible leaf. Revisits do not repeatedly award `小樹點`.
 - A place or route is not consumed after one planting. The same landmark can host multiple persistent historical trees, grouped under one private memory-grove marker rather than overlapping map pins.
-- The same route can be replayed, but only its first eligible completion per day grants a mission reward. New places, seasons, and tree species grant collection rewards rather than exclusive access.
-- Planting a new tree requires a seed plus an active planting mission and photo check-in at a curated public point. A new user receives one starter seed; later seeds come from weekly goals, achievements, or special delivery missions.
-- The Demo only permits planting at its six curated public mission points. Home and work remain private route anchors rather than planting locations. Arbitrary Google Places require a future curation or validation policy.
+- The same route can be replayed, but only its first eligible completion per day grants a task reward. New places, seasons, and tree species grant collection rewards rather than exclusive access.
+- Planting a new tree requires a seed plus an active planting task and photo check-in at a curated public point. A new user receives one starter seed; later seeds come from weekly goals, achievements, or special delivery tasks.
+- The Demo only permits planting at its six curated public task points. Home and work remain private route anchors rather than planting locations. Arbitrary Google Places require a future curation or validation policy.
 - A user can own any number of historical trees. The home dashboard pins at most three followed trees; arriving at a memory grove lets the user choose any tree there for resource allocation.
 - The mock reward experience includes a `小樹點` balance, a small redemption catalog, and an ESG-style tree-donation option.
 - Reward economics must remain credible against the existing Cathay Life `健康吧` reference supplied by the product owner:
@@ -68,18 +68,18 @@ The company group already offers a related feature called `健康吧` inside the
 - CAT WALK must not issue tens of `小樹點` directly for one ordinary walk. Steps grant `光能`; the documented water, fertilizer, 5,000-growth harvest, and mock catalog amounts are the Demo baseline. Only final resource naming remains open.
 - The current resource family is:
   - `光能` (working name): the common step-generated resource. The team may rename it later without changing its mechanics. From 0–5,000 daily steps, each completed 500-step block grants 3 `光能`, totaling 30. From 5,001–7,500, each additional completed 500-step block grants 4, bringing the daily total to 50. Steps above 7,500 remain visible but grant no additional `光能`. One `光能` becomes one tree-growth value when allocated.
-  - `水滴`: acquired by reaching and checking in at a designated public water-source mission point. Each eligible source grants one per day, and one `水滴` provides 10 tree-growth value.
-  - `肥料`: acquired from a pickup-and-delivery mission. One use gives the current allocation a 20% growth bonus, limited to once per tree per day.
+  - `水滴`: acquired by reaching and checking in at a designated public water-source task point. Each eligible source grants one per day, and one `水滴` provides 10 tree-growth value.
+  - `肥料`: acquired from a pickup-and-delivery task. One use gives the current allocation a 20% growth bonus, limited to once per tree per day.
   - Special items: may alter appearance or attract an animal. The Demo only considers one optional `鳥巢` item and does not implement a real pest, defense, treatment, or death system.
 - Google Weather API is available in Taiwan and can report daytime, conditions, precipitation probability, cloud cover, UV, sunrise, and sunset. Weather may alter visual flavor or resource storytelling, but it does not change expected economic value by weather or time of day because the target users often walk after work.
 - If weather is represented, a failure never reduces the base walking reward and Demo Mode can select sunny, rainy, cloudy, or night presentation states.
 - All Demo resources persist without expiry or inventory caps. Long-term production caps and inflation controls are deferred until real usage and liability data exist.
 - Daily valid steps use the maximum eligible cumulative total reported across real sources rather than summing sources. Each source only accepts a monotonically increasing total for the `Asia/Taipei` calendar day.
 - Web simulation is only available in Demo Mode. Every simulated step, resource, tree, ledger entry, and leaderboard record is marked `isDemo=true` and never merges with normal data.
-- A mission check-in occurs at a designated waypoint and uses a photo to represent pickup, delivery, or arrival. AI image-content validation is not required.
-- Active missions support both a one-way trip and a return-to-origin trip, with one pickup-to-delivery objective per mission.
+- A task check-in occurs at a designated waypoint and uses a photo to represent pickup, delivery, or arrival. AI image-content validation is not required.
+- Active tasks support both a one-way trip and a return-to-origin trip, with one pickup-to-delivery objective per task.
 - Users may configure home and work anchors so recommended routes remain close to their familiar commute corridor rather than leading them far away. Exact coordinates remain device-local and are only transmitted transiently to `recommendRoute`; they are not persisted or logged.
-- Exact home/work coordinates remain device-local. A route request may transmit them temporarily to `recommendRoute`, but the service does not persist them. Firestore stores only non-sensitive preferences, obfuscated areas, and mission results. A user setting up another device must configure the anchors again.
+- Exact home/work coordinates remain device-local. A route request may transmit them temporarily to `recommendRoute`, but the service does not persist them. Firestore stores only non-sensitive preferences, obfuscated areas, and task results. A user setting up another device must configure the anchors again.
 - Route planning uses the current position and the user's next commute destination rather than requiring the entire home-to-work journey to be walked. The user selects an acceptable extra walking duration, and the recommendation applies a bounded geographic detour from the normal commute direction.
 - Normal mode can use GPS proximity for arrival, while Demo Mode always provides a simulated-arrival fallback.
 - Resource investment and `小樹點` harvest require the user to be within approximately 150 meters of the tree. Demo Mode can simulate proximity.
@@ -107,21 +107,30 @@ The company group already offers a related feature called `健康吧` inside the
 - Live GCP services are the primary runtime, with a seeded local Demo Mode and a prerecorded video as presentation fallbacks.
 - The default presentation script is five minutes, with a shorter two-minute version and a prerecorded full-flow fallback.
 
-## Mission taxonomy
+## Task taxonomy
 
-- Planting mission: consume one seed, follow a route to a curated public planting point, and take a photo to create a tree.
-- Water mission: follow a route to a curated public virtual water station and take a photo; the first eligible visit per source per day grants one `水滴`.
-- Nutrient-delivery mission: automatically collect virtual fertilizer at the pickup checkpoint, deliver it to the destination or grove, and take one delivery photo; the first eligible completion per day grants one `肥料`.
-- Each curated Demo area has one mission of each type.
+- Planting task: consume one seed, follow a route to a curated public planting point, and take a photo to create a tree.
+- Water task: follow a route to a curated public virtual water station and take a photo; the first eligible visit per source per day grants one `水滴`.
+- Nutrient-delivery task: automatically collect virtual fertilizer at the pickup checkpoint, deliver it to the destination or grove, and take one delivery photo; the first eligible completion per day grants one `肥料`.
+- Each curated Demo area has one task of each type.
 - Pickup checkpoints do not require a photo; planting, water, and delivery completion do.
 
 ## Repository facts
 
 - The existing client is an Ionic 9 and Angular 22 application using TypeScript 6.
-- The current client does not yet include Capacitor or another native-device integration package.
+- The client uses NgRx Signal Store 22 and the exact pre-release `@angular/fire@21.0.0-rc.0`, which brings Firebase JS SDK 12. AngularFire 21 RC still declares Angular 21-only peer dependencies, so client-level npm installs use `legacy-peer-deps=true`; remove this compatibility setting once AngularFire publishes Angular 22 support.
+- The installed Angular 22.1.4 exposes the `@Service()` decorator with automatic provision enabled by default. Use `@Service()` for new project services and repositories; `@Injectable()` remains supported when its explicit provider metadata is needed.
+- The client uses Capacitor 8.5.1 for native-device integration, pinned consistently across core, CLI, and Android. Its application ID is `com.cathay.catwalk`, display name is `Cathay Walk`, and Angular web assets are read from `dist/client/browser`.
 - The repository currently has no configured Git remote and no visible commit history.
 - The Matt Pocock skill collection is stored at `skills-main/` as ordinary, currently untracked repository files. It is not a nested Git repository and can be committed with this project.
 - Root `AGENTS.md` points agents to the repository-local skills so teammates can use the same checked-in workflow after cloning.
+
+## Client terminology and code naming
+
+- Use `Collection` instead of `Forest` for the client feature, route-level page, Signal Store, repository, and related implementation names. The existing client route is `/collection`; future names should therefore use forms such as `CollectionStore` and `CollectionRepository` rather than `ForestStore` and `ForestRepository`.
+- Use `Task` consistently across the client, Cloud Functions, Firestore paths, seed data, tests, and documentation. The client route remains `/task`; implementation names use forms such as `TaskStore` and `TaskRepository`.
+- The Traditional Chinese product language may continue to use `森林` and `任務`, and the underlying concepts remain a personal forest and active walking tasks.
+- Trusted-command and persisted-data contracts use `completeTask`, `taskId`, `taskCompletions`, and `tasks/{taskId}`. Do not introduce new identifiers containing the deprecated English term.
 
 ## Team
 
@@ -153,7 +162,7 @@ The company group already offers a related feature called `健康吧` inside the
 ### Could
 
 - Android reads real steps through Health Connect or a device sensor.
-- Android uses real GPS movement as part of an active walking mission.
+- Android uses real GPS movement as part of an active walking task.
 - A bounded Three.js tree showcase passes its technical spike and is included as a visual enhancement.
 
 ### Fallback
@@ -168,7 +177,7 @@ The company group already offers a related feature called `健康吧` inside the
 - Web Google Sign-In and progressive onboarding.
 - Dashboard, multiple trees, and the three-resource inventory.
 - Web-only Demo step simulation.
-- Six curated planting points and planting/water/nutrient-delivery missions.
+- Six curated planting points and planting/water/nutrient-delivery tasks.
 - Deterministic route recommendation, map, and safety warning.
 - Photo check-in.
 - Resource allocation, persistent tree growth, milestone harvest, wallet, mock redemption, and ESG donation.
@@ -188,13 +197,13 @@ The company group already offers a related feature called `健康吧` inside the
 - Health Connect real background steps.
 - Android real GPS arrival.
 - Three.js tree showcase, particles, and the seeded bird-nest effect.
-- Additional missions, tree species, catalog items, or visual polish.
+- Additional tasks, tree species, catalog items, or visual polish.
 
 ### Explicitly out of scope
 
 - Real `小樹點`, real merchants, payment, and production reward liability.
 - Real friend invitation, search, relationship, or resource transfer.
-- Arbitrary-location mission generation.
+- Arbitrary-location task generation.
 - Weather API, Firebase Cloud Messaging, and a content-management UI.
 - Production anti-cheat and comprehensive health-data handling.
 - iOS, Safari-specific acceptance, AR, 3D maps, and AI photo validation.
@@ -220,13 +229,13 @@ The company group already offers a related feature called `健康吧` inside the
 - Keep authoritative tree growth, step-delta calculation, route-service calls, and mock reward claims behind trusted functions rather than letting clients write balances or secrets directly.
 - Use five Firebase HTTPS callable functions as the trusted command layer:
   - `syncDailySteps`: deduplicate monotonic daily totals and grant the correct `光能` delta once.
-  - `completeMission`: validate mission state, checkpoint/photo evidence, GPS or Demo Mode, and grant water, fertilizer, seed, or item results once.
+  - `completeTask`: validate task state, checkpoint/photo evidence, GPS or Demo Mode, and grant water, fertilizer, seed, or item results once.
   - `nurtureTree`: atomically spend selected resources, update one chosen tree's growth, enforce fertilizer/daily-harvest rules, and issue an eligible milestone harvest once.
   - `redeemReward`: atomically validate balance, append an immutable point-ledger entry, and create one redemption.
   - `recommendRoute`: accept only limited preference inputs, call Routes/Places securely, and fall back to rules when Gemini is unavailable.
 - Require a unique request ID for every value-changing command and enforce idempotency inside a Firestore transaction.
 - Treat the immutable point ledger as the source of truth; keep the displayed balance as a transactionally updated aggregate.
-- Deny client writes to point balances, ledgers, authoritative step totals, tree progress, mission completion, and redemptions through Firestore Security Rules.
+- Deny client writes to point balances, ledgers, authoritative step totals, tree progress, task completion, and redemptions through Firestore Security Rules.
 - Allow direct client uploads only to the authenticated user's check-in path, limited to new image files and a small maximum size through Storage Rules.
 - Store server-side Maps/Gemini credentials in Secret Manager. Use separate restricted client keys only for map rendering.
 - Use Firebase App Check for callable functions, but spike Android sideload compatibility early and allow a controlled non-repository debug token only for the internal Demo if needed.
@@ -234,10 +243,10 @@ The company group already offers a related feature called `健康吧` inside the
 - Treat Android Health Connect as a short technical spike before committing real passive steps to the demo. It is not available on Web, and device or work-profile compatibility can block it.
 - Keep the web walking simulator explicit, with simulated data labelled separately from device data.
 - Do not claim production-grade anti-cheat, health-data accuracy, or cross-device step reconciliation.
-- For active missions, prefer rules-based smart recommendations, Google Routes API walking routes, and a curated pool of public mission places.
-- Do not let a language model invent coordinates or unverified routes. If Gemini is included, constrain it to interpret preferences, rank server-validated candidates, or generate mission flavor text.
+- For active tasks, prefer rules-based smart recommendations, Google Routes API walking routes, and a curated pool of public task places.
+- Do not let a language model invent coordinates or unverified routes. If Gemini is included, constrain it to interpret preferences, rank server-validated candidates, or generate task flavor text.
 - Do not describe a route as safe. Google walking routes cannot verify lighting, crime, construction, opening hours, or accessibility, and the UI must display an appropriate warning.
-- Prefer one pickup-to-delivery objective per mission. Route Optimization and multi-shipment sequencing are not justified unless later made an explicit requirement.
+- Prefer one pickup-to-delivery objective per task. Route Optimization and multi-shipment sequencing are not justified unless later made an explicit requirement.
 - Use two curated demo areas: the presentation venue around Google's Banqiao office and the development area around Xihu MRT Station in Neihu. Dynamic Places search and arbitrary-location support are stretch work.
 - Support a manual or simulated-arrival fallback for GPS-dependent checkpoints, especially for the indoor presentation venue.
 
@@ -245,8 +254,8 @@ The company group already offers a related feature called `健康吧` inside the
 
 - Product owner / primary .NET full-stack engineer: architecture, Angular Signals and Ionic conventions, primary UI, integration, and PR approval.
 - Java supporting engineer 1: Firebase Authentication, Firestore model, Security Rules, and rule tests.
-- Java supporting engineer 2: step, mission, and reward TypeScript Cloud Functions.
-- Java supporting engineer 3: Routes, map integration, curated mission data, and `recommendRoute`.
+- Java supporting engineer 2: step, task, and reward TypeScript Cloud Functions.
+- Java supporting engineer 3: Routes, map integration, curated task data, and `recommendRoute`.
 - Operations: Firebase project, IAM, secrets, budget, quotas, deployment, and App Distribution.
 - UI/UX advisor: fixed weekly design review.
 - Work should land through short-lived branches and small pull requests so supporting contributions can be reviewed without large rewrites.
@@ -302,13 +311,13 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 - Three tree species.
 - Four growth stages: seed, seedling, young tree, and mature tree.
 - Two curated geographic areas.
-- Three active missions per area.
+- Three active tasks per area.
 - Three mock catalog rewards.
 - One ESG tree-donation option.
 - Mock catalog prices are a 30-`小樹點` beverage discount, a 50-`小樹點` green-transport discount, and a 50-`小樹點` ESG tree donation. All are labelled as Demo data rather than real merchant offers.
 - Eight seeded leaderboard profiles.
 - One complete example memory tree with a photo.
-- No content-management UI is included. Tree types, curated missions, mock catalog items, and leaderboard profiles are versioned seed data.
+- No content-management UI is included. Tree types, curated tasks, mock catalog items, and leaderboard profiles are versioned seed data.
 
 ## Demo privacy baseline
 
@@ -324,12 +333,12 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 
 1. Google Sign-In.
 2. Home dashboard with today's steps, current tree, and quick start.
-3. Mission planner with time, mood, direction, and optional Gemini input.
+3. Task planner with time, mood, direction, and optional Gemini input.
 4. Route preview with map, time, distance, and safety warning.
-5. Active-walk progress with mission waypoint and stop controls.
+5. Active-walk task progress with task waypoint and stop controls.
 6. Photo check-in.
-7. Mission result with tree growth and `小樹點` earned.
-8. Personal forest map.
+7. Task result with tree growth and `小樹點` earned.
+8. Personal collection map representing the user's private forest.
 9. Memory-tree detail.
 10. `小樹點` wallet, mock catalog, and ESG donation.
 11. Leaderboard, settings, privacy, and Demo Mode controls. These may be combined into tabs or overlays rather than eleven separate routed pages.
@@ -338,8 +347,8 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 
 - Three.js is a Could item rather than a Demo requirement. If capacity permits, use it only as a controlled, reusable 3D tree showcase, not as a 3D game world.
 - Use direct `three` integration rather than an Angular-specific wrapper. Pin an exact version for the project.
-- Reuse one `TreeSceneComponent` on the home dashboard, mission-growth result, and memory-tree detail.
-- Keep Google Maps, route preview, forest-map markers, lists, navigation, and all required workflows independent of Three.js.
+- Reuse one `TreeSceneComponent` on the home dashboard, task-growth result, and memory-tree detail.
+- Keep Google Maps, route preview, collection-map markers, lists, navigation, and all required workflows independent of Three.js.
 - Generate three stylized low-poly tree species and four growth stages parametrically rather than commissioning twelve separate detailed models.
 - The provisional art direction is warm, stylized low-poly geometry led by Cathay green with restrained seasonal color variation. The UI/UX advisor will review this direction before optional implementation.
 - Use a short `THREE.Points` particle burst with approximately 128–256 leaves or light points for growth and reward celebrations. Do not add a separate particle engine.
@@ -361,19 +370,19 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 - An opt-in Android local scheduled notification is Should.
 - Firebase Cloud Messaging and a server-managed push campaign are out of scope.
 - The user chooses an after-work reminder time, defaulting to 17:30.
-- A reminder is only issued when the daily step goal is incomplete. It states the remaining steps and a suggested mission duration.
+- A reminder is only issued when the daily step goal is incomplete. It states the remaining steps and a suggested task duration.
 - Completing the daily goal suppresses the reminder.
 - Web Demo uses an in-app reminder card and a notification-preview action.
 - Background geofence notifications are out of scope.
 
 ## Onboarding and navigation
 
-- Bottom navigation has Home, Missions, Forest, and `小樹點`.
+- Bottom navigation client features are Home, Task, Collection, and `小樹點`; the Traditional Chinese labels remain appropriate product copy such as `首頁`, `任務`, `森林`, and `小樹點`.
 - Leaderboard opens from Home. Profile, reminder settings, privacy, and Demo Mode open from the user avatar.
 - First sign-in asks for a daily step target and optional device-local home/work anchors.
-- A new user receives one starter seed and a guided first planting mission.
+- A new user receives one starter seed and a guided first planting task.
 - Explain `光能`, `水滴`, and `肥料` only when each is first earned rather than in one up-front tutorial.
-- Empty forest state points to the first planting mission. Empty resource state points to the nearest eligible mission.
+- Empty Collection state points to the first planting task. Empty resource state points to the nearest eligible task.
 
 ## Weather scope
 
@@ -395,7 +404,7 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 
 - Sprint 0, 2026-09-03 through 2026-09-09: discovery, UX, Firebase setup, and Auth/Health/Three technical spikes.
 - Sprint 1, 2026-09-10 through 2026-09-23: sign-in, dashboard, steps, tree core, and Firebase data layer.
-- Sprint 2, 2026-09-24 through 2026-10-07: routing, map, active mission, and photo check-in.
+- Sprint 2, 2026-09-24 through 2026-10-07: routing, map, active task, and photo check-in.
 - Sprint 3, 2026-10-08 through 2026-10-21: personal forest, memories, reward wallet/catalog, and Android integration.
 - Sprint 4, 2026-10-22 through 2026-11-05: optional Gemini/leaderboard/Three work only after Must scope, plus fallbacks, testing, recording, and fixes.
 - All Must features are due by 2026-10-21.
@@ -414,11 +423,11 @@ The optimized Must backlog is 63 cross-functional person-days: approximately 51.
 
 This is a scheduling reconciliation, not a product-scope change. It remains pending product-owner confirmation because it changes the previously confirmed interpretation of the 2026-10-21 gate.
 
-To keep the core path date-safe, Must routing ranks six versioned, manually reviewed route templates rather than generating arbitrary live routes. The three mission types share one parameterized completion pipeline. A future live Routes API call must be introduced as earned scope and retain the preset fallback.
+To keep the core path date-safe, Must routing ranks six versioned, manually reviewed route templates rather than generating arbitrary live routes. The three task types share one parameterized completion pipeline. A future live Routes API call must be introduced as earned scope and retain the preset fallback.
 
 ## Five-minute presentation path
 
-1. Sign in to `Cathay Go｜大樹同行` with Google.
+1. Sign in to `Cathay Walk | 國泰健康走` with Google.
 2. Show several trees, today's steps, and the `光能`/`水滴`/`肥料` inventory.
 3. Request a 15-minute after-work detour and receive the deterministic route recommendation.
 4. Briefly show Gemini translating free text into bounded preferences, with the same deterministic fallback route available.
@@ -478,14 +487,14 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-09-03 | Develop through 2026-11-05 and present on 2026-11-09 at Google's Banqiao office. | Confirmed |
 | 2026-09-03 | Treat the target Azure Boards hierarchy as Epic → Feature → User Story → Task. | Confirmed; underlying process is likely Agile and still requires verification |
 | 2026-09-03 | Position CAT WALK as a standalone public concept rather than an employee-only or existing-policyholder-only feature. | Confirmed |
-| 2026-09-03 | Differentiate from `健康吧` through active walking missions and game-like objectives while retaining passive Android step totals. | Confirmed |
+| 2026-09-03 | Differentiate from `健康吧` through active walking tasks and game-like objectives while retaining passive Android step totals. | Confirmed |
 | 2026-09-03 | Use mock `小樹點` to demonstrate reward value without a production loyalty integration. | Superseded by the confirmed 5,000-growth harvest and catalog rules |
 | 2026-09-03 | Use Traditional Chinese only for the demo. | Confirmed |
 | 2026-09-03 | Estimate Epic/Feature scope in person-days and User Story/Task execution in hours. | Confirmed |
 | 2026-09-03 | Provide a seeded local Demo Mode alongside the primary online GCP path. | Confirmed |
 | 2026-09-03 | Adopt the Must/Should/Could platform priority described in this document. | Confirmed |
 | 2026-09-03 | Store each persistent tree in a location-associated personal forest so it can become a memory tied to past walks. | Confirmed |
-| 2026-09-03 | Count unique daily steps once as an unallocated growth resource; use active check-ins and missions to grant distinct water, fertilizer, or item resources. | Superseded by the confirmed `光能` / `水滴` / `肥料` formulas; `光能` remains a working name |
+| 2026-09-03 | Count unique daily steps once as an unallocated growth resource; use active check-ins and tasks to grant distinct water, fertilizer, or item resources. | Superseded by the confirmed `光能` / `水滴` / `肥料` formulas; `光能` remains a working name |
 | 2026-09-03 | Demonstrate mock `小樹點` through a balance, small reward catalog, and ESG donation option. | Confirmed |
 | 2026-09-03 | Use waypoint photos for pickup, delivery, or arrival without AI image validation. | Confirmed |
 | 2026-09-03 | Keep individual progression as core and treat a seeded weekly leaderboard as optional; defer real friend interactions. | Confirmed |
@@ -495,20 +504,20 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-09-03 | Use the personal Samsung Galaxy S22+ as the fallback Android test device and plan for APK distribution without a USB connection. | Confirmed in principle; company policy and distribution channel remain open |
 | 2026-09-03 | Keep location-associated trees private and store a Place ID, landmark name, and obfuscated coordinate rather than an exposed exact point. | Confirmed |
 | 2026-09-03 | Allow several persistent trees to grow through repeat milestones rather than maturing once and disappearing or becoming inactive. | Confirmed; this supersedes the earlier single-tree 5–7 day lifecycle |
-| 2026-09-03 | Support one-way and return-to-origin active missions, constrained around the user's home/work corridor, with one pickup-to-delivery objective per mission. | Confirmed; exact anchors remain device-local and transient in route calls |
+| 2026-09-03 | Support one-way and return-to-origin active tasks, constrained around the user's home/work corridor, with one pickup-to-delivery objective per task. | Confirmed; exact anchors remain device-local and transient in route calls |
 | 2026-09-03 | Make rules-based smart route recommendation mandatory and Gemini enhancement optional but desirable for the Google-office presentation. | Confirmed |
-| 2026-09-03 | Curate three missions around each of Xihu MRT Station and Google's Banqiao office rather than supporting arbitrary locations in the Demo. | Confirmed |
+| 2026-09-03 | Curate three tasks around each of Xihu MRT Station and Google's Banqiao office rather than supporting arbitrary locations in the Demo. | Confirmed |
 | 2026-09-03 | Use GPS arrival in normal mode with simulated arrival always available in Demo Mode. | Confirmed |
 | 2026-09-03 | Avoid Java and .NET application backends; use Firebase-managed services plus a minimal five-function TypeScript trusted command layer. | Confirmed; expanded from four after resource allocation became a separate domain command |
 | 2026-09-03 | Use the documented Demo content and privacy baselines. | Confirmed |
 | 2026-09-03 | Design the main presentation as a five-minute happy path, plus two-minute and prerecorded fallbacks. | Confirmed |
 | 2026-09-03 | Keep exact home/work anchors device-local and transmit them only transiently for route calculation. | Confirmed |
-| 2026-09-03 | Show memories and a seasonal collectible on tree revisits without issuing repeat `小樹點`; define a separate same-area replant loop. | Confirmed through private memory groves, repeat planting, and once-per-day mission rewards |
+| 2026-09-03 | Show memories and a seasonal collectible on tree revisits without issuing repeat `小樹點`; define a separate same-area replant loop. | Confirmed through private memory groves, repeat planting, and once-per-day task rewards |
 | 2026-09-03 | Use structured route preferences as Must and optional Gemini free-text interpretation with deterministic fallback as Should. | Confirmed |
 | 2026-09-03 | Use Firebase Web Google Sign-In and spike a community Android Firebase plugin before falling back to an official Credential Manager bridge. | Confirmed |
 | 2026-09-03 | Use Firebase App Distribution for signed APK delivery if company policy permits personal-device testing. | Pending company confirmation |
 | 2026-09-03 | Use the documented TypeScript/Firebase ownership split and primary UI surfaces. | Confirmed |
-| 2026-09-03 | Constrain mission detours by extra walking time and bounded deviation from the user's current commute direction. | Confirmed |
+| 2026-09-03 | Constrain task detours by extra walking time and bounded deviation from the user's current commute direction. | Confirmed |
 | 2026-09-03 | Treat Three.js as optional after a two-person-day spike; the Demo remains complete with its 2D fallback. | Confirmed |
 | 2026-09-03 | Calibrate rewards against `健康吧`: steps earn non-cash activity points, 5,000 activity points convert to 50 `小樹點`, and `小樹點` retain a 1:1 NTD reference. | Confirmed; Demo resource, milestone, and catalog amounts are now specified |
 | 2026-09-03 | Use versioned seed files rather than building a content-management interface. | Confirmed |
@@ -520,13 +529,13 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-09-03 | Use `光能` as the working step resource, plus `水滴`, `肥料`, and optional special items with the documented acquisition and growth effects. | Confirmed; the team may later rename `光能` without changing mechanics |
 | 2026-09-03 | Include friend contributions as non-monetary collaborative growth, represented only by seeded data in the Demo. | Confirmed |
 | 2026-09-03 | Use a warm Cathay-green low-poly art direction if the optional Three.js spike passes. | Provisional pending UI/UX review |
-| 2026-09-03 | Treat `CAT-WALK` as the internal code name and use `Cathay Go｜大樹同行` as the working Demo name. | Confirmed for Demo; final adopted name belongs to internal brand/legal owners |
+| 2026-09-03 | Treat `CAT-WALK` as the internal code name and use `Cathay Go｜大樹同行` as the working Demo name. | Superseded by the `Cathay Walk | 國泰健康走` Demo naming decision on 2026-09-08 |
 | 2026-09-03 | Apply the documented definition of done to every Must user story. | Confirmed |
 | 2026-09-03 | Harvest 50 mock `小樹點` at every cumulative 5,000 tree-growth milestone without resetting the persistent tree, limited to one harvest per account per day in the Demo. | Confirmed |
-| 2026-09-03 | Require a seed plus a planting mission and public-point photo check-in to create a tree; give new users one starter seed. | Confirmed |
+| 2026-09-03 | Require a seed plus a planting task and public-point photo check-in to create a tree; give new users one starter seed. | Confirmed |
 | 2026-09-03 | Allow unlimited historical trees, group them by memory grove, and pin at most three followed trees on the dashboard. | Confirmed |
 | 2026-09-03 | Limit special-item scope to one optional seeded `鳥巢`/resident-bird effect; omit real pest and tree-death systems. | Confirmed |
-| 2026-09-03 | Use planting, water, and nutrient-delivery as the three mission types, with the documented photo and daily-award rules. | Confirmed |
+| 2026-09-03 | Use planting, water, and nutrient-delivery as the three task types, with the documented photo and daily-award rules. | Confirmed |
 | 2026-09-03 | Require approximate 150-meter proximity for resource investment and harvest; show a non-reversible transaction preview and allow Demo Mode proximity. | Confirmed |
 | 2026-09-03 | Restrict Demo planting to six curated public points and keep home/work as device-local route anchors only. | Confirmed |
 | 2026-09-03 | Use four bottom tabs and progressive, just-in-time onboarding for the three-resource system. | Confirmed |
@@ -546,15 +555,23 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-09-03 | Use six versioned, manually reviewed route templates plus deterministic ranking as the date-safe Must implementation; treat arbitrary live route generation as earned scope. | Planning baseline |
 | 2026-09-03 | Interpret 2026-10-21 as core-path feature complete and 2026-11-05 as all-Must complete because the confirmed all-Must-by-10/21 goal exceeds conservative capacity. | Recommended; awaiting product-owner confirmation |
 | 2026-09-03 | Use the full Azure Boards import CSV after a target-project sample export confirmed `Epic`, `Feature`, `User Story`, `Acceptance Criteria`, `Priority`, and `Story Points`. | Confirmed |
+| 2026-09-07 | Start UI implementation with a responsive, mock-data Dashboard prototype covering daily steps, resources, a recommended task, followed trees, Demo controls, and four-tab navigation; defer final visual polish and data integration for later UI/UX and feature work. | Confirmed |
+| 2026-09-08 | Use NgRx Signal Store 22 for client state management. Temporarily configure client npm installs with `legacy-peer-deps=true` because AngularFire 20.0.1 still declares Angular 20-only peers; NgRx 22 itself supports Angular 22. | Confirmed |
+| 2026-09-08 | Upgrade AngularFire from 20.0.1 to the explicitly pinned 21.0.0-rc.0 prerelease, accepting Firebase JS SDK 12 as a transitive dependency. Retain `legacy-peer-deps=true` because this AngularFire release declares Angular 21 rather than Angular 22 peers, and raise the production initial-bundle error budget from 1 MB to 1.1 MB to accommodate the measured Firebase 12 bundle increase. | Confirmed |
+| 2026-09-08 | Standardize client implementation names on `Collection` instead of `Forest` and `Task` for the active-walk feature, matching the existing `/collection` and `/task` routes. | Superseded by the project-wide task naming decision on 2026-09-08 |
+| 2026-09-08 | Standardize `Task`／`task` project-wide across client code, Cloud Functions, Firestore paths, seed data, tests, and documentation. Use contracts such as `completeTask`, `taskId`, `taskCompletions`, and `tasks/{taskId}`; do not introduce new identifiers containing the deprecated English term. | Confirmed |
+| 2026-09-08 | Use `Cathay Walk | 國泰健康走` as the working Demo public name. Retain the existing collision-risk warning and require internal brand/legal review before any public adoption. | Confirmed for Demo |
+| 2026-09-08 | Use Angular 22 `@Service()` as the project convention for new services and repositories; retain `@Injectable()` where explicit injectable provider metadata is needed. | Confirmed |
+| 2026-09-09 | Adopt Capacitor 8.5.1 for the Ionic 9 / Angular 22 client and add Android as the first native platform. Pin core, CLI, and Android to the same version; use `com.cathay.catwalk` and `dist/client/browser`. | Confirmed |
 
 ## Open decisions
 
 ### External follow-ups
 
 1. Firebase App Distribution and personal-device installation remain pending company approval; browser delivery is the Must fallback.
-2. `光能` and `Cathay Go｜大樹同行` are working names subject to later internal naming review.
+2. `光能` and `Cathay Walk | 國泰健康走` are working names subject to later internal naming review.
 3. Three.js remains optional and only proceeds after its spike gate.
 4. Confirm the capacity reconciliation: core-path feature complete on 2026-10-21, all Must complete on 2026-11-05.
-5. Select and field-check the exact six public POIs before freezing mission seed data.
+5. Select and field-check the exact six public POIs before freezing task seed data.
 
 The product design frontier is closed. Any later scope change must be recorded as a new decision rather than silently replacing this baseline.

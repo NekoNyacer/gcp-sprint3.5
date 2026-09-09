@@ -1,0 +1,41 @@
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>卡片標題</ion-card-title>
+      <ion-card-subtitle>卡片副標題</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum officiis explicabo
+      molestias rem earum ullam exercitationem doloribus delectus quis vitae.
+    </ion-card-content>
+  </ion-card>
+  <ion-button color="primary">主色按鈕</ion-button>
+  <ion-button color="secondary">次色按鈕</ion-button>
+  <ion-button color="tertiary">輔色按鈕</ion-button>
+  <ion-button color="success">成功按鈕</ion-button>
+  <ion-button color="warning">警告按鈕</ion-button>
+  <ion-button color="danger">危險按鈕</ion-button>
+  <ion-button color="light">亮色按鈕</ion-button>
+  <ion-button color="medium">中性按鈕</ion-button>
+  <ion-button color="dark">暗色按鈕</ion-button>
+  <section>
+    <ion-input
+      [(ngModel)]="inputText"
+      fill="outline"
+      label="傳送內容"
+      labelPlacement="floating"
+      placeholder="請輸入"
+    ></ion-input>
+    <div>
+      <ion-button (click)="submit()">發送到firestore</ion-button>
+    </div>
+  </section>
+  <section>
+    <div>接收firestore的測試訊息</div>
+    <ul>
+      @for (msg of fsMsg.value(); track $index) {
+        <li>{{ msg['text'] | json }}</li>
+      }
+    </ul>
+  </section>
+</ion-content>

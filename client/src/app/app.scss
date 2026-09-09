@@ -1,0 +1,37 @@
+ion-app {
+  background: url("/images/backgrounds/title-bg-SQWLLEPR.svg") center / cover no-repeat
+    fixed;
+  animation: background-drift 28s ease-in-out infinite alternate;
+  will-change: background-position;
+}
+
+@keyframes background-drift {
+  0% {
+    background-position: 50% 50%;
+  }
+  18% {
+    background-position: 42% 58%;
+  }
+  37% {
+    background-position: 61% 45%;
+  }
+  59% {
+    background-position: 47% 38%;
+  }
+  78% {
+    background-position: 56% 63%;
+  }
+  100% {
+    background-position: 38% 48%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ion-app {
+    animation: none;
+  }
+}
+
+:host ::ng-deep ion-content {
+  --background: transparent;
+}

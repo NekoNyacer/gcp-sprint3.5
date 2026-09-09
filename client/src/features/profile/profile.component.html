@@ -1,0 +1,12 @@
+<ion-content class="ion-padding">
+  @if (profileResource.isLoading()) {
+    <p>載入使用者資料中……</p>
+  } @else if (profileResource.error(); as error) {
+    <p>讀取失敗：{{ error }}</p>
+  } @else if (profileResource.value(); as profile) {
+    <p>姓名：{{ profile.displayName }}</p>
+    <p>每日目標：{{ profile.dailyGoal }} 步</p>
+  } @else {
+    <p>目前尚未建立使用者資料</p>
+  }
+</ion-content>
