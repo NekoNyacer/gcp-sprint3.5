@@ -1,4 +1,4 @@
-# Cathay Go｜大樹同行（CAT-WALK）
+# CAT WALK｜國泰健走去（CAT-WALK）
 
 ## 專案簡介
 
