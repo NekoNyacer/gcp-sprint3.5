@@ -1,12 +1,149 @@
-<ion-content class="ion-padding">
-  @if (profileResource.isLoading()) {
-    <p>載入使用者資料中……</p>
-  } @else if (profileResource.error(); as error) {
-    <p>讀取失敗：{{ error }}</p>
-  } @else if (profileResource.value(); as profile) {
-    <p>姓名：{{ profile.displayName }}</p>
-    <p>每日目標：{{ profile.dailyGoal }} 步</p>
-  } @else {
-    <p>目前尚未建立使用者資料</p>
-  }
+<ion-content [fullscreen]="true">
+  <div class="profile-page">
+    <header class="page-heading">
+      <div>
+        <p class="eyebrow">MY JOURNEY</p>
+        <h1>個人資料</h1>
+        <p>每一步，都在寫下你的綠色旅程。</p>
+      </div>
+
+      @if (sessionStore.isDemoMode()) {
+        <span class="demo-badge">DEMO</span>
+      }
+    </header>
+
+    @if (profileResource.isLoading()) {
+      <output class="sync-status">
+        <ion-spinner name="crescent" />
+        <span>正在同步個人資料</span>
+      </output>
+    } @else if (profileResource.error()) {
+      <output class="sync-status sync-status--warning">
+        <span>暫時無法同步雲端資料，以下顯示本機資訊。</span>
+      </output>
+    }
+
+    <section class="identity-card" aria-labelledby="profile-name">
+      <div class="identity-card__glow" aria-hidden="true"></div>
+      <div class="avatar">
+        @if (portraitUrl(); as portrait) {
+          <img
+            [src]="portrait"
+            [alt]="displayName() + ' 的頭像'"
+            referrerpolicy="no-referrer"
+            (error)="onPortraitError()"
+          />
+        } @else {
+          <span aria-hidden="true">{{ userInitial() }}</span>
+        }
+      </div>
+
+      <div class="identity-card__copy">
+        <p class="level-label">Lv. {{ levelPreview().level }} · {{ levelPreview().title }}</p>
+        <h2 id="profile-name">{{ displayName() }}</h2>
+        <button
+          class="traveler-id"
+          type="button"
+          aria-label="複製旅人編號"
+          (click)="copyTravelerId()"
+        >
+          <span>旅人編號 {{ travelerId() }}</span>
+          <ion-icon name="copy-outline" aria-hidden="true" />
+        </button>
+      </div>
+
+      <div class="identity-card__mark" aria-hidden="true">
+        <ion-icon name="leaf-outline" />
+      </div>
+    </section>
+
+    <section class="level-card" aria-labelledby="level-heading">
+      <div class="section-heading">
+        <div class="section-icon section-icon--gold">
+          <ion-icon name="sparkles-outline" />
+        </div>
+        <div>
+          <p>LEVEL PROGRESS</p>
+          <h2 id="level-heading">下一級進度</h2>
+        </div>
+        <strong>{{ levelProgress() * 100 | number: '1.0-0' }}%</strong>
+      </div>
+
+      <ion-progress-bar [value]="levelProgress()" aria-label="目前等級進度" />
+
+      <div class="progress-copy">
+        <span>{{ levelPreview().currentXp | number }} / {{ levelPreview().nextLevelXp | number }} XP</span>
+        <strong>再獲得 {{ remainingXp() | number }} XP 即可升級</strong>
+      </div>
+
+      <div class="level-tip">
+        <ion-icon name="ribbon-outline" aria-hidden="true" />
+        <p>完成健走任務、達成每日步數目標，以及培育樹木，都能累積旅人經驗值。</p>
+      </div>
+    </section>
+
+    <section class="stats-section" aria-labelledby="stats-heading">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">WALKING STATS</p>
+          <h2 id="stats-heading">健走統計</h2>
+        </div>
+        <div class="goal-chip">
+          <ion-icon name="checkmark-circle" aria-hidden="true" />
+          每日目標 {{ dailyGoal() | number }} 步
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card stat-card--today">
+          <div class="stat-card__icon">
+            <ion-icon name="footsteps-outline" />
+          </div>
+          <p>今日步數</p>
+          <strong>{{ walkingStats().today | number }}</strong>
+          <span>步</span>
+          <div class="goal-track" aria-hidden="true">
+            <div class="goal-track__fill" [style.width.%]="todayGoalProgress() * 100"></div>
+          </div>
+          <small>
+            @if (walkingStats().today >= dailyGoal()) {
+              今日目標已達成！
+            } @else {
+              距離目標還差 {{ dailyGoal() - walkingStats().today | number }} 步
+            }
+          </small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__icon stat-card__icon--blue">
+            <ion-icon name="trending-up-outline" />
+          </div>
+          <p>本週累積</p>
+          <strong>{{ walkingStats().week | number }}</strong>
+          <span>步</span>
+          <small>持續累積本週足跡</small>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__icon stat-card__icon--purple">
+            <ion-icon name="time-outline" />
+          </div>
+          <p>歷史總步數</p>
+          <strong>{{ walkingStats().allTime | number }}</strong>
+          <span>步</span>
+          <small>你的每一步都算數</small>
+        </article>
+      </div>
+    </section>
+
+    <p class="data-note">等級與健走統計將依活動紀錄更新；目前 XP 規則仍在規劃中。</p>
+  </div>
+
+  <ion-toast
+    [isOpen]="copyMessage() !== ''"
+    [message]="copyMessage()"
+    [duration]="1800"
+    position="bottom"
+    (didDismiss)="copyMessage.set('')"
+  />
 </ion-content>
