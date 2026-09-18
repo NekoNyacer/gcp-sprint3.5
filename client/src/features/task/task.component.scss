@@ -1,0 +1,17 @@
+.task-page { --background: linear-gradient(180deg, #eef8f1 0, #f7faf8 38%, #fff 100%); }
+.task-controls { background:#eef8f1; box-shadow:0 8px 18px rgba(25,83,52,.08); }
+.task-controls-inner { padding:max(.25rem, env(safe-area-inset-top)) 1rem .75rem; }
+.page-heading { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; max-width:920px; margin:0 auto 1rem; }
+h1 { margin:.1rem 0; color:#173f2b; font-size:clamp(1.8rem, 4vw, 2.5rem); }
+.eyebrow { margin:0; color:var(--ion-color-primary); font-weight:700; letter-spacing:.12em; }
+.area-picker { display:flex; align-items:center; gap:.75rem; max-width:920px; margin:0 auto 1rem; font-weight:700; color:#315b43; }
+select { flex:1; max-width:260px; padding:.7rem .9rem; border:1px solid #b9d8c4; border-radius:12px; background:#fff; color:#173f2b; }
+ion-segment { max-width:920px; margin:0 auto; background:#e4f2e8; }
+.task-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:.85rem; max-width:920px; margin:auto; }
+ion-card { --background:#eaf7ee; margin:0; border:1px solid #3b8a57; border-radius:18px; box-shadow:0 8px 24px rgba(25,83,52,.12); }
+ion-card.completed { --background:#f4f7f5; border-color:#d5e0d8; box-shadow:0 4px 14px rgba(25,83,52,.05); }
+ion-card.expired { --background:#f7f7f7; border-color:#dedede; box-shadow:0 4px 14px rgba(0,0,0,.04); }
+.card-meta { display:flex; justify-content:space-between; align-items:center; }
+.message,.empty { max-width:920px; margin:1rem auto; padding:1.25rem; text-align:center; border-radius:16px; background:#fff; }
+.error { color:var(--ion-color-danger); border:1px solid rgba(var(--ion-color-danger-rgb),.25); }
+@media (max-width:600px){ .page-heading{align-items:center}.page-heading p:not(.eyebrow){display:none} }

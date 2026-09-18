@@ -14,21 +14,21 @@ User Story,US03.2,F03,顯示步數三資源與三棵追蹤樹,Must,S1,hour,12,12
 User Story,US03.3,F03,下班提醒卡設定與預覽,Must,S1,hour,8,8,2,PO,預設 17:30 且達標抑制
 User Story,US03.4,F03,Demo 步數速度與隔離資料,Must,S1,hour,8,8,2,Java 2 + PO,isDemo true
 Epic,E02,,健走路線與任務,Must,S2-S3,pd,12,96,,Java 2 / Java 3 / PO,Feature rollup
-Feature,F04,E02,六個任務 seed 與規則式推薦,Must,S2,pd,3,24,,Java 3 + PO,模板路線日期安全版
-User Story,US04.1,F04,建立兩區六個版本化任務與路線 seed,Must,S2,hour,8,8,2,Java 3,確切 POI 需現勘
-User Story,US04.2,F04,建立額外時間任務類型與行程型態偏好,Must,S2,hour,6,6,2,PO,
-User Story,US04.3,F04,以 recommendRoute 排名模板且不保存敏感錨點,Must,S2,hour,10,10,3,Java 3,相同輸入相同結果
-Feature,F05,E02,地圖路線預覽與進行中任務,Must,S2,pd,4,32,,Java 3 + PO,含 0.5 UIUX pd
-User Story,US05.1,F05,顯示任務地圖路線與 grove markers,Must,S2,hour,8,8,2,PO,
-User Story,US05.2,F05,預覽單程返回起點距離與時間,Must,S2,hour,8,8,2,Java 3 + PO,
-User Story,US05.3,F05,執行 checkpoint 與任務進度,Must,S2,hour,8,8,2,PO,
-User Story,US05.4,F05,處理安全警語 GPS 拒絕與模擬到達,Must,S2,hour,8,8,2,PO,
-Feature,F06,E02,三種任務拍照與每日資源發放,Must,S2-S3,pd,5,40,,Java 2 + PO,含 0.5 UIUX pd
-User Story,US06.1,F06,建立拍照選檔 pending 與 retry 共用流程,Must,S2,hour,10,10,3,PO,
-User Story,US06.2,F06,完成種植任務並原子消耗種子,Must,S2,hour,10,10,3,Java 2 + PO,
-User Story,US06.3,F06,完成取水任務並發放水滴,Must,S3,hour,8,8,2,Java 2,
-User Story,US06.4,F06,完成 pickup delivery 並發放肥料,Must,S3,hour,10,10,3,Java 2 + PO,
-User Story,US06.5,F06,限制每日首次獎勵且允許重玩,Must,S3,hour,2,2,1,Java 2,沿用 idempotency pattern
+Feature,F04,E02,定點 Task seed、地區與週期清單,Must,S2,pd,3,24,,Java 3 + PO,ready-for-agent
+User Story,US04.1,F04,建立不可變每日每週活動 Task seed,Must,S2,hour,8,8,2,Java 3,暫定 POI 待現勘
+User Story,US04.2,F04,地區選擇與三類任務清單,Must,S2,hour,8,8,2,PO,含期限排序與歷史
+User Story,US04.3,F04,TaskStore 與 Demo Firebase repository 邊界,Must,S2,hour,8,8,2,Java 3,即時監聽與快取
+Feature,F05,E02,Task 詳情與地圖定位整合邊界,Must,S2,pd,4,32,,Java 3 + PO,地圖內部另行負責
+User Story,US05.1,F05,顯示 Task 詳情與導航整合區域,Must,S2,hour,8,8,2,PO,
+User Story,US05.2,F05,延後定位授權並顯示距離精確度,Must,S2,hour,8,8,2,Java 3 + PO,
+User Story,US05.3,F05,支援三種 Demo 定位狀態,Must,S2,hour,8,8,2,PO,
+User Story,US05.4,F05,處理到期離線與定位失敗,Must,S2,hour,8,8,2,PO,
+Feature,F06,E02,活動參加抵達驗證與資源發放,Must,S2-S3,pd,5,40,,Java 2 + PO,completeTask
+User Story,US06.1,F06,建立不可變活動參加紀錄與 Rules,Must,S2,hour,8,8,2,PO,
+User Story,US06.2,F06,以十公尺距離與精確度驗證完成,Must,S2,hour,10,10,3,Java 2 + PO,
+User Story,US06.3,F06,原子發放水滴或肥料並更新 ProgressStore,Must,S3,hour,8,8,2,Java 2,
+User Story,US06.4,F06,建立完成結果與三十天歷史,Must,S3,hour,10,10,3,Java 2 + PO,
+User Story,US06.5,F06,冪等重試與 Emulator 測試,Must,S3,hour,4,4,1,Java 2,idempotency
 Epic,E03,,大樹回憶與回饋,Mixed,S1-S4,pd,23,184,,PO / Java 1 / Java 2,含 Should 2 pd
 Feature,F07,E03,多樹種植與私人回憶林,Must,S1-S3,pd,6,48,,Java 1 + PO + UIUX,含 1 UIUX pd
 User Story,US07.1,F07,建立持續樹資料與五個成長階段,Must,S1,hour,12,12,3,Java 1 + PO,

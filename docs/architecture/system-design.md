@@ -66,13 +66,13 @@ flowchart LR
 主要規則：`Asia/Taipei` 日界線、來源單調增加、跨來源取 max、只對新增的完整 500-step block 發放。  
 主要輸出：有效步數、總光能、此次新增光能、下一門檻。
 
-### 4.2 `completeMission`
+### 4.2 `completeTask`
 
-用途：完成種植、取水或養分配送並依每日規則發資源。
+用途：完成每日、每週或已參加的活動定點 Task，並發放一次設定的水滴或肥料。
 
-主要輸入：`missionId`、checkpoint proof、photo object path、proximity proof／Demo simulation、`isDemo`、`idempotencyKey`。  
-主要規則：seed mission 版本存在；照片路徑屬於本人；每日首次獎勵；種植另檢查 seed 並建立 tree；pickup 本身不要求照片。  
-主要輸出：completion、獲得資源、treeId（種植時）、是否為重玩。
+主要輸入：`taskId`、latitude、longitude、accuracy、observedAt、Demo location state、`isDemo`、`idempotencyKey`。
+主要規則：Task 有效且未完成；活動已參加；距離與精確度皆不超過 10 公尺；以 server time 判定期限；原子寫入 completion、ledger 與 inventory；不保存原始座標。
+主要輸出：completion、獲得資源、更新後 inventory；相同 key 重送回傳既有結果。
 
 ### 4.3 `nurtureTree`
 
@@ -96,7 +96,7 @@ flowchart LR
 
 主要輸入：current location、暫時性的 next-destination anchor、area、extraMinutes、tripShape、missionType、結構化偏好或 Gemini 解析結果。  
 主要規則：不持久化 exact anchors；只回傳 seed 中存在的 mission／route；超出範圍回傳最接近選項或明確無結果；8 秒內未完成即 client 使用本機模板。  
-主要輸出：`missionId`、`routeTemplateId`、排序理由、距離、時間、polyline、checkpoint。
+主要輸出：`taskId`、`routeTemplateId`、排序理由、距離、時間、polyline、checkpoint。
 
 ## 5. 建議 Firestore 模型
 
@@ -106,14 +106,15 @@ flowchart LR
 | --- | --- | --- |
 | `users/{uid}` | 非敏感 profile、daily goal、Demo flags | 僅安全設定；價值欄位禁止 |
 | `users/{uid}/dailyActivity/{yyyy-mm-dd}` | 各來源 max、有效步數、取得光能 | 禁止 |
-| `users/{uid}/inventory/current` | 光能、水滴、肥料、種子 | 禁止 |
+| `users/{uid}/inventory/current` | 光能、水滴、肥料、種子（欄位 `seeds`） | 禁止 |
 | `users/{uid}/trees/{treeId}` | tree、grove、owner growth、stage、ready milestone | 禁止價值欄位 |
-| `users/{uid}/missionCompletions/{id}` | 每日完成與照片 reference | 禁止 |
+| `users/{uid}/taskEnrollments/{taskId}` | 不可變活動參加時間 | 僅本人建立；禁止更新／刪除 |
+| `users/{uid}/taskCompletions/{taskId}` | 完成、驗證摘要與獎勵 | 禁止 |
 | `users/{uid}/wallet/current` | mock balance、lastHarvestDate | 禁止 |
 | `users/{uid}/ledger/{entryId}` | immutable resource／point transactions | 禁止 |
 | `users/{uid}/memories/{memoryId}` | 私人照片、步數、任務回憶 | 經 command 建立 |
 | `users/{uid}/commands/{idempotencyKey}` | command 結果去重 | 禁止 |
-| `missions/{missionId}` | 公開版本化任務 seed | read-only |
+| `tasks/{taskId}` | 公開、不可變、版本化 Task seed | read-only |
 | `routeTemplates/{routeId}` | 公開已驗證 polyline/checkpoint | read-only |
 | `catalog/{itemId}` | mock catalog seed | read-only |
 | `demoScenarios/{scenarioId}` | 五／兩分鐘展示模板 | 限 Demo read |
@@ -123,6 +124,7 @@ flowchart LR
 ## 6. Ledger 與一致性
 
 - `inventory` 與 `wallet` 是快速 read model；`ledger` 是不可變的稽核來源。
+- Firebase Authentication 建立正常模式新帳號時，由後端事件以 transaction 將 `seeds` 增加 1，並建立固定 ID 的 starter-seed ledger；ledger 已存在時不再發放。既有帳號不補發，Demo Mode 由獨立 seed data 管理。
 - ledger entry 包含 `type`、`amount`、`resource`、`sourceId`、`localDate`、`isDemo`、`idempotencyKey`、server timestamp。
 - `nurtureTree`、`redeemReward` 以 Firestore transaction 同時檢查舊值、每日限制、ready 狀態與餘額。
 - 禁止負餘額；所有金額與成長採整數。
@@ -137,7 +139,7 @@ flowchart LR
 - client 不能直接增加 steps、resource、growth、ready milestone 或 mock point balance。
 - public seed 只讀；只有部署／admin identity 可寫。
 - Storage 只允許本人路徑、接受的圖片 MIME、限制大小；下載同樣驗證本人。
-- Demo data 不能寫入 normal path，normal command 不能引用 Demo mission result。
+- Demo data 不能寫入 normal path，normal command 不能引用 Demo Task result。
 - 刪除展示資料可移除 Auth user、Firestore 子集合與 Storage objects。
 
 ## 8. Route 與 Gemini 設計

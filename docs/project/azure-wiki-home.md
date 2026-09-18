@@ -157,7 +157,7 @@ CAT WALK 是一個面向一般大眾的下班健走 Demo。使用者透過走路
 | Command | 責任 |
 | --- | --- |
 | `syncDailySteps` | 合併每日步數並發放光能 |
-| `completeMission` | 完成任務、照片與每日資源獎勵 |
+| `completeTask` | 驗證限時定點 Task 並原子發放水滴或肥料 |
 | `nurtureTree` | 原子扣除資源並增加樹木成長 |
 | `redeemReward` | 里程碑收成、目錄兌換與 ESG 捐贈 |
 | `recommendRoute` | 從核可路線模板中進行推薦 |

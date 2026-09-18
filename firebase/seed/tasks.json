@@ -1,0 +1,265 @@
+{
+  "status": "provisional-demo-only",
+  "note": "POI coordinates must be field-checked before approval.",
+  "timezone": "Asia/Taipei",
+  "tasks": [
+    {
+      "taskIdPrefix": "banqiao-daily",
+      "areaId": "banqiao",
+      "cadence": "daily",
+      "title": "板橋每日補水任務",
+      "description": "前往板橋車站，為大樹帶回水滴。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "本週城市綠洲",
+      "description": "本週造訪板橋公共綠地，為大樹帶回水滴。",
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-event",
+      "areaId": "banqiao",
+      "cadence": "event",
+      "title": "板橋綠行活動",
+      "description": "參加活動並抵達板橋車站，為大樹帶回肥料。",
+      "durationDays": 30,
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "fertilizer", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-daily-2",
+      "areaId": "banqiao",
+      "cadence": "daily",
+      "title": "板橋公園每日補水",
+      "description": "走到新板萬坪都會公園，完成今天的補水任務。",
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "waterDrops", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-2",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "本週車站健走",
+      "description": "本週前往板橋車站站前廣場，為大樹帶回水滴。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-event-2",
+      "areaId": "banqiao",
+      "cadence": "event",
+      "title": "新板綠意挑戰",
+      "description": "參加活動並抵達新板萬坪都會公園，為大樹帶回肥料。",
+      "durationDays": 30,
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "fertilizer", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-daily-3",
+      "areaId": "banqiao",
+      "cadence": "daily",
+      "title": "站前廣場每日補水",
+      "description": "前往板橋車站站前廣場，完成今天的補水任務。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-daily-4",
+      "areaId": "banqiao",
+      "cadence": "daily",
+      "title": "都會公園每日散步",
+      "description": "走到新板萬坪都會公園，為大樹帶回今日水滴。",
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "waterDrops", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-daily-5",
+      "areaId": "banqiao",
+      "cadence": "daily",
+      "title": "板橋綠行每日補給",
+      "description": "前往板橋車站完成每日綠行補給。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 1 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-3",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "本週站前補水",
+      "description": "本週造訪板橋車站站前廣場，完成補水任務。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-4",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "本週公園巡禮",
+      "description": "本週前往新板萬坪都會公園，為大樹帶回水滴。",
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-5",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "板橋綠行週挑戰",
+      "description": "本週抵達板橋車站，完成綠行週挑戰。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-6",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "新板散步週目標",
+      "description": "本週走到新板萬坪都會公園，完成散步目標。",
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-7",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "車站廣場週任務",
+      "description": "本週造訪板橋車站站前廣場，取得培育大樹的水滴。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-8",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "都會公園週任務",
+      "description": "本週造訪新板萬坪都會公園，取得培育大樹的水滴。",
+      "destination": {
+        "id": "banqiao-park-demo",
+        "name": "新板萬坪都會公園（暫定）",
+        "address": "新北市板橋區文化路一段",
+        "latitude": 25.0124,
+        "longitude": 121.4615
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-weekly-9",
+      "areaId": "banqiao",
+      "cadence": "weekly",
+      "title": "板橋健康走週任務",
+      "description": "本週前往板橋車站，完成健康走週任務。",
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "waterDrops", "amount": 3 }
+    },
+    {
+      "taskIdPrefix": "banqiao-event-3",
+      "areaId": "banqiao",
+      "cadence": "event",
+      "title": "板橋秋日綠行",
+      "description": "參加活動並抵達板橋車站站前廣場，為大樹帶回肥料。",
+      "durationDays": 30,
+      "destination": {
+        "id": "banqiao-station-demo",
+        "name": "板橋車站站前廣場（暫定）",
+        "address": "新北市板橋區縣民大道二段7號",
+        "latitude": 25.0142,
+        "longitude": 121.4639
+      },
+      "reward": { "type": "fertilizer", "amount": 1 }
+    }
+  ]
+}

@@ -24,6 +24,7 @@ import {
   list,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
+import { TaskStore } from '../../../features/task/task-store';
 
 @Component({
   selector: 'app-shell',
@@ -44,6 +45,7 @@ import { SessionStore } from '../../stores/session-store';
 export class AppShellComponent {
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
+  readonly taskStore = inject(TaskStore);
   constructor() {
     addIcons({
       navigateCircle,
@@ -59,6 +61,10 @@ export class AppShellComponent {
 
     effect(() => {
       const status = this.sessionStore.authStatus();
+
+      if (status === '已登入' || this.sessionStore.isDemoMode()) {
+        this.taskStore.initialize();
+      }
 
       if (status === '已登出' && !this.sessionStore.isDemoMode()) {
         void this.router.navigateByUrl('/login');

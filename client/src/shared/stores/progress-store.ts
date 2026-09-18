@@ -25,10 +25,20 @@ const initialState: ProgressState = {
 
 export const ProgressStore = signalStore(
   { providedIn: 'root' },
-  withState({}),
+  withState(initialState),
   withProps(() => ({})),
   withComputed((store) => ({})),
-  withMethods((store) => ({})),
+  withMethods((store) => ({
+    applyTaskInventory(inventory: { waterDrops: number; fertilizer: number }): void {
+      patchState(store, {
+        inventory: {
+          ...store.inventory(),
+          waterDrops: inventory.waterDrops,
+          fertilizer: inventory.fertilizer,
+        },
+      });
+    },
+  })),
   withHooks((store) => ({})),
 );
 
