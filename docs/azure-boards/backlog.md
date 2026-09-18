@@ -27,9 +27,9 @@ Hierarchy：Epic → Feature → User Story
 | F02 | Google 登入、Onboarding 與隱私錨點 | Must | 4 | S1 | Java 1 + PO |
 | F03 | 每日步數、資源首頁與提醒卡 | Must | 5 | S1 | Java 2 + PO |
 | E02 | 健走、路線與任務 | Must | 12 | S2–S3 | Java 2／Java 3／PO |
-| F04 | 六個任務 seed 與規則式推薦 | Must | 3 | S2 | Java 3 + PO |
-| F05 | 地圖、路線預覽與進行中任務 | Must | 4 | S2 | Java 3 + PO |
-| F06 | 三種任務、拍照與每日資源發放 | Must | 5 | S2–S3 | Java 2 + PO |
+| F04 | 定點 Task seed、地區與週期清單 | Must | 3 | S2 | Java 3 + PO |
+| F05 | Task 詳情與地圖／定位整合邊界 | Must | 4 | S2 | Java 3 + PO |
+| F06 | 活動參加、抵達驗證與資源發放 | Must | 5 | S2–S3 | Java 2 + PO |
 | E03 | 大樹、回憶與回饋 | Mixed | 23 | S1–S4 | PO／Java 1／Java 2 |
 | F07 | 多樹、種植與私人回憶林 | Must | 6 | S1–S3 | Java 1 + PO + UIUX |
 | F08 | 養分配置、成長與收成完整性 | Must | 7 | S2–S3 | Java 2 + PO |
@@ -52,7 +52,7 @@ Hierarchy：Epic → Feature → User Story
 
 ## 3. 日期安全化說明
 
-F04 與 F05 不在 Must 中呼叫任意即時路線生成。六條路線在 seed 階段由人員檢查，runtime `recommendRoute` 只做受限排序；F06 以一套參數化 completion pipeline 支援三種任務。這讓 E02 從較高風險的約 18 pd 收斂到 12 pd，同時保留 Demo 要表達的智慧路線與 pickup-delivery 故事。
+F04 使用版本化、明確期間、單一公共目的地的每日／每週／活動 Task；F05 只定義地圖／定位整合邊界；F06 以 `completeTask` 驗證 10 公尺距離與精確度、期限、活動參加及冪等性後原子發放水滴或肥料。地圖導航內部實作由另一工作項負責。
 
 若團隊之後把 live Routes API 拉回 runtime，應新增 Should Story，不可直接擴張 F04/F05 的 Must 驗收。
 

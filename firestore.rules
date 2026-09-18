@@ -1,0 +1,123 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null
+        && request.auth.uid == uid;
+    }
+
+    function isValidUserProfile() {
+      let data = request.resource.data;
+
+      return data.keys().hasOnly([
+          'displayName',
+          'photoUrl',
+          'dailyGoal',
+          'onboardingStatus',
+          'isDemo',
+          'updatedAt',
+          'taskAreaId'
+        ])
+        && data.keys().hasAll([
+          'displayName',
+          'photoUrl',
+          'dailyGoal',
+          'onboardingStatus',
+          'isDemo',
+          'updatedAt'
+        ])
+        && data.displayName is string
+        && data.displayName.size() <= 80
+        && data.photoUrl is string
+        && data.photoUrl.size() <= 500
+        && data.dailyGoal is int
+        && data.dailyGoal >= 1000
+        && data.dailyGoal <= 30000
+        && data.onboardingStatus in ['required', 'completed']
+        && data.isDemo == false
+        && data.updatedAt == request.time
+        && (!('taskAreaId' in data) || data.taskAreaId in ['banqiao', 'xihu']);
+    }
+
+    function isValidTestMessage() {
+      let data = request.resource.data;
+
+      return data.keys().hasOnly([
+          'text',
+          'createdAt'
+        ])
+        && data.keys().hasAll([
+          'text',
+          'createdAt'
+        ])
+        && data.text is string
+        && data.text.size() > 0
+        && data.text.size() <= 500
+        && data.createdAt == request.time;
+    }
+
+    match /tasks/{taskId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      allow create, update:
+        if isOwner(uid) && isValidUserProfile();
+
+      allow delete: if false;
+
+      match /testMessages/{messageId} {
+        allow read:
+          if isOwner(uid);
+
+        allow create:
+          if isOwner(uid) && isValidTestMessage();
+
+        allow update, delete:
+          if false;
+      }
+
+      match /taskEnrollments/{taskId} {
+        allow read: if isOwner(uid);
+
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['taskId', 'joinedAt'])
+          && request.resource.data.taskId == taskId
+          && request.resource.data.joinedAt == request.time
+          && get(/databases/$(database)/documents/tasks/$(taskId)).data.cadence == 'event'
+          && get(/databases/$(database)/documents/tasks/$(taskId)).data.startsAt <= request.time
+          && get(/databases/$(database)/documents/tasks/$(taskId)).data.endsAt > request.time;
+
+        allow update, delete: if false;
+      }
+
+      match /taskCompletions/{taskId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /inventory/{documentId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /ledger/{entryId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /commands/{commandId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -89,7 +89,7 @@ Must scope 經日期安全化後為 63 跨職能 pd，其中約 51.5 developer p
 - 六個 versioned mission／route seeds 與 deterministic ranking。
 - 路線偏好、地圖、單程／回起點、警語與到達 fallback。
 - 先完成一條「選任務 → 走路 → 拍照 → 得資源」垂直切片，再參數化到三種類型。
-- Storage pending/retry 與 `completeMission`。
+- 活動 Enrollment、10 公尺抵達驗證與 `completeTask`。
 - Exit：板橋或西湖至少一區可完整走完三種任務；失敗可用模板／模擬到達。
 
 ### Sprint 3｜10/08–10/21：五分鐘核心路徑 Feature Complete

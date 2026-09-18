@@ -22,7 +22,9 @@
     <ion-tab-button tab="task">
       <ion-icon [name]="currentUrl() === '/task' ? 'receipt' : 'receipt-outline'" />
       <ion-label>任務</ion-label>
-      <ion-badge color="danger">47</ion-badge>
+      @if (taskStore.incompleteTaskCount() > 0) {
+        <ion-badge color="danger">{{ taskStore.incompleteTaskCount() }}</ion-badge>
+      }
     </ion-tab-button>
 
     <ion-tab-button tab="collection">

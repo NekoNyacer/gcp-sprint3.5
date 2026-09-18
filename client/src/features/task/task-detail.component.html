@@ -1,0 +1,30 @@
+<ion-content class="detail-page ion-padding">
+  <div class="detail-shell">
+    <ion-button fill="clear" (click)="back()">← 返回任務</ion-button>
+    @if (store.selectedTask(); as task) {
+      <header><div><ion-badge>{{ task.cadence === 'daily' ? '每日' : task.cadence === 'weekly' ? '每週' : '活動' }}</ion-badge><h1>{{ task.title }}</h1><p>{{ task.description }}</p></div><div class="reward"><span>完成獎勵</span><strong>{{ rewardLabel(task) }}</strong></div></header>
+      <div class="facts"><div><span>目的地</span><strong>{{ task.destination.name }}</strong><small>{{ task.destination.address }}</small></div><div><span>剩餘時間</span><strong>{{ remaining(task) }}</strong></div><div><span>目前距離</span><strong>{{ distance(task) }}</strong></div></div>
+
+      <section class="map-port"><strong>Google Map／導航整合區域</strong><p>地圖由獨立模組提供；Task 僅接收定位證明與導航事件。</p></section>
+
+      @if (task.status === 'expired') { <div class="notice">此任務已過期，詳情僅供查看。</div> }
+      @else if (task.status === 'completed') { <div class="notice success">任務已完成</div> }
+      @else {
+        @if (task.cadence === 'event' && task.status === 'available') {
+          <ion-button expand="block" [disabled]="store.submitting()" (click)="store.joinSelectedEvent()">參加活動</ion-button>
+        } @else {
+          @if (store.isDemoMode()) { <label class="demo-picker">Demo 定位狀態<select [value]="store.demoLocationState()" (change)="setDemoState($event)"><option value="not-arrived">尚未抵達</option><option value="poor-accuracy">距離符合但精確度不足</option><option value="eligible">可完成</option></select></label> }
+          <ion-button expand="block" fill="outline" [disabled]="store.loading()" (click)="store.checkLocation()">{{ store.loading() ? '定位中…' : '開始導航／更新位置' }}</ion-button>
+          @if (store.canUseLocalTestLocation()) { <ion-button expand="block" fill="clear" [disabled]="store.loading() || store.submitting()" (click)="store.useLocalTestLocation()">使用測試定位（僅本機）</ion-button> }
+          @if (store.location(); as location) {
+            <div class="location-status" [class.ready]="store.canComplete(task)"><span>距離：{{ distance(task) }}</span><span>定位精確度：{{ location.accuracy | number:'1.0-0' }} 公尺</span></div>
+          }
+          <ion-button expand="block" [disabled]="!store.canComplete(task) || store.submitting()" (click)="store.completeSelectedTask()">{{ store.submitting() ? '確認中…' : '完成任務' }}</ion-button>
+        }
+      }
+      @if (store.error()) { <div class="notice error" role="alert">{{ store.error() }}</div> }
+    } @else { <div class="loading"><ion-spinner /><p>載入任務詳情中…</p></div> }
+  </div>
+
+  <ion-modal [isOpen]="!!store.completionResult()" (didDismiss)="store.dismissCompletionResult()"><ng-template><div class="result"><div class="result-icon">✓</div><h2>任務完成</h2>@if (store.completionResult(); as result) {<p>獲得 {{ result.reward.type === 'waterDrops' ? '水滴' : '肥料' }} × {{ result.reward.amount }}</p><p>目前水滴 {{ result.inventory.waterDrops }}・肥料 {{ result.inventory.fertilizer }}</p>}<ion-button expand="block" (click)="store.dismissCompletionResult()">完成</ion-button></div></ng-template></ion-modal>
+</ion-content>

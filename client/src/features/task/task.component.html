@@ -1,3 +1,44 @@
-<ion-content class="ion-padding">
-  <p>task works!</p>
+<ion-header class="task-controls">
+  <div class="task-controls-inner">
+    <header class="page-heading">
+      <div><p class="eyebrow">探索城市</p><h1>健走任務</h1><p>抵達指定地點，為大樹帶回成長資源。</p></div>
+      <ion-button fill="clear" (click)="showHistory.set(!showHistory())">{{ showHistory() ? '返回任務' : '歷史紀錄' }}</ion-button>
+    </header>
+
+    <label class="area-picker">任務地區
+      <select [value]="store.selectedAreaId() ?? ''" (change)="selectArea($event)">
+        <option value="" disabled>請選擇地區</option>
+        @for (area of store.areas(); track area.areaId) { <option [value]="area.areaId">{{ area.name }}</option> }
+      </select>
+    </label>
+
+    @if (!showHistory()) {
+      <ion-segment [value]="store.selectedCadence()" (ionChange)="selectCadence($event)">
+        <ion-segment-button value="daily"><ion-label>每日</ion-label></ion-segment-button>
+        <ion-segment-button value="weekly"><ion-label>每週</ion-label></ion-segment-button>
+        <ion-segment-button value="event"><ion-label>活動</ion-label></ion-segment-button>
+      </ion-segment>
+    }
+  </div>
+</ion-header>
+
+<ion-content class="task-page ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)"><ion-refresher-content /></ion-refresher>
+
+  @if (store.error()) { <div class="message error" role="alert">{{ store.error() }}</div> }
+  @if (!store.selectedAreaId()) { <div class="empty"><h2>先選擇任務地區</h2><p>之後仍可隨時切換地區。</p></div> }
+  @else if (store.loading()) { <div class="empty"><ion-spinner /><p>載入任務中…</p></div> }
+  @else {
+    <section class="task-list">
+      @for (task of (showHistory() ? store.history() : store.visibleTasks()); track task.taskId) {
+        <ion-card button (click)="openTask(task)" [class.completed]="task.status === 'completed'" [class.expired]="task.status === 'expired'">
+          <ion-card-header>
+            <div class="card-meta"><ion-chip>{{ cadenceLabel(task.cadence) }}</ion-chip><ion-badge [color]="task.status === 'completed' ? 'success' : isExpiring(task) ? 'warning' : 'medium'">{{ task.status === 'completed' ? '已完成' : task.status === 'expired' ? '已過期' : isExpiring(task) ? '即將到期' : remaining(task) }}</ion-badge></div>
+            <ion-card-title>{{ task.title }}</ion-card-title><ion-card-subtitle>{{ task.destination.name }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content><p>{{ task.description }}</p><strong>{{ rewardLabel(task) }}</strong></ion-card-content>
+        </ion-card>
+      } @empty { <div class="empty"><h2>目前沒有任務</h2><p>{{ showHistory() ? '最近 30 天沒有任務紀錄。' : '請稍後再回來看看。' }}</p></div> }
+    </section>
+  }
 </ion-content>

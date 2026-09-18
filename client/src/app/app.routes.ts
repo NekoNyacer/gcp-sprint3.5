@@ -20,6 +20,10 @@ export const routes: Routes = [
         loadComponent: () => import('../features/task/task.component').then((m) => m.TaskComponent),
       },
       {
+        path: 'task/:taskId',
+        loadComponent: () => import('../features/task/task-detail.component').then((m) => m.TaskDetailComponent),
+      },
+      {
         path: 'collection',
         loadComponent: () =>
           import('../features/collection/collection.component').then((m) => m.CollectionComponent),

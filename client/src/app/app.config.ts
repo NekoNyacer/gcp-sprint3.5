@@ -20,6 +20,7 @@ const appCheckProviders = firebaseAppCheckSiteKey
       ),
     ]
   : [];
+import { getFunctions, provideFunctions } from '@angular/fire/functions';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,6 +31,6 @@ export const appConfig: ApplicationConfig = {
     ...appCheckProviders,
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
+    provideFunctions(() => getFunctions(undefined, 'asia-east1')),
   ],
 };

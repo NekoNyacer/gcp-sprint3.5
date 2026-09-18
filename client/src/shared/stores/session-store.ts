@@ -85,6 +85,7 @@ type SessionStateSource = WritableStateSource<SessionState>;
 
 type AuthenticationStore = SessionStateSource & {
   authService: AuthService;
+  dataScope: () => SessionState['dataScope'];
 };
 
 function logInWithGoogle(store: AuthenticationStore): void {
@@ -149,6 +150,10 @@ function observeAuthentication(store: AuthenticationStore): void {
     next: (firebaseUser) => {
       console.log('Firebase 恢復的使用者：', firebaseUser);
       if (firebaseUser === null) {
+        if (store.dataScope().mode === 'demo') {
+          return;
+        }
+
         patchState(store, {
           authStatus: '已登出',
           user: null,
