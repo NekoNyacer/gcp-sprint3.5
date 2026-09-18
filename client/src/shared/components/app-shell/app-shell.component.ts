@@ -10,6 +10,8 @@ import {
   IonTabButton,
   IonTabs,
   IonBadge,
+  IonHeader,
+  IonThumbnail,
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -22,6 +24,12 @@ import {
   receipt,
   receiptOutline,
   list,
+  water,
+  waterOutline,
+  sunny,
+  sunnyOutline,
+  cube,
+  add,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 
@@ -30,6 +38,8 @@ import { SessionStore } from '../../stores/session-store';
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
   imports: [
+    IonThumbnail,
+    IonHeader,
     IonMenuToggle,
     IonButton,
     IonLabel,
@@ -46,8 +56,14 @@ export class AppShellComponent {
   private readonly sessionStore = inject(SessionStore);
   constructor() {
     addIcons({
+      add,
+      cube,
+      sunny,
+      sunnyOutline,
       navigateCircle,
       navigateCircleOutline,
+      water,
+      waterOutline,
       gift,
       giftOutline,
       leaf,

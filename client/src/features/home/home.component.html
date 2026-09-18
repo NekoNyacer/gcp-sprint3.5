@@ -1,37 +1,96 @@
-<ion-content class="ion-padding" [fullscreen]="true">
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-card-subtitle>今日步數</ion-card-subtitle>
-        <ion-card-title>7400</ion-card-title>
-      </ion-col>
-      <ion-col>
-        <ion-card-subtitle>行走距離</ion-card-subtitle>
-        <ion-card-title>7400</ion-card-title>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        <ion-card-header>
-          <ion-card-subtitle>光能</ion-card-subtitle>
-          <ion-card-title>7400</ion-card-title>
-        </ion-card-header>
-      </ion-col>
-      <ion-col>
-        <ion-card-header>
-          <ion-card-subtitle>水滴</ion-card-subtitle>
-          <ion-card-title>10</ion-card-title>
-        </ion-card-header>
-      </ion-col>
-      <ion-col>
-        <ion-card-header>
-          <ion-card-subtitle>種子</ion-card-subtitle>
-          <ion-card-title>3</ion-card-title>
-        </ion-card-header>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <main>
-    <p>地圖占位</p>
-  </main>
+<ion-content [fullscreen]="true" [scrollY]="false">
+  <section #scene class="growth-scene" aria-label="今日樹苗成長狀態">
+    <ion-fab class="inventory">
+      <ion-fab-button>
+        <ion-icon name="cube" />
+      </ion-fab-button>
+    </ion-fab>
+    @if (isGroundExpanded()) {
+      <section class="mini-stats" animate.enter="enter-animation">
+        <div class="mini-stat">
+          <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
+          <span>{{ 3200 | number: '1.0-0' }}</span>
+        </div>
+        <div class="mini-stat">
+          <ion-icon name="water-outline" aria-hidden="true"></ion-icon>
+          <span>{{ 100 | number: '1.0-0' }}</span>
+        </div>
+        <div class="mini-stat">
+          <ion-icon name="leaf-outline" aria-hidden="true"></ion-icon>
+          <span>{{ 100 | number: '1.0-0' }}</span>
+        </div>
+      </section>
+    } @else {
+      <button
+        #waterCloud
+        type="button"
+        class="cloud cloud--water"
+        aria-label="水滴 3 個，可拖曳"
+        [class.cloud--dragging]="isDraggingWaterCloud()"
+        [style.transform]="waterCloudTransform()"
+        (pointerdown)="startWaterCloudDrag($event)"
+        (pointermove)="moveWaterCloud($event)"
+        (pointerup)="endWaterCloudDrag($event)"
+        (pointercancel)="endWaterCloudDrag($event)"
+      >
+        <ion-icon name="water-outline" aria-hidden="true"></ion-icon>
+        <span>
+          <span class="cloud__value">3</span>
+          <span class="cloud__label">水滴</span>
+        </span>
+      </button>
+    }
+    <div class="growth-scene__glow" aria-hidden="true"></div>
+
+    <button
+      type="button"
+      class="solar-energy-button"
+      [class.groundOpen]="!isGroundExpanded()"
+      aria-label="目前有 3,200 點光能"
+      (click)="addEnergy()"
+    >
+      <span class="solar-energy-button__value">{{ 3200 | number: '1.0-0' }}</span>
+      <span class="solar-energy-button__label">光能</span>
+    </button>
+
+    <button
+      type="button"
+      class="seedling"
+      aria-label="查看樹苗所在位置的詳細地圖"
+      [attr.aria-expanded]="isGroundExpanded()"
+      [class.seedling--ground-expanded]="isGroundExpanded()"
+      (click)="toggleGround()"
+    ></button>
+
+    <section class="ground" aria-label="樹苗詳細地圖" [class.ground--expanded]="isGroundExpanded()">
+      <button
+        type="button"
+        class="ground__handle"
+        [attr.aria-label]="isGroundExpanded() ? '收合詳細地圖' : '展開詳細地圖'"
+        (click)="toggleGround()"
+      >
+        <span aria-hidden="true"></span>
+      </button>
+
+      <main
+        class="map-section"
+        [attr.aria-hidden]="!isGroundExpanded()"
+        [attr.inert]="isGroundExpanded() ? null : ''"
+      >
+        <div class="map-section__heading">
+          <div>
+            <span class="map-section__eyebrow">附近探索</span>
+            <h2>看看你的樹苗位置</h2>
+          </div>
+          <span class="map-section__distance">步行 6 分鐘</span>
+        </div>
+
+        <div class="home-map">
+          @if (isGroundExpanded()) {
+            <app-home-map />
+          }
+        </div>
+      </main>
+    </section>
+  </section>
 </ion-content>

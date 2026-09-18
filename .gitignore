@@ -1,0 +1,5 @@
+# Firebase local tooling output
+.firebase/
+firebase-debug.log
+firebaserc-debug.log
+

@@ -3,8 +3,23 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideIonicAngular } from '@ionic/angular';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getStorage, provideStorage } from '@angular/fire/storage';
+import { getApp } from 'firebase/app';
+import { provideAppCheck, initializeAppCheck, ReCaptchaV3Provider } from '@angular/fire/app-check';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { getAuth, provideAuth } from '@angular/fire/auth';
+import { firebaseAppCheckSiteKey, firebaseConfig } from './firebase-config';
+
+const appCheckProviders = firebaseAppCheckSiteKey
+  ? [
+      provideAppCheck(() =>
+        initializeAppCheck(getApp(), {
+          provider: new ReCaptchaV3Provider(firebaseAppCheckSiteKey),
+          isTokenAutoRefreshEnabled: true,
+        }),
+      ),
+    ]
+  : [];
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -12,16 +27,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideIonicAngular({}),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    ...appCheckProviders,
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
+    provideStorage(() => getStorage()),
   ],
-};
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyBeqnYtJlJ4BErvVyPGzsA4vRVqji0LpWg',
-  authDomain: 'cathay-ai-hackathon-team-03.firebaseapp.com',
-  projectId: 'cathay-ai-hackathon-team-03',
-  storageBucket: 'cathay-ai-hackathon-team-03.firebasestorage.app',
-  messagingSenderId: '1039933163857',
-  appId: '1:1039933163857:web:943bf35acf6c5f0d706b70',
 };

@@ -1,0 +1,11 @@
+# App Hosting serves the Angular client only. There is intentionally no API
+# server or Cloud Functions runtime in this bonus spike.
+#
+# Keep the first rollout deliberately small and scale it only if the live
+# multiplayer demo needs more capacity.
+runConfig:
+  minInstances: 0
+  maxInstances: 1
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512

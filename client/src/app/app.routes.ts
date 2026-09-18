@@ -41,6 +41,15 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'game',
+        loadComponent: () => import('../features/game/game.component').then((m) => m.GameComponent),
+      },
+      {
+        path: 'upload',
+        loadComponent: () =>
+          import('../shared/components/upload/upload.component').then((m) => m.UploadComponent),
+      },
+      {
         path: '',
         pathMatch: 'full',
         redirectTo: 'home',

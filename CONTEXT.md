@@ -563,6 +563,7 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-09-08 | Use `Cathay Walk | 國泰健康走` as the working Demo public name. Retain the existing collision-risk warning and require internal brand/legal review before any public adoption. | Confirmed for Demo |
 | 2026-09-08 | Use Angular 22 `@Service()` as the project convention for new services and repositories; retain `@Injectable()` where explicit injectable provider metadata is needed. | Confirmed |
 | 2026-09-09 | Adopt Capacitor 8.5.1 for the Ionic 9 / Angular 22 client and add Android as the first native platform. Pin core, CLI, and Android to the same version; use `com.cathay.catwalk` and `dist/client/browser`. | Confirmed |
+| 2026-09-14 | Make the home screen's initial visual focus a compact sky-and-ground growth scene with the seedling centered on the soil, resource clouds and a sun above it, and a secondary compact Google Map below. | Confirmed |
 
 ## Open decisions
 

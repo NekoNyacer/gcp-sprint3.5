@@ -1,8 +1,61 @@
 
-.tabBar{
-  --background: #eaf1fd09; 
-  --color: #1f2d44; 
-  --color-selected: #1f2d44
+ :host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+ion-header {
+  margin-bottom: 1rem;
+  padding-top: env(safe-area-inset-top);
+  color: var(--ion-color-primary-contrast);
+  background:
+    linear-gradient(135deg, var(--ion-color-primary-shade) 0%, var(--ion-color-primary) 100%);
+  box-shadow: none;
+
+  div{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.7rem;
+    min-height: 4.25rem;
+    padding: 0.65rem 1rem;
+    box-sizing: border-box;
+  }
+
+  div > ion-thumbnail{
+    display: flex;
+    flex: 0 1 clamp(7.25rem, 34vw, 10.5rem);
+    align-items: center;
+    justify-content: center;
+    width: clamp(7.25rem, 34vw, 10.5rem);
+    height: 2rem;
+    padding: 0.45rem 0.7rem;
+    box-sizing: content-box;
+  }
+
+  div > ion-thumbnail > img{
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+ion-tabs {
+  position: relative;
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+  width: 100%;
+}
+
+
+.tabBar {
+  --background: transparent;
+  --color: var(--ion-color-secondary-shade);
+  --color-selected:var(--ion-color-secondary);
 }
 
 .menu-toggle-fab {
@@ -14,6 +67,7 @@
 
 .menu-toggle-fab ion-button {
   --border-radius: 999px;
+  --background-color: transparent;
 }
 
 .avatar {

@@ -14,10 +14,9 @@
             <span aria-hidden="true">{{ userInitial() }}</span>
           }
         </div>
-        <div class="profile-copy">
-          <p class="welcome">歡迎回來</p>
-          <h1>{{ userName() }}</h1>
-          <p class="email">{{ userEmail() }}</p>
+        <div class="profile-info">
+          <span>{{ userName() }}</span>
+          <span>{{ userEmail() }}</span>
         </div>
       </div>
     </ion-toolbar>
@@ -30,9 +29,22 @@
           <ion-icon slot="start" name="person-outline" />
           <ion-label>個人資料</ion-label>
         </ion-item>
+
         <ion-item button routerLink="/test" routerDirection="forward">
           <ion-icon slot="start" name="extension-puzzle-outline" />
           <ion-label>Demo 測試工具</ion-label>
+        </ion-item>
+        <ion-item button routerLink="/game" routerDirection="forward">
+          <ion-icon slot="start" name="extension-puzzle-outline" />
+          <ion-label>即時連線與生成式AI測試</ion-label>
+        </ion-item>
+        <!-- <ion-item button routerLink="/upload" routerDirection="forward">
+          <ion-icon slot="start" name="extension-puzzle-outline" />
+          <ion-label>storage上傳元件測試</ion-label>
+        </ion-item> -->
+        <ion-item button routerLink="/profile" routerDirection="forward">
+          <ion-icon slot="start" name="person-outline" />
+          <ion-label>設定</ion-label>
         </ion-item>
       </ion-menu-toggle>
     </ion-list>

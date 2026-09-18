@@ -1,3 +1,23 @@
 <ion-content class="ion-padding">
-  <p>collection works!</p>
+  <div>
+    <!-- <ion-chip>Default</ion-chip> -->
+    <ion-chip color="primary">種植中</ion-chip>
+    <ion-chip color="secondary">已收成</ion-chip>
+    <!-- <ion-chip color="tertiary">Tertiary</ion-chip>
+    <ion-chip color="success">Success</ion-chip>
+    <ion-chip color="warning">Warning</ion-chip> -->
+    <ion-chip color="danger">長久無造訪</ion-chip>
+    <!-- <ion-chip color="light">Light</ion-chip>
+    <ion-chip color="medium">Medium</ion-chip>
+    <ion-chip color="dark">Dark</ion-chip> -->
+  </div>
+  <ion-grid>
+    <ion-row>
+      @for (tree of collectionList(); track $index) {
+        <ion-col>
+          <app-tree-card [tree]="tree" />
+        </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
 </ion-content>
