@@ -1,1 +1,501 @@
-<ion-content class="ion-padding"> <p>shop works!</p> </ion-content>
+﻿<ion-content [fullscreen]="true" class="shop-page">
+  <main class="page-container">
+    <ion-toolbar class="page-header">
+      <ion-title class="shop-title">
+        <p class="page-eyebrow">CAT WALK</p>
+        <h1>兌換</h1>
+      </ion-title>
+      <ion-buttons slot="end" class="points-wrap">
+        <ion-chip class="points-balance" color="light" aria-label="目前小樹點總額">
+          <ion-img
+            class="tree-point-mark"
+            src="/images/treepoint-both-icon2.png"
+            alt=""
+            aria-hidden="true"
+          />
+          @if (pointsBalance() !== null) {
+            <strong>{{ pointsBalance() | number }}</strong
+            ><span>點</span>
+          } @else {
+            <strong>--</strong><span>點</span>
+          }
+          <ion-button
+            type="button"
+            class="info-button"
+            color="medium"
+            fill="clear"
+            aria-label="小樹點使用說明"
+            (click)="showPointsHint($event)"
+          >
+            ⓘ
+          </ion-button>
+        </ion-chip>
+        <ion-popover
+          cssClass="points-popover"
+          [isOpen]="showPointsInfo()"
+          [event]="pointsInfoEvent()"
+          [showBackdrop]="false"
+          side="bottom"
+          alignment="end"
+          (didDismiss)="closePointsHint()"
+        >
+          <ng-template>
+            <ion-content class="points-hint ion-padding" role="status">
+              小樹點明細請至「國泰優惠 App」查看
+            </ion-content>
+          </ng-template>
+        </ion-popover>
+      </ion-buttons>
+    </ion-toolbar>
+
+    @if (isLoading() && !dashboard()) {
+      <section class="state-card state-card--loading" aria-live="polite">
+        <ion-spinner name="crescent" />
+        <h2>正在整理你的培育成果</h2>
+        <p>請稍候，我們正在取得大樹資格與小樹點資料。</p>
+      </section>
+    } @else if (pageUnavailable()) {
+      <section class="state-card" role="alert">
+        <span class="state-icon" aria-hidden="true">🌿</span>
+        <h2>目前無法載入成果資料</h2>
+        <p>大樹資格尚未載入，請檢查網路後再試一次。</p>
+        <ion-button type="button" class="primary-button" color="primary" (click)="reload()"
+          >重新載入</ion-button
+        >
+      </section>
+    } @else if (dashboard(); as summary) {
+      <section
+        class="asset-card"
+        [class.asset-card--soon]="expiryUrgency() !== 'normal'"
+        aria-labelledby="asset-title"
+      >
+        <div class="asset-main">
+          <div>
+            <p id="asset-title">可兌換大樹</p>
+            <strong>{{ summary.availableMatureTrees | number }}<small>棵</small></strong>
+          </div>
+          <div class="forest-emblem" aria-hidden="true"><span>🌳</span><span>🌲</span></div>
+        </div>
+        @if (summary.nearestExpiryDate) {
+          <div class="expiry-row">
+            <span class="calendar-icon" aria-hidden="true">▣</span>
+            <div>
+              @if (expiryUrgency() !== 'normal') {
+                <b>即將到期</b>
+              } @else {
+                <b>最早到期</b>
+              }
+              <span>
+                {{ summary.expiringMatureTrees }}棵・{{
+                  summary.nearestExpiryDate | date: 'yyyy/MM/dd'
+                }}
+                @if (expiryUrgency() !== 'normal' && expiryDays() !== null) {
+                  （剩{{ expiryDays() }}天）
+                }
+              </span>
+            </div>
+          </div>
+        }
+      </section>
+
+      @if (summary.availableMatureTrees === 0) {
+        <ion-item class="empty-guidance" color="light" button detail routerLink="/collection">
+          <span slot="start" aria-hidden="true">🌱</span>
+          <ion-label><strong>目前還沒有可兌換成果</strong>前往收藏培育大樹</ion-label>
+        </ion-item>
+      }
+
+      <section class="content-section" aria-labelledby="reward-title">
+        <div class="section-heading">
+          <div>
+            <p>選擇你的回饋</p>
+            <h2 id="reward-title">兌換小樹點</h2>
+          </div>
+          <span>每次兌換一份</span>
+        </div>
+
+        @if (pointsError()) {
+          <ion-item class="inline-notice" color="warning" lines="none" role="status">
+            <ion-label class="ion-text-wrap">
+              小樹點餘額暫時無法取得，點數兌換暫停；公益投入仍可使用。
+            </ion-label>
+          </ion-item>
+        }
+
+        <ion-grid class="reward-grid">
+          <ion-row>
+            @for (option of options(); track option.id) {
+              <ion-col size="6">
+                <ion-button
+                  type="button"
+                  class="reward-card"
+                  color="light"
+                  [attr.aria-label]="
+                    '小樹點' +
+                    option.treePoints +
+                    '點，需要' +
+                    option.requiredTrees +
+                    '棵大樹，' +
+                    (availableTrees() >= option.requiredTrees
+                      ? '可兌換'
+                      : '還差' + remainingTrees(option.requiredTrees) + '棵')
+                  "
+                  (click)="selectOption(option)"
+                >
+                  <span class="reward-card-content">
+                    <span class="point-orb" aria-hidden="true">
+                      <ion-img src="/images/treepoint-life-icon2.png" alt="" />
+                    </span>
+                    <span class="reward-amount"
+                      ><strong>{{ option.treePoints }}</strong
+                      >點</span
+                    >
+                    <span class="reward-cost">需要 {{ option.requiredTrees }} 棵</span>
+                    @if (availableTrees() >= option.requiredTrees) {
+                      <span class="availability availability--ready">✓ 可兌換</span>
+                    } @else {
+                      <span class="availability"
+                        >還差 {{ remainingTrees(option.requiredTrees) }} 棵</span
+                      >
+                    }
+                  </span>
+                </ion-button>
+              </ion-col>
+            }
+          </ion-row>
+        </ion-grid>
+      </section>
+
+      @if (charity(); as campaign) {
+        <section class="content-section" aria-labelledby="charity-title">
+          <div class="section-heading">
+            <div>
+              <p>讓成果創造更多影響</p>
+              <h2 id="charity-title">投入生態公益</h2>
+            </div>
+          </div>
+          <ion-button
+            type="button"
+            class="charity-card"
+            color="light"
+            (click)="selectCharity(campaign)"
+          >
+            <span class="charity-card-content">
+              <ion-chip class="demo-pill" color="tertiary">Demo 模擬公益計畫</ion-chip>
+              <span class="charity-title-row">
+                <span class="charity-icon" aria-hidden="true">🫶</span>
+                <span>
+                  <strong>{{ campaign.name }}</strong>
+                  <small>{{
+                    campaign.description ?? '支持台灣原生動植物、棲地復育與生態保育行動。'
+                  }}</small>
+                </span>
+              </span>
+              <span class="matching-row">
+                <span
+                  ><small>你的成果</small
+                  ><strong>NT${{ campaign.userContributionAmount }}</strong></span
+                >
+                <b aria-hidden="true">＋</b>
+                <span
+                  ><small>國泰加碼</small
+                  ><strong>NT${{ campaign.cathayMatchingAmount }}</strong></span
+                >
+                <b aria-hidden="true">＝</b>
+                <span
+                  ><small>公益投入</small><strong>NT${{ campaign.totalAmount }}</strong></span
+                >
+              </span>
+              <span class="charity-action-row">
+                <span>使用 {{ campaign.requiredTrees }} 棵大樹兌換資格</span>
+                @if (availableTrees() >= campaign.requiredTrees) {
+                  <strong>可投入 <span aria-hidden="true">›</span></strong>
+                } @else {
+                  <strong
+                    >還差 {{ remainingTrees(campaign.requiredTrees) }} 棵
+                    <span aria-hidden="true">›</span></strong
+                  >
+                }
+              </span>
+            </span>
+          </ion-button>
+          <p class="demo-disclaimer">實際合作單位及執行內容以正式公告為準。</p>
+        </section>
+      }
+
+      <section class="milestone-card" aria-labelledby="milestone-title">
+        <div class="milestone-top">
+          <div>
+            <p>生涯里程碑</p>
+            <h2 id="milestone-title">{{ nextMilestoneName() }}</h2>
+          </div>
+          <div class="lifetime-count">
+            <strong>{{ summary.lifetimeMatureTrees }}</strong>
+            <span>累積大樹</span>
+          </div>
+        </div>
+        <ion-progress-bar
+          class="progress-track"
+          color="primary"
+          [value]="milestoneProgress() / 100"
+          [attr.aria-label]="
+            '生涯大樹里程碑，' + summary.lifetimeMatureTrees + '／' + nextMilestone() + '棵'
+          "
+        />
+        <div class="progress-label">
+          <span>{{ summary.lifetimeMatureTrees }}／{{ nextMilestone() }}棵</span>
+          <span>還差 {{ remainingMilestoneTrees(summary.lifetimeMatureTrees) }} 棵</span>
+        </div>
+      </section>
+
+      <section class="content-section history-section" aria-labelledby="recent-title">
+        <div class="section-heading section-heading--history">
+          <div>
+            <p>每一份成果都有紀錄</p>
+            <h2 id="recent-title">近期紀錄</h2>
+          </div>
+          <ion-button color="primary" fill="clear" size="small" routerLink="/shop/history">
+            查看全部 <span aria-hidden="true">›</span>
+          </ion-button>
+        </div>
+
+        @if (recentTransactions().length > 0) {
+          <ion-list class="transaction-list" lines="full">
+            @for (transaction of recentTransactions(); track transaction.id) {
+              <ion-item
+                button
+                detail="false"
+                class="transaction-row"
+                color="light"
+                (click)="selectedTransaction.set(transaction)"
+              >
+                <span
+                  slot="start"
+                  class="transaction-icon"
+                  [class.transaction-icon--charity]="transaction.type === 'CHARITY'"
+                  aria-hidden="true"
+                >
+                  @if (transaction.type === 'TREE_POINTS') {
+                    <ion-img src="/images/treepoint-life-icon2.png" alt="" />
+                  } @else {
+                    {{ transaction.type === 'CHARITY' ? '♥' : '⌛' }}
+                  }
+                </span>
+                <ion-label class="transaction-copy">
+                  <strong>{{ transactionTitle(transaction) }}</strong>
+                  <small>{{ transactionSummary(transaction) }}</small>
+                  <time>{{ transaction.occurredAt | date: 'yyyy/MM/dd HH:mm' }}</time>
+                </ion-label>
+                <ion-badge
+                  slot="end"
+                  [color]="
+                    transaction.status === 'FAILED'
+                      ? 'danger'
+                      : transaction.status === 'EXPIRED'
+                        ? 'medium'
+                        : 'success'
+                  "
+                  class="transaction-status"
+                  >{{ transactionStatus(transaction) }}</ion-badge
+                >
+              </ion-item>
+            }
+          </ion-list>
+        } @else {
+          <section class="empty-history">
+            <span aria-hidden="true">🧾</span>
+            <strong>尚無兌換紀錄</strong>
+            <p>完成第一次小樹點兌換或公益投入後，紀錄會顯示在這裡。</p>
+          </section>
+        }
+      </section>
+    }
+  </main>
+</ion-content>
+
+@if (actionDialog(); as dialog) {
+  <ion-modal
+    cssClass="shop-action-modal"
+    [isOpen]="true"
+    [backdropDismiss]="!isSubmitting()"
+    (didDismiss)="closeActionDialog()"
+  >
+    <ng-template>
+      <section class="action-dialog" role="dialog" aria-labelledby="action-dialog-title">
+        <div class="dialog-handle" aria-hidden="true"></div>
+        @if (dialog.kind === 'insufficient') {
+          <div class="dialog-illustration" aria-hidden="true">
+            <ion-img src="/images/treepoint-life-icon2.png" alt="" />
+          </div>
+          <h2 id="action-dialog-title">尚未達到兌換門檻</h2>
+          <p>
+            {{ dialog.title }}需要{{ dialog.requiredTrees }}棵大樹，<br />
+            你目前有{{ availableTrees() }}棵，還差<strong
+              >{{ remainingTrees(dialog.requiredTrees) }}棵</strong
+            >。
+          </p>
+          <ion-button
+            type="button"
+            class="primary-button"
+            color="primary"
+            (click)="closeActionDialog()"
+            >關閉</ion-button
+          >
+        } @else if (dialog.kind === 'points-unavailable') {
+          <div class="dialog-illustration" aria-hidden="true">🌿</div>
+          <h2 id="action-dialog-title">小樹點服務暫時無法使用</h2>
+          <p>目前無法確認小樹點餘額，因此尚不能送出兌換。你仍可選擇投入生態公益。</p>
+          <ion-button
+            type="button"
+            class="primary-button"
+            color="primary"
+            (click)="closeActionDialog()"
+            >我知道了</ion-button
+          >
+        } @else {
+          <h2 id="action-dialog-title">
+            {{ dialog.kind === 'points' ? '確認兌換小樹點' : '確認投入公益' }}
+          </h2>
+          <ion-list class="confirmation-list" lines="none">
+            @if (dialog.kind === 'points') {
+              <ion-item
+                ><ion-label>兌換內容</ion-label
+                ><strong slot="end">小樹點{{ dialog.option.treePoints }}點</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>使用資格</ion-label
+                ><strong slot="end">{{ dialog.option.requiredTrees }}棵大樹</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>兌換後剩餘</ion-label
+                ><strong slot="end"
+                  >{{ availableTrees() - dialog.option.requiredTrees }}棵大樹</strong
+                ></ion-item
+              >
+              <ion-item
+                ><ion-label>目前小樹點</ion-label
+                ><strong slot="end">{{ pointsBalance() | number }}點</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>預計兌換後</ion-label
+                ><strong slot="end"
+                  >{{ (pointsBalance() ?? 0) + dialog.option.treePoints | number }}點</strong
+                ></ion-item
+              >
+            } @else {
+              <ion-item
+                ><ion-label>公益計畫</ion-label
+                ><strong slot="end">{{ dialog.campaign.name }}</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>使用資格</ion-label
+                ><strong slot="end">{{ dialog.campaign.requiredTrees }}棵大樹</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>你的成果價值</ion-label
+                ><strong slot="end"
+                  >NT${{ dialog.campaign.userContributionAmount }}</strong
+                ></ion-item
+              >
+              <ion-item
+                ><ion-label>國泰配對加碼</ion-label
+                ><strong slot="end">NT${{ dialog.campaign.cathayMatchingAmount }}</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>本次公益投入</ion-label
+                ><strong slot="end">NT${{ dialog.campaign.totalAmount }}</strong></ion-item
+              >
+              <ion-item
+                ><ion-label>投入後剩餘</ion-label
+                ><strong slot="end"
+                  >{{ availableTrees() - dialog.campaign.requiredTrees }}棵大樹</strong
+                ></ion-item
+              >
+            }
+          </ion-list>
+          <ion-item class="irreversible-notice" color="warning" lines="none">
+            <ion-label class="ion-text-wrap">
+              <strong>確認後無法取消或返還</strong>
+              <span>回憶林中的大樹不會消失，本次僅使用兌換資格。</span>
+            </ion-label>
+          </ion-item>
+          <div class="dialog-actions">
+            <ion-button
+              type="button"
+              class="secondary-button"
+              color="medium"
+              fill="outline"
+              [disabled]="isSubmitting()"
+              (click)="closeActionDialog()"
+              >取消</ion-button
+            >
+            <ion-button
+              type="button"
+              class="primary-button"
+              color="primary"
+              [disabled]="isSubmitting()"
+              (click)="confirmAction()"
+            >
+              @if (isSubmitting()) {
+                <ion-spinner name="crescent" /> 處理中…
+              } @else {
+                {{ dialog.kind === 'points' ? '確認兌換' : '確認投入' }}
+              }
+            </ion-button>
+          </div>
+        }
+      </section>
+    </ng-template>
+  </ion-modal>
+}
+
+@if (resultDialog(); as result) {
+  <ion-modal cssClass="shop-result-modal" [isOpen]="true" (didDismiss)="resultDialog.set(null)">
+    <ng-template>
+      <section
+        class="action-dialog result-dialog"
+        role="dialog"
+        aria-labelledby="result-dialog-title"
+      >
+        <div class="result-mark" [class.result-mark--failed]="!result.success" aria-hidden="true">
+          {{ result.success ? '✓' : '!' }}
+        </div>
+        <h2 id="result-dialog-title">{{ result.title }}</h2>
+        @if (result.success) {
+          <p>{{ result.amountLabel }}已完成，最新餘額如下。</p>
+        } @else {
+          <p>本次交易未成立，大樹兌換資格不會扣除。</p>
+        }
+        <ion-list class="result-values" lines="none">
+          @if (result.kind === 'points') {
+            <ion-item>
+              <ion-label>小樹點</ion-label>
+              <strong slot="end"
+                >{{ result.beforePoints | number }} → {{ result.afterPoints | number }}點</strong
+              >
+            </ion-item>
+          }
+          <ion-item>
+            <ion-label>可兌換大樹</ion-label>
+            <strong slot="end">{{ result.beforeTrees }} → {{ result.afterTrees }}棵</strong>
+          </ion-item>
+        </ion-list>
+        <p class="collection-safe">回憶林收藏不受影響。</p>
+        <ion-button
+          type="button"
+          class="primary-button"
+          color="primary"
+          (click)="resultDialog.set(null)"
+          >完成</ion-button
+        >
+      </section>
+    </ng-template>
+  </ion-modal>
+}
+
+@if (selectedTransaction(); as transaction) {
+  <app-transaction-detail-dialog
+    [transaction]="transaction"
+    (closed)="selectedTransaction.set(null)"
+  />
+}

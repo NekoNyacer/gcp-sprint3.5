@@ -33,8 +33,8 @@
     </ion-tab-button>
 
     <ion-tab-button tab="shop">
-      <ion-icon [name]="currentUrl() === '/shop' ? 'gift' : 'gift-outline'" />
-      <ion-label>樹屋</ion-label>
+      <ion-icon [name]="isShopRoute() ? 'gift' : 'gift-outline'" />
+      <ion-label>兌換</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>

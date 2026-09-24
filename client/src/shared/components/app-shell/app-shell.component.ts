@@ -92,7 +92,7 @@ export class AppShellComponent {
    * @returns "在首頁: /home"
    * @returns "在任務: /task"
    * @returns "在收藏: /collection"
-   * @returns "在商城: /shop"
+   * @returns "在兌換: /shop"
    * @returns "在個人頁面: /profile"
    */
   readonly currentUrl = computed(() => {
@@ -101,4 +101,6 @@ export class AppShellComponent {
       navigation?.extractedUrl.toString() ??
       this.router.url) as '/home' | '/task' | '/collection' | '/shop' | '/profile';
   });
+
+  readonly isShopRoute = computed(() => this.currentUrl().startsWith('/shop'));
 }

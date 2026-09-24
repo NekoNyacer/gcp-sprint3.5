@@ -29,6 +29,13 @@ export const routes: Routes = [
           import('../features/collection/collection.component').then((m) => m.CollectionComponent),
       },
       {
+        path: 'shop/history',
+        loadComponent: () =>
+          import('../features/shop/history/shop-history.component').then(
+            (m) => m.ShopHistoryComponent,
+          ),
+      },
+      {
         path: 'shop',
         loadComponent: () => import('../features/shop/shop.component').then((m) => m.ShopComponent),
       },

@@ -1,0 +1,93 @@
+﻿<ion-content [fullscreen]="true" class="history-page">
+  <main class="history-container">
+    <ion-toolbar class="history-toolbar">
+      <ion-buttons slot="start">
+        <ion-button
+          routerLink="/shop"
+          class="back-button"
+          color="primary"
+          fill="clear"
+          aria-label="返回兌換"
+          >‹</ion-button
+        >
+      </ion-buttons>
+      <ion-title>
+        <p>兌換</p>
+        <h1>兌換與公益紀錄</h1>
+      </ion-title>
+    </ion-toolbar>
+
+    @if (isLoading() && transactions().length === 0) {
+      <section class="state-card" aria-live="polite">
+        <ion-spinner name="crescent" />
+        <p>正在載入紀錄…</p>
+      </section>
+    } @else if (error() && transactions().length === 0) {
+      <section class="state-card" role="alert">
+        <span aria-hidden="true">🌿</span>
+        <h2>目前無法載入交易紀錄</h2>
+        <p>請檢查網路後再試一次。</p>
+        <ion-button type="button" color="primary" (click)="reload()">重新載入</ion-button>
+      </section>
+    } @else if (transactions().length > 0) {
+      <p class="result-count">全部紀錄・共 {{ transactions().length }} 筆</p>
+      <ion-list class="history-list" lines="full" aria-label="交易紀錄">
+        @for (transaction of transactions(); track transaction.id) {
+          <ion-item
+            button
+            detail="false"
+            class="history-row"
+            color="light"
+            (click)="selectedTransaction.set(transaction)"
+          >
+            <span
+              slot="start"
+              class="row-icon"
+              [class.row-icon--charity]="transaction.type === 'CHARITY'"
+              aria-hidden="true"
+            >
+              @if (transaction.type === 'TREE_POINTS') {
+                <ion-img src="/images/treepoint-life-icon2.png" alt="" />
+              } @else {
+                {{ transaction.type === 'CHARITY' ? '♥' : '⌛' }}
+              }
+            </span>
+            <ion-label class="row-copy">
+              <strong>{{ title(transaction) }}</strong>
+              <small>{{ summary(transaction) }}</small>
+              <time>{{ transaction.occurredAt | date: 'yyyy/MM/dd HH:mm' }}</time>
+            </ion-label>
+            <ion-badge
+              slot="end"
+              [color]="
+                transaction.status === 'FAILED'
+                  ? 'danger'
+                  : transaction.status === 'EXPIRED'
+                    ? 'medium'
+                    : 'success'
+              "
+              class="row-status"
+            >
+              {{ status(transaction) }}
+            </ion-badge>
+            <span slot="end" class="chevron" aria-hidden="true">›</span>
+          </ion-item>
+        }
+      </ion-list>
+    } @else {
+      <section class="state-card">
+        <span aria-hidden="true">🧾</span>
+        <h2>尚無兌換紀錄</h2>
+        <p>完成第一次小樹點兌換或公益投入後，紀錄會顯示在這裡。</p>
+        <ion-button color="primary" routerLink="/shop">返回兌換</ion-button>
+      </section>
+    }
+  </main>
+</ion-content>
+
+@if (selectedTransaction(); as transaction) {
+  <app-transaction-detail-dialog
+    [transaction]="transaction"
+    (closed)="selectedTransaction.set(null)"
+  />
+}
