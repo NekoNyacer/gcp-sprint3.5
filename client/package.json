@@ -13,6 +13,7 @@
   "private": true,
   "packageManager": "npm@11.12.1",
   "dependencies": {
+    "@almothafar/angular-signature-pad": "^10.0.0",
     "@angular/common": "^22.1.0",
     "@angular/compiler": "^22.1.0",
     "@angular/core": "^22.1.0",

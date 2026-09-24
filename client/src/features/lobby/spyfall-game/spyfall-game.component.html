@@ -1,0 +1,330 @@
+<ion-header class="spyfall-header">
+  <ion-toolbar>
+    <ion-title>間諜危機 Spyfall</ion-title>
+    @if (gameStore.status() === '遊戲準備中') {
+      <ion-button
+        slot="end"
+        fill="clear"
+        color="danger"
+        [disabled]="isLeaving()"
+        (click)="leaveRoom()"
+      >
+        離開
+      </ion-button>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="spyfall-page">
+  @if (gameStore.status() === '遊戲準備中') {
+    <main class="waiting-view">
+      <section class="room-heading">
+        <span>SPYFALL 作戰室</span>
+        <h1>{{ gameStore.name() }}</h1>
+        <p>場所會在倒數開始後才秘密公開。</p>
+      </section>
+
+      <ion-card class="settings-card">
+        <ion-card-header>
+          <ion-card-title>本局設定</ion-card-title>
+          @if (!gameStore.isRoomMaster()) {
+            <ion-card-subtitle>由房主設定</ion-card-subtitle>
+          }
+        </ion-card-header>
+        <ion-card-content>
+          <div class="settings-grid">
+            <ion-select
+              label="可能場所數"
+              labelPlacement="stacked"
+              fill="outline"
+              [disabled]="!gameStore.isRoomMaster()"
+              [value]="gameStore.settings().locationHintCount"
+              (ionChange)="updateHintCount($event.detail.value)"
+            >
+              @for (count of [5, 8, 10, 12, 15, 20]; track count) {
+                <ion-select-option [value]="count">{{ count }} 個</ion-select-option>
+              }
+            </ion-select>
+
+            <ion-select
+              label="發言總時間"
+              labelPlacement="stacked"
+              fill="outline"
+              [disabled]="!gameStore.isRoomMaster()"
+              [value]="gameStore.settings().durationSeconds"
+              (ionChange)="updateDuration($event.detail.value)"
+            >
+              <ion-select-option [value]="60">1 分鐘</ion-select-option>
+              <ion-select-option [value]="180">3 分鐘</ion-select-option>
+              <ion-select-option [value]="300">5 分鐘</ion-select-option>
+              <ion-select-option [value]="480">8 分鐘</ion-select-option>
+              <ion-select-option [value]="600">10 分鐘</ion-select-option>
+            </ion-select>
+
+            <ion-select
+              label="間諜人數"
+              labelPlacement="stacked"
+              fill="outline"
+              [disabled]="!gameStore.isRoomMaster()"
+              [value]="gameStore.settings().spyCount"
+              (ionChange)="updateSpyCount($event.detail.value)"
+            >
+              <ion-select-option [value]="1">1 位</ion-select-option>
+              <ion-select-option [value]="2" [disabled]="gameStore.players().length < 6">
+                2 位（6 人以上）
+              </ion-select-option>
+            </ion-select>
+          </div>
+          @if (gameStore.players().length < 6) {
+            <small>玩家達 6 人後才能啟用第 2 位間諜。</small>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="player-list-card">
+        <ion-list lines="full">
+          @for (player of gameStore.players(); track player.uid; let index = $index) {
+            <ion-item>
+              <ion-avatar slot="start">
+                <img [alt]="player.displayName" [src]="player.photoUrl" />
+              </ion-avatar>
+              <ion-label>{{ player.displayName }}</ion-label>
+              @if (player.uid === gameStore.roomMasterId()) {
+                <ion-badge color="warning">房主</ion-badge>
+              }
+              <span class="player-index">{{ index + 1 }}</span>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card>
+
+      @if (gameStore.isRoomMaster()) {
+        <ion-button
+          class="primary-action"
+          expand="block"
+          color="danger"
+          [disabled]="gameStore.players().length < 3"
+          (click)="startGame()"
+        >
+          啟動間諜任務
+        </ion-button>
+      } @else {
+        <p class="waiting-message">等待房主啟動任務…</p>
+      }
+    </main>
+  }
+
+  @if (gameStore.status() === '遊戲開始倒數') {
+    <main class="countdown-view">
+      <button
+        type="button"
+        class="identity-card"
+        [class.identity-card--revealed]="identityRevealed()"
+        [class.identity-card--spy]="identityRevealed() && gameStore.me()?.role === '間諜'"
+        (click)="identityRevealed.set(!identityRevealed())"
+      >
+        @if (!identityRevealed()) {
+          <ion-icon name="finger-print" />
+          <strong>點一下查看秘密身分</strong>
+        } @else if (gameStore.me()?.role === '間諜') {
+          <span>你的身分</span>
+          <h1>間諜</h1>
+          <p>你不知道本局場所，請從發言中推理。</p>
+        } @else {
+          <span>你的身分</span>
+          <h1>{{ gameStore.me()?.occupation }}</h1>
+          <p>
+            場所：<strong>{{ gameStore.location()?.name }}</strong>
+          </p>
+        }
+      </button>
+      <div class="countdown-number">{{ gameStore.countdown() }}</div>
+      <p>請確認身分，不要讓旁人看到畫面。</p>
+    </main>
+  }
+
+  @if (gameStore.status() === '發言階段') {
+    <main class="speaking-view">
+      <section class="mission-bar">
+        <div>
+          <span>剩餘時間</span>
+          <strong>{{ formattedTime() }}</strong>
+        </div>
+        <ion-chip [color]="gameStore.me()?.role === '間諜' ? 'danger' : 'primary'">
+          {{ gameStore.me()?.role }}
+        </ion-chip>
+      </section>
+
+      <button
+        type="button"
+        class="private-info"
+        [class.private-info--hidden]="!identityRevealed()"
+        (click)="identityRevealed.set(!identityRevealed())"
+      >
+        @if (!identityRevealed()) {
+          <ion-icon name="eye-off" /> 點擊查看你的秘密資訊
+        } @else if (gameStore.me()?.role === '間諜') {
+          <strong>間諜</strong>・場所未知
+        } @else {
+          <strong>{{ gameStore.location()?.name }}</strong
+          >・{{ gameStore.me()?.occupation }}
+        }
+      </button>
+
+      <ion-card class="speaker-card">
+        <ion-card-content>
+          <span>現在輪到</span>
+          <ion-avatar>
+            <img
+              [alt]="gameStore.currentSpeaker()?.displayName"
+              [src]="gameStore.currentSpeaker()?.photoUrl"
+            />
+          </ion-avatar>
+          <h1>{{ gameStore.currentSpeaker()?.displayName }}</h1>
+          <p>請說出與場所有關、但不會直接曝露答案的線索。</p>
+          @if (
+            gameStore.currentSpeaker()?.uid === gameStore.me()?.uid || gameStore.isRoomMaster()
+          ) {
+            <ion-button
+              expand="block"
+              color="secondary"
+              [disabled]="!!gameStore.activeAccusation()"
+              (click)="finishSpeakingTurn()"
+            >
+              發言完畢・隨機指派下一位
+            </ion-button>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <details class="location-hints">
+        <summary>可能場所清單（{{ gameStore.locationHints().length }}）</summary>
+        <div>
+          @for (location of gameStore.locationHints(); track location) {
+            <ion-chip>{{ location }}</ion-chip>
+          }
+        </div>
+      </details>
+
+      <section class="suspect-section">
+        <h2>玩家名單</h2>
+        @if (gameStore.me()?.role === '普通人') {
+          <p>點選玩家卡片，可向全員發起間諜指認。</p>
+        } @else {
+          <p>觀察所有人的線索，並想辦法融入。</p>
+        }
+        <div class="suspect-grid">
+          @for (player of gameStore.players(); track player.uid) {
+            <button
+              type="button"
+              [disabled]="
+                gameStore.me()?.role !== '普通人' ||
+                player.uid === gameStore.me()?.uid ||
+                !!gameStore.activeAccusation()
+              "
+              [class.suspect-card--self]="player.uid === gameStore.me()?.uid"
+              [class.suspect-card--speaker]="player.uid === gameStore.currentSpeaker()?.uid"
+              (click)="accuse(player)"
+            >
+              <ion-card>
+                <img [alt]="player.displayName" [src]="player.photoUrl" />
+                <ion-card-header>
+                  <ion-card-title>{{ player.displayName }}</ion-card-title>
+                  @if (player.uid === gameStore.currentSpeaker()?.uid) {
+                    <ion-card-subtitle>發言中</ion-card-subtitle>
+                  } @else if (player.uid === gameStore.me()?.uid) {
+                    <ion-card-subtitle>你自己</ion-card-subtitle>
+                  }
+                </ion-card-header>
+              </ion-card>
+            </button>
+          }
+        </div>
+      </section>
+
+      @if (gameStore.activeAccusation()) {
+        <section class="accusation-panel" aria-live="assertive">
+          <span>全員表決中</span>
+          <h2>
+            {{ gameStore.accusationProposer()?.displayName }} 指認
+            {{ gameStore.accusationTarget()?.displayName }} 是間諜
+          </h2>
+          <p>
+            需要 {{ gameStore.majorityNeeded() }} 票才算過半，目前贊成
+            {{ gameStore.yesVoteCount() }} 票。
+          </p>
+
+          <div class="vote-groups">
+            <div>
+              <strong>贊成</strong>
+              <div class="voter-avatars">
+                @for (player of yesVoters(); track player.uid) {
+                  <ion-avatar [title]="player.displayName">
+                    <img [alt]="player.displayName" [src]="player.photoUrl" />
+                  </ion-avatar>
+                }
+              </div>
+            </div>
+            <div>
+              <strong>反對</strong>
+              <div class="voter-avatars">
+                @for (player of noVoters(); track player.uid) {
+                  <ion-avatar [title]="player.displayName">
+                    <img [alt]="player.displayName" [src]="player.photoUrl" />
+                  </ion-avatar>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (!gameStore.hasVotedOnAccusation()) {
+            <div class="vote-actions">
+              <ion-button color="danger" (click)="vote(true)">贊成指認</ion-button>
+              <ion-button fill="outline" color="medium" (click)="vote(false)">反對</ion-button>
+            </div>
+          } @else {
+            <p class="voted-message">你已完成表決，等待其他玩家。</p>
+          }
+        </section>
+      }
+    </main>
+  }
+
+  @if (gameStore.status() === '遊戲結束') {
+    <main class="result-view">
+      <span class="result-eyebrow">任務結束</span>
+      <h1>{{ gameStore.winner() }}陣營獲勝</h1>
+      <p class="end-reason">{{ gameStore.endReason() }}</p>
+
+      <section class="location-reveal">
+        <span>本局場所</span>
+        <h2>{{ gameStore.location()?.name }}</h2>
+      </section>
+
+      @if (gameStore.accusedPlayer()) {
+        <p class="accused-result">
+          被指認的 {{ gameStore.accusedPlayer()?.displayName }} 是
+          <strong>{{ gameStore.accusedPlayer()?.role }}</strong>
+        </p>
+      }
+
+      <section class="role-grid">
+        @for (player of gameStore.players(); track player.uid) {
+          <ion-card [class.spy-card]="player.role === '間諜'">
+            <img [alt]="player.displayName" [src]="player.photoUrl" />
+            <ion-card-header>
+              <ion-card-title>{{ player.displayName }}</ion-card-title>
+              <ion-card-subtitle>
+                {{ player.role }}{{ player.occupation ? '・' + player.occupation : '' }}
+              </ion-card-subtitle>
+            </ion-card-header>
+          </ion-card>
+        }
+      </section>
+
+      @if (gameStore.isRoomMaster()) {
+        <ion-button expand="block" color="warning" (click)="gameStore.reset()">再來一場</ion-button>
+      }
+    </main>
+  }
+</ion-content>

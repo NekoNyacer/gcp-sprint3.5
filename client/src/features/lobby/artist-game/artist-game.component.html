@@ -1,0 +1,232 @@
+<ion-header class="artist-header">
+  <ion-toolbar>
+    <ion-title>誰是偽藝術家</ion-title>
+    @if (gameStore.status() === '遊戲準備中') {
+      <ion-button
+        slot="end"
+        fill="clear"
+        color="danger"
+        [disabled]="isLeaving()"
+        (click)="leaveRoom()"
+      >
+        離開
+      </ion-button>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="artist-page">
+  @if (gameStore.status() === '遊戲準備中') {
+    <main class="waiting-view">
+      <section class="room-heading">
+        <span>遊戲房間</span>
+        <h1>{{ gameStore.name() }}</h1>
+      </section>
+
+      <ion-card class="topic-card">
+        <ion-card-content>
+          <span>全員公開主題</span>
+          <h2>{{ gameStore.topic().category || '準備中…' }}</h2>
+          <p>開始後，藝術家會看到作畫內容，偽藝術家只會知道主題。</p>
+          @if (gameStore.isRoomMaster()) {
+            <ion-button fill="outline" size="small" (click)="regenerateTopic()">
+              <ion-icon slot="start" name="refresh" />
+              換一題
+            </ion-button>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="player-list-card">
+        <ion-list lines="full">
+          @for (player of gameStore.players(); track player.uid; let index = $index) {
+            <ion-item>
+              <ion-avatar slot="start">
+                <img [alt]="player.displayName" [src]="player.photoUrl" />
+              </ion-avatar>
+              <ion-label>{{ player.displayName }}</ion-label>
+              <span
+                class="color-dot"
+                [style.background]="player.color"
+                aria-label="玩家畫筆顏色"
+              ></span>
+              @if (player.uid === gameStore.roomMasterId()) {
+                <ion-badge color="warning">房主</ion-badge>
+              }
+              <span class="player-index">{{ index + 1 }}</span>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card>
+
+      @if (gameStore.isRoomMaster()) {
+        <ion-button
+          class="primary-action"
+          expand="block"
+          color="secondary"
+          [disabled]="gameStore.players().length < 3 || !gameStore.topic().word"
+          (click)="startGame()"
+        >
+          開始遊戲
+        </ion-button>
+      } @else {
+        <p class="waiting-message">等待房主開始遊戲…</p>
+      }
+    </main>
+  }
+
+  @if (gameStore.status() === '遊戲開始倒數') {
+    <main class="countdown-view">
+      <section
+        class="identity-card"
+        [class.identity-card--fake]="gameStore.me()?.role === '偽藝術家'"
+      >
+        <span>你的身分</span>
+        <h1>{{ gameStore.me()?.role }}</h1>
+        <p>
+          主題：<strong>{{ gameStore.topic().category }}</strong>
+        </p>
+        @if (gameStore.me()?.role === '藝術家') {
+          <p>
+            作畫內容：<strong>{{ gameStore.topic().word }}</strong>
+          </p>
+        } @else {
+          <p>你不知道作畫內容，別被發現了！</p>
+        }
+      </section>
+      <div class="countdown-number">{{ gameStore.countdown() }}</div>
+    </main>
+  }
+
+  @if (gameStore.status() === '繪圖中') {
+    <main class="drawing-view">
+      <section class="drawing-meta">
+        <ion-chip color="primary">主題：{{ gameStore.topic().category }}</ion-chip>
+        <ion-chip>第 {{ roundNumber() }} / 2 輪</ion-chip>
+      </section>
+
+      <section class="secret-word" [class.secret-word--fake]="gameStore.me()?.role === '偽藝術家'">
+        @if (gameStore.me()?.role === '藝術家') {
+          作畫內容：<strong>{{ gameStore.topic().word }}</strong>
+        } @else {
+          你是偽藝術家，請根據大家的畫猜題！
+        }
+      </section>
+
+      <div class="turn-banner" [class.turn-banner--mine]="isMyTurn()">
+        @if (isMyTurn()) {
+          <strong>輪到你了！</strong>請用你的顏色畫一筆
+        } @else {
+          現在輪到
+          <ion-avatar>
+            <img
+              [alt]="gameStore.currentPlayer()?.displayName"
+              [src]="gameStore.currentPlayer()?.photoUrl"
+            />
+          </ion-avatar>
+          <strong>{{ gameStore.currentPlayer()?.displayName }}</strong>
+        }
+      </div>
+
+      <div class="canvas-shell" [class.canvas-shell--active]="isMyTurn()">
+        <signature-pad [options]="padOptions" (drawEnd)="onDrawEnd()" />
+        @if (!isMyTurn()) {
+          <div class="canvas-lock" aria-hidden="true"></div>
+        }
+      </div>
+      <p class="stroke-help">觸控並移動後放開才算一筆；太短的點擊不會計算。</p>
+
+      <section class="color-legend" aria-label="玩家畫筆顏色">
+        @for (player of gameStore.players(); track player.uid) {
+          <span [class.color-legend__current]="player.uid === gameStore.currentPlayer()?.uid">
+            <i [style.background]="player.color"></i>{{ player.displayName }}
+          </span>
+        }
+      </section>
+    </main>
+  }
+
+  @if (gameStore.status() === '最終查找階段') {
+    <main class="voting-view">
+      <section class="vote-heading">
+        <span>秘密投票</span>
+        <h1>誰是偽藝術家？</h1>
+        <div class="vote-timer">{{ gameStore.votingCountdown() }} 秒</div>
+        <p>{{ gameStore.hasVoted() ? '你已完成投票' : '點選一位玩家，每人只有一票' }}</p>
+      </section>
+
+      <section class="vote-grid">
+        @for (player of gameStore.players(); track player.uid) {
+          <button
+            type="button"
+            [disabled]="gameStore.hasVoted() || player.uid === gameStore.me()?.uid"
+            [class.vote-card--self]="player.uid === gameStore.me()?.uid"
+            (click)="voteFor(player)"
+          >
+            <ion-card>
+              <img [alt]="player.displayName" [src]="player.photoUrl" />
+              <ion-card-header>
+                <ion-card-title>{{ player.displayName }}</ion-card-title>
+                @if (player.uid === gameStore.me()?.uid) {
+                  <ion-card-subtitle>你自己</ion-card-subtitle>
+                }
+              </ion-card-header>
+              <ion-card-content>
+                <span class="vote-count"
+                  >{{ gameStore.votesReceived()[player.uid].length }} 票</span
+                >
+                <div class="voter-avatars">
+                  @for (voter of gameStore.votesReceived()[player.uid]; track voter.uid) {
+                    <ion-avatar [title]="voter.displayName + ' 投給 ' + player.displayName">
+                      <img [alt]="voter.displayName" [src]="voter.photoUrl" />
+                    </ion-avatar>
+                  }
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </button>
+        }
+      </section>
+    </main>
+  }
+
+  @if (gameStore.status() === '遊戲結束') {
+    <main class="result-view">
+      <span class="result-eyebrow">身分揭曉</span>
+      <h1>偽藝術家是…</h1>
+      <ion-card class="fake-artist-card">
+        <img [alt]="gameStore.fakeArtist()?.displayName" [src]="gameStore.fakeArtist()?.photoUrl" />
+        <ion-card-header>
+          <ion-card-title>{{ gameStore.fakeArtist()?.displayName }}</ion-card-title>
+          <ion-card-subtitle>偽藝術家</ion-card-subtitle>
+        </ion-card-header>
+      </ion-card>
+
+      <section class="answer-card">
+        <span>本回合題目</span>
+        <h2>{{ gameStore.topic().category }} ・ {{ gameStore.topic().word }}</h2>
+      </section>
+
+      <section class="result-votes">
+        <h2>投票結果</h2>
+        @for (player of gameStore.players(); track player.uid) {
+          <div class="result-vote-row">
+            <span><i [style.background]="player.color"></i>{{ player.displayName }}</span>
+            <strong>{{ gameStore.votesReceived()[player.uid].length }} 票</strong>
+            <div class="voter-avatars">
+              @for (voter of gameStore.votesReceived()[player.uid]; track voter.uid) {
+                <ion-avatar [title]="voter.displayName">
+                  <img [alt]="voter.displayName" [src]="voter.photoUrl" />
+                </ion-avatar>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      @if (gameStore.isRoomMaster()) {
+        <ion-button expand="block" color="warning" (click)="gameStore.reset()">再來一場</ion-button>
+      }
+    </main>
+  }
+</ion-content>

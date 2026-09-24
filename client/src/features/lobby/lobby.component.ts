@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { form, FormField, max, maxLength, minLength, required } from '@angular/forms/signals';
 import {
   collection,
@@ -34,8 +34,10 @@ import {
 } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
 import { SessionStore } from '../../shared/stores/session-store';
-import { GameStore, initialState } from './game/game.store';
-import { LobbyService } from './lobby.service';
+import { BONUS_GAME_ROOM_STORAGE_KEY } from './bonus-game.constants';
+import { nineUpperInitialState } from './nine-upper/nine-upper.store';
+import { artistInitialState } from './artist-game/artist-game.store';
+import { spyfallInitialState } from './spyfall-game/spyfall-game.store';
 
 @Component({
   selector: 'app-lobby',
@@ -67,32 +69,70 @@ import { LobbyService } from './lobby.service';
   ],
 })
 export class LobbyComponent {
-  private readonly lobbyService = inject(LobbyService);
   private readonly router = inject(Router);
   private readonly fs = inject(Firestore);
   private readonly sessionStore = inject(SessionStore);
   protected readonly isModalOpen = signal(false);
-  roomList = signal<Room[]>([]);
+  private readonly readyRooms = signal<Room[]>([]);
+  private readonly savedRoom = signal<Room | null>(null);
+  readonly roomList = computed(() => {
+    const currentUserId = this.sessionStore.user()?.uid;
+    const savedRoom = this.savedRoom();
+    const rooms = [...this.readyRooms()];
+
+    if (
+      savedRoom &&
+      savedRoom.playerUids.includes(currentUserId ?? '') &&
+      !rooms.some((room) => room.seq === savedRoom.seq)
+    ) {
+      rooms.unshift(savedRoom);
+    }
+
+    return rooms;
+  });
   protected readonly gamedb = gamedb;
+  protected readonly selectedGame = computed(() =>
+    this.gamedb.find((game) => game.gameCode === this.createCriteria().gameCode),
+  );
 
   ngOnInit() {
     const roomsRef = collection(this.fs, 'rooms');
-    const q = query(roomsRef, where('status', '==', '遊戲準備中'));
+    const readyRoomsQuery = query(roomsRef, where('status', '==', '遊戲準備中'));
 
-    onSnapshot(q, (snapshot) => {
-      const rooms: Room[] = [];
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        rooms.push({
-          seq: data['seq'],
-          createrUID: data['roomMasterId'],
-          name: data['name'] || '未命名房間',
-          players: data['players']?.length || 0,
-          game: this.gamedb.find((x) => x.gameCode === '001')!,
-        });
-      });
-      this.roomList.set(rooms);
+    onSnapshot(readyRoomsQuery, (snapshot) => {
+      this.readyRooms.set(
+        snapshot.docs.map((roomSnapshot) => this.toRoom(roomSnapshot.data(), roomSnapshot.id)),
+      );
     });
+
+    const savedRoomSeq = localStorage.getItem(BONUS_GAME_ROOM_STORAGE_KEY);
+    if (savedRoomSeq) {
+      onSnapshot(doc(this.fs, `rooms/${savedRoomSeq}`), (roomSnapshot) => {
+        if (!roomSnapshot.exists()) {
+          this.savedRoom.set(null);
+          localStorage.removeItem(BONUS_GAME_ROOM_STORAGE_KEY);
+          return;
+        }
+
+        this.savedRoom.set(this.toRoom(roomSnapshot.data(), roomSnapshot.id));
+      });
+    }
+  }
+
+  private toRoom(data: Record<string, any>, fallbackSeq: string): Room {
+    const players = Array.isArray(data['players']) ? data['players'] : [];
+
+    return {
+      seq: data['seq'] || fallbackSeq,
+      createrUID: data['roomMasterId'],
+      name: data['name'] || '未命名房間',
+      players: players.length,
+      playerUids: players.flatMap((player) =>
+        typeof player?.uid === 'string' ? [player.uid] : [],
+      ),
+      status: data['status'] || '遊戲準備中',
+      game: this.gamedb.find((x) => x.gameCode === (data['gameCode'] || '001')) ?? this.gamedb[0],
+    };
   }
 
   private readonly createCriteria = signal<CreateRoom>({
@@ -111,14 +151,21 @@ export class LobbyComponent {
 
   async create() {
     let name = this.createCriteria().roomName;
+    const gameCode = this.createCriteria().gameCode;
     const seq = crypto.randomUUID().slice(0, 8);
     const createrUID = this.sessionStore.user()?.uid!;
     const roomRef = doc(this.fs, `rooms/${seq}`);
 
-    this.lobbyService.customPrompt.set(this.createCriteria().customPrompt);
+    const state =
+      gameCode === '002'
+        ? artistInitialState
+        : gameCode === '003'
+          ? spyfallInitialState
+          : nineUpperInitialState;
 
     await setDoc(roomRef, {
-      ...initialState,
+      ...state,
+      gameCode,
       seq,
       name,
       roomMasterId: createrUID,
@@ -129,7 +176,13 @@ export class LobbyComponent {
 
     this.isModalOpen.set(false);
     setTimeout(() => {
-      this.router.navigate(['/lobby/rooms', seq]);
+      const roomPath =
+        gameCode === '002'
+          ? '/lobby/artist-rooms'
+          : gameCode === '003'
+            ? '/lobby/spyfall-rooms'
+            : '/lobby/rooms';
+      this.router.navigate([roomPath, seq]);
     }, 300);
   }
 
@@ -152,6 +205,8 @@ type Room = {
   seq: string;
   name: string;
   players: number;
+  playerUids: string[];
+  status: string;
   game: Game;
 };
 
@@ -171,5 +226,19 @@ const gamedb: Game[] = [
     maximumPlayer: 9,
     description:
       '《瞎掰王 9UPPER》是款聚會聊天、講幹話設計的熱門派對桌上遊戲。玩家需要絞盡腦汁，欺騙猜題人。',
+  },
+  {
+    gameCode: '002',
+    name: '誰是偽藝術家',
+    boxImageURL: 'images/bonus-games/fake-artist.svg',
+    maximumPlayer: 9,
+    description: '大家輪流在同一張畫上留下一筆，藝術家要畫出題目，偽藝術家則要邊猜邊蒙混過關。',
+  },
+  {
+    gameCode: '003',
+    name: '間諜危機 Spyfall',
+    boxImageURL: 'images/bonus-games/spyfall.svg',
+    maximumPlayer: 9,
+    description: '只有間諜不知道大家所在的場所。用線索試探彼此，在時間內找出混入人群的間諜。',
   },
 ];

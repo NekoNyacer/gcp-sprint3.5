@@ -1,53 +1,125 @@
+.lobby-layout {
+  width: min(100%, 760px);
+  margin-inline: auto;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
 .create-game-list {
   .custom-item {
     --min-height: 100px;
   }
+
   .custom-input {
+    width: 100%;
     --border-radius: 12px;
     --border-color: var(--ion-color-primary);
     --highlight-color: var(--ion-color-primary);
   }
-
 }
 
-
-button{
-  background: none;
-}
-
-ion-card{
-  --border-radius:5px
-}
-
-.create-button{
+.room-link {
   width: 100%;
-  text-align: center;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: start;
 }
 
-.room-name{
-  padding: 0 1rem;
-  text-wrap: nowrap;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
+.room-card {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  margin-inline: 0;
+  border-radius: 14px;
+  overflow: hidden;
 
-.room-info{
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
+  > img {
+    width: 108px;
+    height: 100%;
+    min-height: 132px;
+    object-fit: cover;
+  }
 
-  ion-icon{
-    font-size: large;
+  > div {
+    min-width: 0;
+  }
+
+  ion-card-header {
+    padding: 14px 14px 8px;
+  }
+
+  ion-card-content {
+    display: -webkit-box;
+    padding: 0 14px 14px;
+    overflow: hidden;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 }
 
-ion-card{
-  display: flex;
+.room-status {
+  display: inline-block;
+  margin-right: 6px;
+  color: var(--ion-color-primary);
+  font-weight: 700;
+}
 
-  img{
-    width: 100px;
-    object-fit: contain;
+.room-name {
+  min-width: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+
+  ion-card-title {
+    min-width: 0;
+    overflow: hidden;
+    font-size: clamp(1rem, 4.5vw, 1.25rem);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.room-info {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+
+  ion-icon {
+    font-size: 1.1rem;
+  }
+}
+
+.empty-card {
+  margin-inline: 0;
+  text-align: center;
+}
+
+.create-button {
+  width: 100%;
+  margin-top: 14px;
+  text-align: center;
+}
+
+@media (max-width: 360px) {
+  .room-card {
+    grid-template-columns: 82px minmax(0, 1fr);
+
+    > img {
+      width: 82px;
+      min-height: 112px;
+    }
+
+    ion-card-header {
+      padding: 12px 10px 6px;
+    }
+
+    ion-card-content {
+      padding: 0 10px 10px;
+      font-size: 0.85rem;
+      -webkit-line-clamp: 2;
+    }
   }
 }

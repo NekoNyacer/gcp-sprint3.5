@@ -1,0 +1,244 @@
+:host {
+  display: block;
+}
+
+.room-header ion-toolbar {
+  --min-height: 56px;
+  --padding-start: max(8px, env(safe-area-inset-left));
+  --padding-end: max(4px, env(safe-area-inset-right));
+}
+
+.room-header ion-title {
+  font-size: clamp(1.05rem, 5vw, 1.35rem);
+  font-weight: 700;
+}
+
+.room-header ion-button {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.room-page {
+  --padding-top: clamp(12px, 3vw, 24px);
+  --padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  --padding-start: clamp(12px, 4vw, 28px);
+  --padding-end: clamp(12px, 4vw, 28px);
+}
+
+.waiting-room,
+.title,
+.player-list-card,
+.waiting-topic-card {
+  width: min(100%, 720px);
+  margin-inline: auto;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-inline: 4px;
+
+  h1 {
+    margin-block: 2px 12px;
+    font-size: clamp(1.5rem, 7vw, 2.25rem);
+    overflow-wrap: anywhere;
+  }
+}
+
+.room-eyebrow {
+  color: var(--ion-color-medium);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.waiting-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.waiting-topic-card {
+  margin-block: 4px 14px;
+  padding: clamp(16px, 4vw, 24px);
+  border: 1px solid color-mix(in srgb, var(--ion-color-primary) 22%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--ion-color-primary) 6%, var(--ion-background-color));
+  text-align: center;
+
+  &__content {
+    > span {
+      color: var(--ion-color-primary);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    h2 {
+      margin: 8px 0 12px;
+      font-size: clamp(1.6rem, 8vw, 2.5rem);
+      overflow-wrap: anywhere;
+    }
+
+    p {
+      margin-bottom: 8px;
+      color: var(--ion-color-medium);
+    }
+  }
+
+  &__tips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+
+    ion-chip {
+      margin: 0;
+    }
+  }
+
+  > ion-button {
+    margin: 14px 0 0;
+  }
+}
+
+.player-list-card {
+  margin-top: 4px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+ion-list ion-item {
+  position: relative;
+  --min-height: 64px;
+
+  .player-index {
+    position: absolute;
+    right: 10px;
+    max-width: 45%;
+    overflow: hidden;
+    font-size: clamp(1.35rem, 7vw, 2rem);
+    font-weight: 900;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:nth-child(3n + 1) .player-index {
+    color: color-mix(in srgb, var(--ion-color-primary) 5%, transparent);
+  }
+
+  &:nth-child(3n + 2) .player-index {
+    color: color-mix(in srgb, var(--ion-color-secondary) 5%, transparent);
+  }
+
+  &:nth-child(3n) .player-index {
+    color: color-mix(in srgb, var(--ion-color-tertiary) 5%, transparent);
+  }
+}
+
+.invite-player {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 5vw, 32px);
+  padding-block: 8px;
+
+  h5 {
+    min-width: 0;
+    display: flex;
+    margin-block: 8px;
+    font-size: clamp(0.85rem, 4vw, 1rem);
+    white-space: nowrap;
+
+    span {
+      min-width: 1.5rem;
+    }
+  }
+}
+
+.player-row {
+  position: relative;
+
+  .room-master-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 1px solid black;
+    border-radius: 50%;
+    background-color: black;
+    color: yellow;
+    font-size: 0.8rem;
+  }
+}
+
+.room-settings-form {
+  width: min(100%, 560px);
+  display: grid;
+  gap: 10px;
+  margin-inline: auto;
+
+  ion-textarea {
+    margin-top: 14px;
+  }
+
+  small {
+    padding-inline: 4px;
+    color: var(--ion-color-medium);
+  }
+
+  ion-button {
+    min-height: 48px;
+    margin-top: 18px;
+  }
+}
+
+ion-popover {
+  text-align: center;
+}
+
+@media (max-width: 420px) {
+  .title {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .waiting-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    ion-button {
+      width: 100%;
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 340px) {
+  .room-header ion-title {
+    padding-inline: 8px;
+  }
+
+  .room-header ion-button {
+    font-size: 0.82rem;
+    --padding-start: 6px;
+    --padding-end: 6px;
+  }
+
+  .invite-player {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+
+    h5 {
+      justify-content: center;
+    }
+  }
+
+  .waiting-actions {
+    grid-template-columns: 1fr;
+  }
+}

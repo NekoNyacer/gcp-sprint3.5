@@ -1,0 +1,461 @@
+:host {
+  display: block;
+}
+
+.spyfall-header ion-toolbar {
+  --min-height: 56px;
+  --padding-start: max(8px, env(safe-area-inset-left));
+  --padding-end: max(4px, env(safe-area-inset-right));
+}
+
+.spyfall-page {
+  --padding-top: clamp(12px, 3vw, 24px);
+  --padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  --padding-start: clamp(12px, 4vw, 28px);
+  --padding-end: clamp(12px, 4vw, 28px);
+  --background: linear-gradient(180deg, #f5f8fa 0%, #edf2f4 100%);
+}
+
+.waiting-view,
+.countdown-view,
+.speaking-view,
+.result-view {
+  width: min(100%, 780px);
+  margin-inline: auto;
+}
+
+.room-heading,
+.result-view {
+  text-align: center;
+}
+
+.room-heading > span,
+.result-eyebrow,
+.location-reveal > span {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+
+.room-heading h1,
+.result-view > h1 {
+  margin: 5px 0 8px;
+  font-size: clamp(1.8rem, 8vw, 2.7rem);
+  overflow-wrap: anywhere;
+}
+
+.room-heading p,
+.waiting-message {
+  color: var(--ion-color-medium);
+}
+
+.settings-card,
+.player-list-card,
+.speaker-card {
+  margin-inline: 0;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.settings-card {
+  border-top: 4px solid var(--ion-color-danger);
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settings-card small {
+  display: block;
+  margin-top: 10px;
+  color: var(--ion-color-medium);
+}
+
+.player-list-card {
+  ion-item {
+    position: relative;
+    --min-height: 64px;
+  }
+
+  ion-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  ion-badge {
+    position: relative;
+    z-index: 1;
+    margin-right: 8px;
+  }
+}
+
+.player-index {
+  position: absolute;
+  right: 12px;
+  color: rgb(192 26 47 / 7%);
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.primary-action {
+  min-height: 52px;
+}
+
+.waiting-message {
+  text-align: center;
+}
+
+.countdown-view {
+  min-height: 78dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+
+  > p {
+    color: var(--ion-color-medium);
+    text-align: center;
+  }
+}
+
+.identity-card {
+  width: min(560px, calc(100vw - 32px));
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: clamp(24px, 8vw, 44px);
+  border: 2px dashed #7b8790;
+  border-radius: 24px;
+  background: #20272d;
+  color: white;
+  box-shadow: 0 18px 50px rgb(22 31 38 / 24%);
+
+  ion-icon {
+    font-size: 3rem;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2.2rem, 12vw, 4rem);
+  }
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+    line-height: 1.55;
+  }
+
+  &--revealed {
+    border-style: solid;
+    background: linear-gradient(145deg, #0d6b50, #15906b);
+  }
+
+  &--spy {
+    background: linear-gradient(145deg, #86182a, #c01a3b);
+  }
+}
+
+.countdown-number {
+  color: var(--ion-color-danger);
+  font-size: clamp(4rem, 24vw, 8rem);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.mission-bar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgb(24 31 37 / 94%);
+  color: white;
+  backdrop-filter: blur(8px);
+
+  div {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  span {
+    font-size: 0.8rem;
+  }
+
+  strong {
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.45rem, 7vw, 2rem);
+  }
+}
+
+.private-info {
+  width: 100%;
+  min-height: 50px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--ion-color-primary) 12%, white);
+  color: var(--ion-color-dark);
+  font-size: 1rem;
+
+  &--hidden {
+    background: repeating-linear-gradient(135deg, #e7ebee 0 8px, #dce2e6 8px 16px);
+  }
+}
+
+.speaker-card {
+  border-left: 5px solid var(--ion-color-secondary);
+  text-align: center;
+
+  ion-avatar {
+    width: 84px;
+    height: 84px;
+    margin: 10px auto;
+  }
+
+  h1 {
+    margin: 4px 0;
+    font-size: clamp(1.7rem, 8vw, 2.4rem);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    line-height: 1.5;
+  }
+}
+
+.location-hints {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid #ccd4d9;
+  border-radius: 14px;
+  background: white;
+
+  summary {
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 10px;
+  }
+}
+
+.suspect-section {
+  h2 {
+    margin-bottom: 4px;
+  }
+
+  > p {
+    margin-top: 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+.suspect-grid,
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: 10px;
+}
+
+.suspect-grid {
+  > button {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  > button:disabled {
+    opacity: 0.68;
+  }
+
+  ion-card {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  img,
+  .role-grid img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  ion-card-header {
+    padding: 10px;
+  }
+
+  ion-card-title {
+    overflow: hidden;
+    font-size: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.suspect-card--speaker ion-card {
+  outline: 3px solid var(--ion-color-secondary);
+}
+
+.suspect-card--self ion-card {
+  filter: grayscale(0.65);
+}
+
+.accusation-panel {
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+  margin-top: 18px;
+  padding: clamp(16px, 5vw, 24px);
+  border: 2px solid var(--ion-color-danger);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 97%);
+  box-shadow: 0 18px 48px rgb(61 14 23 / 28%);
+  text-align: center;
+
+  > span {
+    color: var(--ion-color-danger);
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+  }
+
+  h2 {
+    margin: 8px 0;
+    font-size: clamp(1.2rem, 6vw, 1.7rem);
+  }
+}
+
+.vote-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-block: 12px;
+
+  > div {
+    min-height: 78px;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--ion-color-light);
+  }
+}
+
+.voter-avatars {
+  min-height: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 7px;
+
+  ion-avatar {
+    width: 32px;
+    height: 32px;
+    margin-left: -4px;
+    border: 2px solid white;
+  }
+}
+
+.vote-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.voted-message {
+  margin-bottom: 0;
+  color: var(--ion-color-medium);
+}
+
+.result-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.end-reason {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 1.15rem;
+}
+
+.location-reveal {
+  padding: 20px;
+  border-radius: 18px;
+  background: #20272d;
+  color: white;
+
+  h2 {
+    margin: 5px 0 0;
+    font-size: clamp(2rem, 10vw, 3rem);
+  }
+}
+
+.accused-result {
+  font-size: 1.1rem;
+}
+
+.role-grid {
+  text-align: start;
+
+  ion-card {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+
+  ion-card-header {
+    padding: 10px;
+  }
+
+  ion-card-title,
+  ion-card-subtitle {
+    overflow: hidden;
+    font-size: 0.95rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.spy-card {
+  outline: 3px solid var(--ion-color-danger);
+}
+
+@media (max-width: 600px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 380px) {
+  .suspect-grid,
+  .role-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vote-actions {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,150 @@
+<ion-header class="room-header">
+  <ion-toolbar>
+    <ion-title>誰是瞎掰王</ion-title>
+    @if (store.status() === '遊戲準備中') {
+      <ion-buttons slot="end">
+        <ion-button color="danger" fill="clear" [disabled]="isLeaving()" (click)="leaveRoom()">
+          {{ isLeaving() ? '離開中…' : '離開房間' }}
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="room-page ion-padding">
+  @if (store.status() === '遊戲準備中') {
+    <main class="waiting-room">
+      <div class="title">
+        <div>
+          <span class="room-eyebrow">房間名稱</span>
+          <h1>{{ store.name() }}</h1>
+        </div>
+        @if (store.isRoomMaster()) {
+          <div class="waiting-actions">
+            <ion-button fill="outline" (click)="openRoomSettings()">編輯房間</ion-button>
+            <ion-button
+              color="warning"
+              [disabled]="store.isLoading() || !store.topic().question"
+              (click)="startGame()"
+            >
+              遊戲開始
+            </ion-button>
+          </div>
+        }
+      </div>
+
+      <ion-card class="waiting-topic-card">
+        <div class="waiting-topic-card__content">
+          <span>本回合題目</span>
+          @if (store.topic().question) {
+            <h2>{{ store.topic().question }}</h2>
+            <div class="waiting-topic-card__tips">
+              @for (tip of store.topic().tips; track $index) {
+                <ion-chip color="primary">{{ tip }}</ion-chip>
+              }
+            </div>
+          } @else {
+            <p>題目準備中{{ dotdotdot() }}</p>
+          }
+        </div>
+        @if (store.isRoomMaster()) {
+          <ion-button fill="clear" [disabled]="store.isLoading()" (click)="regenerateTopic()">
+            {{ store.isLoading() ? '重新產生中…' : '重新產生題目' }}
+          </ion-button>
+        }
+      </ion-card>
+
+      <ion-card class="player-list-card">
+        <ion-list>
+          @for (player of store.players(); track player.uid) {
+            <ion-item>
+              <ion-avatar class="player-row" slot="start">
+                @if (player.uid === store.roomMasterId()) {
+                  <ion-icon class="room-master-badge" name="star" />
+                }
+                <img [alt]="player.displayName" [src]="player.photoUrl" />
+              </ion-avatar>
+              <ion-label>{{ player.displayName }}</ion-label>
+              <ion-label class="player-index">玩家{{ $index + 1 }}</ion-label>
+            </ion-item>
+          }
+
+          @if (!store.isRoomFull()) {
+            <ion-item>
+              <div class="invite-player">
+                <ion-button id="click-trigger" color="medium">
+                  <ion-icon name="add" />
+                  <span>邀請玩家</span>
+                </ion-button>
+                <h5>
+                  等待加入中<span>{{ dotdotdot() }}</span>
+                </h5>
+              </div>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card>
+    </main>
+  } @else {
+    <app-nine-upper />
+  }
+</ion-content>
+
+<ion-modal [isOpen]="isSettingsOpen()" (didDismiss)="closeRoomSettings()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>編輯房間</ion-title>
+        <ion-buttons slot="end">
+          <ion-button [disabled]="isSavingSettings()" (click)="closeRoomSettings()"
+            >取消</ion-button
+          >
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <div class="room-settings-form">
+        <ion-input
+          label="房間名稱"
+          labelPlacement="floating"
+          fill="outline"
+          maxlength="8"
+          [counter]="true"
+          [value]="roomNameDraft()"
+          (ionInput)="roomNameDraft.set($any($event).detail.value ?? '')"
+        />
+        <small>房間名稱需為 3–8 個字。</small>
+        <ion-textarea
+          label="AI 題目提示詞"
+          labelPlacement="floating"
+          fill="outline"
+          maxlength="20"
+          [counter]="true"
+          [autoGrow]="true"
+          [value]="customPromptDraft()"
+          (ionInput)="customPromptDraft.set($any($event).detail.value ?? '')"
+        />
+        <small>儲存後會套用在下一次重新產生題目。</small>
+        <ion-button
+          expand="block"
+          [disabled]="isRoomSettingsInvalid() || isSavingSettings()"
+          (click)="saveRoomSettings()"
+        >
+          {{ isSavingSettings() ? '儲存中…' : '儲存設定' }}
+        </ion-button>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-popover
+  (ionPopoverWillPresent)="generateInvitationQR()"
+  trigger="click-trigger"
+  triggerAction="click"
+  side="bottom"
+>
+  <ng-template>
+    <ion-content class="ion-padding">分享給想參加遊戲的朋友吧!</ion-content>
+    <img [src]="qr()" alt="房間邀請 QR Code" />
+  </ng-template>
+</ion-popover>

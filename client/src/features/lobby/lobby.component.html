@@ -1,35 +1,50 @@
 <ion-content class="ion-padding">
-  <!-- 房間列表 -->
-  @for (room of roomList(); track room.seq) {
-    <button [routerLink]="['rooms', room.seq]">
-      <ion-card>
-        <img [alt]="room.game.name" [src]="room.game.boxImageURL" />
-        <div>
-          <ion-card-header>
-            <div class="room-name">
-              <ion-card-title>{{ room.name }}</ion-card-title>
-              <ion-card-subtitle class="room-info">
-                <ion-icon name="people" />
-                <span>{{ room.players }}/9</span>
-              </ion-card-subtitle>
-            </div>
-          </ion-card-header>
+  <div class="lobby-layout">
+    <!-- 房間列表 -->
+    @for (room of roomList(); track room.seq) {
+      <button
+        class="room-link"
+        [routerLink]="[
+          room.game.gameCode === '002'
+            ? 'artist-rooms'
+            : room.game.gameCode === '003'
+              ? 'spyfall-rooms'
+              : 'rooms',
+          room.seq,
+        ]"
+      >
+        <ion-card class="room-card">
+          <img [alt]="room.game.name" [src]="room.game.boxImageURL" />
+          <div>
+            <ion-card-header>
+              <div class="room-name">
+                <ion-card-title>{{ room.name }}</ion-card-title>
+                <ion-card-subtitle class="room-info">
+                  <ion-icon name="people" />
+                  <span>{{ room.players }}/{{ room.game.maximumPlayer }}</span>
+                </ion-card-subtitle>
+              </div>
+            </ion-card-header>
 
-          <ion-card-content>
-            {{ room.game.description }}
-          </ion-card-content>
-        </div>
+            <ion-card-content>
+              @if (room.status !== '遊戲準備中') {
+                <span class="room-status">進行中・點此返回</span>
+              }
+              {{ room.game.description }}
+            </ion-card-content>
+          </div>
+        </ion-card>
+      </button>
+    } @empty {
+      <ion-card class="empty-card">
+        <ion-card-header>
+          <ion-card-title>目前無進行中遊戲房間</ion-card-title>
+        </ion-card-header>
       </ion-card>
-    </button>
-  } @empty {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>目前無進行中遊戲房間</ion-card-title>
-      </ion-card-header>
-    </ion-card>
-  }
-  <div class="create-button">
-    <ion-button shape="round" expand="block" (click)="toggleModal(true)">建立遊戲</ion-button>
+    }
+    <div class="create-button">
+      <ion-button shape="round" expand="block" (click)="toggleModal(true)"> 建立遊戲 </ion-button>
+    </div>
   </div>
 </ion-content>
 
@@ -82,21 +97,27 @@
           </div>
         </ion-item>
 
-        <!-- 客製化提示詞 -->
-        <ion-item class="custom-item">
-          <ion-textarea
-            label="客製化提示詞"
-            labelPlacement="floating"
-            fill="outline"
-            [counter]="true"
-            maxlength="20"
-            placeholder="可輸入最多20字的客製化提示詞"
-            class="custom-input"
-            rows="5"
-            style="margin-top: 10px"
-            [formField]="createForm.customPrompt"
-          ></ion-textarea>
-        </ion-item>
+        @if (selectedGame()?.gameCode !== '003') {
+          <!-- 題目偏好 -->
+          <ion-item class="custom-item">
+            <ion-textarea
+              [label]="selectedGame()?.gameCode === '002' ? '指定主題（選填）' : '客製化提示詞'"
+              labelPlacement="floating"
+              fill="outline"
+              [counter]="true"
+              maxlength="20"
+              [placeholder]="
+                selectedGame()?.gameCode === '002'
+                  ? '例如：水果、動物、交通工具'
+                  : '可輸入最多20字的客製化提示詞'
+              "
+              class="custom-input"
+              rows="5"
+              style="margin-top: 10px"
+              [formField]="createForm.customPrompt"
+            ></ion-textarea>
+          </ion-item>
+        }
       </ion-list>
       <ion-button color="secondary" expand="block" (click)="create()">+建立遊戲房間</ion-button>
     </ion-content>

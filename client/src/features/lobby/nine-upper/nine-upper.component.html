@@ -1,0 +1,135 @@
+@if (store.status() === '遊戲開始倒數') {
+  <div class="countdown">
+    <p>遊戲即將開始，倒數：</p>
+    <h1>{{ store.countdown() }}</h1>
+  </div>
+}
+
+@if (store.status() === '遊戲進行中') {
+  <main class="game-main">
+    <div class="info">
+      <p>猜題人是：{{ store.guessingPlayer()?.displayName }}</p>
+      <p>
+        現在輪到
+        <ion-chip color="primary">
+          <ion-avatar>
+            <img
+              [alt]="store.currentPlayer()?.displayName"
+              [src]="store.currentPlayer()?.photoUrl"
+            />
+          </ion-avatar>
+          <ion-label>{{ store.currentPlayer()?.displayName }}</ion-label>
+        </ion-chip>
+        發言中
+      </p>
+    </div>
+
+    <div class="card-container" (click)="flipped.set(!flipped())">
+      <ion-card class="card-front" [class.flipped]="flipped()">
+        <div>
+          <p>本次題目是...</p>
+          <h1>{{ topic().question }}</h1>
+          <p>提示：{{ topic().tips[0] }}／{{ topic().tips[1] }}／{{ topic().tips[2] }}</p>
+        </div>
+      </ion-card>
+
+      <ion-card class="card-back" [class.flipped]="flipped()">
+        <div>
+          <h1>{{ topic().question }}</h1>
+          <p>提示：{{ topic().tips[0] }}／{{ topic().tips[1] }}／{{ topic().tips[2] }}</p>
+          @switch (playerRole()) {
+            @case ('猜題人') {
+              <p>你是猜題人，請找出誰是老實人!</p>
+            }
+            @case ('老實人') {
+              <p>{{ topic().answer }}</p>
+            }
+            @case ('唬爛人') {
+              <p>{{ gibberish }}</p>
+            }
+          }
+        </div>
+      </ion-card>
+    </div>
+
+    @if (store.isRoomMaster()) {
+      <div class="host-controls">
+        <ion-button color="secondary" (click)="nextPlayer()">輪到下一位玩家發言</ion-button>
+      </div>
+    }
+  </main>
+}
+
+@if (store.status() === '最終猜測階段') {
+  <main class="final-choose">
+    <p>請 {{ store.guessingPlayer()?.displayName }} 指認老實人</p>
+    <section class="player-card-grid">
+      @for (
+        player of players().filter((item) => item.uid !== store.guessingPlayer()?.uid);
+        track player.uid
+      ) {
+        <button type="button" (click)="selectPlayer(player)">
+          <ion-card>
+            <img [alt]="player.displayName" [src]="player.photoUrl" />
+            <ion-card-header>
+              <ion-card-title>{{ player.displayName }}</ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </button>
+      }
+    </section>
+  </main>
+}
+
+@if (store.status() === '遊戲結束') {
+  <main class="final-choose">
+    <span>遊戲結束，被{{ store.guessingPlayer()?.displayName }}指控的人是...</span>
+    <section class="player-card-grid result-card-grid">
+      <ion-card>
+        <img [alt]="store.chosenPlayer()?.displayName" [src]="store.chosenPlayer()?.photoUrl" />
+        <ion-card-header>
+          <ion-card-title>{{ store.chosenPlayer()?.displayName }}</ion-card-title>
+        </ion-card-header>
+      </ion-card>
+    </section>
+
+    <div class="final-reveal">
+      <span>他是一名...</span>
+      <h1>{{ store.chosenPlayer()?.role }}</h1>
+    </div>
+
+    <section class="answer-reveal" aria-labelledby="answer-reveal-title">
+      <span class="answer-reveal__eyebrow">本回合正確解答</span>
+      <h2 id="answer-reveal-title">{{ topic().question }}</h2>
+      <p>{{ topic().answer }}</p>
+      <div class="answer-reveal__tips" aria-label="題目提示">
+        @for (tip of topic().tips; track $index) {
+          <ion-chip color="primary">{{ tip }}</ion-chip>
+        }
+      </div>
+    </section>
+
+    <span>其餘玩家的身分</span>
+    <section class="player-card-grid">
+      @for (
+        player of players().filter(
+          (item) =>
+            item.uid !== store.chosenPlayer()?.uid && item.uid !== store.guessingPlayer()?.uid
+        );
+        track player.uid
+      ) {
+        <ion-card>
+          <img [alt]="player.displayName" [src]="player.photoUrl" />
+          <ion-card-header>
+            <ion-card-title>{{ player.displayName }}</ion-card-title>
+            <ion-card-subtitle>{{ player.role }}</ion-card-subtitle>
+          </ion-card-header>
+        </ion-card>
+      }
+    </section>
+
+    @if (store.isRoomMaster()) {
+      <ion-button color="warning" (click)="store.reset()">再來一場</ion-button>
+    }
+  </main>
+}

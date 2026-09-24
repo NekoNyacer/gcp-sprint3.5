@@ -1,0 +1,336 @@
+:host {
+  display: block;
+  width: min(100%, 720px);
+  min-height: 100%;
+  margin-inline: auto;
+}
+
+.countdown {
+  width: 100%;
+  min-height: clamp(360px, 70dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  text-align: center;
+  animation: shifting-background-color 3s steps(1) infinite;
+
+  p {
+    margin-inline: 16px;
+    font-size: clamp(1.1rem, 6vw, 1.5rem);
+    font-weight: 700;
+    animation: shifting-number-color 3s infinite;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--ion-color-primary-contrast);
+    font-size: clamp(6rem, 35vw, 10rem);
+    animation: shrink-number 1s ease-out infinite;
+  }
+}
+
+.game-main,
+.final-choose {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.info {
+  width: 100%;
+  margin-bottom: 12px;
+  text-align: center;
+
+  p {
+    margin: 4px 0;
+    line-height: 1.45;
+  }
+
+  ion-chip {
+    height: auto;
+    min-height: 48px;
+    margin: 4px;
+    vertical-align: middle;
+  }
+
+  ion-avatar {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+.game-main ion-card,
+.final-choose ion-card {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  container-type: inline-size;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    color: var(--ion-color-dark);
+    font-size: clamp(1.5rem, 15cqw, 4rem);
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    padding-inline: clamp(14px, 5vw, 28px);
+    font-size: clamp(1rem, 4.5vw, 1.2rem);
+    font-weight: 500;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+}
+
+.card-container {
+  position: relative;
+  width: 100%;
+  height: clamp(280px, 52dvh, 520px);
+  min-height: 280px;
+  perspective: 1000px;
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow-y: auto;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+
+  > div {
+    width: 100%;
+    margin-block: auto;
+    padding-block: 16px;
+  }
+}
+
+.card-front {
+  transform: rotateY(0deg);
+
+  &.flipped {
+    transform: rotateY(-180deg);
+  }
+}
+
+.card-back {
+  transform: rotateY(180deg);
+
+  &.flipped {
+    transform: rotateY(0deg);
+  }
+}
+
+.host-controls {
+  width: 100%;
+  margin-top: 14px;
+
+  ion-button {
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    --border-radius: 10px;
+  }
+}
+
+.final-choose {
+  gap: 12px;
+
+  > p,
+  > span {
+    margin: 0;
+    text-align: center;
+  }
+
+  > p {
+    color: var(--ion-color-medium);
+    font-size: clamp(1.15rem, 5.5vw, 1.5rem);
+  }
+}
+
+.player-card-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(125px, 100%), 1fr));
+  gap: 10px;
+
+  button {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  ion-card {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    flex-direction: column;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    ion-card-header {
+      width: 100%;
+      padding: 12px 8px;
+    }
+
+    ion-card-title,
+    ion-card-subtitle {
+      overflow: hidden;
+      font-size: clamp(0.95rem, 4.5vw, 1.2rem);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.result-card-grid {
+  grid-template-columns: minmax(140px, 220px);
+  justify-content: center;
+}
+
+.final-reveal {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+}
+
+.answer-reveal {
+  width: 100%;
+  padding: clamp(18px, 5vw, 28px);
+  border: 1px solid color-mix(in srgb, var(--ion-color-primary) 24%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ion-color-primary) 7%, var(--ion-background-color));
+  text-align: center;
+
+  &__eyebrow {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ion-color-primary);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 8vw, 2.4rem);
+    overflow-wrap: anywhere;
+  }
+
+  p {
+    margin: 12px 0 0;
+    font-size: clamp(1rem, 4.5vw, 1.15rem);
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+
+  &__tips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+
+    ion-chip {
+      margin: 0;
+    }
+  }
+}
+
+@keyframes shrink-number {
+  0% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  99% {
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shifting-background-color {
+  0%,
+  100% {
+    background-color: color-mix(in srgb, var(--ion-color-primary) 80%, transparent);
+  }
+  33% {
+    background-color: color-mix(in srgb, var(--ion-color-secondary) 80%, transparent);
+  }
+  66% {
+    background-color: color-mix(in srgb, var(--ion-color-tertiary) 80%, transparent);
+  }
+}
+
+@keyframes shifting-number-color {
+  0%,
+  100% {
+    color: var(--ion-color-primary-contrast);
+  }
+  33% {
+    color: var(--ion-color-medium-contrast);
+  }
+  66% {
+    color: var(--ion-color-tertiary-contrast);
+  }
+}
+
+@media (max-width: 340px) {
+  .player-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .result-card-grid {
+    grid-template-columns: minmax(130px, 200px);
+  }
+}
+
+@media (max-height: 700px) {
+  .card-container {
+    height: 48dvh;
+    min-height: 250px;
+  }
+
+  .countdown {
+    min-height: 62dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .countdown,
+  .countdown p,
+  .countdown h1 {
+    animation: none;
+  }
+
+  .card-front,
+  .card-back {
+    transition-duration: 0.01ms;
+  }
+}

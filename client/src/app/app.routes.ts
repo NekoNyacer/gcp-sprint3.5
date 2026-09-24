@@ -63,7 +63,21 @@ export const routes: Routes = [
           {
             path: 'rooms/:seq',
             loadComponent: () =>
-              import('../features/lobby/game/game.component').then((m) => m.GameComponent),
+              import('../features/lobby/room/room.component').then((m) => m.RoomComponent),
+          },
+          {
+            path: 'artist-rooms/:seq',
+            loadComponent: () =>
+              import('../features/lobby/artist-game/artist-game.component').then(
+                (m) => m.ArtistGameComponent,
+              ),
+          },
+          {
+            path: 'spyfall-rooms/:seq',
+            loadComponent: () =>
+              import('../features/lobby/spyfall-game/spyfall-game.component').then(
+                (m) => m.SpyfallGameComponent,
+              ),
           },
         ],
       },

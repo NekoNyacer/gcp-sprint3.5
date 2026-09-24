@@ -1,5 +1,10 @@
-import { effect, linkedSignal, Service, signal } from '@angular/core';
+import { linkedSignal, Service, signal } from '@angular/core';
 import { Subject } from 'rxjs';
+
+const DEFAULT_DIALOG_CONFIG: DialogConfig = {
+  mainBtnTxt: '確認',
+  subBtnTxt: '取消',
+};
 
 @Service()
 export class DialogService {
@@ -21,17 +26,14 @@ export class DialogService {
   });
 
   //呼叫openDialog時，可客製彈窗的設定
-  readonly config = signal<DialogConfig>({
-    mainBtnTxt: '確認',
-    subBtnTxt: '取消',
-  });
+  readonly config = signal<DialogConfig>(DEFAULT_DIALOG_CONFIG);
 
   /**
    * 開啟彈窗的方法
    * @param content 彈窗內容，開啟時必須填入彈窗內容
    */
-  openDialog(content: string, config?: DialogConfig) {
-    this.config.update((v) => ({ ...v, ...config }));
+  openDialog(content: string, config?: Partial<DialogConfig>) {
+    this.config.set({ ...DEFAULT_DIALOG_CONFIG, ...config });
     this.content.set(content);
     this.isDialogOpen.set(true);
 
