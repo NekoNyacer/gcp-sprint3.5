@@ -11,10 +11,10 @@ import {
   IonTabs,
   IonBadge,
   IonHeader,
-  IonThumbnail,
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
+  people,
   navigateCircle,
   navigateCircleOutline,
   gift,
@@ -30,16 +30,18 @@ import {
   sunnyOutline,
   cube,
   add,
+  close,
+  star,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
+import { DialogComponent } from '../dialog/dialog.component';
 
 @Component({
   selector: 'app-shell',
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
   imports: [
-    IonThumbnail,
     IonHeader,
     IonMenuToggle,
     IonButton,
@@ -50,6 +52,7 @@ import { TaskStore } from '../../../features/task/task-store';
     IonTabs,
     IonBadge,
     MenuComponent,
+    DialogComponent,
   ],
 })
 export class AppShellComponent {
@@ -58,6 +61,9 @@ export class AppShellComponent {
   readonly taskStore = inject(TaskStore);
   constructor() {
     addIcons({
+      people,
+      star,
+      close,
       add,
       cube,
       sunny,
@@ -92,7 +98,7 @@ export class AppShellComponent {
    * @returns "在首頁: /home"
    * @returns "在任務: /task"
    * @returns "在收藏: /collection"
-   * @returns "在兌換: /shop"
+   * @returns "在商城: /shop"
    * @returns "在個人頁面: /profile"
    */
   readonly currentUrl = computed(() => {
@@ -101,6 +107,4 @@ export class AppShellComponent {
       navigation?.extractedUrl.toString() ??
       this.router.url) as '/home' | '/task' | '/collection' | '/shop' | '/profile';
   });
-
-  readonly isShopRoute = computed(() => this.currentUrl().startsWith('/shop'));
 }

@@ -1,0 +1,6 @@
+<ion-alert
+  [isOpen]="isDialogOpen()"
+  [header]="content()"
+  [buttons]="buttonHandler()"
+  (didDismiss)="onDialogDismiss()"
+/>

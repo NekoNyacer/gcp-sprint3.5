@@ -1,0 +1,53 @@
+.create-game-list {
+  .custom-item {
+    --min-height: 100px;
+  }
+  .custom-input {
+    --border-radius: 12px;
+    --border-color: var(--ion-color-primary);
+    --highlight-color: var(--ion-color-primary);
+  }
+
+}
+
+
+button{
+  background: none;
+}
+
+ion-card{
+  --border-radius:5px
+}
+
+.create-button{
+  width: 100%;
+  text-align: center;
+}
+
+.room-name{
+  padding: 0 1rem;
+  text-wrap: nowrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.room-info{
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+
+  ion-icon{
+    font-size: large;
+  }
+}
+
+ion-card{
+  display: flex;
+
+  img{
+    width: 100px;
+    object-fit: contain;
+  }
+}

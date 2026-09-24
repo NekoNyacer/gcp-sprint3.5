@@ -1,45 +1,46 @@
-
- :host {
+:host {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
 }
 
-ion-header {
-  margin-bottom: 1rem;
+.cathay-custom-logo {
+  width: 248px;
+  height: 62px;
+}
+
+ion-header.cathay-header {
   padding-top: env(safe-area-inset-top);
-  color: var(--ion-color-primary-contrast);
-  background:
-    linear-gradient(135deg, var(--ion-color-primary-shade) 0%, var(--ion-color-primary) 100%);
+  background: transparent;
   box-shadow: none;
 
-  div{
-    width: 100%;
+  .header-container {
     display: flex;
     justify-content: space-between;
-    gap: 0.7rem;
-    min-height: 4.25rem;
-    padding: 0.65rem 1rem;
-    box-sizing: border-box;
-  }
-
-  div > ion-thumbnail{
-    display: flex;
-    flex: 0 1 clamp(7.25rem, 34vw, 10.5rem);
     align-items: center;
-    justify-content: center;
-    width: clamp(7.25rem, 34vw, 10.5rem);
-    height: 2rem;
-    padding: 0.45rem 0.7rem;
-    box-sizing: content-box;
+    min-height: 4.25rem;
+    padding: 0.5rem 1rem;
+    box-sizing: border-box;
+    width: 100%;
   }
 
-  div > ion-thumbnail > img{
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+  .logo-wrapper {
+    display: flex;
+    align-items: center;
+    /* 響應式寬度：最小 150px，最大 200px */
+    width: clamp(180px, 50vw, 240px);
+
+    svg.cathay-custom-logo {
+      width: 100%;
+      height: auto; /* 讓高度自動跟隨 viewBox 的比例縮放 */
+      display: block;
+    }
+  }
+
+  ion-button{
+    color: var(--ion-color-secondary);
+
   }
 }
 
@@ -55,7 +56,7 @@ ion-tabs {
 .tabBar {
   --background: transparent;
   --color: var(--ion-color-secondary-shade);
-  --color-selected:var(--ion-color-secondary);
+  --color-selected: var(--ion-color-secondary);
 }
 
 .menu-toggle-fab {

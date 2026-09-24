@@ -21,7 +21,8 @@ export const routes: Routes = [
       },
       {
         path: 'task/:taskId',
-        loadComponent: () => import('../features/task/task-detail.component').then((m) => m.TaskDetailComponent),
+        loadComponent: () =>
+          import('../features/task/task-detail.component').then((m) => m.TaskDetailComponent),
       },
       {
         path: 'collection',
@@ -52,8 +53,19 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'game',
-        loadComponent: () => import('../features/game/game.component').then((m) => m.GameComponent),
+        path: 'lobby',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('../features/lobby/lobby.component').then((m) => m.LobbyComponent),
+          },
+          {
+            path: 'rooms/:seq',
+            loadComponent: () =>
+              import('../features/lobby/game/game.component').then((m) => m.GameComponent),
+          },
+        ],
       },
       {
         path: 'upload',
