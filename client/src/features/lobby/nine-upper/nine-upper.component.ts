@@ -63,7 +63,4 @@ export class NineUpperComponent {
         if (result === 'confirm') void this.store.nextAnswerPlayer();
       });
   }
-
-  protected readonly gibberish =
-    '滾滾長江東逝水，浪花淘盡英雄。是非成敗轉頭空，青山依舊在，幾度夕陽紅。白髮漁樵江渚上，慣看秋月春風。一壺濁酒喜相逢，古今多少事，都付笑談';
 }

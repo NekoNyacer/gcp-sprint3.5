@@ -61,9 +61,13 @@ export class ArtistGameComponent {
 
   private readonly canvasWidth =
     typeof window === 'undefined' ? 640 : Math.min(640, Math.max(280, window.innerWidth - 40));
+  private readonly canvasHeight =
+    typeof window === 'undefined' || this.canvasWidth >= 600
+      ? Math.round((this.canvasWidth * 420) / 640)
+      : Math.min(560, Math.max(300, window.innerHeight - 380));
   protected readonly padOptions: NgSignaturePadOptions = {
     canvasWidth: this.canvasWidth,
-    canvasHeight: Math.round((this.canvasWidth * 420) / 640),
+    canvasHeight: this.canvasHeight,
     backgroundColor: '#fffef8',
     canvasBackground: '#fffef8',
     minWidth: 2.5,
@@ -111,7 +115,7 @@ export class ArtistGameComponent {
 
   protected regenerateTopic() {
     this.dialogService
-      .openDialog('確定要換一個繪畫題目嗎？')
+      .openDialog('確定要換主題嗎？')
       .pipe(take(1))
       .subscribe((result) => {
         if (result === 'confirm') void this.gameStore.generateTopic();

@@ -19,11 +19,14 @@ import {
   IonSelectOption,
   IonTitle,
   IonToolbar,
+  IonPopover,
+  IonAccordionGroup,
+  IonAccordion,
 } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { DialogService } from '../../../shared/services/dialog.service';
-import { SpyfallGameStore, SpyfallPlayer } from './spyfall-game.store';
+import { SpyfallGameStore, SpyfallLocation, SpyfallPlayer } from './spyfall-game.store';
 
 @Component({
   selector: 'app-spyfall-game',
@@ -49,6 +52,9 @@ import { SpyfallGameStore, SpyfallPlayer } from './spyfall-game.store';
     IonSelectOption,
     IonTitle,
     IonToolbar,
+    IonPopover,
+    IonAccordionGroup,
+    IonAccordion,
   ],
   providers: [SpyfallGameStore],
 })
@@ -112,16 +118,31 @@ export class SpyfallGameComponent {
     void this.gameStore.finishSpeakingTurn();
   }
 
+  protected assertLocation(location: string) {
+    if (this.gameStore.me()?.role !== '間諜' || this.gameStore.activeAccusation()) {
+      return;
+    }
+    this.dialogService
+      .openDialog(`確定本局場所是「${location}」嗎?`, {
+        mainBtnTxt: '確定',
+        subBtnTxt: '再觀察一下',
+      })
+      .pipe(take(1))
+      .subscribe((result) => {
+        if (result === 'confirm') void this.gameStore.assertLocation(location);
+      });
+  }
+
   protected accuse(player: SpyfallPlayer) {
     if (
-      this.gameStore.me()?.role !== '普通人' ||
       player.uid === this.gameStore.me()?.uid ||
-      this.gameStore.activeAccusation()
+      this.gameStore.activeAccusation() ||
+      this.gameStore.hasProposed()
     ) {
       return;
     }
     this.dialogService
-      .openDialog(`要提名 ${player.displayName} 為間諜，並向全員發起投票嗎？`, {
+      .openDialog(`要指控「${player.displayName}」為間諜嗎？`, {
         mainBtnTxt: '發起投票',
         subBtnTxt: '再觀察一下',
       })

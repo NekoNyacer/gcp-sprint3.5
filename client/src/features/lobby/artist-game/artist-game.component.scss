@@ -2,10 +2,10 @@
   display: block;
 }
 
-.artist-header ion-toolbar {
-  --min-height: 56px;
-  --padding-start: max(8px, env(safe-area-inset-left));
-  --padding-end: max(4px, env(safe-area-inset-right));
+.artist-header  {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 10px 10px;
 }
 
 .artist-page {
@@ -114,7 +114,10 @@
 .waiting-message,
 .stroke-help {
   color: var(--ion-color-medium);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 
 .countdown-view {
@@ -225,7 +228,6 @@ signature-pad {
   height: auto !important;
   display: block;
   border: 0 !important;
-  aspect-ratio: 640 / 420;
   touch-action: none;
 }
 

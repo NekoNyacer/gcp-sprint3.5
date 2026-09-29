@@ -1,33 +1,28 @@
-<ion-header class="artist-header">
-  <ion-toolbar>
-    <ion-title>誰是偽藝術家</ion-title>
-    @if (gameStore.status() === '遊戲準備中') {
-      <ion-button
-        slot="end"
-        fill="clear"
-        color="danger"
-        [disabled]="isLeaving()"
-        (click)="leaveRoom()"
-      >
-        離開
-      </ion-button>
-    }
-  </ion-toolbar>
-</ion-header>
+@if (gameStore.status() === '遊戲準備中') {
+  <div class="artist-header">
+    <ion-title> {{ gameStore.name() }}</ion-title>
+    <ion-button
+      slot="end"
+      fill="outline"
+      color="danger"
+      [disabled]="isLeaving()"
+      (click)="leaveRoom()"
+    >
+      <ion-icon name="exit-outline"></ion-icon>
+      退出
+    </ion-button>
+  </div>
+}
 
 <ion-content class="artist-page">
   @if (gameStore.status() === '遊戲準備中') {
     <main class="waiting-view">
-      <section class="room-heading">
-        <span>遊戲房間</span>
-        <h1>{{ gameStore.name() }}</h1>
-      </section>
-
       <ion-card class="topic-card">
         <ion-card-content>
-          <span>全員公開主題</span>
+          <ion-title>誰是偽藝術家</ion-title>
+          <span>本次繪畫主題</span>
           <h2>{{ gameStore.topic().category || '準備中…' }}</h2>
-          <p>開始後，藝術家會看到作畫內容，偽藝術家只會知道主題。</p>
+          <p>真正的藝術家才能看到題目，偽藝術家只知道主題。</p>
           @if (gameStore.isRoomMaster()) {
             <ion-button fill="outline" size="small" (click)="regenerateTopic()">
               <ion-icon slot="start" name="refresh" />
@@ -51,7 +46,7 @@
                 aria-label="玩家畫筆顏色"
               ></span>
               @if (player.uid === gameStore.roomMasterId()) {
-                <ion-badge color="warning">房主</ion-badge>
+                <ion-badge color="primary">房主</ion-badge>
               }
               <span class="player-index">{{ index + 1 }}</span>
             </ion-item>
@@ -107,17 +102,17 @@
 
       <section class="secret-word" [class.secret-word--fake]="gameStore.me()?.role === '偽藝術家'">
         @if (gameStore.me()?.role === '藝術家') {
-          作畫內容：<strong>{{ gameStore.topic().word }}</strong>
+          請與大家共同畫出：<strong>{{ gameStore.topic().word }}</strong>
         } @else {
-          你是偽藝術家，請根據大家的畫猜題！
+          你就是偽藝術家，你不知道作畫內容是什麼！
         }
       </section>
 
       <div class="turn-banner" [class.turn-banner--mine]="isMyTurn()">
         @if (isMyTurn()) {
-          <strong>輪到你了！</strong>請用你的顏色畫一筆
+          <strong>輪到你了！請根據題目畫一筆吧!</strong>
         } @else {
-          現在輪到
+          <span style="text-wrap: nowrap"> 輪到 </span>
           <ion-avatar>
             <img
               [alt]="gameStore.currentPlayer()?.displayName"
@@ -134,7 +129,10 @@
           <div class="canvas-lock" aria-hidden="true"></div>
         }
       </div>
-      <p class="stroke-help">觸控並移動後放開才算一筆；太短的點擊不會計算。</p>
+      <p class="stroke-help">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        觸控並移動後放開才算一筆；太短的點擊不會計算。
+      </p>
 
       <section class="color-legend" aria-label="玩家畫筆顏色">
         @for (player of gameStore.players(); track player.uid) {
@@ -198,7 +196,6 @@
         <img [alt]="gameStore.fakeArtist()?.displayName" [src]="gameStore.fakeArtist()?.photoUrl" />
         <ion-card-header>
           <ion-card-title>{{ gameStore.fakeArtist()?.displayName }}</ion-card-title>
-          <ion-card-subtitle>偽藝術家</ion-card-subtitle>
         </ion-card-header>
       </ion-card>
 
@@ -225,7 +222,9 @@
       </section>
 
       @if (gameStore.isRoomMaster()) {
-        <ion-button expand="block" color="warning" (click)="gameStore.reset()">再來一場</ion-button>
+        <ion-button expand="block" color="secondary" (click)="gameStore.reset()"
+          >再來一場</ion-button
+        >
       }
     </main>
   }

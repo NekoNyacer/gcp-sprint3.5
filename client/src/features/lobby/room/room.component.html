@@ -47,9 +47,9 @@
             <p>題目準備中{{ dotdotdot() }}</p>
           }
         </div>
-        @if (store.isRoomMaster()) {
-          <ion-button fill="clear" [disabled]="store.isLoading()" (click)="regenerateTopic()">
-            {{ store.isLoading() ? '重新產生中…' : '重新產生題目' }}
+        @if (store.isRoomMaster() && !store.isLoading()) {
+          <ion-button fill="outline" [disabled]="store.isLoading()" (click)="regenerateTopic()">
+            重新產生題目
           </ion-button>
         }
       </ion-card>

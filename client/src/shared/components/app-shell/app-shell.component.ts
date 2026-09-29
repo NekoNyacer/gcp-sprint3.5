@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
+  refresh,
   people,
   navigateCircle,
   navigateCircleOutline,
@@ -32,6 +33,9 @@ import {
   add,
   close,
   star,
+  alertCircleOutline,
+  exitOutline,
+  fingerPrint,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
@@ -61,6 +65,10 @@ export class AppShellComponent {
   readonly taskStore = inject(TaskStore);
   constructor() {
     addIcons({
+      fingerPrint,
+      exitOutline,
+      alertCircleOutline,
+      refresh,
       people,
       star,
       close,
@@ -100,11 +108,14 @@ export class AppShellComponent {
    * @returns "在收藏: /collection"
    * @returns "在商城: /shop"
    * @returns "在個人頁面: /profile"
+   * @returns "在遊戲大廳: /lobby"
    */
   readonly currentUrl = computed(() => {
     const navigation = this.router.currentNavigation();
     return (navigation?.finalUrl?.toString() ??
       navigation?.extractedUrl.toString() ??
-      this.router.url) as '/home' | '/task' | '/collection' | '/shop' | '/profile';
+      this.router.url) as '/home' | '/task' | '/collection' | '/shop' | '/profile' | '/lobby';
   });
+
+  readonly isInLobby = computed(() => this.currentUrl().includes('lobby'));
 }
