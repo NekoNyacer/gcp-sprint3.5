@@ -28,6 +28,7 @@
 .waiting-view,
 .countdown-view,
 .drawing-view,
+.review-view,
 .voting-view,
 .result-view {
   width: min(100%, 760px);
@@ -35,12 +36,14 @@
 }
 
 .room-heading,
+.review-heading,
 .vote-heading,
 .result-view {
   text-align: center;
 }
 
 .room-heading span,
+.review-heading > span,
 .vote-heading > span,
 .result-eyebrow,
 .topic-card span,
@@ -52,6 +55,7 @@
 }
 
 .room-heading h1,
+.review-heading h1,
 .vote-heading h1,
 .result-view > h1 {
   margin: 4px 0 14px;
@@ -232,6 +236,10 @@
     border-color: var(--ion-color-secondary);
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--ion-color-secondary) 18%, transparent);
   }
+
+  &--readonly {
+    border-color: color-mix(in srgb, var(--ion-color-primary) 32%, var(--ion-color-light-shade));
+  }
 }
 
 signature-pad {
@@ -286,6 +294,36 @@ signature-pad {
 
   &__current {
     outline: 2px solid var(--ion-color-primary);
+  }
+}
+
+.review-heading {
+  text-align: center;
+}
+
+.review-timer {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 8px;
+  border: 5px solid color-mix(in srgb, var(--ion-color-primary) 55%, white);
+  border-radius: 50%;
+  color: var(--ion-color-primary);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.final-artwork {
+  margin: 18px 0;
+
+  > span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ion-color-primary);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
   }
 }
 

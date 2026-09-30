@@ -143,6 +143,28 @@
     </main>
   }
 
+  @if (gameStore.status() === '最終作畫檢視') {
+    <main class="review-view">
+      <section class="review-heading">
+        <span>最後一筆完成</span>
+        <h1>先觀察完整畫作</h1>
+        <div class="review-timer">{{ gameStore.reviewCountdown() }} 秒</div>
+        <p>倒數結束後才會開始秘密投票。</p>
+      </section>
+
+      <div class="canvas-shell canvas-shell--readonly">
+        <signature-pad [options]="padOptions" />
+        <div class="canvas-lock" aria-hidden="true"></div>
+      </div>
+
+      <section class="color-legend" aria-label="玩家畫筆顏色">
+        @for (player of gameStore.players(); track player.uid) {
+          <span><i [style.background]="player.color"></i>{{ player.displayName }}</span>
+        }
+      </section>
+    </main>
+  }
+
   @if (gameStore.status() === '最終查找階段') {
     <main class="voting-view">
       <section class="vote-heading">
@@ -150,6 +172,14 @@
         <h1>誰是偽藝術家？</h1>
         <div class="vote-timer">{{ gameStore.votingCountdown() }} 秒</div>
         <p>{{ gameStore.hasVoted() ? '你已完成投票' : '點選一位玩家，每人只有一票' }}</p>
+      </section>
+
+      <section class="final-artwork" aria-label="最終作畫">
+        <span>最終作畫</span>
+        <div class="canvas-shell canvas-shell--readonly">
+          <signature-pad [options]="padOptions" />
+          <div class="canvas-lock" aria-hidden="true"></div>
+        </div>
       </section>
 
       <section class="vote-grid">
