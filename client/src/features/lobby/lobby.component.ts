@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { form, FormField, max, maxLength, minLength, required } from '@angular/forms/signals';
 import {
   collection,
@@ -7,6 +8,7 @@ import {
   onSnapshot,
   query,
   setDoc,
+  Unsubscribe,
   where,
 } from '@angular/fire/firestore';
 import {
@@ -38,6 +40,8 @@ import { BONUS_GAME_ROOM_STORAGE_KEY } from './bonus-game.constants';
 import { nineUpperInitialState } from './nine-upper/nine-upper.store';
 import { artistInitialState } from './artist-game/artist-game.store';
 import { spyfallInitialState } from './spyfall-game/spyfall-game.store';
+import { relayInitialState } from './relay-game/relay-game.models';
+import { ensureBonusGameUser } from './bonus-game-auth';
 
 @Component({
   selector: 'app-lobby',
@@ -68,11 +72,15 @@ import { spyfallInitialState } from './spyfall-game/spyfall-game.store';
     IonText,
   ],
 })
-export class LobbyComponent {
+export class LobbyComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly fs = inject(Firestore);
+  private readonly auth = inject(Auth);
   private readonly sessionStore = inject(SessionStore);
+  private readonly listeners: Unsubscribe[] = [];
   protected readonly isModalOpen = signal(false);
+  protected readonly isLoading = signal(true);
+  protected readonly loadError = signal<string | null>(null);
   private readonly readyRooms = signal<Room[]>([]);
   private readonly savedRoom = signal<Room | null>(null);
   readonly roomList = computed(() => {
@@ -96,26 +104,62 @@ export class LobbyComponent {
   );
 
   ngOnInit() {
+    void this.initializeLobby();
+  }
+
+  ngOnDestroy() {
+    for (const unsubscribe of this.listeners) unsubscribe();
+  }
+
+  private async initializeLobby() {
+    try {
+      await ensureBonusGameUser(this.auth);
+      this.startRoomListeners();
+    } catch (error) {
+      console.error('無法建立遊戲大廳身分:', error);
+      this.loadError.set('無法建立免登入身分，請重新整理後再試');
+      this.isLoading.set(false);
+    }
+  }
+
+  private startRoomListeners() {
     const roomsRef = collection(this.fs, 'rooms');
     const readyRoomsQuery = query(roomsRef, where('status', '==', '遊戲準備中'));
 
-    onSnapshot(readyRoomsQuery, (snapshot) => {
-      this.readyRooms.set(
-        snapshot.docs.map((roomSnapshot) => this.toRoom(roomSnapshot.data(), roomSnapshot.id)),
-      );
-    });
+    this.listeners.push(
+      onSnapshot(
+        readyRoomsQuery,
+        (snapshot) => {
+          this.readyRooms.set(
+            snapshot.docs.map((roomSnapshot) => this.toRoom(roomSnapshot.data(), roomSnapshot.id)),
+          );
+          this.isLoading.set(false);
+        },
+        (error) => {
+          console.error('無法讀取遊戲房間:', error);
+          this.loadError.set('無法讀取遊戲房間，請確認網路後重試');
+          this.isLoading.set(false);
+        },
+      ),
+    );
 
     const savedRoomSeq = localStorage.getItem(BONUS_GAME_ROOM_STORAGE_KEY);
     if (savedRoomSeq) {
-      onSnapshot(doc(this.fs, `rooms/${savedRoomSeq}`), (roomSnapshot) => {
-        if (!roomSnapshot.exists()) {
-          this.savedRoom.set(null);
-          localStorage.removeItem(BONUS_GAME_ROOM_STORAGE_KEY);
-          return;
-        }
+      this.listeners.push(
+        onSnapshot(
+          doc(this.fs, `rooms/${savedRoomSeq}`),
+          (roomSnapshot) => {
+            if (!roomSnapshot.exists()) {
+              this.savedRoom.set(null);
+              localStorage.removeItem(BONUS_GAME_ROOM_STORAGE_KEY);
+              return;
+            }
 
-        this.savedRoom.set(this.toRoom(roomSnapshot.data(), roomSnapshot.id));
-      });
+            this.savedRoom.set(this.toRoom(roomSnapshot.data(), roomSnapshot.id));
+          },
+          (error) => console.error('無法讀取上次的遊戲房間:', error),
+        ),
+      );
     }
   }
 
@@ -153,7 +197,7 @@ export class LobbyComponent {
     let name = this.createCriteria().roomName;
     const gameCode = this.createCriteria().gameCode;
     const seq = crypto.randomUUID().slice(0, 8);
-    const createrUID = this.sessionStore.user()?.uid!;
+    const createrUID = (await ensureBonusGameUser(this.auth)).uid;
     const roomRef = doc(this.fs, `rooms/${seq}`);
 
     const state =
@@ -161,7 +205,9 @@ export class LobbyComponent {
         ? artistInitialState
         : gameCode === '003'
           ? spyfallInitialState
-          : nineUpperInitialState;
+          : gameCode === '004'
+            ? relayInitialState
+            : nineUpperInitialState;
 
     await setDoc(roomRef, {
       ...state,
@@ -172,6 +218,7 @@ export class LobbyComponent {
       promptConfig: {
         customPrompt: this.createCriteria().customPrompt,
       },
+      createdAt: Date.now(),
     });
 
     this.isModalOpen.set(false);
@@ -181,7 +228,9 @@ export class LobbyComponent {
           ? '/lobby/artist-rooms'
           : gameCode === '003'
             ? '/lobby/spyfall-rooms'
-            : '/lobby/rooms';
+            : gameCode === '004'
+              ? '/lobby/relay'
+              : '/lobby/rooms';
       this.router.navigate([roomPath, seq]);
     }, 300);
   }
@@ -240,5 +289,12 @@ const gamedb: Game[] = [
     boxImageURL: 'images/bonus-games/spyfall.svg',
     maximumPlayer: 9,
     description: '只有間諜不知道大家所在的場所。用線索試探彼此，在時間內找出混入人群的間諜。',
+  },
+  {
+    gameCode: '004',
+    name: '傳情畫意',
+    boxImageURL: 'images/bonus-games/relay-drawing.svg',
+    maximumPlayer: 105,
+    description: '一頁圖、一頁手寫猜詞向下傳，最後在大螢幕逐頁公開整段離題現場。',
   },
 ];

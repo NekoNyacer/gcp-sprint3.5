@@ -116,6 +116,25 @@ service cloud.firestore {
       }
     }
 
+    // Internal bonus-game rooms. Every participant is Firebase-authenticated
+    // (Google or anonymous quick join); client transactions keep turns atomic.
+    match /rooms/{roomId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.roomMasterId == request.auth.uid;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null
+        && resource.data.roomMasterId == request.auth.uid;
+
+      match /relayGroups/{groupId} {
+        allow read, write: if request.auth != null;
+
+        match /pages/{pageId} {
+          allow read, write: if request.auth != null;
+        }
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

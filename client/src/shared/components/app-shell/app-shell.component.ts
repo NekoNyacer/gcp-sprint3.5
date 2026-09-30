@@ -36,6 +36,9 @@ import {
   alertCircleOutline,
   exitOutline,
   fingerPrint,
+  closeCircle,
+  closeCircleOutline,
+  diceOutline,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
@@ -65,6 +68,9 @@ export class AppShellComponent {
   readonly taskStore = inject(TaskStore);
   constructor() {
     addIcons({
+      diceOutline,
+      closeCircleOutline,
+      closeCircle,
       fingerPrint,
       exitOutline,
       alertCircleOutline,
@@ -96,7 +102,11 @@ export class AppShellComponent {
         this.taskStore.initialize();
       }
 
-      if (status === '已登出' && !this.sessionStore.isDemoMode()) {
+      if (
+        status === '已登出' &&
+        !this.sessionStore.isDemoMode() &&
+        !this.router.url.startsWith('/lobby')
+      ) {
         void this.router.navigateByUrl('/login');
       }
     });

@@ -7,6 +7,19 @@
 <ion-content class="ion-padding">
   <div class="lobby-layout">
     <!-- 房間列表 -->
+    @if (loadError(); as error) {
+      <ion-card class="empty-card">
+        <ion-card-header>
+          <ion-card-title>{{ error }}</ion-card-title>
+        </ion-card-header>
+      </ion-card>
+    } @else if (isLoading()) {
+      <ion-card class="empty-card">
+        <ion-card-header>
+          <ion-card-title>正在取得遊戲房間…</ion-card-title>
+        </ion-card-header>
+      </ion-card>
+    } @else {
     @for (room of roomList(); track room.seq) {
       <button
         class="room-link"
@@ -15,7 +28,9 @@
             ? 'artist-rooms'
             : room.game.gameCode === '003'
               ? 'spyfall-rooms'
-              : 'rooms',
+              : room.game.gameCode === '004'
+                ? 'relay'
+                : 'rooms',
           room.seq,
         ]"
       >
@@ -47,6 +62,7 @@
           <ion-card-title>目前無進行中遊戲房間</ion-card-title>
         </ion-card-header>
       </ion-card>
+    }
     }
     <div class="create-button">
       <ion-button shape="round" expand="block" (click)="toggleModal(true)"> 建立遊戲 </ion-button>
@@ -103,7 +119,7 @@
           </div>
         </ion-item>
 
-        @if (selectedGame()?.gameCode !== '003') {
+        @if (selectedGame()?.gameCode !== '003' && selectedGame()?.gameCode !== '004') {
           <!-- 題目偏好 -->
           <ion-item class="custom-item">
             <ion-textarea

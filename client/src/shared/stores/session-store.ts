@@ -46,6 +46,7 @@ export const SessionStore = signalStore(
   withMethods((store) => ({
     initialize: () => {},
     logInWithGoogle: () => logInWithGoogle(store),
+    logInAnonymously: () => logInAnonymously(store),
     logOut: () => logOut(store),
     enterDemo: (demoType: DemoType) => enterDemo(store, demoType),
     exitDemo: () => exitDemo(store),
@@ -77,7 +78,7 @@ type AuthUserSummary = {
 type FallbackReason =
   'presenter-selected' | '目前firebase服務不可使用' | 'route-timeout' | '認證失敗';
 
-type AppError = 'Google 登入失敗' | '無法取得登入狀態' | '登出失敗';
+type AppError = 'Google 登入失敗' | '匿名登入失敗' | '無法取得登入狀態' | '登出失敗';
 
 type DemoType = 'Demo五分鐘版' | 'Demo兩分鐘版';
 
@@ -101,6 +102,24 @@ function logInWithGoogle(store: AuthenticationStore): void {
       patchState(store, {
         authStatus: '認證失敗',
         error: 'Google 登入失敗',
+      });
+    },
+  });
+}
+
+function logInAnonymously(store: AuthenticationStore): void {
+  patchState(store, {
+    authStatus: '初始化中',
+    error: null,
+  });
+
+  store.authService.logInAnonymously().subscribe({
+    error: (error: unknown) => {
+      console.error('匿名登入失敗:', error);
+
+      patchState(store, {
+        authStatus: '認證失敗',
+        error: '匿名登入失敗',
       });
     },
   });

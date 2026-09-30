@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title desc">
+  <title id="title">傳情畫意</title>
+  <desc id="desc">畫筆與接力冊組成的遊戲封面</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0b6d55"/>
+      <stop offset="1" stop-color="#31b989"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="420" rx="38" fill="url(#bg)"/>
+  <circle cx="560" cy="70" r="135" fill="#fff" opacity=".09"/>
+  <circle cx="72" cy="380" r="150" fill="#fff" opacity=".08"/>
+  <g transform="translate(122 64) rotate(-5 194 140)">
+    <rect x="22" y="24" width="374" height="274" rx="25" fill="#0a493a" opacity=".35"/>
+    <rect width="374" height="274" rx="25" fill="#fffdf4"/>
+    <path d="M0 64h374" stroke="#dce6e1" stroke-width="4"/>
+    <circle cx="34" cy="32" r="8" fill="#ef6c62"/>
+    <circle cx="60" cy="32" r="8" fill="#f2c94c"/>
+    <circle cx="86" cy="32" r="8" fill="#45b888"/>
+    <path d="M86 213c35-81 79-116 130-86 37 21 38 68 91 37" fill="none" stroke="#162b25" stroke-width="12" stroke-linecap="round"/>
+    <path d="M291 163l25-10-9 26" fill="#162b25"/>
+    <circle cx="146" cy="133" r="25" fill="#ffe08b" stroke="#162b25" stroke-width="8"/>
+  </g>
+  <g transform="translate(431 246) rotate(28)">
+    <rect x="0" y="0" width="42" height="142" rx="20" fill="#f2c94c"/>
+    <path d="M0 105h42v22H0z" fill="#e76759"/>
+    <path d="M0 142h42l-21 34z" fill="#f4d2aa"/>
+    <path d="M14 164h14l-7 12z" fill="#172d27"/>
+  </g>
+  <text x="320" y="375" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="50" font-weight="900">傳情畫意</text>
+</svg>

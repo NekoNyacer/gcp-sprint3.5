@@ -4,6 +4,7 @@ import {
   Auth,
   authState,
   GoogleAuthProvider,
+  signInAnonymously,
   signInWithPopup,
   signOut,
   User,
@@ -49,6 +50,11 @@ export class AuthService {
 
       return credential;
     });
+  }
+
+  /**建立不綁定 Google 帳號的 Firebase 匿名身分，供多人遊戲快速加入使用。*/
+  logInAnonymously(): Observable<UserCredential> {
+    return defer(() => signInAnonymously(this.auth));
   }
 
   logOut(): Observable<void> {

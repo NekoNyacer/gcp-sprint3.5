@@ -11,47 +11,47 @@ export const routes: Routes = [
     loadComponent: () =>
       import('../shared/components/app-shell/app-shell.component').then((m) => m.AppShellComponent),
     children: [
-      {
-        path: 'home',
-        loadComponent: () => import('../features/home/home.component').then((m) => m.HomeComponent),
-      },
-      {
-        path: 'task',
-        loadComponent: () => import('../features/task/task.component').then((m) => m.TaskComponent),
-      },
-      {
-        path: 'task/:taskId',
-        loadComponent: () =>
-          import('../features/task/task-detail.component').then((m) => m.TaskDetailComponent),
-      },
-      {
-        path: 'collection',
-        loadComponent: () =>
-          import('../features/collection/collection.component').then((m) => m.CollectionComponent),
-      },
-      {
-        path: 'shop/history',
-        loadComponent: () =>
-          import('../features/shop/history/shop-history.component').then(
-            (m) => m.ShopHistoryComponent,
-          ),
-      },
-      {
-        path: 'shop',
-        loadComponent: () => import('../features/shop/shop.component').then((m) => m.ShopComponent),
-      },
-      {
-        path: 'profile',
-        loadComponent: () =>
-          import('../features/profile/profile.component').then((m) => m.ProfileComponent),
-      },
-      {
-        path: 'test',
-        loadComponent: () =>
-          import('../features/test-component/test-component.component').then(
-            (m) => m.TestComponentComponent,
-          ),
-      },
+      // {
+      //   path: 'home',
+      //   loadComponent: () => import('../features/home/home.component').then((m) => m.HomeComponent),
+      // },
+      // {
+      //   path: 'task',
+      //   loadComponent: () => import('../features/task/task.component').then((m) => m.TaskComponent),
+      // },
+      // {
+      //   path: 'task/:taskId',
+      //   loadComponent: () =>
+      //     import('../features/task/task-detail.component').then((m) => m.TaskDetailComponent),
+      // },
+      // {
+      //   path: 'collection',
+      //   loadComponent: () =>
+      //     import('../features/collection/collection.component').then((m) => m.CollectionComponent),
+      // },
+      // {
+      //   path: 'shop/history',
+      //   loadComponent: () =>
+      //     import('../features/shop/history/shop-history.component').then(
+      //       (m) => m.ShopHistoryComponent,
+      //     ),
+      // },
+      // {
+      //   path: 'shop',
+      //   loadComponent: () => import('../features/shop/shop.component').then((m) => m.ShopComponent),
+      // },
+      // {
+      //   path: 'profile',
+      //   loadComponent: () =>
+      //     import('../features/profile/profile.component').then((m) => m.ProfileComponent),
+      // },
+      // {
+      //   path: 'test',
+      //   loadComponent: () =>
+      //     import('../features/test-component/test-component.component').then(
+      //       (m) => m.TestComponentComponent,
+      //     ),
+      // },
       {
         path: 'lobby',
         children: [
@@ -79,22 +79,24 @@ export const routes: Routes = [
                 (m) => m.SpyfallGameComponent,
               ),
           },
+          {
+            path: 'relay/:seq',
+            loadComponent: () =>
+              import('../features/lobby/relay-game/relay-game.component').then(
+                (m) => m.RelayGameComponent,
+              ),
+          },
         ],
-      },
-      {
-        path: 'upload',
-        loadComponent: () =>
-          import('../shared/components/upload/upload.component').then((m) => m.UploadComponent),
       },
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'home',
+        redirectTo: 'lobby',
       },
     ],
   },
   {
     path: '**',
-    redirectTo: 'home',
+    redirectTo: 'lobby',
   },
 ];
