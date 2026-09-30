@@ -2,10 +2,20 @@
   display: block;
 }
 
-.artist-header  {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 10px 10px;
+.artist-header ion-toolbar {
+  --min-height: 56px;
+  --padding-start: max(8px, env(safe-area-inset-left));
+  --padding-end: max(4px, env(safe-area-inset-right));
+}
+
+.artist-header ion-title {
+  font-size: clamp(1.05rem, 5vw, 1.35rem);
+  font-weight: 700;
+}
+
+.artist-header ion-button {
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .artist-page {
@@ -128,7 +138,9 @@
 }
 
 .identity-card {
-  min-width: min(560px, calc(100vw - 32px));
+  width: 100%;
+  min-width: 0;
+  max-width: 560px;
   padding: clamp(24px, 7vw, 42px);
   border-radius: 24px;
   background: color-mix(in srgb, var(--ion-color-primary) 12%, white);
@@ -191,6 +203,11 @@
   background: var(--ion-color-light);
   text-align: center;
 
+  strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
   ion-avatar {
     width: 36px;
     height: 36px;
@@ -208,6 +225,7 @@
   border-radius: 16px;
   background: #fffef8;
   overflow: hidden;
+  isolation: isolate;
   box-shadow: 0 10px 28px rgb(0 0 0 / 8%);
 
   &--active {
@@ -429,6 +447,23 @@ signature-pad {
     .voter-avatars {
       grid-column: 1 / -1;
     }
+  }
+}
+
+@media (max-width: 340px) {
+  .artist-header ion-title {
+    padding-inline: 6px;
+  }
+
+  .artist-header ion-button {
+    font-size: 0.8rem;
+    --padding-start: 6px;
+    --padding-end: 6px;
+  }
+
+  .turn-banner {
+    align-items: flex-start;
+    flex-wrap: wrap;
   }
 }
 

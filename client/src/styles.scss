@@ -1,16 +1,66 @@
-html { background: #f7f8f3; }
+html {
+  background: #f7f8f3;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --ion-font-family:
+    -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei',
+    sans-serif;
+  --bonus-game-font: var(--ion-font-family);
+}
 
 body {
   margin: 0;
   color: #21362d;
-  font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  font-family: var(--ion-font-family);
+  font-synthesis: none;
   background: #f7f8f3;
 }
 
-button, a { -webkit-tap-highlight-color: transparent; }
-button:focus-visible { outline: 3px solid rgba(0, 133, 102, .28); outline-offset: 2px; }
+ion-app,
+ion-content,
+ion-title,
+ion-button,
+ion-input,
+ion-textarea,
+ion-select,
+ion-alert {
+  font-family: var(--bonus-game-font);
+}
+
+ion-button::part(native),
+ion-input::part(native),
+ion-textarea::part(native),
+ion-select::part(text) {
+  font-family: var(--bonus-game-font);
+}
+
+ion-input,
+ion-textarea,
+ion-select {
+  font-size: 16px;
+}
+
+ion-content::part(scroll) {
+  -webkit-overflow-scrolling: touch;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus-visible {
+  outline: 3px solid rgba(0, 133, 102, 0.28);
+  outline-offset: 2px;
+}
 
 ion-card {
   --background: #eaf1fd09;

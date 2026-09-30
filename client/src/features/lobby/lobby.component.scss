@@ -1,3 +1,14 @@
+.lobby-header ion-toolbar {
+  --min-height: 56px;
+  --padding-start: max(12px, env(safe-area-inset-left));
+  --padding-end: max(12px, env(safe-area-inset-right));
+}
+
+.lobby-header ion-title {
+  font-size: clamp(1.1rem, 5vw, 1.4rem);
+  font-weight: 700;
+}
+
 .lobby-layout {
   width: min(100%, 760px);
   margin-inline: auto;

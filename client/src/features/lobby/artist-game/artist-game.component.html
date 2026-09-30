@@ -1,18 +1,17 @@
-@if (gameStore.status() === '遊戲準備中') {
-  <div class="artist-header">
-    <ion-title> {{ gameStore.name() }}</ion-title>
-    <ion-button
-      slot="end"
-      fill="outline"
-      color="danger"
-      [disabled]="isLeaving()"
-      (click)="leaveRoom()"
-    >
-      <ion-icon name="exit-outline"></ion-icon>
-      退出
-    </ion-button>
-  </div>
-}
+<ion-header class="artist-header">
+  <ion-toolbar>
+    <ion-title>{{
+      gameStore.status() === '遊戲準備中' ? gameStore.name() : '誰是偽藝術家'
+    }}</ion-title>
+    @if (gameStore.status() === '遊戲準備中') {
+      <ion-buttons slot="end">
+        <ion-button color="danger" fill="clear" [disabled]="isLeaving()" (click)="leaveRoom()">
+          退出房間
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
 
 <ion-content class="artist-page">
   @if (gameStore.status() === '遊戲準備中') {
@@ -112,7 +111,7 @@
         @if (isMyTurn()) {
           <strong>輪到你了！請根據題目畫一筆吧!</strong>
         } @else {
-          <span style="text-wrap: nowrap"> 輪到 </span>
+          <span>輪到</span>
           <ion-avatar>
             <img
               [alt]="gameStore.currentPlayer()?.displayName"

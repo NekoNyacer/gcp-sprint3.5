@@ -1,18 +1,17 @@
-@if (gameStore.status() === '遊戲準備中') {
-  <div class="spyfall-header">
-    <ion-title> {{ gameStore.name() }}</ion-title>
-    <ion-button
-      slot="end"
-      fill="outline"
-      color="danger"
-      [disabled]="isLeaving()"
-      (click)="leaveRoom()"
-    >
-      <ion-icon name="exit-outline"></ion-icon>
-      退出
-    </ion-button>
-  </div>
-}
+<ion-header class="spyfall-header">
+  <ion-toolbar>
+    <ion-title>{{
+      gameStore.status() === '遊戲準備中' ? gameStore.name() : '間諜危機 SpyFall'
+    }}</ion-title>
+    @if (gameStore.status() === '遊戲準備中') {
+      <ion-buttons slot="end">
+        <ion-button color="danger" fill="clear" [disabled]="isLeaving()" (click)="leaveRoom()">
+          退出房間
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
 
 <ion-content class="spyfall-page">
   @if (gameStore.status() === '遊戲準備中') {
@@ -147,19 +146,16 @@
       </section>
 
       <ion-button expand="block" id="hover-trigger">點擊查看你的秘密資訊</ion-button>
-      <ion-popover trigger="hover-trigger" triggerAction="hover">
+      <ion-popover trigger="hover-trigger" triggerAction="click">
         <ng-template>
           <ion-content class="ion-padding">
             @if (gameStore.me()?.role === '間諜') {
-              <span style="text-wrap: nowrap"> 你是<strong>間諜</strong>！ 你不知道本局場所！</span
-              ><br />
+              <span>你是<strong>間諜</strong>！你不知道本局場所！</span><br />
               <div
                 style="display: flex; align-items: center; justify-content: center; margin-top: 5px"
               >
                 <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
-                <small style="color: var(--ion-color-medium); text-wrap: nowrap"
-                  >別被識破！找出本局場所。</small
-                >
+                <small style="color: var(--ion-color-medium)">別被識破！找出本局場所。</small>
               </div>
             } @else {
               <span>
@@ -171,7 +167,7 @@
                 style="display: flex; align-items: center; justify-content: center; margin-top: 5px"
               >
                 <ion-icon name="alert-circle-outline" color="medium"></ion-icon>
-                <small style="color: var(--ion-color-medium); text-wrap: nowrap"
+                <small style="color: var(--ion-color-medium)"
                   >扮演此角色，但別被間諜認出場所。</small
                 >
               </div>

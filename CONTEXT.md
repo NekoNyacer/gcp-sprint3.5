@@ -1,6 +1,6 @@
 # CAT WALK project context
 
-Last updated: 2026-09-24
+Last updated: 2026-09-30
 
 ## Status
 
@@ -571,6 +571,7 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-09-24 | Add `誰是偽藝術家` as a second bonus game using the existing lobby and room lifecycle. All players know the category; one random fake artist cannot see the drawing word; players draw two one-stroke turns each in distinct colors on a shared Angular Signature Pad canvas, then each casts one visible-attribution vote within 20 seconds before the fake artist is revealed.                                                                                                                                                                              | Confirmed                                                                                    |
 | 2026-09-24 | Add `間諜危機 Spyfall` as a third bonus game. Keep the location secret during preparation; on start assign one or two spies and location-specific occupations to civilians. The host configures 5–20 possible-location hints, a 1–10 minute speaking limit, and up to two spies, with two spies available only from six players. Speakers are repeatedly assigned at random until time expires. Civilians may nominate a suspect for a public majority vote; catching a spy makes civilians win, while a wrong majority accusation or expiry makes spies win. | Confirmed                                                                                    |
 | 2026-09-24 | Refactor the original 9UPPER route into a `RoomComponent` room shell and a child `NineUpperComponent` game module backed by one shared `NineUpperStore`. Centralize callable invocation and response validation for generated bonus-game content in `BonusGameAiService`, beginning with `generateNineUpperTopic`.                                                                                                                                                                                                                                            | Confirmed                                                                                    |
+| 2026-09-30 | Give all bonus-game pages a common iOS-safe presentation baseline: safe-area-aware viewport and Ionic toolbars, system-native Traditional Chinese font fallback, touch-first controls, and small-screen layouts that wrap rather than overflow. | Confirmed |
 
 ## Open decisions
 

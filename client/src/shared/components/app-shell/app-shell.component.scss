@@ -38,9 +38,8 @@ ion-header.cathay-header {
     }
   }
 
-  ion-button{
+  ion-button {
     color: var(--ion-color-secondary);
-
   }
 }
 
@@ -50,8 +49,12 @@ ion-tabs {
   height: auto;
   min-height: 0;
   width: 100%;
+  margin-top: 2rem;
 }
 
+ion-tabs.lobby-tabs {
+  margin-top: 0;
+}
 
 .tabBar {
   --background: transparent;

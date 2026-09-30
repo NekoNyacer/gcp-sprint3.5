@@ -1,66 +1,68 @@
 <app-dialog />
 
-<ion-header class="cathay-header">
-  <div class="header-container">
-    <div class="logo-wrapper">
+@if (!isInLobby()) {
+  <ion-header class="cathay-header">
+    <div class="header-container">
+      <div class="logo-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" class="cathay-custom-logo">
+          <defs>
+            <linearGradient id="cathay-gradient">
+              <stop offset="0%" stop-color="#7cda97" />
+              <stop offset="50%" stop-color="#80e1f7" />
+              <stop offset="100%" stop-color="#b3afff" />
+              <animateTransform
+                attributeName="gradientTransform"
+                type="rotate"
+                from="0 0.5 0.5"
+                to="360 0.5 0.5"
+                dur="10s"
+                repeatCount="indefinite"
+              />
+            </linearGradient>
+
+            <mask id="logo-mask">
+              <g fill="white">
+                <g class="tree-icon" transform="scale(1.4) translate(4, 7)">
+                  <path
+                    d="M35.714,12.137C35.115,11.536 34.737,10.749 34.643,9.905C34.635,9.636 34.605,9.369 34.554,9.105C34.131,7.434 32.887,6.087 31.254,5.534L30.897,5.355C30.224,5.06 29.661,4.56 29.29,3.926C28.255,2.092 26.199,1.065 24.111,1.337C23.251,1.484 22.367,1.326 21.611,0.891C19.851,-0.359 17.478,-0.359 15.718,0.891C14.998,1.337 14.148,1.526 13.307,1.427C11.229,1.207 9.213,2.265 8.214,4.1C7.768,4.83 7.069,5.371 6.25,5.619C4.359,6.279 3.026,7.998 2.857,9.994C2.763,10.838 2.385,11.625 1.786,12.226C0.684,13.24 0.039,14.658 -0,16.155C0.06,18.893 2.11,21.209 4.821,21.6L13.66,21.6C14.414,21.641 15.012,22.272 15.012,23.027C15.012,23.088 15.008,23.149 15,23.209L15,23.566C15.006,24.287 14.465,24.905 13.75,24.995L7.232,26.066C6.987,26.066 6.786,26.267 6.786,26.512L6.786,27.312L30.625,27.312L30.625,26.512C30.625,26.267 30.424,26.066 30.179,26.066L23.661,24.995C22.911,24.949 22.319,24.32 22.319,23.569C22.319,23.538 22.32,23.508 22.322,23.477L22.322,23.209C22.321,22.458 22.911,21.827 23.661,21.78L31.7,21.78C34.786,21.78 37.325,19.241 37.325,16.155C37.357,14.654 36.776,13.202 35.718,12.137"
+                  />
+                </g>
+
+                <g class="brand-text" font-family="'PingFang TC', 'Microsoft JhengHei', sans-serif">
+                  <text x="75" y="28" font-size="24" font-weight="bold" letter-spacing="1">
+                    國泰星球
+                  </text>
+                  <text x="76" y="50" font-size="14" font-weight="normal" opacity="0.9">
+                    Cathay Planet
+                  </text>
+                </g>
+              </g>
+            </mask>
+          </defs>
+          <rect
+            x="0"
+            y="0"
+            width="240"
+            height="60"
+            fill="url(#cathay-gradient)"
+            mask="url(#logo-mask)"
+          />
+        </svg>
+      </div>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" class="cathay-custom-logo">
-        <defs>
-          <linearGradient id="cathay-gradient">
-            <stop offset="0%" stop-color="#7cda97" />
-            <stop offset="50%" stop-color="#80e1f7" />
-            <stop offset="100%" stop-color="#b3afff" />
-            <animateTransform
-              attributeName="gradientTransform"
-              type="rotate"
-              from="0 0.5 0.5"
-              to="360 0.5 0.5"
-              dur="10s"
-              repeatCount="indefinite"
-            />
-          </linearGradient>
-
-          <mask id="logo-mask">
-            <g fill="white">
-              <g class="tree-icon" transform="scale(1.4) translate(4, 7)">
-                <path
-                  d="M35.714,12.137C35.115,11.536 34.737,10.749 34.643,9.905C34.635,9.636 34.605,9.369 34.554,9.105C34.131,7.434 32.887,6.087 31.254,5.534L30.897,5.355C30.224,5.06 29.661,4.56 29.29,3.926C28.255,2.092 26.199,1.065 24.111,1.337C23.251,1.484 22.367,1.326 21.611,0.891C19.851,-0.359 17.478,-0.359 15.718,0.891C14.998,1.337 14.148,1.526 13.307,1.427C11.229,1.207 9.213,2.265 8.214,4.1C7.768,4.83 7.069,5.371 6.25,5.619C4.359,6.279 3.026,7.998 2.857,9.994C2.763,10.838 2.385,11.625 1.786,12.226C0.684,13.24 0.039,14.658 -0,16.155C0.06,18.893 2.11,21.209 4.821,21.6L13.66,21.6C14.414,21.641 15.012,22.272 15.012,23.027C15.012,23.088 15.008,23.149 15,23.209L15,23.566C15.006,24.287 14.465,24.905 13.75,24.995L7.232,26.066C6.987,26.066 6.786,26.267 6.786,26.512L6.786,27.312L30.625,27.312L30.625,26.512C30.625,26.267 30.424,26.066 30.179,26.066L23.661,24.995C22.911,24.949 22.319,24.32 22.319,23.569C22.319,23.538 22.32,23.508 22.322,23.477L22.322,23.209C22.321,22.458 22.911,21.827 23.661,21.78L31.7,21.78C34.786,21.78 37.325,19.241 37.325,16.155C37.357,14.654 36.776,13.202 35.718,12.137"
-                />
-              </g>
-
-              <g class="brand-text" font-family="'PingFang TC', 'Microsoft JhengHei', sans-serif">
-                <text x="75" y="28" font-size="24" font-weight="bold" letter-spacing="1">
-                  國泰星球
-                </text>
-                <text x="76" y="50" font-size="14" font-weight="normal" opacity="0.9">
-                  Cathay Planet
-                </text>
-              </g>
-            </g>
-          </mask>
-        </defs>
-        <rect
-          x="0"
-          y="0"
-          width="240"
-          height="60"
-          fill="url(#cathay-gradient)"
-          mask="url(#logo-mask)"
-        />
+        ...
       </svg>
+      <ion-menu-toggle>
+        <ion-button fill="filled" class="menu-btn">
+          <ion-icon name="list"></ion-icon>
+        </ion-button>
+      </ion-menu-toggle>
     </div>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" class="cathay-custom-logo">
-      ...
-    </svg>
-    <ion-menu-toggle>
-      <ion-button fill="filled" class="menu-btn">
-        <ion-icon name="list"></ion-icon>
-      </ion-button>
-    </ion-menu-toggle>
-  </div>
-</ion-header>
+  </ion-header>
+}
 <app-menu />
 
-<ion-tabs id="main-content" style="margin-top: 2rem">
+<ion-tabs id="main-content" [class.lobby-tabs]="isInLobby()">
   @if (!isInLobby()) {
     <ion-tab-bar slot="bottom" class="tabBar">
       <ion-tab-button tab="home">
