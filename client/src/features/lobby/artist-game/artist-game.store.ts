@@ -51,7 +51,7 @@ export type ArtistStroke = Omit<PointGroup, 'points'> & {
 };
 
 export type ArtistGameStatus =
-  '遊戲準備中' | '遊戲開始倒數' | '繪圖中' | '最終查找階段' | '遊戲結束';
+  '遊戲準備中' | '遊戲開始倒數' | '繪圖中' | '最終作畫檢視' | '最終查找階段' | '遊戲結束';
 
 export type ArtistGameState = {
   gameCode: '002';
@@ -66,6 +66,7 @@ export type ArtistGameState = {
   currentPlayerIndex: number | null;
   strokes: ArtistStroke[];
   votes: Record<string, string>;
+  reviewEndsAt: number | null;
   votingEndsAt: number | null;
   revealedFakeArtistUid: string | null;
 };
@@ -83,6 +84,7 @@ export const artistInitialState: ArtistGameState = {
   currentPlayerIndex: null,
   strokes: [],
   votes: {},
+  reviewEndsAt: null,
   votingEndsAt: null,
   revealedFakeArtistUid: null,
 };
@@ -98,6 +100,9 @@ const PLAYER_COLORS = [
   '#455a64',
   '#5d4037',
 ];
+
+const FINAL_ARTWORK_REVIEW_DURATION_MS = 5_000;
+const VOTING_DURATION_MS = 20_000;
 
 const TOPICS: ArtistTopic[] = [
   { category: '水果', word: '蘋果' },
@@ -162,6 +167,7 @@ export const ArtistGameStore = signalStore(
     sessionStore: inject(SessionStore),
     toastController: inject(ToastController),
     countdown: signal(0),
+    reviewCountdown: signal(0),
     votingCountdown: signal(0),
   })),
   withComputed((store) => ({
@@ -191,6 +197,7 @@ export const ArtistGameStore = signalStore(
   withMethods((store) => {
     let roomListener: Unsubscribe | null = null;
     let countdownSubscription: Subscription | null = null;
+    let reviewSubscription: Subscription | null = null;
     let votingSubscription: Subscription | null = null;
 
     async function toast(message: string) {
@@ -205,6 +212,8 @@ export const ArtistGameStore = signalStore(
     function stopCountdowns() {
       countdownSubscription?.unsubscribe();
       countdownSubscription = null;
+      reviewSubscription?.unsubscribe();
+      reviewSubscription = null;
       votingSubscription?.unsubscribe();
       votingSubscription = null;
     }
@@ -235,6 +244,35 @@ export const ArtistGameStore = signalStore(
           votingSubscription?.unsubscribe();
           void finalizeVoting();
         }
+      });
+    }
+
+    function startReviewCountdown() {
+      reviewSubscription?.unsubscribe();
+      reviewSubscription = timer(0, 250).subscribe(() => {
+        const endsAt = store.reviewEndsAt();
+        if (!endsAt) return;
+        const remaining = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+        store.reviewCountdown.set(remaining);
+        if (remaining === 0) {
+          reviewSubscription?.unsubscribe();
+          void startVoting();
+        }
+      });
+    }
+
+    async function startVoting() {
+      const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
+      await runTransaction(store.firestore, async (transaction) => {
+        const snapshot = await transaction.get(roomRef);
+        if (!snapshot.exists()) return;
+        const room = snapshot.data() as ArtistGameState;
+        if (room.status !== '最終作畫檢視' || Date.now() < (room.reviewEndsAt ?? 0)) return;
+        transaction.update(roomRef, {
+          status: '最終查找階段',
+          reviewEndsAt: null,
+          votingEndsAt: Date.now() + VOTING_DURATION_MS,
+        });
       });
     }
 
@@ -271,6 +309,8 @@ export const ArtistGameStore = signalStore(
             topic: room.topic ?? artistInitialState.topic,
             strokes: room.strokes ?? [],
             votes: room.votes ?? {},
+            reviewEndsAt: room.reviewEndsAt ?? null,
+            votingEndsAt: room.votingEndsAt ?? null,
           });
           if (room.status === '遊戲開始倒數' && previousStatus !== room.status) {
             startGameCountdown();
@@ -281,6 +321,7 @@ export const ArtistGameStore = signalStore(
               void finalizeVoting();
             }
           }
+          if (room.status === '最終作畫檢視') startReviewCountdown();
         });
       },
 
@@ -382,6 +423,7 @@ export const ArtistGameStore = signalStore(
           currentPlayerIndex: 0,
           strokes: [],
           votes: {},
+          reviewEndsAt: null,
           votingEndsAt: null,
           revealedFakeArtistUid: null,
         });
@@ -402,9 +444,10 @@ export const ArtistGameStore = signalStore(
           if (strokes.length >= totalTurns) {
             transaction.update(roomRef, {
               strokes,
-              status: '最終查找階段',
+              status: '最終作畫檢視',
               currentPlayerIndex: null,
-              votingEndsAt: Date.now() + 20_000,
+              reviewEndsAt: Date.now() + FINAL_ARTWORK_REVIEW_DURATION_MS,
+              votingEndsAt: null,
             });
           } else {
             transaction.update(roomRef, {
@@ -451,6 +494,7 @@ export const ArtistGameStore = signalStore(
           currentPlayerIndex: null,
           strokes: [],
           votes: {},
+          reviewEndsAt: null,
           votingEndsAt: null,
           revealedFakeArtistUid: null,
         });
