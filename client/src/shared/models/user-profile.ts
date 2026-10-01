@@ -8,6 +8,8 @@ export type UserProfile = {
   dailyGoal: number;
   onboardingStatus: OnboardingStatus;
   isDemo: false;
+  treePoints: number;
+  totalMatureTrees: number;
   updatedAt: Timestamp;
 };
 
