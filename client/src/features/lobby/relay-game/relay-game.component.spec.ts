@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import '@angular/compiler';
 import { describe, expect, it, vi } from 'vitest';
 import { RelayGameComponent } from './relay-game.component';
 
@@ -68,5 +69,20 @@ describe('RelayGameComponent drawing pad', () => {
 
     expect(pad.fromData).toHaveBeenCalledWith([]);
     expect(hasInk()).toBe(false);
+  });
+
+  it('wraps manual projector navigation across completed drawings', () => {
+    const component = Object.create(RelayGameComponent.prototype) as Record<string, unknown>;
+    const liveReviewPosition = signal(0);
+    Object.assign(component, {
+      liveReviewPosition,
+      liveReviewPages: () => [{ id: 'one' }, { id: 'two' }, { id: 'three' }],
+    });
+
+    (component['previousLiveReviewPage'] as () => void)();
+    expect(liveReviewPosition()).toBe(2);
+
+    (component['nextLiveReviewPage'] as () => void)();
+    expect(liveReviewPosition()).toBe(0);
   });
 });

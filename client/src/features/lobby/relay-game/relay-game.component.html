@@ -7,10 +7,9 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="relay-page">
+<ion-content class="relay-page" [class.relay-page--reveal]="canReviewRelayBook()">
   @if (store.error()) {
     <main class="center-state">
-      <div class="state-icon">😿</div>
       <h1>{{ store.error() }}</h1>
       <ion-button (click)="backToLobby()">回到遊戲大廳</ion-button>
     </main>
@@ -21,24 +20,34 @@
     </main>
   } @else {
     @if (store.room()!.status === '遊戲準備中') {
-      @if (store.isHost()) {
+      @if (store.isHost() && !store.requiresHostRegistration()) {
         <main class="host-setup content-width">
-          <ion-card class="settings-card">
-            <ion-card-header>
-              <ion-card-title>遊戲設定</ion-card-title>
-            </ion-card-header>
-            <ion-card-content class="settings-grid">
-              <div class="setting setting--wide">
-                <ion-segment [value]="store.room()!.mode" (ionChange)="updateRoomMode($event)">
-                  <ion-segment-button value="activity">
-                    <ion-label>組別對抗</ion-label>
-                  </ion-segment-button>
-                  <ion-segment-button value="tabletop">
-                    <ion-label>經典模式</ion-label>
-                  </ion-segment-button>
-                </ion-segment>
-              </div>
-              <ion-item lines="none">
+          <div class="top-setting">
+            <ion-card class="left">
+              <ion-card-header>
+                <ion-card-title>設定</ion-card-title>
+              </ion-card-header>
+              <ion-card-content class="settings-grid">
+                <ion-select
+                  label="遊戲模式"
+                  labelPlacement="stacked"
+                  [value]="store.room()!.mode"
+                  (ionChange)="updateRoomMode($event)"
+                >
+                  <ion-select-option value="tabletop">經典模式</ion-select-option>
+                  <ion-select-option value="activity">分組模式</ion-select-option>
+                </ion-select>
+                <ion-select
+                  label="主持人設定"
+                  labelPlacement="stacked"
+                  [value]="store.hasDedicatedHost()"
+                  (ionChange)="updateHostMode($event)"
+                >
+                  <ion-select-option [value]="true">主持模式（房主不參與遊戲）</ion-select-option>
+                  <ion-select-option [value]="false"
+                    >玩家主持模式（房主也參與遊戲）</ion-select-option
+                  >
+                </ion-select>
                 <ion-select
                   label="作畫時間限制"
                   labelPlacement="stacked"
@@ -50,8 +59,6 @@
                   <ion-select-option [value]="75">75 秒</ion-select-option>
                   <ion-select-option [value]="90">90 秒</ion-select-option>
                 </ion-select>
-              </ion-item>
-              <ion-item lines="none">
                 <ion-select
                   label="猜詞時間限制"
                   labelPlacement="stacked"
@@ -63,28 +70,34 @@
                   <ion-select-option [value]="30">30 秒</ion-select-option>
                   <ion-select-option [value]="45">45 秒</ion-select-option>
                 </ion-select>
-              </ion-item>
+              </ion-card-content>
+            </ion-card>
+            <ion-card class="right">
               <div>
                 @if (store.room()!.mode === 'activity') {
-                  <strong
-                    >{{ store.groups().length }} 組・{{ store.room()!.players.length }} 人</strong
-                  >
+                  <ion-card-header>
+                    <div class="info">
+                      <ion-card-title> {{ store.groups().length }} 組 </ion-card-title>
+                      <ion-card-title> {{ store.room()!.players.length }} 位玩家</ion-card-title>
+                    </div>
+                  </ion-card-header>
                   <span>
-                    每組需 4–15 人
-                    @if (store.unassignedPlayers().length > 0) {
-                      ・尚有 {{ store.unassignedPlayers().length }} 人未分組
-                    }
+                    分組模式每組需 4–15 人 ・尚有 {{ store.unassignedPlayers().length }} 人未分組
                   </span>
                 } @else {
-                  <strong>{{ store.room()!.players.length }} 位玩家</strong>
-                  <span>桌遊版需 4–15 人・每人一本畫冊</span>
+                  <ion-card-header>
+                    <div class="info">
+                      <ion-card-title> {{ store.room()!.players.length }} 位玩家 </ion-card-title>
+                    </div>
+                  </ion-card-header>
+                  <span> 經典模式需 4–15 人・每人一本畫冊 </span>
                 }
               </div>
               <ion-button color="secondary" size="large" (click)="store.startGame()"
                 >開始遊戲</ion-button
               >
-            </ion-card-content>
-          </ion-card>
+            </ion-card>
+          </div>
 
           @if (store.room()!.mode === 'activity') {
             @if (store.unassignedPlayers().length > 0) {
@@ -480,15 +493,82 @@
         </main>
       }
     }
+    <!-- @if (store.room()!.status === '遊戲進行中') { -->
 
     @if (store.room()!.status === '遊戲進行中') {
-      @if (store.isHost()) {
+      @if (store.isHost() && store.hasDedicatedHost()) {
         <main class="host-live content-width">
+          <section class="host-live-review">
+            @if (liveReviewPage(); as page) {
+              <div class="stage-page">
+                <div class="page-author">
+                  <div class="page-kind">第 {{ liveReviewPosition() + 1 }} 幅・作畫</div>
+                  <div class="live-review-heading">
+                    <span>L</span>
+                    <span>i</span>
+                    <span>v</span>
+                    <span>e</span>
+                    <span>!</span>
+                    <span>直</span>
+                    <span>播</span>
+                    <span>中</span>
+                  </div>
+                  <div class="author-profile">
+                    <img [src]="revealAvatar(page.playerAvatarSeed)" [alt]="page.playerName" />
+                    <strong>{{ page.playerName }}</strong>
+                  </div>
+                </div>
+                <svg
+                  viewBox="0 0 1000 800"
+                  role="img"
+                  [attr.aria-label]="page.playerName + '的作畫'"
+                >
+                  @for (stroke of page.strokes; track $index) {
+                    <polyline
+                      [attr.points]="points(stroke)"
+                      [attr.stroke]="stroke.penColor || '#14231f'"
+                      [attr.stroke-width]="stroke.maxWidth || 5"
+                    />
+                  }
+                </svg>
+                @if (liveReviewMode() === 'manual') {
+                  <div class="controls">
+                    <ion-button
+                      color="secondary"
+                      fill="clear"
+                      [disabled]="liveReviewPages().length < 2"
+                      (click)="previousLiveReviewPage()"
+                      >上一張</ion-button
+                    >
+                    <ion-button
+                      color="secondary"
+                      fill="clear"
+                      [disabled]="liveReviewPages().length < 2"
+                      (click)="nextLiveReviewPage()"
+                      >下一張</ion-button
+                    >
+                  </div>
+                }
+              </div>
+              <div class="stage-controls">
+                <ion-segment
+                  aria-label="畫作展示方式"
+                  [value]="liveReviewMode()"
+                  (ionChange)="updateLiveReviewMode($event)"
+                >
+                  <ion-segment-button value="manual"
+                    ><ion-label>手動切換</ion-label></ion-segment-button
+                  >
+                  <ion-segment-button value="auto"
+                    ><ion-label>自動輪播</ion-label></ion-segment-button
+                  >
+                </ion-segment>
+              </div>
+            } @else {
+              <div class="stage-page"><p>尚未有完成的作畫</p></div>
+            }
+          </section>
           <section class="live-heading">
-            <div>
-              <span class="eyebrow">LIVE CONTROL</span>
-              <h1>{{ store.room()!.mode === 'tabletop' ? '全桌接力進度' : '各組接力進度' }}</h1>
-            </div>
             @if (store.hasActiveTimers()) {
               @if (store.room()!.isPaused) {
                 <ion-button color="primary" size="large" (click)="store.resumeAll()"
@@ -503,10 +583,7 @@
           </section>
           @if (store.room()!.isPaused) {
             <div class="pause-banner">
-              <strong>全場已暫停</strong
-              ><span>{{
-                store.room()!.mode === 'tabletop' ? '全桌計時已凍結' : '所有小組的計時都已凍結'
-              }}</span>
+              <strong>遊戲已暫停</strong>
             </div>
           }
           <div class="live-grid">
@@ -515,85 +592,76 @@
                 class="live-card"
                 [class.live-card--complete]="group.status === 'completed'"
               >
-                <ion-card-header>
-                  <div class="live-title">
-                    <div>
-                      <ion-card-title>{{ group.name }}</ion-card-title
-                      ><ion-card-subtitle>{{ group.players.length }} 人</ion-card-subtitle>
-                    </div>
-                    @if (group.status === 'completed') {
-                      <ion-badge color="success">已收冊</ion-badge>
-                    } @else {
-                      <div class="live-timer">
-                        {{ store.isUnlimitedTurn(group) ? '∞' : store.remainingSeconds(group) }}
-                      </div>
-                    }
-                  </div>
-                </ion-card-header>
                 <ion-card-content>
-                  @if (group.status === 'playing') {
-                    @if (store.room()!.mode === 'activity') {
-                      <p>第 {{ group.currentTurnIndex + 1 }} / {{ group.turnOrder.length }} 棒</p>
-                      <div class="current-person">
-                        @if (currentPlayer(group); as player) {
-                          <ion-avatar
-                            ><img [src]="player.avatarUrl" [alt]="player.displayName"
-                          /></ion-avatar>
-                          <div>
-                            <strong>{{ player.displayName }}</strong
-                            ><span>{{
-                              store.currentAction(group) === 'drawing' ? '作畫中' : '手寫猜詞中'
-                            }}</span>
+                  <div class="live-card-content">
+                    <ion-card-title>{{ group.name }}</ion-card-title>
+                    @if (group.status === 'playing') {
+                      @if (store.room()!.mode === 'activity') {
+                        <div class="current-status">
+                          輪到第 {{ group.currentTurnIndex + 1 }} 棒 / 共
+                          {{ group.turnOrder.length }} 棒
+                          <div class="current-person">
+                            @if (currentPlayer(group); as player) {
+                              <ion-avatar
+                                ><img [src]="player.avatarUrl" [alt]="player.displayName"
+                              /></ion-avatar>
+                              <div>
+                                <strong>{{ player.displayName }}</strong
+                                ><span>{{
+                                  store.currentAction(group) === 'drawing' ? '作畫中' : '猜詞中'
+                                }}</span>
+                              </div>
+                            }
                           </div>
-                        }
-                      </div>
-                    } @else {
-                      <p>第 {{ group.currentRoundIndex + 1 }} / {{ group.turnOrder.length }} 輪</p>
-                      <strong
-                        >{{ group.roundSubmissions.length }} /
-                        {{ group.players.length }} 人已交卷</strong
-                      >
-                    }
-                    <div class="compact-actions">
-                      @if (!store.isUnlimitedTurn(group)) {
-                        <ion-button
-                          size="small"
-                          fill="outline"
-                          (click)="store.extendGroup(group.id)"
-                          >+30 秒</ion-button
+                        </div>
+                      } @else {
+                        <p>
+                          第 {{ group.currentRoundIndex + 1 }} / {{ group.turnOrder.length }} 輪
+                        </p>
+                        <strong
+                          >{{ group.roundSubmissions.length }} /
+                          {{ group.players.length }} 人已提交</strong
                         >
                       }
-                      <ion-button
-                        [size]="store.isUnlimitedTurn(group) ? 'large' : 'small'"
-                        fill="outline"
-                        [class.manual-end-turn]="store.isUnlimitedTurn(group)"
-                        (click)="skipTurn(group)"
-                      >
+
+                      @if (!isLiveGridPreview) {
+                        <div class="compact-actions">
+                          @if (!store.isUnlimitedTurn(group)) {
+                            <ion-button fill="outline" (click)="store.extendGroup(group.id)"
+                              >+30 秒</ion-button
+                            >
+                          }
+                          <ion-button
+                            fill="outline"
+                            [class.manual-end-turn]="store.isUnlimitedTurn(group)"
+                            (click)="skipTurn(group)"
+                          >
+                            {{
+                              store.isUnlimitedTurn(group)
+                                ? '結束目前回合'
+                                : store.room()!.mode === 'activity'
+                                  ? '本棒後移'
+                                  : '結束此輪'
+                            }}
+                          </ion-button>
+                          <ion-button
+                            fill="outline"
+                            color="danger"
+                            (click)="store.forceEnd(group.id)"
+                            >強制收冊</ion-button
+                          >
+                        </div>
+                      }
+                    } @else {
+                      <p>
                         {{
-                          store.isUnlimitedTurn(group)
-                            ? '結束目前回合'
-                            : store.room()!.mode === 'activity'
-                              ? '本棒後移'
-                              : '結束此輪'
+                          store.room()!.mode === 'tabletop'
+                            ? '全桌已完成。'
+                            : '本組已完成，正在等待其他小組。'
                         }}
-                      </ion-button>
-                      <ion-button
-                        size="small"
-                        fill="clear"
-                        color="danger"
-                        (click)="store.forceEnd(group.id)"
-                        >強制收冊</ion-button
-                      >
-                    </div>
-                  } @else {
-                    <p>
-                      {{
-                        store.room()!.mode === 'tabletop'
-                          ? '全桌已完成。'
-                          : '本組已完成，正在等待其他小組。'
-                      }}
-                    </p>
-                  }
+                      </p>
+                    }
+                  </div>
                 </ion-card-content>
               </ion-card>
             }
@@ -601,15 +669,48 @@
         </main>
       } @else if (store.myGroup(); as group) {
         <main class="play-view content-width">
+          @if (store.isHost()) {
+            <section class="participant-host-controls">
+              @if (store.room()!.isPaused) {
+                <ion-button color="primary" (click)="store.resumeAll()">▶ 繼續遊戲</ion-button>
+              } @else {
+                <ion-button color="secondary" (click)="store.pauseAll()">⏸ 暫停遊戲</ion-button>
+              }
+              @for (hostGroup of store.groups(); track hostGroup.id) {
+                @if (hostGroup.status === 'playing') {
+                  <div class="participant-host-turn">
+                    <span>{{ hostGroup.name }}</span>
+                    @if (!store.isUnlimitedTurn(hostGroup)) {
+                      <ion-button
+                        size="small"
+                        fill="outline"
+                        (click)="store.extendGroup(hostGroup.id)"
+                        >+30 秒</ion-button
+                      >
+                    }
+                    <ion-button size="small" fill="outline" (click)="skipTurn(hostGroup)">
+                      {{ store.isUnlimitedTurn(hostGroup) ? '結束回合' : '跳過目前回合' }}
+                    </ion-button>
+                    <ion-button
+                      size="small"
+                      fill="clear"
+                      color="danger"
+                      (click)="store.forceEnd(hostGroup.id)"
+                      >強制收冊</ion-button
+                    >
+                  </div>
+                }
+              }
+            </section>
+          }
           @if (store.room()!.isPaused) {
             <div class="player-pause">
               <div class="state-icon">⏸</div>
-              <h1>全場暫停中</h1>
-              <p>畫面與計時已凍結，請等待房主繼續。</p>
+              <h1>遊戲暫停</h1>
+              <p>請等待主持人繼續遊戲</p>
             </div>
           } @else if (group.status === 'completed') {
             <div class="player-pause">
-              <div class="state-icon">📕</div>
               <h1>{{ store.room()!.mode === 'tabletop' ? '全桌已收冊' : '本組已收冊' }}</h1>
               <p>不要透露答案，等待主持人公開揭露！</p>
             </div>
@@ -639,15 +740,14 @@
 
             @if (store.currentTopic(group); as topic) {
               <section class="prompt-card">
-                <span>只有這一棒看得到</span>
                 <h1>{{ topic }}</h1>
-                <p>請把題目畫出來，不要寫出題目文字。</p>
+                <p>請保密並把題目畫出來，但不要寫出題目文字。</p>
               </section>
             } @else if (store.previousPage(group); as previous) {
               <section class="previous-card">
-                <span>你只能看上一棒</span>
+                <span>這是上一棒玩家所提供的內容</span>
                 @if (previous.kind === 'skipped') {
-                  <div class="skipped-page">⏱️ 上一棒逾時跳過</div>
+                  <div class="skipped-page">上一棒逾時跳過</div>
                 } @else {
                   <svg viewBox="0 0 1000 800" role="img" aria-label="上一棒的內容">
                     @for (stroke of previous.strokes; track $index) {
@@ -664,11 +764,9 @@
 
             <section class="action-heading">
               @if (store.currentAction(group) === 'drawing') {
-                <span class="action-pill action-pill--draw">作畫</span>
-                <h2>把你看到的詞語畫出來，但請勿寫字！</h2>
+                <span class="action-pill action-pill--draw">請畫出你所看到的詞語</span>
               } @else {
-                <span class="action-pill action-pill--guess">猜詞</span>
-                <h2>請寫下你看到的圖片是什麼</h2>
+                <span class="action-pill action-pill--guess">請寫下你所看到的內容</span>
               }
             </section>
             <div class="drawing-shell">
@@ -695,12 +793,9 @@
               <div class="turn-timer">
                 {{ store.isUnlimitedTurn(group) ? '∞' : store.remainingSeconds(group) }}
               </div>
-              <span>{{
-                store.room()!.mode === 'tabletop' ? '接力進行中' : group.name + '・接力進行中'
-              }}</span>
               @if (store.room()!.mode === 'activity' && currentPlayer(group); as player) {
                 <ion-avatar><img [src]="player.avatarUrl" [alt]="player.displayName" /></ion-avatar>
-                <h1>現在是 {{ player.displayName }}</h1>
+                <h1>現在輪到 {{ player.displayName }} 的回合</h1>
                 <p>
                   第 {{ group.currentTurnIndex + 1 }} / {{ group.turnOrder.length }} 棒・{{
                     store.currentAction(group) === 'drawing' ? '作畫' : '猜詞'
@@ -710,7 +805,7 @@
                 <h1>你已完成這一輪</h1>
                 <p>{{ group.roundSubmissions.length }} / {{ group.players.length }} 人已提交</p>
               }
-              <ion-note>等待時無法查看畫冊內容。</ion-note>
+              <ion-note>請等待接力完成</ion-note>
             </section>
           }
         </main>
@@ -719,138 +814,30 @@
 
     @if (store.room()!.status === '等待揭露') {
       <main class="center-state reveal-ready">
-        <div class="state-icon">🎉</div>
-        <h1>{{ store.room()!.mode === 'tabletop' ? '所有畫冊都已完成' : '所有組別都已收冊' }}</h1>
+        <ion-icon name="brush-sharp"></ion-icon>
+        <h1>畫冊已完成</h1>
         @if (store.isHost()) {
-          <p>
-            {{
-              store.room()!.mode === 'tabletop'
-                ? '請將畫面投影到大螢幕，接下來由你挑選畫冊、逐頁揭露。'
-                : '請將畫面投影到大螢幕，接下來由你挑選小組、逐頁揭露。'
-            }}
-          </p>
-          <ion-button color="secondary" size="large" (click)="store.reveal()"
-            >主持人揭露畫冊</ion-button
-          >
+          <p>請與玩家分享本次創作的精彩內容！</p>
+          <ion-button color="secondary" size="large" (click)="store.reveal()">開始分享</ion-button>
         } @else {
-          <p>
-            {{
-              store.room()!.mode === 'tabletop'
-                ? '請看向大螢幕，主持人將揭曉每本畫冊的內容。'
-                : '請看向大螢幕，主持人即將揭曉各組畫冊內容。'
-            }}
-          </p>
+          <p>請看向大螢幕，主持人將揭曉畫冊內容。</p>
         }
       </main>
     }
 
     @if (store.room()!.status === '公開揭露' && !canReviewRelayBook()) {
       <main class="center-state reveal-ready">
-        <div class="state-icon">📺</div>
         <h1>請看向大螢幕</h1>
-        <p>
-          {{
-            store.room()!.mode === 'tabletop'
-              ? '主持人正在逐頁揭露畫冊，結束後即可回顧你的畫冊。'
-              : '主持人正在逐頁揭露畫冊，結束後即可回顧你的組別畫冊。'
-          }}
-        </p>
+        <p>主持人正在分享內容，你能在分享結束後下載畫冊</p>
       </main>
     } @else if (canReviewRelayBook()) {
       <main class="reveal-view">
-        <section class="reveal-sidebar">
-          <span class="eyebrow">REVEAL</span>
-          <h1>{{ store.room()!.status === '遊戲結束' ? '本局已結束' : '畫冊揭露' }}</h1>
-          @if (store.isHost()) {
-            <ion-button expand="block" color="secondary" (click)="store.downloadAll()">{{
-              store.room()!.mode === 'tabletop' ? '下載本局畫冊' : '下載全部組別的畫冊'
-            }}</ion-button>
-          }
-          @if (store.isHost() && store.room()!.mode === 'activity') {
-            <div class="group-picker">
-              @for (group of store.groups(); track group.id) {
-                <button
-                  type="button"
-                  [class.is-selected]="group.id === selectedRevealGroupId()"
-                  (click)="selectRevealGroup(group.id)"
-                >
-                  <span>{{ group.name }}</span
-                  ><small>{{ group.players.length }} 人</small>
-                </button>
-              }
-            </div>
-          } @else if (store.myGroup(); as ownGroup) {
-            @if (selectedRevealGroupId() !== ownGroup.id) {
-              <ion-button fill="outline" (click)="selectRevealGroup(ownGroup.id)">{{
-                store.room()!.mode === 'tabletop' ? '開啟畫冊' : '開啟組別的畫冊'
-              }}</ion-button>
-            }
-          }
-
-          @if (selectedRevealGroup(); as selectedGroup) {
-            @if (selectedBookIds().length > 1) {
-              <ion-select
-                label="選擇畫冊"
-                labelPlacement="stacked"
-                fill="outline"
-                [value]="selectedRevealBookId()"
-                (ionChange)="selectRevealBook($event)"
-              >
-                @for (bookId of selectedBookIds(); track bookId; let index = $index) {
-                  <ion-select-option [value]="bookId">{{
-                    store.room()!.mode === 'activity'
-                      ? selectedGroup.name
-                      : '第 ' + (index + 1) + ' 冊'
-                  }}</ion-select-option>
-                }
-              </ion-select>
-            }
-            @if (
-              selectedGroup.id === store.myGroup()?.id ||
-              (store.isHost() && store.room()!.mode === 'activity')
-            ) {
-              <ion-button
-                expand="block"
-                fill="outline"
-                (click)="store.downloadGroup(selectedGroup)"
-                >{{
-                  store.room()!.mode === 'tabletop'
-                    ? '下載我的 PDF 畫冊'
-                    : store.isHost()
-                      ? '下載目前組別 PDF'
-                      : '下載本組 PDF 畫冊'
-                }}</ion-button
-              >
-            }
-          }
-
-          @if (store.isHost() && store.room()!.status === '公開揭露') {
-            <ion-button expand="block" fill="outline" color="danger" (click)="store.finishGame()"
-              >結束揭露，開放玩家回顧</ion-button
-            >
-          } @else if (store.room()!.status === '遊戲結束') {
-            <ion-note>{{
-              store.isHost()
-                ? '本局畫冊已保留。若要再玩一局，請離開後從大廳建立新房間。'
-                : '現在可自由回顧或下載自己的畫冊；離開後仍可透過原連結回來。'
-            }}</ion-note>
-            <ion-button expand="block" color="secondary" (click)="leaveRoom()">{{
-              store.isHost() ? '回大廳建立新房間' : '離開房間'
-            }}</ion-button>
-          }
-        </section>
-
         <section class="reveal-stage">
           @if (selectedRevealGroup(); as selectedGroup) {
-            <div class="stage-meta">
-              <span>{{ selectedGroup.name }}</span>
-              <strong>{{ revealPosition() + 1 }} / {{ revealPageCount() }}</strong>
-            </div>
             <div class="stage-page">
               @if (revealPosition() === 0) {
-                <span class="eyebrow">題目</span>
+                <p>題目是…</p>
                 <h2>{{ revealTopic() }}</h2>
-                <p>這才是最初的題目……</p>
               } @else if (revealPage(); as page) {
                 <div class="page-author">
                   <div class="page-kind" [class.page-kind--guess]="page.kind === 'guess'">
@@ -883,27 +870,108 @@
               }
             </div>
             <div class="stage-controls">
-              <ion-button
-                size="large"
-                fill="outline"
-                [disabled]="revealPosition() >= revealPageCount() - 1"
-                (click)="jumpToFinalRevealPage()"
-                >跳至最後一頁</ion-button
-              >
-              <ion-button
-                size="large"
-                fill="outline"
-                [disabled]="revealPosition() === 0"
-                (click)="previousRevealPage()"
-                >上一頁</ion-button
-              >
-              <ion-button
-                size="large"
-                color="secondary"
-                [disabled]="revealPosition() >= revealPageCount() - 1"
-                (click)="nextRevealPage()"
-                >下一頁</ion-button
-              >
+              @if (store.isHost() && store.room()!.mode === 'activity') {
+                <div class="group-picker">
+                  @for (group of store.groups(); track group.id) {
+                    <button
+                      type="button"
+                      [class.is-selected]="group.id === selectedRevealGroupId()"
+                      (click)="selectRevealGroup(group.id)"
+                    >
+                      {{ group.name }}
+                    </button>
+                  }
+                </div>
+              } @else if (store.myGroup(); as ownGroup) {
+                @if (selectedRevealGroupId() !== ownGroup.id) {
+                  <ion-button fill="outline" (click)="selectRevealGroup(ownGroup.id)">{{
+                    store.room()!.mode === 'tabletop' ? '開啟畫冊' : '開啟組別的畫冊'
+                  }}</ion-button>
+                }
+              }
+              <div class="controls">
+                @let isInFirstPage = revealPosition() === 0;
+                @let isInLastPage = revealPosition() >= revealPageCount() - 1;
+                <ion-button
+                  color="secondary"
+                  fill="clear"
+                  size="large"
+                  [disabled]="isInFirstPage"
+                  (click)="jumpToFirstRevealPage()"
+                  ><ion-icon name="play-skip-back"></ion-icon
+                ></ion-button>
+                <ion-button
+                  color="secondary"
+                  fill="clear"
+                  size="large"
+                  [disabled]="isInFirstPage"
+                  (click)="previousRevealPage()"
+                  ><ion-icon name="play-back"></ion-icon
+                ></ion-button>
+                <ion-button
+                  color="secondary"
+                  fill="clear"
+                  size="large"
+                  [disabled]="isInLastPage"
+                  (click)="nextRevealPage()"
+                >
+                  <ion-icon name="play-forward"></ion-icon>
+                </ion-button>
+                <ion-button
+                  color="secondary"
+                  fill="clear"
+                  size="large"
+                  [disabled]="isInLastPage"
+                  (click)="jumpToFinalRevealPage()"
+                  ><ion-icon name="play-skip-forward"></ion-icon
+                ></ion-button>
+              </div>
+              @if (selectedRevealGroup(); as selectedGroup) {
+                @if (selectedBookIds().length > 1) {
+                  <ion-select
+                    label="選擇畫冊"
+                    labelPlacement="stacked"
+                    fill="outline"
+                    [value]="selectedRevealBookId()"
+                    (ionChange)="selectRevealBook($event)"
+                  >
+                    @for (bookId of selectedBookIds(); track bookId; let index = $index) {
+                      <ion-select-option [value]="bookId">{{
+                        store.room()!.mode === 'activity'
+                          ? selectedGroup.name
+                          : '第 ' + (index + 1) + ' 冊'
+                      }}</ion-select-option>
+                    }
+                  </ion-select>
+                }
+                @if (
+                  selectedGroup.id === store.myGroup()?.id ||
+                  (store.isHost() && store.room()!.mode === 'activity')
+                ) {
+                  <ion-button fill="outline" (click)="store.downloadGroup(selectedGroup)">
+                    <ion-icon name="download-outline"></ion-icon>
+                    下載本畫冊</ion-button
+                  >
+                }
+              }
+              @if (store.isHost() && store.room()!.status === '公開揭露') {
+                <ion-button
+                  expand="block"
+                  fill="outline"
+                  color="danger"
+                  (click)="store.finishGame()"
+                  >結束遊戲</ion-button
+                >
+              } @else if (store.room()!.status === '遊戲結束') {
+                <ion-note style="margin: 0 auto">{{
+                  store.isHost()
+                    ? '若要再玩一局，請離開後從大廳建立新房間。'
+                    : '請自由回顧或下載畫冊，祝您遊戲愉快！'
+                }}</ion-note>
+                <ion-button expand="block" color="secondary" (click)="leaveRoom()">{{
+                  store.isHost() ? '回大廳建立新房間' : '離開房間'
+                }}</ion-button>
+              }
             </div>
           } @else {
             <div class="stage-placeholder">

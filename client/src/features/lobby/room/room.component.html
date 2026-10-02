@@ -12,78 +12,217 @@
 </ion-header>
 
 <ion-content class="room-page ion-padding">
-  @if (store.status() === '遊戲準備中') {
-    <main class="waiting-room">
-      <div class="title">
-        <div>
-          <span class="room-eyebrow">房間名稱</span>
-          <h1>{{ store.name() }}</h1>
-        </div>
-        @if (store.isRoomMaster()) {
-          <div class="waiting-actions">
-            <ion-button fill="outline" (click)="openRoomSettings()">編輯房間</ion-button>
-            <ion-button
-              color="warning"
-              [disabled]="store.isLoading() || !store.topic().question"
-              (click)="startGame()"
-            >
-              遊戲開始
-            </ion-button>
-          </div>
-        }
-      </div>
-
-      <ion-card class="waiting-topic-card">
-        <div class="waiting-topic-card__content">
-          <span>本回合題目</span>
-          @if (store.topic().question) {
-            <h2>{{ store.topic().question }}</h2>
-            <div class="waiting-topic-card__tips">
-              @for (tip of store.topic().tips; track $index) {
-                <ion-chip color="primary">{{ tip }}</ion-chip>
-              }
-            </div>
-          } @else {
-            <p>題目準備中{{ dotdotdot() }}</p>
-          }
-        </div>
-        @if (store.isRoomMaster() && !store.isLoading()) {
-          <ion-button fill="outline" [disabled]="store.isLoading()" (click)="regenerateTopic()">
-            重新產生題目
+  @if (!store.uid()) {
+    <main class="room-state">
+      <ion-spinner name="crescent" />
+      <p>正在建立快速加入身分…</p>
+    </main>
+  } @else if (store.status() === '遊戲準備中') {
+    @if (store.requiresProfile()) {
+      <main class="quick-join-view">
+        <section class="quick-join-card">
+          <span class="quick-join-eyebrow">9UPPER 快速加入</span>
+          <h1>選擇你的頭像與暱稱</h1>
+          <p>
+            @if (store.hasDedicatedHost()) {
+              加入後房主會將你指定為參賽者或觀眾。
+            } @else {
+              加入後你會以玩家身分參與本局遊戲。
+            }
+          </p>
+          <button class="avatar-picker" type="button" (click)="changeAvatar()">
+            <img [src]="avatarUrl()" alt="隨機頭像" />
+            <span>點一下換頭像</span>
+          </button>
+          <ion-input
+            label="暱稱"
+            labelPlacement="stacked"
+            fill="outline"
+            maxlength="12"
+            [value]="nickname()"
+            (ionInput)="updateNickname($event)"
+          />
+          <ion-button
+            expand="block"
+            color="secondary"
+            size="large"
+            [disabled]="isJoiningProfile() || !nickname().trim()"
+            (click)="joinWithProfile()"
+          >
+            @if (isJoiningProfile()) {
+              <ion-spinner name="dots" />
+            } @else {
+              加入遊戲
+            }
           </ion-button>
-        }
-      </ion-card>
+        </section>
+      </main>
+    } @else {
+      <main class="waiting-room">
+        <div class="title">
+          @if (store.isRoomMaster()) {
+            <div class="waiting-actions">
+              <ion-button fill="outline" (click)="openRoomSettings()">編輯房間</ion-button>
+              <ion-button
+                color="warning"
+                [disabled]="store.isLoading() || !store.topic().question"
+                (click)="startGame()"
+              >
+                遊戲開始
+              </ion-button>
+            </div>
+          }
+        </div>
 
-      <ion-card class="player-list-card">
-        <ion-list>
-          @for (player of store.players(); track player.uid) {
-            <ion-item>
-              <ion-avatar class="player-row" slot="start">
-                @if (player.uid === store.roomMasterId()) {
-                  <ion-icon class="room-master-badge" name="star" />
+        <ion-card class="waiting-topic-card">
+          <div class="waiting-topic-card__content">
+            <span>本回合題目</span>
+            @if (store.topic().question) {
+              <h2>{{ store.topic().question }}</h2>
+              <div class="waiting-topic-card__tips">
+                @for (tip of store.topic().tips; track $index) {
+                  <ion-chip color="primary">{{ tip }}</ion-chip>
                 }
-                <img [alt]="player.displayName" [src]="player.photoUrl" />
-              </ion-avatar>
-              <ion-label>{{ player.displayName }}</ion-label>
-              <ion-label class="player-index">玩家{{ $index + 1 }}</ion-label>
-            </ion-item>
-          }
-
-          @if (!store.isRoomFull()) {
-            <ion-item>
-              <div class="invite-player">
-                <ion-button id="click-trigger" color="medium">
-                  <ion-icon name="add" />
-                  <span>邀請玩家</span>
-                </ion-button>
-                <h5>
-                  等待加入中<span>{{ dotdotdot() }}</span>
-                </h5>
               </div>
-            </ion-item>
+            } @else {
+              <p>題目準備中{{ dotdotdot() }}</p>
+            }
+          </div>
+          @if (store.isRoomMaster() && !store.isLoading()) {
+            <ion-button fill="outline" [disabled]="store.isLoading()" (click)="regenerateTopic()">
+              重新產生題目
+            </ion-button>
           }
-        </ion-list>
-      </ion-card>
+        </ion-card>
+
+        @if (store.hasDedicatedHost()) {
+          <ion-card class="host-mode-card">
+            <span>
+              請主持人指定至少 3 名參賽者，目前有
+              <strong>{{ store.contestants().length }} </strong>名參賽者，
+              <strong>{{ store.spectators().length }} </strong>名觀眾
+            </span>
+          </ion-card>
+        }
+
+        @if (store.hasDedicatedHost()) {
+          <section class="participant-role-groups" aria-label="玩家參與身分">
+            <ion-card class="participant-role-card participant-role-card--contestants">
+              <div class="participant-role-card__heading">
+                <div>
+                  <strong>參賽者</strong>
+                </div>
+                <ion-chip color="primary">{{ store.contestants().length }} 人</ion-chip>
+              </div>
+              <ion-list>
+                @for (player of store.contestants(); track player.uid) {
+                  <ion-item>
+                    <ion-avatar slot="start">
+                      <img [alt]="player.displayName" [src]="player.photoUrl" />
+                    </ion-avatar>
+                    <ion-label>{{ player.displayName }}</ion-label>
+                    @if (store.isRoomMaster()) {
+                      <ion-select
+                        class="participant-role-select"
+                        slot="end"
+                        aria-label="{{ player.displayName }} 的參與身分"
+                        interface="popover"
+                        value="contestant"
+                        (ionChange)="assignParticipantRole(player, $event)"
+                      >
+                        <ion-select-option value="contestant">參賽者</ion-select-option>
+                        <ion-select-option value="spectator">改為觀眾</ion-select-option>
+                      </ion-select>
+                    } @else {
+                      <ion-chip slot="end" color="primary">參賽者</ion-chip>
+                    }
+                  </ion-item>
+                } @empty {
+                  <ion-item lines="none" class="participant-role-card__empty">
+                    <ion-label>尚未指定參賽者</ion-label>
+                  </ion-item>
+                }
+              </ion-list>
+            </ion-card>
+
+            <ion-card class="participant-role-card participant-role-card--spectators">
+              <div class="participant-role-card__heading">
+                <div>
+                  <strong>觀眾</strong>
+                </div>
+                <ion-chip color="medium">{{ store.spectators().length }} 人</ion-chip>
+              </div>
+              <ion-list>
+                @for (player of store.spectators(); track player.uid) {
+                  <ion-item>
+                    <ion-avatar slot="start">
+                      <img [alt]="player.displayName" [src]="player.photoUrl" />
+                    </ion-avatar>
+                    <ion-label>{{ player.displayName }}</ion-label>
+                    @if (store.isRoomMaster()) {
+                      <ion-select
+                        class="participant-role-select"
+                        slot="end"
+                        aria-label="{{ player.displayName }} 的參與身分"
+                        interface="popover"
+                        value="spectator"
+                        (ionChange)="assignParticipantRole(player, $event)"
+                      >
+                        <ion-select-option value="contestant">改為參賽者</ion-select-option>
+                        <ion-select-option value="spectator">觀眾</ion-select-option>
+                      </ion-select>
+                    } @else {
+                      <ion-chip slot="end" color="medium">觀眾</ion-chip>
+                    }
+                  </ion-item>
+                } @empty {
+                  <ion-item lines="none" class="participant-role-card__empty">
+                    <ion-label>尚未有觀眾加入</ion-label>
+                  </ion-item>
+                }
+              </ion-list>
+            </ion-card>
+          </section>
+        } @else {
+          <ion-card class="player-list-card">
+            <ion-list>
+              @for (player of store.players(); track player.uid) {
+                <ion-item>
+                  <ion-avatar class="player-row" slot="start">
+                    @if (player.uid === store.roomMasterId()) {
+                      <ion-icon class="room-master-badge" name="star" />
+                    }
+                    <img [alt]="player.displayName" [src]="player.photoUrl" />
+                  </ion-avatar>
+                  <ion-label>{{ player.displayName }}</ion-label>
+                  <ion-label class="player-index">玩家{{ $index + 1 }}</ion-label>
+                </ion-item>
+              }
+            </ion-list>
+          </ion-card>
+        }
+
+        @if (!store.isRoomFull()) {
+          <ion-card class="invite-card">
+            <div class="invite-player">
+              <ion-button id="click-trigger" color="medium">
+                <ion-icon name="add" />
+                <span>邀請玩家</span>
+              </ion-button>
+              <h5>
+                等待加入中<span>{{ dotdotdot() }}</span>
+              </h5>
+            </div>
+          </ion-card>
+        }
+      </main>
+    }
+  } @else if (store.isCurrentUserNonparticipant()) {
+    <main class="room-state room-state--closed">
+      <span>本局已開始</span>
+      <h1>這個房間目前不接受新玩家</h1>
+      <p>請等待下一局開始，或回到遊戲大廳選擇其他房間。</p>
+      <ion-button color="secondary" (click)="returnToLobby()">回到遊戲大廳</ion-button>
     </main>
   } @else {
     <app-nine-upper />
@@ -108,12 +247,12 @@
           label="房間名稱"
           labelPlacement="floating"
           fill="outline"
-          maxlength="8"
+          maxlength="20"
           [counter]="true"
           [value]="roomNameDraft()"
           (ionInput)="roomNameDraft.set($any($event).detail.value ?? '')"
         />
-        <small>房間名稱需為 3–8 個字。</small>
+        <small>房間名稱需為 3–20 個字。</small>
         <ion-textarea
           label="AI 題目提示詞"
           labelPlacement="floating"
@@ -125,6 +264,21 @@
           (ionInput)="customPromptDraft.set($any($event).detail.value ?? '')"
         />
         <small>儲存後會套用在下一次重新產生題目。</small>
+        <ion-select
+          label="遊戲模式"
+          labelPlacement="floating"
+          fill="outline"
+          [value]="hostModeDraft()"
+          (ionChange)="
+            hostModeDraft.set(
+              $any($event).detail.value === true || $any($event).detail.value === 'true'
+            )
+          "
+        >
+          <ion-select-option [value]="true">主持模式（房主不參與）</ion-select-option>
+          <ion-select-option [value]="false">玩家模式（房主也參賽）</ion-select-option>
+        </ion-select>
+        <small>主持模式下，新加入者預設為觀眾，可由房主指定為參賽者。</small>
         <ion-button
           expand="block"
           [disabled]="isRoomSettingsInvalid() || isSavingSettings()"

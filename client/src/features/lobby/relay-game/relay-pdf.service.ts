@@ -94,18 +94,14 @@ export class RelayPdfService {
 
     context.fillStyle = '#0f7b61';
     context.font = '700 42px system-ui, sans-serif';
-    context.fillText('傳情畫意', 100, 170);
+    context.fillText('傳情畫意 Telestrations', 100, 170);
+
     context.fillStyle = '#14231f';
-    context.font = '900 112px system-ui, sans-serif';
-    context.fillText('傳情畫意遊戲紀念', 100, 330);
+    this.drawRoomName(context, room.name, 100, 330, 980);
 
     context.fillStyle = '#0f7b61';
     context.font = '800 64px system-ui, sans-serif';
     this.drawWrappedText(context, title, 100, 470, 980, 82);
-
-    context.fillStyle = '#44524e';
-    context.font = '500 40px system-ui, sans-serif';
-    context.fillText(room.name, 100, 610);
 
     context.fillStyle = '#f4f7f5';
     this.roundedRect(context, 82, 720, 1076, 650, 40);
@@ -134,7 +130,26 @@ export class RelayPdfService {
 
     context.fillStyle = '#70807a';
     context.font = '400 28px system-ui, sans-serif';
-    context.fillText('見證你們之間的默契有多離譜！', 100, 1600);
+    context.fillText('準備見證你們之間的見解有多大差異！', 100, 1600);
+  }
+
+  private drawRoomName(
+    context: CanvasRenderingContext2D,
+    roomName: string,
+    x: number,
+    y: number,
+    maxWidth: number,
+  ) {
+    for (let fontSize = 112; fontSize >= 64; fontSize -= 4) {
+      context.font = `900 ${fontSize}px system-ui, sans-serif`;
+      if (context.measureText(roomName).width <= maxWidth) {
+        context.fillText(roomName, x, y);
+        return;
+      }
+    }
+
+    context.font = '900 64px system-ui, sans-serif';
+    this.drawWrappedText(context, roomName, x, y, maxWidth, 78);
   }
 
   private drawBookTitle(
@@ -150,18 +165,61 @@ export class RelayPdfService {
     context.fillText(`${sectionTitle} · 第 ${index} / ${total} 冊`, 100, 180);
     context.fillStyle = '#14231f';
     context.font = '900 78px system-ui, sans-serif';
-    context.fillText('原始題目', 100, 355);
+    context.fillText('題目', 100, 355);
     context.fillStyle = '#fff4c7';
     this.roundedRect(context, 80, 450, 1080, 520, 44);
     context.fill();
     context.fillStyle = '#44370d';
-    context.font = '900 76px system-ui, sans-serif';
-    context.textAlign = 'center';
-    this.drawWrappedText(context, topic, PAGE_WIDTH / 2, 665, 900, 100, true);
-    context.textAlign = 'left';
+    this.drawCenteredWrappedText(context, topic, PAGE_WIDTH / 2, 710, 900, 430);
     context.fillStyle = '#70807a';
     context.font = '400 31px system-ui, sans-serif';
-    context.fillText('這本畫冊最一開始的題目，看看有誰離題了！？。', 100, 1120);
+    context.fillText('這就是本畫冊最初的題目，來看看是誰害大家離題了！', 100, 1120);
+  }
+
+  private drawCenteredWrappedText(
+    context: CanvasRenderingContext2D,
+    text: string,
+    centerX: number,
+    centerY: number,
+    maxWidth: number,
+    maxHeight: number,
+  ) {
+    let lines: string[] = [];
+    let lineHeight = 0;
+    let fontSize = 104;
+
+    for (; fontSize >= 56; fontSize -= 2) {
+      context.font = `900 ${fontSize}px system-ui, sans-serif`;
+      lines = [];
+      let current = '';
+      for (const character of text) {
+        const next = current + character;
+        if (context.measureText(next).width > maxWidth && current) {
+          lines.push(current);
+          current = character;
+        } else {
+          current = next;
+        }
+      }
+      if (current) lines.push(current);
+
+      lineHeight = Math.round(fontSize * 1.18);
+      const textHeight = lineHeight * Math.max(0, lines.length - 1) + fontSize;
+      if (textHeight <= maxHeight) break;
+    }
+
+    if (fontSize < 56) fontSize = 56;
+    const metrics = context.measureText('國');
+    const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.8;
+    const descent = metrics.actualBoundingBoxDescent || fontSize * 0.2;
+    const textHeight = lineHeight * Math.max(0, lines.length - 1) + ascent + descent;
+    const firstBaseline = centerY - textHeight / 2 + ascent;
+
+    context.textAlign = 'center';
+    lines.forEach((line, index) =>
+      context.fillText(line, centerX, firstBaseline + index * lineHeight),
+    );
+    context.textAlign = 'left';
   }
 
   private drawRelayPage(context: CanvasRenderingContext2D, page: RelayPage, topic: string) {
@@ -194,7 +252,7 @@ export class RelayPdfService {
       context.fillStyle = '#87918d';
       context.font = '800 58px system-ui, sans-serif';
       context.textAlign = 'center';
-      context.fillText('⏱️ 這一棒逾時跳過', PAGE_WIDTH / 2, 850);
+      context.fillText('這一棒逾時跳過', PAGE_WIDTH / 2, 850);
       context.textAlign = 'left';
     } else {
       this.drawStrokes(context, page.strokes, 110, 390, 1020, 920);
@@ -202,7 +260,7 @@ export class RelayPdfService {
 
     context.fillStyle = '#87918d';
     context.font = '400 26px system-ui, sans-serif';
-    context.fillText(`原始題目：${topic}`, 100, 1608);
+    context.fillText(`題目：${topic}`, 100, 1608);
   }
 
   private drawStrokes(

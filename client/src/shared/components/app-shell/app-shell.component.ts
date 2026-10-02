@@ -39,6 +39,16 @@ import {
   closeCircle,
   closeCircleOutline,
   diceOutline,
+  brushSharp,
+  playSkipBackOutline,
+  playSkipForwardOutline,
+  playBackOutline,
+  playForwardOutline,
+  playBack,
+  playForward,
+  playSkipBack,
+  playSkipForward,
+  downloadOutline,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
@@ -68,6 +78,12 @@ export class AppShellComponent {
   readonly taskStore = inject(TaskStore);
   constructor() {
     addIcons({
+      downloadOutline,
+      playForward,
+      playBack,
+      playSkipForward,
+      playSkipBack,
+      brushSharp,
       diceOutline,
       closeCircleOutline,
       closeCircle,

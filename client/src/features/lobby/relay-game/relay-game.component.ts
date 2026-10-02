@@ -87,6 +87,10 @@ export class RelayGameComponent implements OnDestroy {
   protected readonly selectedRevealGroupId = signal('');
   protected readonly selectedRevealBookId = signal('');
   protected readonly revealPosition = signal(0);
+  protected readonly liveReviewPosition = signal(0);
+  protected readonly liveReviewMode = signal<'manual' | 'auto'>('manual');
+  protected readonly isLiveGridPreview =
+    this.route.snapshot.queryParamMap.get('preview') === 'live-grid';
   protected readonly joinGroupId: string;
   private readonly timerId: ReturnType<typeof setInterval>;
 
@@ -132,11 +136,29 @@ export class RelayGameComponent implements OnDestroy {
     const room = this.store.room();
     return room ? canReviewRelayBook(room.status, this.store.isHost()) : false;
   });
+  protected readonly isLiveHostReview = computed(
+    () =>
+      this.store.isHost() &&
+      this.store.hasDedicatedHost() &&
+      this.store.room()?.status === '遊戲進行中',
+  );
+  /** The projector only replays completed drawings, never handwritten guesses or skipped turns. */
+  protected readonly liveReviewPages = computed(() =>
+    Object.values(this.store.pagesByGroup())
+      .flat()
+      .filter((page) => page.kind === 'drawing')
+      .sort((left, right) => left.submittedAt - right.submittedAt),
+  );
+  protected readonly liveReviewPage = computed<RelayPage | null>(
+    () => this.liveReviewPages()[this.liveReviewPosition()] ?? null,
+  );
 
   constructor() {
     const seq = this.route.snapshot.paramMap.get('seq') ?? '';
     this.joinGroupId = this.route.snapshot.queryParamMap.get('group') ?? '';
-    void this.bootstrap(seq);
+    if (this.isLiveGridPreview) {
+      this.store.previewLiveGrid();
+    } else void this.bootstrap(seq);
     this.timerId = setInterval(() => this.store.tick(), 250);
 
     effect(() => {
@@ -165,11 +187,25 @@ export class RelayGameComponent implements OnDestroy {
         this.revealPosition.set(0);
         return;
       }
-      if (groups.length === 0 || !['公開揭露', '遊戲結束'].includes(room.status)) return;
+      const canShowReview =
+        ['公開揭露', '遊戲結束'].includes(room.status) || this.isLiveHostReview();
+      if (groups.length === 0 || !canShowReview) return;
       if (!this.selectedRevealGroupId()) {
         const visibleGroup = this.store.isHost() ? groups[0] : this.store.myGroup();
-        if (visibleGroup) this.selectRevealGroup(visibleGroup.id);
+        if (visibleGroup) this.selectRevealGroup(visibleGroup.id, this.isLiveHostReview());
       }
+    });
+
+    effect((onCleanup) => {
+      if (
+        !this.isLiveHostReview() ||
+        this.liveReviewMode() !== 'auto' ||
+        this.liveReviewPages().length < 2
+      ) {
+        return;
+      }
+      const intervalId = setInterval(() => this.nextLiveReviewPage(), 5000);
+      onCleanup(() => clearInterval(intervalId));
     });
   }
 
@@ -238,6 +274,12 @@ export class RelayGameComponent implements OnDestroy {
     const value = event.detail.value;
     if (value === 'activity' || value === 'tabletop')
       void this.store.updateSettings({ mode: value });
+  }
+
+  protected updateHostMode(event: CustomEvent<{ value?: string | number | boolean | null }>) {
+    const value = event.detail.value;
+    if (value === true || value === 'true') void this.store.updateSettings({ hostMode: true });
+    if (value === false || value === 'false') void this.store.updateSettings({ hostMode: false });
   }
 
   protected updateDrawingSeconds(event: CustomEvent<{ value?: string | number | null }>) {
@@ -351,30 +393,55 @@ export class RelayGameComponent implements OnDestroy {
     return stroke.points.map((point) => `${point.x * 1000},${point.y * 800}`).join(' ');
   }
 
-  protected selectRevealGroup(groupId: string) {
+  protected selectRevealGroup(groupId: string, showFirstCompletedPage = false) {
     if (!this.store.isHost() && this.store.myGroup()?.id !== groupId) return;
     this.selectedRevealGroupId.set(groupId);
     const group = this.store.groups().find((item) => item.id === groupId);
     const firstBook = Object.keys(group?.topicsByBook ?? {})[0] ?? '';
     this.selectedRevealBookId.set(firstBook);
-    this.revealPosition.set(0);
+    this.revealPosition.set(showFirstCompletedPage ? 1 : 0);
   }
 
   protected selectRevealBook(event: CustomEvent<{ value?: string | number | null }>) {
     this.selectedRevealBookId.set(typeof event.detail.value === 'string' ? event.detail.value : '');
-    this.revealPosition.set(0);
+    this.revealPosition.set(this.minimumRevealPosition());
   }
 
   protected previousRevealPage() {
-    this.revealPosition.update((position) => Math.max(0, position - 1));
+    this.revealPosition.update((position) => Math.max(this.minimumRevealPosition(), position - 1));
   }
 
   protected nextRevealPage() {
     this.revealPosition.update((position) => Math.min(this.revealPageCount() - 1, position + 1));
   }
 
+  protected updateLiveReviewMode(event: CustomEvent<{ value?: string | number | null }>) {
+    const value = event.detail.value;
+    if (value === 'manual' || value === 'auto') this.liveReviewMode.set(value);
+  }
+
+  protected previousLiveReviewPage() {
+    const pageCount = this.liveReviewPages().length;
+    if (pageCount < 2) return;
+    this.liveReviewPosition.update((position) => (position - 1 + pageCount) % pageCount);
+  }
+
+  protected nextLiveReviewPage() {
+    const pageCount = this.liveReviewPages().length;
+    if (pageCount < 2) return;
+    this.liveReviewPosition.update((position) => (position + 1) % pageCount);
+  }
+
   protected jumpToFinalRevealPage() {
     this.revealPosition.set(Math.max(0, this.revealPageCount() - 1));
+  }
+
+  protected jumpToFirstRevealPage() {
+    this.revealPosition.set(this.minimumRevealPosition());
+  }
+
+  protected minimumRevealPosition() {
+    return this.isLiveHostReview() ? 1 : 0;
   }
 
   private joinLink(groupId: string): string {

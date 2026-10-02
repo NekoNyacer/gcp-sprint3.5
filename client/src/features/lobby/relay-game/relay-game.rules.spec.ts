@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { RelayGroup, RelayPlayer } from './relay-game.models';
+import { RELAY_TOPICS, RelayGroup, RelayPlayer, relayInitialState } from './relay-game.models';
 import {
   actionForIndex,
+  assignActivityTopics,
   appendFinalGuessPlayer,
   assignedBookId,
   canReviewRelayBook,
@@ -41,6 +42,11 @@ function group(overrides: Partial<RelayGroup> = {}): RelayGroup {
 }
 
 describe('relay game rules', () => {
+  it('creates relay rooms with unlimited drawing and guessing turns by default', () => {
+    expect(relayInitialState.drawingSeconds).toBe(0);
+    expect(relayInitialState.guessingSeconds).toBe(0);
+  });
+
   it('alternates drawing and handwritten guessing', () => {
     expect(actionForIndex(0)).toBe('drawing');
     expect(actionForIndex(1)).toBe('guess');
@@ -98,6 +104,18 @@ describe('relay game rules', () => {
 
   it('does not add a duplicate player when an activity group already ends on a guess', () => {
     expect(appendFinalGuessPlayer(['p0', 'p1', 'p2', 'p3'])).toEqual(['p0', 'p1', 'p2', 'p3']);
+  });
+
+  it('draws activity topics at game start instead of reusing a persisted group topic', () => {
+    const legacyGroup: Pick<RelayGroup, 'id' | 'topic'> = { id: 'g1', topic: '雨傘' };
+    const zeroDraw = assignActivityTopics([legacyGroup], () => 0)['g1'];
+    const unchanged = assignActivityTopics([legacyGroup], () => 0.999_999)['g1'];
+
+    expect(RELAY_TOPICS).toContain(zeroDraw);
+    expect(RELAY_TOPICS).toContain(unchanged);
+    expect(zeroDraw).toBe(RELAY_TOPICS[1]);
+    expect(unchanged).toBe(RELAY_TOPICS[0]);
+    expect(zeroDraw).not.toBe(unchanged);
   });
 
   it('shuffles without losing players', () => {

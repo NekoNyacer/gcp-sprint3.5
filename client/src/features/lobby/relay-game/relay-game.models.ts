@@ -40,6 +40,8 @@ export type RelayRoom = {
   roomMasterId: string;
   status: RelayRoomStatus;
   mode: RelayMode;
+  /** When true, the room owner controls the game but is not a player. */
+  hostMode: boolean;
   drawingSeconds: number;
   guessingSeconds: number;
   isPaused: boolean;
@@ -85,8 +87,9 @@ export const relayInitialState: RelayRoom = {
   roomMasterId: '',
   status: '遊戲準備中',
   mode: 'activity',
-  drawingSeconds: 75,
-  guessingSeconds: 30,
+  hostMode: true,
+  drawingSeconds: 0,
+  guessingSeconds: 0,
   isPaused: false,
   groups: [],
   players: [],

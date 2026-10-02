@@ -90,7 +90,8 @@ export class LobbyComponent implements OnDestroy {
 
     if (
       savedRoom &&
-      savedRoom.playerUids.includes(currentUserId ?? '') &&
+      (savedRoom.playerUids.includes(currentUserId ?? '') ||
+        savedRoom.createrUID === currentUserId) &&
       !rooms.some((room) => room.seq === savedRoom.seq)
     ) {
       rooms.unshift(savedRoom);
@@ -188,7 +189,7 @@ export class LobbyComponent implements OnDestroy {
   createForm = form(this.createCriteria, (s) => {
     required(s.gameCode, { message: '請選擇要建立的遊戲' });
     required(s.roomName, { message: '請輸入房間名稱' });
-    maxLength(s.roomName, 8, { message: '房間名稱不得超過8字' });
+    maxLength(s.roomName, 20, { message: '房間名稱不得超過20字' });
     minLength(s.roomName, 3, { message: '房間名稱至少提供3字' });
     maxLength(s.customPrompt, 20, { message: '客製的提示詞不得超過20字' });
   });
@@ -220,6 +221,10 @@ export class LobbyComponent implements OnDestroy {
       },
       createdAt: Date.now(),
     });
+
+    // A dedicated host is intentionally absent from the player roster, so save the
+    // room at creation time as well as when a player joins.
+    localStorage.setItem(BONUS_GAME_ROOM_STORAGE_KEY, seq);
 
     this.isModalOpen.set(false);
     setTimeout(() => {
@@ -271,30 +276,30 @@ const gamedb: Game[] = [
   {
     gameCode: '001',
     name: '瞎掰王 9UPPER',
-    boxImageURL: 'https://pimg.1px.tw/punchboardgame/1673508385-224911250-g.jpg',
+    boxImageURL: 'images/bonus-games/9UPPER.svg',
     maximumPlayer: 9,
     description:
-      '《瞎掰王 9UPPER》是款聚會聊天、講幹話設計的熱門派對桌上遊戲。玩家需要絞盡腦汁，欺騙猜題人。',
+      '這是一款非常適合聚會聊天型的知識型桌上遊戲。玩家需要絞盡腦汁，想辦法用最能說服的言語來欺騙其他玩家！',
   },
   {
     gameCode: '002',
-    name: '誰是偽藝術家',
+    name: '偽藝術家 A fake artist goes to New York ',
     boxImageURL: 'images/bonus-games/fake-artist.svg',
     maximumPlayer: 9,
-    description: '大家輪流在同一張畫上留下一筆，藝術家要畫出題目，偽藝術家則要邊猜邊蒙混過關。',
+    description: '你們這群藝術家中混入了一名偽藝術家！？藉由觀察每個人的畫跡，找出偽藝術家。',
   },
   {
     gameCode: '003',
     name: '間諜危機 Spyfall',
     boxImageURL: 'images/bonus-games/spyfall.svg',
     maximumPlayer: 9,
-    description: '只有間諜不知道大家所在的場所。用線索試探彼此，在時間內找出混入人群的間諜。',
+    description: '間諜就在我們之中！只有他不知道目前的場所。用線索試探彼此，在時間內找出間諜吧！',
   },
   {
     gameCode: '004',
-    name: '傳情畫意',
+    name: '傳情畫意 Telestrations',
     boxImageURL: 'images/bonus-games/relay-drawing.svg',
-    maximumPlayer: 105,
-    description: '一頁圖、一頁手寫猜詞向下傳，最後在大螢幕逐頁公開整段離題現場。',
+    maximumPlayer: 100,
+    description: '發揮你們的想像力與繪畫功力吧！原來同個物品在每個人的眼中如此不同。',
   },
 ];

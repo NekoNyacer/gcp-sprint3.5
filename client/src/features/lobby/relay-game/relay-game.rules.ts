@@ -4,6 +4,7 @@ import {
   RelayPageKind,
   RelayPlayer,
   RelayRoomStatus,
+  RELAY_TOPICS,
 } from './relay-game.models';
 
 export function shufflePlayers(players: RelayPlayer[], random = Math.random): RelayPlayer[] {
@@ -65,6 +66,21 @@ export function appendFinalGuessPlayer(
   const eligibleIndex =
     1 + Math.min(turnOrder.length - 2, Math.floor(random() * (turnOrder.length - 1)));
   return [...turnOrder, turnOrder[eligibleIndex]];
+}
+
+/** Assign one shuffled topic per activity group when the game starts. */
+export function assignActivityTopics(
+  groups: readonly Pick<RelayGroup, 'id'>[],
+  random = Math.random,
+): Record<string, string> {
+  const topics = [...RELAY_TOPICS];
+  for (let index = topics.length - 1; index > 0; index--) {
+    const target = Math.floor(random() * (index + 1));
+    [topics[index], topics[target]] = [topics[target], topics[index]];
+  }
+  return Object.fromEntries(
+    groups.map((group, index) => [group.id, topics[index % topics.length]]),
+  );
 }
 
 export function assignedBookId(group: RelayGroup, playerUid: string): string | null {

@@ -25,6 +25,107 @@
   --padding-end: clamp(12px, 4vw, 28px);
 }
 
+.room-state,
+.quick-join-view {
+  min-height: min(72dvh, 620px);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.room-state {
+  align-content: center;
+  gap: 12px;
+  color: var(--ion-color-medium);
+
+  ion-spinner {
+    width: 42px;
+    height: 42px;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--ion-color-dark);
+    font-size: clamp(1.45rem, 7vw, 2.1rem);
+  }
+
+  p {
+    max-width: 360px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  &--closed > span {
+    color: var(--ion-color-primary);
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+}
+
+.quick-join-card {
+  width: min(100%, 460px);
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: clamp(24px, 7vw, 42px);
+  border-radius: 26px;
+  background: var(--ion-background-color);
+  box-shadow: 0 20px 60px rgb(20 55 45 / 14%);
+  text-align: center;
+
+  .quick-join-eyebrow {
+    color: var(--ion-color-primary);
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+  }
+
+  h1,
+  p {
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(1.65rem, 8vw, 2.25rem);
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    line-height: 1.55;
+  }
+
+  ion-input,
+  ion-button {
+    width: 100%;
+  }
+
+  ion-button {
+    min-height: 50px;
+    margin: 0;
+  }
+}
+
+.avatar-picker {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ion-color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  img {
+    width: 106px;
+    height: 106px;
+    border: 3px solid color-mix(in srgb, var(--ion-color-primary) 28%, transparent);
+    border-radius: 28px;
+  }
+}
+
 .waiting-room,
 .title,
 .player-list-card,
@@ -52,6 +153,17 @@
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+}
+
+.host-mode-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ion-color-primary) 14%, transparent);
+  color: var(--ion-color-primary);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .waiting-actions {
@@ -104,11 +216,127 @@
   }
 }
 
+.host-mode-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 auto 14px;
+  padding: clamp(14px, 4vw, 20px);
+  border: 1px solid color-mix(in srgb, var(--ion-color-tertiary) 28%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--ion-color-tertiary) 7%, var(--ion-background-color));
+
+  > div:first-child {
+    min-width: 0;
+
+    span {
+      color: var(--ion-color-tertiary);
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    p {
+      margin: 6px 0 0;
+      color: var(--ion-color-medium);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+  }
+
+  &__counts {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    column-gap: 8px;
+    text-align: right;
+
+    strong {
+      color: var(--ion-color-tertiary);
+      font-size: 1.4rem;
+      line-height: 1.1;
+    }
+
+    span {
+      align-self: center;
+      color: var(--ion-color-medium);
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+  }
+}
+
 .player-list-card {
   margin-top: 4px;
   margin-bottom: 20px;
   border-radius: 16px;
   overflow: hidden;
+}
+
+.participant-role-groups {
+  width: min(100%, 720px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 4px auto 14px;
+}
+
+.participant-role-card {
+  min-width: 0;
+  margin: 0;
+  border-radius: 16px;
+  overflow: hidden;
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--ion-color-medium) 16%, transparent);
+
+    > div {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    span {
+      color: var(--ion-color-medium);
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    strong {
+      font-size: 1.1rem;
+    }
+
+    ion-chip {
+      flex: 0 0 auto;
+      margin: 0;
+    }
+  }
+
+  &__empty {
+    --min-height: 88px;
+    --color: var(--ion-color-medium);
+    text-align: center;
+  }
+
+  &--contestants {
+    border: 1px solid color-mix(in srgb, var(--ion-color-primary) 28%, transparent);
+  }
+
+  &--spectators {
+    border: 1px solid color-mix(in srgb, var(--ion-color-medium) 25%, transparent);
+  }
+}
+
+.invite-card {
+  width: min(100%, 720px);
+  margin: 0 auto 20px;
+  border-radius: 16px;
 }
 
 ion-list ion-item {
@@ -137,6 +365,13 @@ ion-list ion-item {
   &:nth-child(3n) .player-index {
     color: color-mix(in srgb, var(--ion-color-tertiary) 5%, transparent);
   }
+}
+
+.participant-role-select {
+  min-width: 104px;
+  --padding-start: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .invite-player {
@@ -185,6 +420,10 @@ ion-list ion-item {
     margin-top: 14px;
   }
 
+  ion-select {
+    margin-top: 14px;
+  }
+
   small {
     padding-inline: 4px;
     color: var(--ion-color-medium);
@@ -214,6 +453,20 @@ ion-popover {
       width: 100%;
       margin: 0;
     }
+  }
+
+  .host-mode-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+
+    &__counts {
+      text-align: left;
+    }
+  }
+
+  .participant-role-groups {
+    grid-template-columns: 1fr;
   }
 }
 

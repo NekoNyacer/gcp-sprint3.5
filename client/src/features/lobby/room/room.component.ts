@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
@@ -16,6 +16,9 @@ import {
   IonList,
   IonModal,
   IonPopover,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
   IonTextarea,
   IonTitle,
   IonToolbar,
@@ -24,7 +27,12 @@ import {
 import { interval, map, take } from 'rxjs';
 import { DialogService } from '../../../shared/services/dialog.service';
 import { NineUpperComponent } from '../nine-upper/nine-upper.component';
-import { NineUpperStore } from '../nine-upper/nine-upper.store';
+import { avatarDataUrl, createAvatarSeed } from '../relay-game/relay-avatar';
+import {
+  NineUpperParticipationRole,
+  NineUpperPlayer,
+  NineUpperStore,
+} from '../nine-upper/nine-upper.store';
 
 @Component({
   selector: 'app-room',
@@ -46,6 +54,9 @@ import { NineUpperStore } from '../nine-upper/nine-upper.store';
     IonList,
     IonModal,
     IonPopover,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
     IonTextarea,
     IonTitle,
     IonToolbar,
@@ -64,15 +75,62 @@ export class RoomComponent {
   protected readonly isSavingSettings = signal(false);
   protected readonly roomNameDraft = signal('');
   protected readonly customPromptDraft = signal('');
+  protected readonly hostModeDraft = signal(true);
+  protected readonly nickname = signal('');
+  protected readonly avatarSeed = signal(createAvatarSeed());
+  protected readonly isJoiningProfile = signal(false);
+  private readonly profileRestored = signal(false);
   protected readonly isRoomSettingsInvalid = computed(() => {
     const roomNameLength = this.roomNameDraft().trim().length;
-    return roomNameLength < 3 || roomNameLength > 8 || this.customPromptDraft().trim().length > 20;
+    return roomNameLength < 3 || roomNameLength > 20 || this.customPromptDraft().trim().length > 20;
   });
 
   private readonly dotCount = toSignal(interval(500).pipe(map((count) => (count % 3) + 1)), {
     initialValue: 1,
   });
   protected readonly dotdotdot = computed(() => '.'.repeat(this.dotCount()));
+
+  constructor() {
+    effect(() => {
+      if (!this.store.seq() || !this.store.uid() || this.profileRestored()) return;
+      const profile = this.store.savedProfile();
+      if (profile) {
+        this.nickname.set(profile.displayName);
+        this.avatarSeed.set(profile.avatarSeed);
+      }
+      this.profileRestored.set(true);
+    });
+  }
+
+  protected avatarUrl() {
+    return avatarDataUrl(this.avatarSeed());
+  }
+
+  protected changeAvatar() {
+    this.avatarSeed.set(createAvatarSeed());
+  }
+
+  protected updateNickname(event: CustomEvent<{ value?: string | null }>) {
+    this.nickname.set(event.detail.value ?? '');
+  }
+
+  protected async joinWithProfile() {
+    if (this.isJoiningProfile() || !this.nickname().trim()) return;
+    this.isJoiningProfile.set(true);
+    try {
+      await this.store.joinRoom({
+        displayName: this.nickname().trim(),
+        avatarSeed: this.avatarSeed(),
+        photoUrl: this.avatarUrl(),
+      });
+    } finally {
+      this.isJoiningProfile.set(false);
+    }
+  }
+
+  protected returnToLobby() {
+    void this.router.navigate(['/lobby'], { replaceUrl: true });
+  }
 
   protected startGame() {
     void this.store.startProcess();
@@ -90,6 +148,7 @@ export class RoomComponent {
   protected openRoomSettings() {
     this.roomNameDraft.set(this.store.name());
     this.customPromptDraft.set(this.store.promptConfig().customPrompt);
+    this.hostModeDraft.set(this.store.hasDedicatedHost());
     this.isSettingsOpen.set(true);
   }
 
@@ -105,11 +164,18 @@ export class RoomComponent {
       const saved = await this.store.updateRoomSettings(
         this.roomNameDraft(),
         this.customPromptDraft(),
+        this.hostModeDraft(),
       );
       if (saved) this.isSettingsOpen.set(false);
     } finally {
       this.isSavingSettings.set(false);
     }
+  }
+
+  protected assignParticipantRole(player: NineUpperPlayer, event: CustomEvent) {
+    const participationRole = event.detail.value as NineUpperParticipationRole;
+    if (participationRole !== 'contestant' && participationRole !== 'spectator') return;
+    void this.store.setParticipantRole(player.uid, participationRole);
   }
 
   protected generateInvitationQR() {
