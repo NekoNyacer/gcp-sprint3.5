@@ -46,6 +46,8 @@ export class UserProfileService {
       dailyGoal: 5000,
       onboardingStatus: 'required',
       isDemo: false,
+      treePoints: 0,
+      totalMatureTrees: 0,
       updatedAt: serverTimestamp(),
     });
   }
