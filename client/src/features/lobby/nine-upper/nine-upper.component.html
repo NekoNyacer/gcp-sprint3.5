@@ -1,135 +1,351 @@
-@if (store.status() === '遊戲開始倒數') {
-  <div class="countdown">
-    <p>遊戲即將開始，倒數：</p>
-    <h1>{{ store.countdown() }}</h1>
-  </div>
-}
+@if (store.hasDedicatedHost() && store.isRoomMaster()) {
+  <main class="host-projector">
+    @if (store.status() === '遊戲開始倒數') {
+      <section class="host-projector__countdown" aria-live="polite">
+        <span>遊戲即將開始</span>
+        <strong>{{ store.countdown() }}</strong>
+      </section>
+    }
 
-@if (store.status() === '遊戲進行中') {
-  <main class="game-main">
-    <div class="info">
-      <p>猜題人是：{{ store.guessingPlayer()?.displayName }}</p>
-      <p>
-        現在輪到
-        <ion-chip color="primary">
-          <ion-avatar>
-            <img
-              [alt]="store.currentPlayer()?.displayName"
-              [src]="store.currentPlayer()?.photoUrl"
-            />
-          </ion-avatar>
-          <ion-label>{{ store.currentPlayer()?.displayName }}</ion-label>
-        </ion-chip>
-        發言中
-      </p>
-    </div>
-
-    <div class="card-container" (click)="flipped.set(!flipped())">
-      <ion-card class="card-front" [class.flipped]="flipped()">
+    <section class="host-projector__topic" aria-labelledby="projector-topic-title">
+      <span>本回合題目</span>
+      <h2 id="projector-topic-title">{{ topic().question }}</h2>
+      @if (store.status() === '遊戲結束') {
+        <p>{{ topic().answer }}</p>
+      } @else {
         <div>
-          <p>本次題目是...</p>
-          <h1>{{ topic().question }}</h1>
-          <p>提示：{{ topic().tips[0] }}／{{ topic().tips[1] }}／{{ topic().tips[2] }}</p>
-        </div>
-      </ion-card>
-
-      <ion-card class="card-back" [class.flipped]="flipped()">
-        <div>
-          <h1>{{ topic().question }}</h1>
-          <p>提示：{{ topic().tips[0] }}／{{ topic().tips[1] }}／{{ topic().tips[2] }}</p>
-          @switch (playerRole()) {
-            @case ('猜題人') {
-              <p>你是猜題人，請找出誰是老實人!</p>
-            }
-            @case ('老實人') {
-              <p>{{ topic().answer }}</p>
-            }
-            @case ('唬爛人') {
-              <p>你是唬爛人，請掰出一個合理的說明來騙過猜題人吧！</p>
-            }
+          @for (tip of topic().tips; track $index) {
+            <ion-chip color="primary">{{ tip }}</ion-chip>
           }
         </div>
-      </ion-card>
-    </div>
-
-    @if (store.isRoomMaster()) {
-      <div class="host-controls">
-        <ion-button color="secondary" (click)="nextPlayer()">輪到下一位玩家發言</ion-button>
-      </div>
-    }
-  </main>
-}
-
-@if (store.status() === '最終猜測階段') {
-  <main class="final-choose">
-    <p>請 {{ store.guessingPlayer()?.displayName }} 指認老實人</p>
-    <section class="player-card-grid">
-      @for (
-        player of players().filter((item) => item.uid !== store.guessingPlayer()?.uid);
-        track player.uid
-      ) {
-        <button type="button" (click)="selectPlayer(player)">
-          <ion-card>
-            <img [alt]="player.displayName" [src]="player.photoUrl" />
-            <ion-card-header>
-              <ion-card-title>{{ player.displayName }}</ion-card-title>
-            </ion-card-header>
-          </ion-card>
-        </button>
       }
     </section>
-  </main>
-}
 
-@if (store.status() === '遊戲結束') {
-  <main class="final-choose">
-    <span>遊戲結束，被{{ store.guessingPlayer()?.displayName }}指控的人是...</span>
-    <section class="player-card-grid result-card-grid">
-      <ion-card>
-        <img [alt]="store.chosenPlayer()?.displayName" [src]="store.chosenPlayer()?.photoUrl" />
-        <ion-card-header>
-          <ion-card-title>{{ store.chosenPlayer()?.displayName }}</ion-card-title>
-        </ion-card-header>
-      </ion-card>
-    </section>
+    @if (store.status() === '遊戲進行中') {
+      <section class="host-projector__speaker">
+        <span>現在輪到</span>
+        <ion-avatar>
+          <img [alt]="store.currentPlayer()?.displayName" [src]="store.currentPlayer()?.photoUrl" />
+        </ion-avatar>
+        <strong>{{ store.currentPlayer()?.displayName }}</strong>
+        <span>發言</span>
+        <ion-button size="small" color="secondary" (click)="nextPlayer()">下一位</ion-button>
+      </section>
+    }
 
-    <div class="final-reveal">
-      <span>他是一名...</span>
-      <h1>{{ store.chosenPlayer()?.role }}</h1>
-    </div>
-
-    <section class="answer-reveal" aria-labelledby="answer-reveal-title">
-      <span class="answer-reveal__eyebrow">本回合正確解答</span>
-      <h2 id="answer-reveal-title">{{ topic().question }}</h2>
-      <p>{{ topic().answer }}</p>
-      <div class="answer-reveal__tips" aria-label="題目提示">
-        @for (tip of topic().tips; track $index) {
-          <ion-chip color="primary">{{ tip }}</ion-chip>
+    <section class="host-projector__tallies" aria-labelledby="projector-vote-title">
+      <section class="host-projector__speaker host-projector__speaker--final">
+        <strong>即時得票數</strong>
+      </section>
+      <div class="host-projector__tally-grid">
+        @for (tally of voteTallies(); track tally.player.uid) {
+          <article class="projector-player-card">
+            <ion-avatar>
+              <img [alt]="tally.player.displayName" [src]="tally.player.photoUrl" />
+            </ion-avatar>
+            <h3>{{ tally.player.displayName }}</h3>
+            @if (store.status() === '遊戲結束') {
+              <span class="projector-player-card__role">{{ tally.player.role }}</span>
+            }
+            <dl>
+              <div>
+                <dt>「老實人」得票數</dt>
+                <dd>{{ tally.honest }}</dd>
+              </div>
+              <div>
+                <dt>「公蝦毀」得票數</dt>
+                <dd>{{ tally.nonsense }}</dd>
+              </div>
+            </dl>
+          </article>
         }
       </div>
     </section>
 
-    <span>其餘玩家的身分</span>
-    <section class="player-card-grid">
-      @for (
-        player of players().filter(
-          (item) =>
-            item.uid !== store.chosenPlayer()?.uid && item.uid !== store.guessingPlayer()?.uid
-        );
-        track player.uid
-      ) {
-        <ion-card>
-          <img [alt]="player.displayName" [src]="player.photoUrl" />
-          <ion-card-header>
-            <ion-card-title>{{ player.displayName }}</ion-card-title>
-            <ion-card-subtitle>{{ player.role }}</ion-card-subtitle>
-          </ion-card-header>
-        </ion-card>
-      }
-    </section>
+    @if (store.status() === '最終猜測階段') {
+      <section class="host-projector__speaker host-projector__speaker--final">
+        <strong>觀眾最後投票機會!</strong>
+      </section>
+      <ion-button class="host-projector__action" color="secondary" (click)="finishHostedGame()">
+        遊戲結束，公布結果
+      </ion-button>
+    }
 
-    @if (store.isRoomMaster()) {
-      <ion-button color="warning" (click)="store.reset()">再來一場</ion-button>
+    @if (store.status() === '遊戲結束') {
+      <ion-button class="host-projector__action" color="secondary" (click)="store.reset()">
+        再來一場
+      </ion-button>
     }
   </main>
+} @else {
+  @if (store.status() === '遊戲開始倒數') {
+    <div class="countdown">
+      <p>遊戲即將開始，倒數：</p>
+      <h1>{{ store.countdown() }}</h1>
+    </div>
+  }
+
+  @if (store.status() === '遊戲進行中') {
+    @if (store.hasDedicatedHost() && store.isCurrentUserSpectator()) {
+      <main class="spectator-game">
+        <section class="spectator-game__status">
+          <h1>
+            現在輪到
+            <strong>{{ store.currentPlayer()?.displayName }}</strong>
+            發言
+          </h1>
+          <p>將老實人票投給你認為最合理的參賽者；</p>
+          <p>將公蝦毀票投給你認為在唬爛的參賽者。</p>
+        </section>
+
+        <section class="spectator-game__votes" aria-labelledby="spectator-vote-title">
+          <div class="spectator-game__vote-grid">
+            @for (player of contestants(); track player.uid) {
+              <article class="spectator-vote-card">
+                <ion-avatar>
+                  <img [alt]="player.displayName" [src]="player.photoUrl" />
+                </ion-avatar>
+                <h3>{{ player.displayName }}</h3>
+                <ion-button
+                  size="small"
+                  [disabled]="!!store.mySpectatorVotes().honest"
+                  (click)="castSpectatorVote('honest', player)"
+                >
+                  {{
+                    store.mySpectatorVotes().honest === player.uid
+                      ? '你已投給此人'
+                      : '你是「老實人」'
+                  }}
+                </ion-button>
+                <ion-button
+                  size="small"
+                  color="tertiary"
+                  [disabled]="!!store.mySpectatorVotes().nonsense"
+                  (click)="castSpectatorVote('nonsense', player)"
+                >
+                  {{
+                    store.mySpectatorVotes().nonsense === player.uid
+                      ? '你已投給此人'
+                      : '他在「公蝦毀」'
+                  }}
+                </ion-button>
+              </article>
+            }
+          </div>
+        </section>
+      </main>
+    } @else {
+      <main class="game-main">
+        <div class="info">
+          @if (!store.hasDedicatedHost()) {
+            <p>猜題人是：{{ store.guessingPlayer()?.displayName }}</p>
+          }
+          <p>
+            現在輪到
+            <ion-chip color="primary">
+              <ion-avatar>
+                <img
+                  [alt]="store.currentPlayer()?.displayName"
+                  [src]="store.currentPlayer()?.photoUrl"
+                />
+              </ion-avatar>
+              <ion-label>{{ store.currentPlayer()?.displayName }}</ion-label>
+            </ion-chip>
+            發言中
+          </p>
+        </div>
+
+        <div class="card-container" (click)="flipped.set(!flipped())">
+          <ion-card class="card-front" [class.flipped]="flipped()">
+            <div>
+              <p>本次題目是...</p>
+              <h1>{{ topic().question }}</h1>
+              <p>提示：{{ topic().tips[0] }}／{{ topic().tips[1] }}／{{ topic().tips[2] }}</p>
+            </div>
+          </ion-card>
+
+          <ion-card class="card-back" [class.flipped]="flipped()">
+            <div>
+              <h1>{{ topic().question }}</h1>
+              <p>提示：{{ topic().tips[0] }}／{{ topic().tips[1] }}／{{ topic().tips[2] }}</p>
+              @switch (playerRole()) {
+                @case ('猜題人') {
+                  <p>你是猜題人，請找出誰是老實人!</p>
+                }
+                @case ('老實人') {
+                  <p>{{ topic().answer }}</p>
+                }
+                @case ('唬爛人') {
+                  <p>
+                    你是唬爛人，請掰出一個合理的說明來{{
+                      store.hasDedicatedHost() ? '誤導觀眾吧！' : '騙過猜題人吧！'
+                    }}
+                  </p>
+                }
+              }
+            </div>
+          </ion-card>
+        </div>
+
+        @if (store.isRoomMaster()) {
+          <div class="host-controls">
+            <ion-button color="secondary" (click)="nextPlayer()">輪到下一位玩家發言</ion-button>
+          </div>
+        }
+      </main>
+    }
+  }
+
+  @if (store.status() === '最終猜測階段') {
+    @if (store.hasDedicatedHost()) {
+      @if (store.isCurrentUserSpectator()) {
+        <main class="spectator-game">
+          <section class="spectator-game__status">
+            <span>觀眾最後投票機會</span>
+          </section>
+          <section class="spectator-game__votes" aria-labelledby="spectator-final-vote-title">
+            <span>觀眾投票</span>
+            <h2 id="spectator-final-vote-title">每種票各一張，投出後不能更改</h2>
+            <div class="spectator-game__vote-grid">
+              @for (player of contestants(); track player.uid) {
+                <article class="spectator-vote-card">
+                  <ion-avatar>
+                    <img [alt]="player.displayName" [src]="player.photoUrl" />
+                  </ion-avatar>
+                  <h3>{{ player.displayName }}</h3>
+                  <ion-button
+                    size="small"
+                    [disabled]="!!store.mySpectatorVotes().honest"
+                    (click)="castSpectatorVote('honest', player)"
+                  >
+                    {{
+                      store.mySpectatorVotes().honest === player.uid
+                        ? '已投：你是老實人'
+                        : '你是老實人'
+                    }}
+                  </ion-button>
+                  <ion-button
+                    size="small"
+                    color="tertiary"
+                    [disabled]="!!store.mySpectatorVotes().nonsense"
+                    (click)="castSpectatorVote('nonsense', player)"
+                  >
+                    {{
+                      store.mySpectatorVotes().nonsense === player.uid
+                        ? '已投：你在公蝦毀'
+                        : '你在公蝦毀'
+                    }}
+                  </ion-button>
+                </article>
+              }
+            </div>
+          </section>
+        </main>
+      } @else {
+        <main class="waiting-for-host">
+          <span>最後投票時間</span>
+          <h1>請等待觀眾猜題人投票</h1>
+          <p>主持人會公開所有身分。</p>
+        </main>
+      }
+    } @else {
+      <main class="final-choose">
+        <p>請 {{ store.guessingPlayer()?.displayName }} 指認老實人</p>
+        <section class="player-card-grid">
+          @for (
+            player of contestants().filter((item) => item.uid !== store.guessingPlayer()?.uid);
+            track player.uid
+          ) {
+            <button type="button" (click)="selectPlayer(player)">
+              <ion-card>
+                <img [alt]="player.displayName" [src]="player.photoUrl" />
+                <ion-card-header>
+                  <ion-card-title>{{ player.displayName }}</ion-card-title>
+                </ion-card-header>
+              </ion-card>
+            </button>
+          }
+        </section>
+      </main>
+    }
+  }
+
+  @if (store.status() === '遊戲結束') {
+    @if (store.hasDedicatedHost()) {
+      <section class="answer-reveal" aria-labelledby="dedicated-answer-title">
+        <span class="answer-reveal__eyebrow">正確解答</span>
+        <h2 id="dedicated-answer-title">{{ topic().question }}</h2>
+        <p>{{ topic().answer }}</p>
+      </section>
+      <main class="dedicated-result">
+        <span>真實身分公開</span>
+        <section class="dedicated-result__grid">
+          @for (tally of voteTallies(); track tally.player.uid) {
+            <ion-card>
+              <img [alt]="tally.player.displayName" [src]="tally.player.photoUrl" />
+              <ion-card-header>
+                <ion-card-title>{{ tally.player.displayName }}</ion-card-title>
+                <ion-card-subtitle>{{ tally.player.role }}</ion-card-subtitle>
+              </ion-card-header>
+              <div class="dedicated-result__votes">
+                <span>老實人 {{ tally.honest }}</span>
+                <span>公蝦毀 {{ tally.nonsense }}</span>
+              </div>
+            </ion-card>
+          }
+        </section>
+      </main>
+    } @else {
+      <main class="final-choose">
+        <span>遊戲結束，被{{ store.guessingPlayer()?.displayName }}指控的人是...</span>
+        <section class="player-card-grid result-card-grid">
+          <ion-card>
+            <img [alt]="store.chosenPlayer()?.displayName" [src]="store.chosenPlayer()?.photoUrl" />
+            <ion-card-header>
+              <ion-card-title>{{ store.chosenPlayer()?.displayName }}</ion-card-title>
+            </ion-card-header>
+          </ion-card>
+        </section>
+
+        <div class="final-reveal">
+          <span>他是一名...</span>
+          <h1>{{ store.chosenPlayer()?.role }}</h1>
+        </div>
+
+        <section class="answer-reveal" aria-labelledby="answer-reveal-title">
+          <span class="answer-reveal__eyebrow">本回合正確解答</span>
+          <h2 id="answer-reveal-title">{{ topic().question }}</h2>
+          <p>{{ topic().answer }}</p>
+          <div class="answer-reveal__tips" aria-label="題目提示">
+            @for (tip of topic().tips; track $index) {
+              <ion-chip color="primary">{{ tip }}</ion-chip>
+            }
+          </div>
+        </section>
+
+        <span>其餘玩家的身分</span>
+        <section class="player-card-grid">
+          @for (
+            player of contestants().filter(
+              (item) =>
+                item.uid !== store.chosenPlayer()?.uid && item.uid !== store.guessingPlayer()?.uid
+            );
+            track player.uid
+          ) {
+            <ion-card>
+              <img [alt]="player.displayName" [src]="player.photoUrl" />
+              <ion-card-header>
+                <ion-card-title>{{ player.displayName }}</ion-card-title>
+                <ion-card-subtitle>{{ player.role }}</ion-card-subtitle>
+              </ion-card-header>
+            </ion-card>
+          }
+        </section>
+
+        @if (store.isRoomMaster()) {
+          <ion-button color="secondary" (click)="store.reset()">再來一場</ion-button>
+        }
+      </main>
+    }
+  }
 }

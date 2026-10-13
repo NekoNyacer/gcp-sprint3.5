@@ -1,0 +1,18 @@
+<section class="joystick-control">
+  <div
+    #joystick
+    class="joystick"
+    [class.joystick--active]="isJoystickActive()"
+    (pointerdown)="startJoystick($event)"
+    (pointermove)="moveJoystick($event)"
+    (pointerup)="endJoystick($event)"
+    (pointercancel)="endJoystick($event)"
+  >
+    <span class="joystick__ring" aria-hidden="true"></span>
+    <span class="joystick__knob" [style.transform]="joystickTransform()" aria-hidden="true"></span>
+  </div>
+</section>
+<div class="coordinate">
+  <p>緯度:{{ ls.current()?.latitude | number: '1.0-6' }}</p>
+  <p>經度:{{ ls.current()?.longitude | number: '1.0-6' }}</p>
+</div>

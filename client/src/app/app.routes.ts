@@ -79,12 +79,14 @@ export const routes: Routes = [
                 (m) => m.SpyfallGameComponent,
               ),
           },
+          {
+            path: 'relay/:seq',
+            loadComponent: () =>
+              import('../features/lobby/relay-game/relay-game.component').then(
+                (m) => m.RelayGameComponent,
+              ),
+          },
         ],
-      },
-      {
-        path: 'upload',
-        loadComponent: () =>
-          import('../shared/components/upload/upload.component').then((m) => m.UploadComponent),
       },
       {
         path: '',

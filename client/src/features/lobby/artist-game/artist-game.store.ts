@@ -1,4 +1,5 @@
 import { computed, effect, inject, signal, untracked } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import {
   doc,
   Firestore,
@@ -22,14 +23,23 @@ import type { PointGroup } from 'signature_pad';
 import { Subscription, timer } from 'rxjs';
 import { UserProfile } from '../../../shared/models/user-profile';
 import { SessionStore } from '../../../shared/stores/session-store';
+import { ensureBonusGameUser } from '../bonus-game-auth';
 import { BONUS_GAME_ROOM_STORAGE_KEY } from '../bonus-game.constants';
 
 export type ArtistRole = '尚未分配身分' | '藝術家' | '偽藝術家';
 
+/** A room participant either draws or watches and votes in dedicated-host mode. */
+export type ArtistParticipationRole = 'contestant' | 'spectator';
+
 export type ArtistPlayer = Pick<UserProfile, 'displayName' | 'photoUrl'> & {
   uid: string;
   role: ArtistRole;
+  participationRole: ArtistParticipationRole;
   color: string;
+};
+
+export type ArtistQuickProfile = Pick<ArtistPlayer, 'displayName' | 'photoUrl'> & {
+  avatarSeed: string;
 };
 
 export type ArtistTopic = {
@@ -61,6 +71,8 @@ export type ArtistGameState = {
   isLoading: boolean;
   promptConfig: { customPrompt: string };
   roomMasterId: string;
+  /** When true, the owner is a non-playing projector host. */
+  hostMode: boolean;
   players: ArtistPlayer[];
   topic: ArtistTopic;
   currentPlayerIndex: number | null;
@@ -79,6 +91,7 @@ export const artistInitialState: ArtistGameState = {
   isLoading: false,
   promptConfig: { customPrompt: '' },
   roomMasterId: '',
+  hostMode: true,
   players: [],
   topic: { category: '', word: '' },
   currentPlayerIndex: null,
@@ -103,6 +116,7 @@ const PLAYER_COLORS = [
 
 const FINAL_ARTWORK_REVIEW_DURATION_MS = 5_000;
 const VOTING_DURATION_MS = 20_000;
+const PROFILE_KEY_PREFIX = 'artistQuickProfile:';
 
 const TOPICS: ArtistTopic[] = [
   { category: '水果', word: '蘋果' },
@@ -159,36 +173,115 @@ function shuffled<T>(items: T[]): T[] {
   return result;
 }
 
+/** New rooms persist this setting; older rooms without it retain player-host behavior. */
+function hasDedicatedHost(room: Pick<ArtistGameState, 'hostMode'>): boolean {
+  return room.hostMode === true;
+}
+
+function normalizePlayers(players: ArtistPlayer[] | undefined, hostMode: boolean): ArtistPlayer[] {
+  return (players ?? []).map((player) => ({
+    ...player,
+    participationRole: player.participationRole ?? (hostMode ? 'spectator' : 'contestant'),
+  }));
+}
+
+function contestantsFor(players: ArtistPlayer[], hostMode: boolean): ArtistPlayer[] {
+  return hostMode ? players.filter((player) => player.participationRole === 'contestant') : players;
+}
+
+function spectatorsFor(players: ArtistPlayer[], hostMode: boolean): ArtistPlayer[] {
+  return hostMode ? players.filter((player) => player.participationRole === 'spectator') : [];
+}
+
+function eligibleVotersFor(players: ArtistPlayer[], hostMode: boolean): ArtistPlayer[] {
+  return hostMode ? spectatorsFor(players, hostMode) : players;
+}
+
 export const ArtistGameStore = signalStore(
   withState(artistInitialState),
   withProps(() => ({
     firestore: inject(Firestore),
+    auth: inject(Auth),
     route: inject(ActivatedRoute),
     sessionStore: inject(SessionStore),
     toastController: inject(ToastController),
+    authenticatedUid: signal(''),
     countdown: signal(0),
     reviewCountdown: signal(0),
     votingCountdown: signal(0),
   })),
   withComputed((store) => ({
-    isRoomMaster: computed(() => store.sessionStore.user()?.uid === store.roomMasterId()),
+    uid: computed(() => store.authenticatedUid() || store.sessionStore.user()?.uid || ''),
+    isRoomMaster: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      return Boolean(uid) && uid === store.roomMasterId();
+    }),
+    hasDedicatedHost: computed(() => store.hostMode() === true),
     isRoomFull: computed(() => store.players().length >= 9),
+    contestants: computed(() => contestantsFor(store.players(), store.hostMode() === true)),
+    spectators: computed(() => spectatorsFor(store.players(), store.hostMode() === true)),
     currentPlayer: computed(() => {
       const index = store.currentPlayerIndex();
-      return index === null ? undefined : store.players()[index];
+      return index === null
+        ? undefined
+        : contestantsFor(store.players(), store.hostMode() === true)[index];
     }),
-    me: computed(() =>
-      store.players().find((player) => player.uid === store.sessionStore.user()?.uid),
-    ),
+    me: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      return store.players().find((player) => player.uid === uid);
+    }),
+    isContestant: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      const me = store.players().find((player) => player.uid === uid);
+      return Boolean(me && (store.hostMode() === false || me.participationRole === 'contestant'));
+    }),
+    isSpectator: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      const me = store.players().find((player) => player.uid === uid);
+      return Boolean(store.hostMode() === true && me?.participationRole === 'spectator');
+    }),
+    canVote: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      const me = store.players().find((player) => player.uid === uid);
+      if (!me) return false;
+      return store.hostMode() === true ? me.participationRole === 'spectator' : true;
+    }),
     fakeArtist: computed(() =>
-      store.players().find((player) => player.uid === store.revealedFakeArtistUid()),
+      contestantsFor(store.players(), store.hostMode() === true).find(
+        (player) => player.uid === store.revealedFakeArtistUid(),
+      ),
     ),
-    hasVoted: computed(() => Boolean(store.votes()[store.sessionStore.user()?.uid ?? ''])),
+    hasVoted: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      return Boolean(store.votes()[uid]);
+    }),
+    requiresProfile: computed(
+      () => {
+        const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+        const isRoomMaster = Boolean(uid) && uid === store.roomMasterId();
+        const me = store.players().find((player) => player.uid === uid);
+        return (
+          Boolean(uid) &&
+          store.status() === '遊戲準備中' &&
+          !me &&
+          !(isRoomMaster && store.hostMode() === true)
+        );
+      },
+    ),
+    canAccessGame: computed(() => {
+      const uid = store.authenticatedUid() || store.sessionStore.user()?.uid || '';
+      const isRoomMaster = Boolean(uid) && uid === store.roomMasterId();
+      return isRoomMaster || store.players().some((player) => player.uid === uid);
+    }),
     votesReceived: computed(() => {
       const grouped: Record<string, ArtistPlayer[]> = {};
-      for (const player of store.players()) grouped[player.uid] = [];
+      const players = store.players();
+      const hostMode = store.hostMode() === true;
+      const contestants = contestantsFor(players, hostMode);
+      const eligibleVoters = eligibleVotersFor(players, hostMode);
+      for (const player of contestants) grouped[player.uid] = [];
       for (const [voterUid, targetUid] of Object.entries(store.votes())) {
-        const voter = store.players().find((player) => player.uid === voterUid);
+        const voter = eligibleVoters.find((player) => player.uid === voterUid);
         if (voter && grouped[targetUid]) grouped[targetUid].push(voter);
       }
       return grouped;
@@ -283,9 +376,17 @@ export const ArtistGameStore = signalStore(
         if (!snapshot.exists()) return;
         const room = snapshot.data() as ArtistGameState;
         if (room.status !== '最終查找階段') return;
-        const allVoted = Object.keys(room.votes ?? {}).length >= (room.players ?? []).length;
+        const hostMode = hasDedicatedHost(room);
+        const players = normalizePlayers(room.players, hostMode);
+        const eligibleVoters = eligibleVotersFor(players, hostMode);
+        // With no audience, retain the normal review period instead of ending immediately.
+        const allVoted =
+          eligibleVoters.length > 0 &&
+          eligibleVoters.every((player) => Boolean(room.votes?.[player.uid]));
         if (!allVoted && Date.now() < (room.votingEndsAt ?? 0)) return;
-        const fakeArtist = room.players.find((player) => player.role === '偽藝術家');
+        const fakeArtist = contestantsFor(players, hostMode).find(
+          (player) => player.role === '偽藝術家',
+        );
         transaction.update(roomRef, {
           status: '遊戲結束',
           revealedFakeArtistUid: fakeArtist?.uid ?? null,
@@ -302,10 +403,13 @@ export const ArtistGameStore = signalStore(
           if (!snapshot.exists()) return;
           const room = snapshot.data() as ArtistGameState;
           const previousStatus = store.status();
+          const hostMode = hasDedicatedHost(room);
+          const players = normalizePlayers(room.players, hostMode);
           patchState(store, {
             ...room,
             gameCode: '002',
-            players: room.players ?? [],
+            hostMode,
+            players,
             topic: room.topic ?? artistInitialState.topic,
             strokes: room.strokes ?? [],
             votes: room.votes ?? {},
@@ -317,7 +421,11 @@ export const ArtistGameStore = signalStore(
           }
           if (room.status === '最終查找階段') {
             startVotingCountdown();
-            if (Object.keys(room.votes ?? {}).length >= (room.players ?? []).length) {
+            const eligibleVoters = eligibleVotersFor(players, hostMode);
+            if (
+              eligibleVoters.length > 0 &&
+              eligibleVoters.every((player) => Boolean(room.votes?.[player.uid]))
+            ) {
               void finalizeVoting();
             }
           }
@@ -330,40 +438,91 @@ export const ArtistGameStore = signalStore(
         roomListener = null;
       },
 
-      async joinRoom() {
-        const user = store.sessionStore.user();
-        if (!user?.uid || !store.seq()) return;
+      async ensureAnonymousUser(): Promise<string> {
+        const user = await ensureBonusGameUser(store.auth);
+        store.authenticatedUid.set(user.uid);
+        return user.uid;
+      },
+
+      savedProfile(): ArtistQuickProfile | null {
+        const raw = localStorage.getItem(`${PROFILE_KEY_PREFIX}${store.seq()}`);
+        if (!raw) return null;
+        try {
+          const profile = JSON.parse(raw) as ArtistQuickProfile;
+          return (
+            typeof profile.displayName === 'string' &&
+            typeof profile.photoUrl === 'string' &&
+            typeof profile.avatarSeed === 'string'
+          )
+            ? profile
+            : null;
+        } catch {
+          return null;
+        }
+      },
+
+      async joinRoom(profile: ArtistQuickProfile) {
+        const displayName = profile.displayName.trim();
+        if (displayName.length < 2 || displayName.length > 12) {
+          await toast('暱稱請輸入 2–12 個字');
+          return false;
+        }
+        const uid = store.uid();
+        if (!uid || !store.seq()) return false;
         const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
-        await runTransaction(store.firestore, async (transaction) => {
-          const snapshot = await transaction.get(roomRef);
-          if (!snapshot.exists()) return;
-          const room = snapshot.data() as ArtistGameState;
-          const currentPlayers = room.players ?? [];
-          const existingIndex = currentPlayers.findIndex((player) => player.uid === user.uid);
-          if (existingIndex < 0 && room.status !== '遊戲準備中') return;
-          if (existingIndex < 0 && currentPlayers.length >= 9) return;
-          const profile = {
-            displayName: user.displayName ?? '無名玩家',
-            photoUrl: user.photoUrl ?? 'images/portraits/meeple.png',
-          };
-          const players = [...currentPlayers];
-          if (existingIndex >= 0) {
-            players[existingIndex] = { ...players[existingIndex], ...profile };
-          } else {
-            players.push({
-              uid: user.uid,
-              ...profile,
-              role: '尚未分配身分',
-              color: PLAYER_COLORS[currentPlayers.length],
-            });
-          }
-          transaction.update(roomRef, { players });
-        });
-        localStorage.setItem(BONUS_GAME_ROOM_STORAGE_KEY, store.seq());
+        try {
+          await runTransaction(store.firestore, async (transaction) => {
+            const snapshot = await transaction.get(roomRef);
+            if (!snapshot.exists()) throw new Error('房間不存在');
+            const room = snapshot.data() as ArtistGameState;
+            const hostMode = hasDedicatedHost(room);
+            const currentPlayers = normalizePlayers(room.players, hostMode);
+            const existingIndex = currentPlayers.findIndex((player) => player.uid === uid);
+            if (hostMode && room.roomMasterId === uid) {
+              throw new Error('主持模式下房主不參與遊戲');
+            }
+            if (room.status !== '遊戲準備中') throw new Error('遊戲已開始，無法新加入');
+            if (
+              currentPlayers.some(
+                (player) =>
+                  player.uid !== uid &&
+                  player.displayName.toLocaleLowerCase() === displayName.toLocaleLowerCase(),
+              )
+            ) {
+              throw new Error('這個暱稱已被使用');
+            }
+            if (existingIndex < 0 && currentPlayers.length >= 9) {
+              throw new Error('房間已滿，最多 9 位玩家');
+            }
+            const players = [...currentPlayers];
+            if (existingIndex >= 0) {
+              players[existingIndex] = { ...players[existingIndex], displayName, photoUrl: profile.photoUrl };
+            } else {
+              players.push({
+                uid,
+                displayName,
+                photoUrl: profile.photoUrl,
+                role: '尚未分配身分',
+                participationRole: hostMode ? 'spectator' : 'contestant',
+                color: PLAYER_COLORS[currentPlayers.length],
+              });
+            }
+            transaction.update(roomRef, { players });
+          });
+          localStorage.setItem(
+            `${PROFILE_KEY_PREFIX}${store.seq()}`,
+            JSON.stringify({ displayName, photoUrl: profile.photoUrl, avatarSeed: profile.avatarSeed }),
+          );
+          localStorage.setItem(BONUS_GAME_ROOM_STORAGE_KEY, store.seq());
+          return true;
+        } catch (error) {
+          await toast(error instanceof Error ? error.message : '加入失敗');
+          return false;
+        }
       },
 
       async leaveRoom() {
-        const uid = store.sessionStore.user()?.uid;
+        const uid = store.uid();
         if (!uid || !store.seq()) return false;
         const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
         const didLeave = await runTransaction(store.firestore, async (transaction) => {
@@ -371,10 +530,26 @@ export const ArtistGameStore = signalStore(
           if (!snapshot.exists()) return true;
           const room = snapshot.data() as ArtistGameState;
           if (room.status !== '遊戲準備中') return false;
-          const priorPlayers = room.players ?? [];
+          const hostMode = hasDedicatedHost(room);
+          const priorPlayers = normalizePlayers(room.players, hostMode);
+
+          if (room.roomMasterId === uid && hostMode) {
+            const nextHost = priorPlayers[0];
+            if (!nextHost) {
+              transaction.delete(roomRef);
+            } else {
+              transaction.update(roomRef, {
+                hostMode: true,
+                roomMasterId: nextHost.uid,
+                players: priorPlayers.filter((player) => player.uid !== nextHost.uid),
+              });
+            }
+            return true;
+          }
+
           const masterIndex = priorPlayers.findIndex((player) => player.uid === room.roomMasterId);
           const players = priorPlayers.filter((player) => player.uid !== uid);
-          if (players.length === 0) {
+          if (players.length === 0 && !hostMode) {
             transaction.delete(roomRef);
           } else {
             transaction.update(roomRef, {
@@ -386,8 +561,80 @@ export const ArtistGameStore = signalStore(
           }
           return true;
         });
-        if (didLeave) localStorage.removeItem(BONUS_GAME_ROOM_STORAGE_KEY);
+        if (didLeave) {
+          localStorage.removeItem(BONUS_GAME_ROOM_STORAGE_KEY);
+          localStorage.removeItem(`${PROFILE_KEY_PREFIX}${store.seq()}`);
+        }
         return didLeave;
+      },
+
+      async setHostMode(hostMode: boolean) {
+        const hostUid = store.uid();
+        if (!hostUid || !store.isRoomMaster() || store.status() !== '遊戲準備中') return;
+        const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
+        let cannotJoinAsPlayer = false;
+        await runTransaction(store.firestore, async (transaction) => {
+          const snapshot = await transaction.get(roomRef);
+          if (!snapshot.exists()) return;
+          const room = snapshot.data() as ArtistGameState;
+          if (room.roomMasterId !== hostUid || room.status !== '遊戲準備中') return;
+
+          const currentHostMode = hasDedicatedHost(room);
+          const currentPlayers = normalizePlayers(room.players, currentHostMode);
+
+          if (hostMode) {
+            transaction.update(roomRef, {
+              hostMode: true,
+              players: currentPlayers.filter((player) => player.uid !== hostUid),
+            });
+            return;
+          }
+
+          const existingHost = currentPlayers.find((player) => player.uid === hostUid);
+          if (!existingHost && currentPlayers.length >= 9) {
+            cannotJoinAsPlayer = true;
+            return;
+          }
+          const players = currentPlayers
+            .filter((player) => player.uid !== hostUid)
+            .map((player) => ({
+              ...player,
+              participationRole: 'contestant' as ArtistParticipationRole,
+            }));
+          // A dedicated host must explicitly choose a nickname and avatar before joining as a player.
+          if (existingHost) {
+            players.unshift({ ...existingHost, participationRole: 'contestant' });
+          }
+          transaction.update(roomRef, { hostMode: false, players });
+        });
+        if (cannotJoinAsPlayer) await toast('一般模式最多 9 位玩家，請先讓一位玩家離開');
+      },
+
+      async setParticipantRole(uid: string, participationRole: ArtistParticipationRole) {
+        if (!store.isRoomMaster() || !store.hasDedicatedHost() || store.status() !== '遊戲準備中') {
+          return;
+        }
+        const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
+        await runTransaction(store.firestore, async (transaction) => {
+          const snapshot = await transaction.get(roomRef);
+          if (!snapshot.exists()) return;
+          const room = snapshot.data() as ArtistGameState;
+          if (
+            room.roomMasterId !== store.uid() ||
+            !hasDedicatedHost(room) ||
+            room.status !== '遊戲準備中' ||
+            uid === room.roomMasterId
+          ) {
+            return;
+          }
+          const players = normalizePlayers(room.players, true).map((player) =>
+            player.uid === uid
+              ? { ...player, participationRole, role: '尚未分配身分' as ArtistRole }
+              : player,
+          );
+          if (!players.some((player) => player.uid === uid)) return;
+          transaction.update(roomRef, { players });
+        });
       },
 
       async generateTopic() {
@@ -403,44 +650,78 @@ export const ArtistGameStore = signalStore(
 
       async startProcess() {
         if (!store.isRoomMaster()) return;
-        if (store.players().length < 3) {
-          await toast('玩家未達3人無法開始遊戲');
-          return;
-        }
-        if (!store.topic().category || !store.topic().word) {
-          await toast('題目尚未準備完成');
-          return;
-        }
-        const drawOrder = shuffled(store.players());
-        const fakeArtistIndex = Math.floor(Math.random() * drawOrder.length);
-        const players = drawOrder.map((player, index) => ({
-          ...player,
-          role: (index === fakeArtistIndex ? '偽藝術家' : '藝術家') as ArtistRole,
-        }));
-        await updateDoc(doc(store.firestore, `rooms/${store.seq()}`), {
-          players,
-          status: '遊戲開始倒數',
-          currentPlayerIndex: 0,
-          strokes: [],
-          votes: {},
-          reviewEndsAt: null,
-          votingEndsAt: null,
-          revealedFakeArtistUid: null,
+        const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
+        let validationError: string | null = null;
+        await runTransaction(store.firestore, async (transaction) => {
+          const snapshot = await transaction.get(roomRef);
+          if (!snapshot.exists()) return;
+          const room = snapshot.data() as ArtistGameState;
+          if (
+            room.roomMasterId !== store.uid() ||
+            room.status !== '遊戲準備中'
+          ) {
+            return;
+          }
+
+          const hostMode = hasDedicatedHost(room);
+          const players = normalizePlayers(room.players, hostMode);
+          const contestants = contestantsFor(players, hostMode);
+          if (!hostMode && !players.some((player) => player.uid === room.roomMasterId)) {
+            validationError = '玩家主持模式下，房主需先設定暱稱與頭像再開始遊戲';
+            return;
+          }
+          if (contestants.length < 3) {
+            validationError = hostMode ? '參賽者未達3人無法開始遊戲' : '玩家未達3人無法開始遊戲';
+            return;
+          }
+          if (!room.topic?.category || !room.topic?.word) {
+            validationError = '題目尚未準備完成';
+            return;
+          }
+
+          const drawOrder = shuffled(contestants);
+          const fakeArtistIndex = Math.floor(Math.random() * drawOrder.length);
+          const assignedContestants = drawOrder.map((player, index) => ({
+            ...player,
+            role: (index === fakeArtistIndex ? '偽藝術家' : '藝術家') as ArtistRole,
+          }));
+          const contestantUids = new Set(assignedContestants.map((player) => player.uid));
+          const spectators = players
+            .filter((player) => !contestantUids.has(player.uid))
+            .map((player) => ({ ...player, role: '尚未分配身分' as ArtistRole }));
+
+          transaction.update(roomRef, {
+            hostMode,
+            players: [...assignedContestants, ...spectators],
+            status: '遊戲開始倒數',
+            currentPlayerIndex: 0,
+            strokes: [],
+            votes: {},
+            reviewEndsAt: null,
+            votingEndsAt: null,
+            revealedFakeArtistUid: null,
+          });
         });
+        if (validationError) await toast(validationError);
       },
 
       async submitStroke(stroke: ArtistStroke) {
-        const uid = store.sessionStore.user()?.uid;
+        const uid = store.uid();
         if (!uid || !store.seq()) return false;
         const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
         return runTransaction(store.firestore, async (transaction) => {
           const snapshot = await transaction.get(roomRef);
           if (!snapshot.exists()) return false;
           const room = snapshot.data() as ArtistGameState;
-          const currentPlayer = room.players?.[room.currentPlayerIndex ?? -1];
-          if (room.status !== '繪圖中' || currentPlayer?.uid !== uid) return false;
+          const hostMode = hasDedicatedHost(room);
+          const players = normalizePlayers(room.players, hostMode);
+          const contestants = contestantsFor(players, hostMode);
+          const currentPlayer = contestants[room.currentPlayerIndex ?? -1];
+          if (room.status !== '繪圖中' || currentPlayer?.uid !== uid || stroke.playerUid !== uid) {
+            return false;
+          }
           const strokes = [...(room.strokes ?? []), stroke];
-          const totalTurns = room.players.length * 2;
+          const totalTurns = contestants.length * 2;
           if (strokes.length >= totalTurns) {
             transaction.update(roomRef, {
               strokes,
@@ -452,7 +733,7 @@ export const ArtistGameStore = signalStore(
           } else {
             transaction.update(roomRef, {
               strokes,
-              currentPlayerIndex: ((room.currentPlayerIndex ?? 0) + 1) % room.players.length,
+              currentPlayerIndex: ((room.currentPlayerIndex ?? 0) + 1) % contestants.length,
             });
           }
           return true;
@@ -460,18 +741,26 @@ export const ArtistGameStore = signalStore(
       },
 
       async voteFor(targetUid: string) {
-        const voterUid = store.sessionStore.user()?.uid;
-        if (!voterUid || voterUid === targetUid || store.hasVoted()) return false;
+        const voterUid = store.uid();
+        if (!voterUid || store.hasVoted()) return false;
         const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
         const didVote = await runTransaction(store.firestore, async (transaction) => {
           const snapshot = await transaction.get(roomRef);
           if (!snapshot.exists()) return false;
           const room = snapshot.data() as ArtistGameState;
           const votes = room.votes ?? {};
+          const hostMode = hasDedicatedHost(room);
+          const players = normalizePlayers(room.players, hostMode);
+          const voter = players.find((player) => player.uid === voterUid);
+          const contestants = contestantsFor(players, hostMode);
+          const target = contestants.find((player) => player.uid === targetUid);
           if (
             room.status !== '最終查找階段' ||
             votes[voterUid] ||
-            !room.players.some((player) => player.uid === targetUid && player.uid !== voterUid)
+            !voter ||
+            !target ||
+            (hostMode && voter.participationRole !== 'spectator') ||
+            (!hostMode && voterUid === targetUid)
           ) {
             return false;
           }
@@ -483,20 +772,29 @@ export const ArtistGameStore = signalStore(
 
       async reset() {
         if (!store.isRoomMaster()) return;
-        const players = store.players().map((player) => ({
-          ...player,
-          role: '尚未分配身分' as ArtistRole,
-        }));
-        await updateDoc(doc(store.firestore, `rooms/${store.seq()}`), {
-          status: '遊戲準備中',
-          players,
-          topic: { category: '', word: '' },
-          currentPlayerIndex: null,
-          strokes: [],
-          votes: {},
-          reviewEndsAt: null,
-          votingEndsAt: null,
-          revealedFakeArtistUid: null,
+        const roomRef = doc(store.firestore, `rooms/${store.seq()}`);
+        await runTransaction(store.firestore, async (transaction) => {
+          const snapshot = await transaction.get(roomRef);
+          if (!snapshot.exists()) return;
+          const room = snapshot.data() as ArtistGameState;
+          if (room.roomMasterId !== store.uid()) return;
+          const hostMode = hasDedicatedHost(room);
+          const players = normalizePlayers(room.players, hostMode).map((player) => ({
+            ...player,
+            role: '尚未分配身分' as ArtistRole,
+          }));
+          transaction.update(roomRef, {
+            hostMode,
+            status: '遊戲準備中',
+            players,
+            topic: { category: '', word: '' },
+            currentPlayerIndex: null,
+            strokes: [],
+            votes: {},
+            reviewEndsAt: null,
+            votingEndsAt: null,
+            revealedFakeArtistUid: null,
+          });
         });
       },
     };
@@ -506,12 +804,7 @@ export const ArtistGameStore = signalStore(
       const seq = store.route.snapshot.paramMap.get('seq') ?? '';
       if (seq) {
         patchState(store, { seq });
-        store.initRoomListener(seq);
       }
-      effect(() => {
-        const user = store.sessionStore.user();
-        if (user?.uid && store.seq()) untracked(() => void store.joinRoom());
-      });
       effect(() => {
         if (store.isRoomMaster() && store.status() === '遊戲準備中' && !store.topic().category) {
           untracked(() => void store.generateTopic());

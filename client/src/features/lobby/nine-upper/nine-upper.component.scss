@@ -1,12 +1,13 @@
 :host {
   display: block;
-  width: min(100%, 720px);
+  width: 100%;
   min-height: 100%;
   margin-inline: auto;
 }
 
 .countdown {
-  width: 100%;
+  width: min(100%, 720px);
+  margin-inline: auto;
   min-height: clamp(360px, 70dvh, 720px);
   display: flex;
   flex-direction: column;
@@ -32,7 +33,12 @@
 }
 
 .game-main,
-.final-choose {
+.final-choose,
+.spectator-game,
+.waiting-for-host,
+.dedicated-result {
+  width: min(100%, 720px);
+  margin-inline: auto;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -262,6 +268,337 @@
   }
 }
 
+.host-projector {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  padding: clamp(16px, 3vw, 36px);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--ion-color-primary) 5%, var(--ion-background-color));
+
+  &__header {
+    margin-bottom: 18px;
+    text-align: center;
+
+    span,
+    p {
+      margin: 0;
+      color: var(--ion-color-primary);
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 4px 0;
+      font-size: clamp(2rem, 4.5vw, 4.5rem);
+      overflow-wrap: anywhere;
+    }
+
+    p {
+      color: var(--ion-color-medium);
+    }
+  }
+
+  &__countdown,
+  &__speaker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--ion-color-primary) 12%, var(--ion-background-color));
+    text-align: center;
+
+    strong {
+      font-size: clamp(1.4rem, 3vw, 3rem);
+      overflow-wrap: anywhere;
+    }
+
+    ion-avatar {
+      width: clamp(52px, 6vw, 82px);
+      height: clamp(52px, 6vw, 82px);
+    }
+  }
+
+  &__countdown {
+    flex-direction: column;
+    margin-bottom: 16px;
+
+    strong {
+      color: var(--ion-color-primary);
+      font-size: clamp(4rem, 10vw, 8rem);
+    }
+  }
+
+  &__speaker--final {
+    flex-direction: column;
+  }
+
+  &__topic,
+  &__answer {
+    padding: clamp(18px, 3vw, 32px);
+    border: 1px solid color-mix(in srgb, var(--ion-color-primary) 24%, transparent);
+    border-radius: 18px;
+    background: var(--ion-background-color);
+    text-align: center;
+
+    span {
+      color: var(--ion-color-primary);
+      font-weight: 900;
+    }
+
+    h2 {
+      margin: 8px 0;
+      font-size: clamp(2.5rem, 8vw, 8rem);
+      overflow-wrap: anywhere;
+    }
+
+    p {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.5rem);
+      line-height: 1.6;
+    }
+
+    ion-chip {
+      margin: 4px;
+    }
+  }
+
+  &__tallies {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--ion-color-dark) 5%, var(--ion-background-color));
+  }
+
+  &__section-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    h2,
+    p {
+      margin: 0;
+    }
+
+    p {
+      color: var(--ion-color-medium);
+      text-align: right;
+    }
+  }
+
+  &__tally-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  &__action {
+    width: min(100%, 520px);
+    min-height: 56px;
+    display: block;
+    margin: 16px auto 0;
+    font-weight: 900;
+  }
+}
+
+.projector-player-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--ion-background-color);
+
+  ion-avatar {
+    grid-row: span 2;
+    width: 52px;
+    height: 52px;
+  }
+
+  h3 {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: clamp(1rem, 1.7vw, 1.4rem);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__role {
+    color: var(--ion-color-primary);
+    font-weight: 800;
+  }
+
+  dl {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+
+    div {
+      padding: 8px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--ion-color-primary) 8%, transparent);
+      text-align: center;
+    }
+
+    dt {
+      color: var(--ion-color-medium);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    dd {
+      margin: 2px 0 0;
+      color: var(--ion-color-primary);
+      font-size: 1.6rem;
+      font-weight: 900;
+    }
+  }
+}
+
+.spectator-game,
+.waiting-for-host,
+.dedicated-result {
+  gap: 16px;
+  padding-bottom: 18px;
+}
+
+.spectator-game__status,
+.waiting-for-host {
+  padding: 20px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ion-color-secondary) 10%, var(--ion-background-color));
+  text-align: center;
+
+  > span {
+    color: var(--ion-color-secondary);
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
+  h1 {
+    margin: 6px 0;
+    font-size: clamp(1.5rem, 8vw, 2.25rem);
+  }
+
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    line-height: 1.55;
+  }
+}
+
+.spectator-game__votes {
+  width: 100%;
+
+  > span {
+    color: var(--ion-color-primary);
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
+  h2 {
+    margin: 4px 0 12px;
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+  }
+}
+
+.spectator-game__vote-grid,
+.dedicated-result__grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr));
+  gap: 10px;
+}
+
+.spectator-vote-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid color-mix(in srgb, var(--ion-color-primary) 18%, transparent);
+  border-radius: 16px;
+  text-align: center;
+
+  ion-avatar {
+    width: 58px;
+    height: 58px;
+  }
+
+  h3 {
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-size: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  ion-button {
+    width: 100%;
+    min-height: 36px;
+    margin: 0;
+    font-size: 0.75rem;
+    white-space: normal;
+  }
+}
+
+.dedicated-result {
+  > span {
+    color: var(--ion-color-primary);
+    font-weight: 900;
+    letter-spacing: 0.06em;
+  }
+
+  ion-card {
+    margin: 0;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+  }
+
+  &__votes {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 8px;
+    color: var(--ion-color-medium);
+    font-size: 0.76rem;
+  }
+
+  &__guessers {
+    width: 100%;
+
+    > span {
+      color: var(--ion-color-secondary);
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    h2 {
+      margin: 4px 0;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
 @keyframes shrink-number {
   0% {
     opacity: 1;
@@ -298,6 +635,35 @@
   }
   66% {
     color: var(--ion-color-tertiary-contrast);
+  }
+}
+
+@media (max-width: 600px) {
+  .host-projector {
+    min-height: 100%;
+    padding: 14px;
+    border-radius: 16px;
+
+    &__header {
+      grid-template-columns: 1fr;
+
+      p {
+        justify-self: start;
+      }
+    }
+
+    &__speaker {
+      flex-wrap: wrap;
+    }
+
+    &__section-title {
+      align-items: flex-start;
+      flex-direction: column;
+
+      p {
+        text-align: left;
+      }
+    }
   }
 }
 

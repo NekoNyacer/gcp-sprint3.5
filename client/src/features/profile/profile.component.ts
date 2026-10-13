@@ -1,6 +1,5 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { IonContent, IonIcon, IonProgressBar, IonSpinner, IonToast } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -13,8 +12,6 @@ import {
   timeOutline,
   trendingUpOutline,
 } from 'ionicons/icons';
-import { UserProfileService } from '../../shared/services/user-profile.service';
-import { map } from 'rxjs';
 import { SessionStore } from '../../shared/stores/session-store';
 
 type WalkingStats = {
@@ -37,7 +34,6 @@ type LevelPreview = {
   imports: [DecimalPipe, IonContent, IonIcon, IonProgressBar, IonSpinner, IonToast],
 })
 export class ProfileComponent {
-  private readonly profileRepository = inject(UserProfileService);
   readonly sessionStore = inject(SessionStore);
   private readonly failedPortraitUrl = signal<string | null>(null);
 
@@ -56,23 +52,14 @@ export class ProfileComponent {
     });
   }
 
-  readonly profileResource = rxResource({
-    defaultValue: null,
-    stream: () => this.profileRepository.currentProfile$.pipe(map((profile) => profile ?? null)),
-  });
-
   readonly displayName = computed(
-    () =>
-      this.profileResource.value()?.displayName.trim() ||
-      this.sessionStore.user()?.displayName?.trim() ||
-      '健走旅人',
+    () => this.sessionStore.displayName() || '健走旅人',
   );
 
   readonly userInitial = computed(() => this.displayName().charAt(0).toUpperCase());
 
   readonly portraitUrl = computed(() => {
-    const photoUrl =
-      this.profileResource.value()?.photoUrl || this.sessionStore.user()?.photoUrl || null;
+    const photoUrl = this.sessionStore.photoUrl();
     return photoUrl === this.failedPortraitUrl() ? null : photoUrl;
   });
 
@@ -82,7 +69,7 @@ export class ProfileComponent {
     return `CW-${readableId}`;
   });
 
-  readonly dailyGoal = computed(() => this.profileResource.value()?.dailyGoal ?? 5000);
+  readonly dailyGoal = computed(() => this.sessionStore.dailyGoal());
 
   // Profile 統計與 XP 後續應改由可信任的活動 read model 提供。
   readonly walkingStats = computed<WalkingStats>(() =>

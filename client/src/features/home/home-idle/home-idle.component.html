@@ -1,0 +1,59 @@
+<div class="top">
+  <div class="resources">
+    <ion-card>
+      <ion-icon name="sunny-outline"></ion-icon>
+      <ion-card-title class="count">{{
+        ps.inventory().lightEnergy | number: '1.0-0'
+      }}</ion-card-title>
+      <ion-card-subtitle>陽光</ion-card-subtitle>
+    </ion-card>
+    <ion-card>
+      <ion-icon name="water-outline"></ion-icon>
+      <ion-card-title class="count">{{
+        ps.inventory().waterDrops | number: '1.0-0'
+      }}</ion-card-title>
+      <ion-card-subtitle>水</ion-card-subtitle>
+    </ion-card>
+    <ion-card>
+      <ion-icon name="sparkles-outline"></ion-icon>
+      <ion-card-title class="count">{{
+        ps.inventory().fertilizer | number: '1.0-0'
+      }}</ion-card-title>
+      <ion-card-subtitle>肥料</ion-card-subtitle>
+    </ion-card>
+  </div>
+  <ion-card>
+    <ion-card-subtitle class="today-steps">今日步數</ion-card-subtitle>
+    <ion-card-title class="today-steps-count">{{
+      ps.todaySteps() | number: '1.0-0'
+    }}</ion-card-title>
+  </ion-card>
+</div>
+<ion-card class="bottom">
+  <div class="destination-title">
+    <h2>選擇一顆樹，出發後可收成</h2>
+    <cub-badge color="primary">1顆可收成</cub-badge>
+  </div>
+  <div class="tree-list">
+    @for (
+      tree of [
+        { seq: 1, name: '櫻花', status: '可收成' },
+        { seq: 2, name: '柿子', status: '還差64陽光' },
+        { seq: 3, name: '榕樹', status: '還差64陽光' },
+      ];
+      track $index
+    ) {
+      <ion-card [class.on-chosen]="selectedTree() === $index" (click)="selectedTree.set($index)">
+        <header>
+          <ion-icon name="leaf"></ion-icon>
+          <p>{{ tree.name }}</p>
+        </header>
+        <p>{{ tree.status }}</p>
+      </ion-card>
+    }
+  </div>
+  <ion-button class="start-btn" color="primary" expand="block" (click)="start.emit()">
+    <ion-icon name="walk"></ion-icon>
+    <span>出發</span>
+  </ion-button>
+</ion-card>

@@ -1,6 +1,6 @@
 <app-dialog />
 
-@if (!isInLobby()) {
+<!-- @if (!isInLobby()) {
   <ion-header class="cathay-header">
     <div class="header-container">
       <div class="logo-wrapper">
@@ -60,11 +60,10 @@
     </div>
   </ion-header>
 }
-<app-menu />
-
-<ion-tabs id="main-content" [class.lobby-tabs]="isInLobby()">
-  @if (!isInLobby()) {
-    <ion-tab-bar slot="bottom" class="tabBar">
+<app-menu /> -->
+<ion-tabs id="main-content" [class.home-map-screen]="currentUrl() === '/home'">
+  @if (hasTabBar()) {
+    <ion-tab-bar slot="bottom" [animate.leave]="'tab-bar-descend'" [animate.enter]="'tab-bar-rise'">
       <ion-tab-button tab="home">
         <ion-icon
           [name]="currentUrl() === '/home' ? 'navigate-circle' : 'navigate-circle-outline'"
@@ -80,16 +79,23 @@
           <ion-badge color="danger">{{ taskStore.incompleteTaskCount() }}</ion-badge>
         }
       </ion-tab-button>
+      <ion-tab-button tab="shop">
+        <ion-icon [name]="currentUrl() === '/shop' ? 'gift' : 'gift-outline'" />
+        <ion-label>兌換</ion-label>
+      </ion-tab-button>
 
       <ion-tab-button tab="collection">
         <ion-icon [name]="currentUrl() === '/collection' ? 'leaf' : 'leaf-outline'" />
-        <ion-label>收藏</ion-label>
+        <ion-label>回憶</ion-label>
       </ion-tab-button>
 
-      <ion-tab-button tab="shop">
-        <ion-icon [name]="currentUrl() === '/shop' ? 'gift' : 'gift-outline'" />
-        <ion-label>樹屋</ion-label>
+      <ion-tab-button tab="profile">
+        <ion-icon [name]="currentUrl() === '/profile' ? 'person' : 'person-outline'" />
+        <ion-label>我的</ion-label>
       </ion-tab-button>
     </ion-tab-bar>
   }
 </ion-tabs>
+
+<!-- 底部彈窗 -->
+<cub-modal />

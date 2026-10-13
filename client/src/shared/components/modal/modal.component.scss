@@ -1,0 +1,39 @@
+ion-modal  {
+  --border-radius:24px;
+  --backdrop-opacity:2;
+
+  ion-content {
+    --ion-padding: 30px;
+  }
+
+  h1{
+    margin: 0;
+    font-size: 18pt ;
+    font-weight: 800 ;
+  }
+
+  h5{
+   margin: 0;
+  }
+
+  p{
+    margin: 0 0 10px 0 ;
+    color: var(--ion-color-medium-shade);
+  }
+  .btn-row{
+    display: grid; 
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    > ion-button{
+      --box-shadow:none;
+    }
+  }
+
+  .badge-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  }
+}

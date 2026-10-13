@@ -13,9 +13,13 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonList,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular';
@@ -24,7 +28,13 @@ import type { PointGroup } from 'signature_pad';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { DialogService } from '../../../shared/services/dialog.service';
-import { ArtistGameStore, ArtistPlayer, ArtistStroke } from './artist-game.store';
+import { avatarDataUrl, createAvatarSeed } from '../relay-game/relay-avatar';
+import {
+  ArtistGameStore,
+  ArtistPlayer,
+  ArtistQuickProfile,
+  ArtistStroke,
+} from './artist-game.store';
 
 @Component({
   selector: 'app-artist-game',
@@ -45,9 +55,13 @@ import { ArtistGameStore, ArtistPlayer, ArtistStroke } from './artist-game.store
     IonContent,
     IonHeader,
     IonIcon,
+    IonInput,
     IonItem,
     IonLabel,
     IonList,
+    IonSelect,
+    IonSelectOption,
+    IonSpinner,
     IonTitle,
     IonToolbar,
   ],
@@ -58,15 +72,19 @@ export class ArtistGameComponent {
   private readonly dialogService = inject(DialogService);
   protected readonly gameStore = inject(ArtistGameStore);
   protected readonly signaturePad = viewChild(SignaturePadComponent);
+  protected readonly nickname = signal('');
+  protected readonly avatarSeed = signal(createAvatarSeed());
+  protected readonly isIdentityReady = signal(false);
+  protected readonly identityError = signal<string | null>(null);
+  protected readonly isJoiningRoom = signal(false);
   protected readonly isSubmittingStroke = signal(false);
   protected readonly isLeaving = signal(false);
 
   private readonly canvasWidth =
     typeof window === 'undefined' ? 640 : Math.min(640, Math.max(280, window.innerWidth - 40));
-  private readonly canvasHeight =
-    typeof window === 'undefined' || this.canvasWidth >= 600
-      ? Math.round((this.canvasWidth * 420) / 640)
-      : Math.min(560, Math.max(300, window.innerHeight - 380));
+  // Stored strokes use normalized coordinates, so every phone and the projector
+  // must render the same logical canvas ratio.
+  private readonly canvasHeight = Math.round((this.canvasWidth * 9) / 16);
   protected readonly padOptions: NgSignaturePadOptions = {
     canvasWidth: this.canvasWidth,
     canvasHeight: this.canvasHeight,
@@ -77,28 +95,48 @@ export class ArtistGameComponent {
     minDistance: 2,
     throttle: 8,
   };
+  protected readonly projectorPadOptions: NgSignaturePadOptions = {
+    ...this.padOptions,
+    canvasWidth: 960,
+    canvasHeight: 540,
+  };
+
+  protected readonly isProjector = computed(
+    () => this.gameStore.isRoomMaster() && this.gameStore.hasDedicatedHost(),
+  );
 
   protected readonly isMyTurn = computed(
     () =>
       this.gameStore.status() === '繪圖中' &&
-      this.gameStore.currentPlayer()?.uid === this.gameStore.sessionStore.user()?.uid &&
+      this.gameStore.currentPlayer()?.uid === this.gameStore.uid() &&
       !this.isSubmittingStroke(),
   );
 
   protected readonly myStrokeCount = computed(() => {
-    const uid = this.gameStore.sessionStore.user()?.uid;
+    const uid = this.gameStore.uid();
     return this.gameStore.strokes().filter((stroke) => stroke.playerUid === uid).length;
   });
 
   protected readonly roundNumber = computed(() =>
     Math.min(
       2,
-      Math.floor(this.gameStore.strokes().length / Math.max(1, this.gameStore.players().length)) +
-        1,
+      Math.floor(
+        this.gameStore.strokes().length / Math.max(1, this.gameStore.contestants().length),
+      ) + 1,
     ),
   );
 
+  protected readonly strokeCounts = computed(() => {
+    const counts: Record<string, number> = {};
+    for (const player of this.gameStore.contestants()) counts[player.uid] = 0;
+    for (const stroke of this.gameStore.strokes()) {
+      if (counts[stroke.playerUid] !== undefined) counts[stroke.playerUid] += 1;
+    }
+    return counts;
+  });
+
   constructor() {
+    void this.bootstrapIdentity();
     effect(() => {
       const pad = this.signaturePad();
       const strokes = this.gameStore.strokes();
@@ -109,6 +147,37 @@ export class ArtistGameComponent {
       if (canDraw) pad.on();
       else pad.off();
     });
+  }
+
+  protected avatarUrl(): string {
+    return avatarDataUrl(this.avatarSeed());
+  }
+
+  protected changeAvatar() {
+    this.avatarSeed.set(createAvatarSeed());
+  }
+
+  protected updateNickname(event: CustomEvent<{ value?: string | null }>) {
+    this.nickname.set(event.detail.value ?? '');
+  }
+
+  protected joinRoom() {
+    if (this.isJoiningRoom()) return;
+    const profile: ArtistQuickProfile = {
+      displayName: this.nickname().trim(),
+      photoUrl: this.avatarUrl(),
+      avatarSeed: this.avatarSeed(),
+    };
+    this.isJoiningRoom.set(true);
+    void this.gameStore.joinRoom(profile).finally(() => this.isJoiningRoom.set(false));
+  }
+
+  protected retryIdentity() {
+    void this.bootstrapIdentity();
+  }
+
+  protected returnToLobby() {
+    void this.router.navigate(['/lobby'], { replaceUrl: true });
   }
 
   protected startGame() {
@@ -122,6 +191,20 @@ export class ArtistGameComponent {
       .subscribe((result) => {
         if (result === 'confirm') void this.gameStore.generateTopic();
       });
+  }
+
+  protected updateHostMode(event: CustomEvent<{ value?: string | number | boolean | null }>) {
+    const value = event.detail.value;
+    if (value === true || value === 'true') void this.gameStore.setHostMode(true);
+    if (value === false || value === 'false') void this.gameStore.setHostMode(false);
+  }
+
+  protected setParticipantRole(player: ArtistPlayer, role: 'contestant' | 'spectator') {
+    if (player.participationRole !== role) void this.gameStore.setParticipantRole(player.uid, role);
+  }
+
+  protected strokeCountFor(uid: string) {
+    return this.strokeCounts()[uid] ?? 0;
   }
 
   protected async onDrawEnd() {
@@ -173,12 +256,26 @@ export class ArtistGameComponent {
   }
 
   protected voteFor(player: ArtistPlayer) {
-    if (this.gameStore.hasVoted() || player.uid === this.gameStore.me()?.uid) return;
+    const cannotChooseSelf =
+      !this.gameStore.hasDedicatedHost() && player.uid === this.gameStore.me()?.uid;
+    if (
+      !this.gameStore.canVote() ||
+      this.gameStore.hasVoted() ||
+      cannotChooseSelf ||
+      !this.gameStore.contestants().some((contestant) => contestant.uid === player.uid)
+    ) {
+      return;
+    }
     this.dialogService
-      .openDialog(`確定投給 ${player.displayName}？每人只有一票。`, {
-        mainBtnTxt: '確定投票',
-        subBtnTxt: '再想一下',
-      })
+      .openDialog(
+        `確定投給 ${player.displayName}？${
+          this.gameStore.hasDedicatedHost() ? '每位觀眾只有一票。' : '每人只有一票。'
+        }`,
+        {
+          mainBtnTxt: '確定投票',
+          subBtnTxt: '再想一下',
+        },
+      )
       .pipe(take(1))
       .subscribe((result) => {
         if (result === 'confirm') void this.gameStore.voteFor(player.uid);
@@ -203,6 +300,24 @@ export class ArtistGameComponent {
     const didLeave = await this.gameStore.leaveRoom();
     if (didLeave) await this.router.navigate(['/lobby'], { replaceUrl: true });
     this.isLeaving.set(false);
+  }
+
+  private async bootstrapIdentity() {
+    this.isIdentityReady.set(false);
+    this.identityError.set(null);
+    try {
+      await this.gameStore.ensureAnonymousUser();
+      if (this.gameStore.seq()) this.gameStore.initRoomListener(this.gameStore.seq());
+      const saved = this.gameStore.savedProfile();
+      if (saved) {
+        this.nickname.set(saved.displayName);
+        this.avatarSeed.set(saved.avatarSeed);
+      }
+    } catch {
+      this.identityError.set('無法建立匿名身分，請確認 Firebase 匿名登入已啟用');
+    } finally {
+      this.isIdentityReady.set(true);
+    }
   }
 
   private isLongEnough(group: PointGroup): boolean {

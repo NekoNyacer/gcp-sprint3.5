@@ -1,0 +1,19 @@
+:host{
+  display: inline-flex;
+}
+
+div{
+  padding: 4px 8px;
+  border-radius: 16px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  align-self:flex-start;
+  background-color: rgb(242, 242, 242);
+  color: black;
+
+  &.primary{
+    background-color:color-mix(var(--ion-color-primary) 10%, transparent);
+    color:var(--ion-color-primary);
+  }
+}
