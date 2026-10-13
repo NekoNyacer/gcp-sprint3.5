@@ -12,8 +12,7 @@ html {
 
 :root {
   --ion-font-family:
-    -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei',
-    sans-serif;
+    'Roboto', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
   --bonus-game-font: var(--ion-font-family);
 }
 
@@ -57,6 +56,11 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+.mapboxgl-ctrl-group button.mapboxgl-ctrl-compass {
+  touch-action: none;
+}
+
 button:focus-visible {
   outline: 3px solid rgba(0, 133, 102, 0.28);
   outline-offset: 2px;

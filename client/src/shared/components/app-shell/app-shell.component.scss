@@ -1,97 +1,98 @@
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
+// :host {
+//   display: flex;
+//   flex-direction: column;
+//   height: 100%;
+//   min-height: 0;
+// }
 
-.cathay-custom-logo {
-  width: 248px;
-  height: 62px;
-}
+// .cathay-custom-logo {
+//   width: 248px;
+//   height: 62px;
+// }
 
-ion-header.cathay-header {
-  padding-top: env(safe-area-inset-top);
-  background: transparent;
-  box-shadow: none;
+// ion-header.cathay-header {
+//   padding-top: env(safe-area-inset-top);
+//   background: transparent;
+//   box-shadow: none;
 
-  .header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 4.25rem;
-    padding: 0.5rem 1rem;
-    box-sizing: border-box;
-    width: 100%;
+//   .header-container {
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: center;
+//     min-height: 4.25rem;
+//     padding: 0.5rem 1rem;
+//     box-sizing: border-box;
+//     width: 100%;
+//   }
+
+//   .logo-wrapper {
+//     display: flex;
+//     align-items: center;
+//     /* 響應式寬度：最小 150px，最大 200px */
+//     width: clamp(180px, 50vw, 240px);
+
+//     svg.cathay-custom-logo {
+//       width: 100%;
+//       height: auto; /* 讓高度自動跟隨 viewBox 的比例縮放 */
+//       display: block;
+//     }
+//   }
+
+//   ion-button {
+//     color: var(--ion-color-secondary);
+//   }
+// }
+
+ion-tab-bar {
+  --background: #FFFFFF;
+  padding: 10px;
+
+  ion-tab-button{
+    --padding-start	:10px;
+    --padding-bottom:5px;
   }
 
-  .logo-wrapper {
-    display: flex;
-    align-items: center;
-    /* 響應式寬度：最小 150px，最大 200px */
-    width: clamp(180px, 50vw, 240px);
-
-    svg.cathay-custom-logo {
-      width: 100%;
-      height: auto; /* 讓高度自動跟隨 viewBox 的比例縮放 */
-      display: block;
-    }
+  &.tab-bar-rise {
+    animation: tab-bar-rise 260ms ease-out both;
   }
 
-  ion-button {
-    color: var(--ion-color-secondary);
+  &.tab-bar-descend {
+    animation: tab-bar-descend 220ms ease-in both;
   }
 }
 
-ion-tabs {
-  position: relative;
-  flex: 1 1 0;
-  height: auto;
-  min-height: 0;
-  width: 100%;
-  margin-top: 2rem;
-}
-
-ion-tabs.lobby-tabs {
-  margin-top: 0;
-}
-
-.tabBar {
-  --background: transparent;
-  --color: var(--ion-color-secondary-shade);
-  --color-selected: var(--ion-color-secondary);
-}
-
-.menu-toggle-fab {
+ion-tabs.home-map-screen ion-tab-bar {
   position: fixed;
-  top: max(1rem, env(safe-area-inset-top));
-  right: 1rem;
-  z-index: 1000;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 200;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
 
-.menu-toggle-fab ion-button {
-  --border-radius: 999px;
-  --background-color: transparent;
+@keyframes tab-bar-rise {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
-.avatar {
-  align-items: center;
-  background: rgba(255, 255, 255, 0.2);
-  border: 3px solid rgba(255, 255, 255, 0.88);
-  border-radius: 50%;
-  box-shadow: 0 8px 22px rgba(1, 53, 36, 0.24);
-  color: #fff;
-  display: flex;
-  flex: 0 0 72px;
-  font-size: 1.75rem;
-  font-weight: 700;
-  height: 50px;
-  justify-content: center;
-  overflow: hidden;
+@keyframes tab-bar-descend {
+  from {
+    transform: translateY(0);
+  }
 
-  img {
-    height: 100%;
-    object-fit: cover;
-    width: 100%;
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ion-tab-bar.tab-bar-rise,
+  ion-tab-bar.tab-bar-descend {
+    animation-duration: 1ms;
   }
 }

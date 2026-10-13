@@ -15,11 +15,11 @@ import {
  * */
 
 const initialState: ProgressState = {
-  todaySteps: 0,
+  todaySteps: 15888,
   inventory: {
-    lightEnergy: 0,
-    waterDrops: 0,
-    fertilizer: 0,
+    lightEnergy: 5946,
+    waterDrops: 777,
+    fertilizer: 5,
   },
 };
 
@@ -36,6 +36,28 @@ export const ProgressStore = signalStore(
           waterDrops: inventory.waterDrops,
           fertilizer: inventory.fertilizer,
         },
+      });
+    },
+    /**將步數轉為光能 */
+    transformStepsToLightEnergy: () => {
+      const steps = store.todaySteps();
+      const lightEnergy = store.inventory().lightEnergy;
+      patchState(store, {
+        todaySteps: 0,
+        inventory: {
+          ...store.inventory(),
+          lightEnergy: lightEnergy + steps,
+        },
+      });
+    },
+    /**增加步數 */
+    addSteps: (steps: number) => {
+      if (!Number.isSafeInteger(steps) || steps <= 0) {
+        return;
+      }
+
+      patchState(store, {
+        todaySteps: store.todaySteps() + steps,
       });
     },
   })),

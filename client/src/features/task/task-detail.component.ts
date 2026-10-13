@@ -5,7 +5,7 @@ import { IonBadge, IonButton, IonCard, IonCardContent, IonContent, IonModal, Ion
 import { DemoLocationState, TaskItem } from './task.models';
 import { TaskStore } from './task-store';
 
-@Component({ selector: 'app-task-detail', templateUrl: './task-detail.component.html', styleUrls: ['./task-detail.component.scss'], imports: [DecimalPipe, IonContent, IonButton, IonBadge, IonCard, IonCardContent, IonSpinner, IonModal] })
+@Component({ selector: 'app-task-detail', templateUrl: './task-detail.component.html', styleUrls: ['./task-detail.component.scss'], imports: [DecimalPipe, IonContent, IonButton, IonBadge, IonSpinner, IonModal] })
 export class TaskDetailComponent implements OnInit {
   readonly store = inject(TaskStore);
   private readonly route = inject(ActivatedRoute);

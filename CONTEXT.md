@@ -605,6 +605,9 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-10-01 | In `傳情畫意` public reveal, phones taller than 700px restore the original 58dvh artwork limit. Only compact screens at most 390px wide and 700px tall (including iPhone SE) use the single-row author layout and a fixed, nonzero 25dvh drawing/guess size, keeping artwork inside the frame without shrinking larger phones. | Confirmed |
 | 2026-10-01 | In `傳情畫意` activity mode, assign each group's hidden topic only when the game starts, by shuffling the static topic pool. Do not reuse a topic stored during preparation, so every game start draws anew and groups receive distinct topics until the pool is exhausted. | Confirmed |
 | 2026-10-01 | Set newly created `傳情畫意` rooms to unlimited drawing and guessing timers (`0` seconds) by default; the host may still select a finite preset before starting. | Confirmed; supersedes the earlier 75/30-second default |
+| 2026-10-05 | Pause bonus-game development and return delivery focus to the walking-map and task-acquisition main demo path. Investigate a Mapbox-style map renderer because the desired visual direction resembles location-based walking games; the final map-provider choice remains open pending feasibility, cost, and technical-spike results. | Confirmed focus; provider undecided |
+| 2026-10-05 | Keep the user's live location in a shared, in-memory `LocationStore`, keep route and Demo movement progress in a separate `WalkSessionStore`, and keep only task-specific location evidence snapshots in `TaskStore`. The location store may expose current position, permission, tracking state, source (`gps` or `demo`), and lifecycle controls; raw coordinates and complete walking tracks must not be persisted or logged. | Confirmed |
+| 2026-10-05 | Retain `SessionStore` as the shared account-context seam. It now owns the Firebase identity summary, the Firestore profile snapshot, Demo/normal data scope, authentication/session status, and common profile selectors such as display name, portrait, email, daily goal, and profile loading/error state. Location, walking progress, inventory, tasks, collection, wallet, and bonus-game state remain separate stores. | Confirmed |
 
 ## Open decisions
 
@@ -615,5 +618,6 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 3. Three.js remains optional and only proceeds after its spike gate.
 4. Confirm the capacity reconciliation: core-path feature complete on 2026-10-21, all Must complete on 2026-11-05.
 5. Select and field-check the exact six public POIs before freezing task seed data.
+6. Choose the map renderer/provider after the Mapbox feasibility assessment and a focused visual/performance spike; preserve deterministic seeded routes and the existing map-failure fallback regardless of provider.
 
 The product design frontier is closed. Any later scope change must be recorded as a new decision rather than silently replacing this baseline.

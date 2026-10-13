@@ -1,8 +1,9 @@
 ion-app {
-  background: url("/images/backgrounds/title-bg-SQWLLEPR.svg") center / cover no-repeat
-    fixed;
-  animation: background-drift 28s ease-in-out infinite alternate;
-  will-change: background-position;
+//   background: url("/images/backgrounds/title-bg-SQWLLEPR.svg") center / cover no-repeat
+//     fixed;
+//   animation: background-drift 28s ease-in-out infinite alternate;
+//   will-change: background-position;
+background-color: #F5F4ED;
 }
 
 @keyframes background-drift {

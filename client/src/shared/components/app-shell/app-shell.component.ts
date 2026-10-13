@@ -1,19 +1,9 @@
 import { Component, computed, effect, inject } from '@angular/core';
-import { MenuComponent } from '../menu/menu.component';
 import { Router } from '@angular/router';
-import {
-  IonMenuToggle,
-  IonButton,
-  IonLabel,
-  IonIcon,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
-  IonBadge,
-  IonHeader,
-} from '@ionic/angular';
+import { IonLabel, IonIcon, IonTabBar, IonTabButton, IonTabs, IonBadge } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
+  walk,
   refresh,
   people,
   navigateCircle,
@@ -40,44 +30,59 @@ import {
   closeCircleOutline,
   diceOutline,
   brushSharp,
-  playSkipBackOutline,
-  playSkipForwardOutline,
-  playBackOutline,
-  playForwardOutline,
   playBack,
   playForward,
   playSkipBack,
   playSkipForward,
   downloadOutline,
+  sparklesOutline,
+  arrowBack,
+  personOutline,
+  person,
+  timeOutline,
+  bagHandleOutline,
+  locationOutline,
+  chevronBackOutline,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
 import { DialogComponent } from '../dialog/dialog.component';
+import { LocationStore } from '../../stores/location-store';
+import { CubModalComponent } from '../modal/modal.component';
 
 @Component({
   selector: 'app-shell',
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
   imports: [
-    IonHeader,
-    IonMenuToggle,
-    IonButton,
     IonLabel,
     IonIcon,
     IonTabBar,
     IonTabButton,
     IonTabs,
     IonBadge,
-    MenuComponent,
     DialogComponent,
+    CubModalComponent,
   ],
 })
 export class AppShellComponent {
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
+  protected readonly ls = inject(LocationStore);
   readonly taskStore = inject(TaskStore);
+
+  //註冊icon
   constructor() {
     addIcons({
+      chevronBackOutline,
+      locationOutline,
+      bagHandleOutline,
+      timeOutline,
+      person,
+      personOutline,
+      arrowBack,
+      sparklesOutline,
+      walk,
       downloadOutline,
       playForward,
       playBack,
@@ -143,5 +148,7 @@ export class AppShellComponent {
       this.router.url) as '/home' | '/task' | '/collection' | '/shop' | '/profile' | '/lobby';
   });
 
-  readonly isInLobby = computed(() => this.currentUrl().includes('lobby'));
+  readonly hasTabBar = computed(() => {
+    return this.currentUrl().includes('lobby') || this.ls.status() === '閒置中';
+  });
 }

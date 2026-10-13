@@ -1,12 +1,11 @@
-<google-map
-  mapId="DEMO_MAP_ID"
-  width="100%"
-  height="100%"
-  [center]="center"
-  [zoom]="zoom"
-  [options]="mapOptions"
->
-  @for (location of locations; track location.id) {
-    <map-advanced-marker [position]="location.position" [title]="location.name" />
+<main class="map-page">
+  @if (settings.mockMap) {
+    <img
+      style="width: 100%; height: 100%"
+      src="/images/dev/EF786399-FCC0-467F-9E4F-8DC9AB938F49.png"
+      alt=""
+    />
+  } @else {
+    <div #map class="map"></div>
   }
-</google-map>
+</main>

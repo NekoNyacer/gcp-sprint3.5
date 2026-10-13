@@ -36,6 +36,7 @@
             ],
             "styles": [
               "src/styles.scss",
+              "node_modules/mapbox-gl/dist/mapbox-gl.css",
               {
                 "input": "@ionic/angular/css/core.css"
               },
@@ -139,7 +140,8 @@
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
+      "styleext": "scss",
+      "skipTests": true
     },
     "@ionic/angular-toolkit:page": {
       "styleext": "scss"

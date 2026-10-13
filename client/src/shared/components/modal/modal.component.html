@@ -1,0 +1,28 @@
+<ion-modal
+  [isOpen]="modal.isOpen()"
+  [breakpoints]="modal.breakPoint()"
+  [initialBreakpoint]="modal.initialBreakpoint()"
+  [handle]="true"
+  (didDismiss)="modal.isOpen.set(false)"
+>
+  <ng-template>
+    <ion-content class="ion-padding">
+      @let c = modal.modalContent();
+      <ion-toolbar>
+        <h1 slot="start">{{ c.title }}</h1>
+        <cub-badge slot="end" color="primary">{{ c.titleBadge }}</cub-badge>
+      </ion-toolbar>
+      <h5>{{ c.subTitle }}</h5>
+      <p>{{ c.description }}</p>
+      <div class="badge-row">
+        @for (b of c.otherBadges; track $index) {
+          <cub-badge>{{ b }}</cub-badge>
+        }
+      </div>
+      <div class="btn-row">
+        <ion-button expand="block" color="medium">{{ c.subBtnText }}</ion-button>
+        <ion-button expand="block">{{ c.mainBtnText }}</ion-button>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

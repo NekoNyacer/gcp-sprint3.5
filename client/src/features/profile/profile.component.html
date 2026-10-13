@@ -12,12 +12,12 @@
       }
     </header>
 
-    @if (profileResource.isLoading()) {
+    @if (sessionStore.profileLoading()) {
       <output class="sync-status">
         <ion-spinner name="crescent" />
         <span>正在同步個人資料</span>
       </output>
-    } @else if (profileResource.error()) {
+    } @else if (sessionStore.profileError()) {
       <output class="sync-status sync-status--warning">
         <span>暫時無法同步雲端資料，以下顯示本機資訊。</span>
       </output>

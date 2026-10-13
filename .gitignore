@@ -3,3 +3,4 @@
 firebase-debug.log
 firebaserc-debug.log
 
+client/src/app/mapbox-config.ts

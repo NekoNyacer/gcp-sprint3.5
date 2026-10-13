@@ -1,117 +1,82 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, ElementRef, signal, ViewChild } from '@angular/core';
-import { IonContent, IonIcon, IonFabButton, IonFab } from '@ionic/angular';
+import { Component, computed, inject, viewChild } from '@angular/core';
+import { IonContent } from '@ionic/angular';
 import { HomeMapComponent } from './home-map/home-map.component';
-
-interface CloudDragStart {
-  pointerId: number;
-  clientX: number;
-  clientY: number;
-  translateX: number;
-  translateY: number;
-  minDeltaX: number;
-  maxDeltaX: number;
-  minDeltaY: number;
-  maxDeltaY: number;
-}
+import { LocationStore } from '../../shared/stores/location-store';
+import { ProgressStore } from '../../shared/stores/progress-store';
+import { ModalService } from '../../shared/services/modal.service';
+import { JoyStickComponent } from './joy-stick/joy-stick.component';
+import { HomeIdleComponent } from './home-idle/home-idle.component';
+import { HomeChooseComponent } from './home-choose/home-choose.component';
+import { HomeWalkingComponent } from './home-walking/home-walking.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
-  imports: [IonFab, IonFabButton, IonContent, IonIcon, HomeMapComponent, DecimalPipe],
+  imports: [
+    IonContent,
+    HomeMapComponent,
+    JoyStickComponent,
+    HomeIdleComponent,
+    HomeChooseComponent,
+    HomeWalkingComponent,
+  ],
 })
 export class HomeComponent {
-  @ViewChild('scene', { static: true })
-  private sceneElement!: ElementRef<HTMLElement>;
+  protected readonly ls = inject(LocationStore);
+  protected readonly ps = inject(ProgressStore);
+  private readonly modal = inject(ModalService);
+  private readonly homeMap = viewChild.required(HomeMapComponent);
+  readonly joystickTransform = viewChild.required(JoyStickComponent);
+  readonly isIdle = computed(() => this.ls.status() === '閒置中');
+  readonly isPlanning = computed(() => this.ls.status() === '選擇目的地中');
+  readonly isWalking = computed(() => this.ls.status() === '行走中');
+  readonly isArrived = computed(() => this.ls.status() === '抵達目的地');
+  readonly isChosen = computed(() => this.ls.hasDestination());
 
-  @ViewChild('waterCloud', { static: true })
-  private waterCloudElement!: ElementRef<HTMLButtonElement>;
-
-  //是否開啟地面
-  readonly isGroundExpanded = signal(false);
-  readonly isDraggingWaterCloud = signal(false);
-  readonly waterCloudTransform = signal('translate3d(0, 0, 0)');
-
-  private waterCloudPosition = { x: 0, y: 0 };
-  private cloudDragStart: CloudDragStart | null = null;
-
-  addEnergy(): void {
-    console.log('獲取能量 100');
+  openModal() {
+    this.modal.open();
   }
 
-  toggleGround(): void {
-    this.isGroundExpanded.update((isExpanded) => !isExpanded);
+  /**閒置中：點選開始 */
+  startPlanning() {
+    const map = this.homeMap()!;
+    map.zoom(14);
+    this.ls.start();
   }
 
-  closeGround(): void {
-    this.isGroundExpanded.set(false);
+  /**選擇目的地中：點選返回 */
+  back() {
+    this.reset();
+    this.ls.cancelWalk();
   }
 
-  startWaterCloudDrag(event: PointerEvent): void {
-    const cloud = this.waterCloudElement.nativeElement;
-    const sceneRect = this.sceneElement.nativeElement.getBoundingClientRect();
-    const cloudRect = cloud.getBoundingClientRect();
-
-    this.cloudDragStart = {
-      pointerId: event.pointerId,
-      clientX: event.clientX,
-      clientY: event.clientY,
-      translateX: this.waterCloudPosition.x,
-      translateY: this.waterCloudPosition.y,
-      minDeltaX: sceneRect.left - cloudRect.left,
-      maxDeltaX: sceneRect.right - cloudRect.right,
-      minDeltaY: sceneRect.top - cloudRect.top,
-      maxDeltaY: sceneRect.bottom - cloudRect.bottom - 96,
-    };
-
-    cloud.setPointerCapture(event.pointerId);
-    this.isDraggingWaterCloud.set(true);
-    event.preventDefault();
+  /**選擇目的地中：點選出發 */
+  go() {
+    this.homeMap()?.focusWalkRoute();
+    this.ls.startWalk('test');
   }
 
-  moveWaterCloud(event: PointerEvent): void {
-    const dragStart = this.cloudDragStart;
-    if (!dragStart || dragStart.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const deltaX = this.clamp(
-      event.clientX - dragStart.clientX,
-      dragStart.minDeltaX,
-      dragStart.maxDeltaX,
-    );
-    const deltaY = this.clamp(
-      event.clientY - dragStart.clientY,
-      dragStart.minDeltaY,
-      dragStart.maxDeltaY,
-    );
-
-    this.waterCloudPosition = {
-      x: dragStart.translateX + deltaX,
-      y: dragStart.translateY + deltaY,
-    };
-    this.waterCloudTransform.set(
-      `translate3d(${this.waterCloudPosition.x}px, ${this.waterCloudPosition.y}px, 0)`,
-    );
-    event.preventDefault();
+  /**行走中：停止散步 */
+  stop() {
+    this.ls.cancelWalk();
   }
 
-  endWaterCloudDrag(event: PointerEvent): void {
-    if (this.cloudDragStart?.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const cloud = this.waterCloudElement.nativeElement;
-    if (cloud.hasPointerCapture(event.pointerId)) {
-      cloud.releasePointerCapture(event.pointerId);
-    }
-
-    this.cloudDragStart = null;
-    this.isDraggingWaterCloud.set(false);
+  cancelChose() {
+    this.ls.removeDestination();
+    this.removeRoute();
   }
 
-  private clamp(value: number, minimum: number, maximum: number): number {
-    return Math.min(Math.max(value, minimum), maximum);
+  reset() {
+    this.ls.removeDestination();
+    const map = this.homeMap()!;
+    map.focusPlayer(17);
+    this.removeRoute();
+  }
+
+  removeRoute() {
+    const map = this.homeMap()!;
+    map.removeLayer('task-route-line');
+    map.removeSource('task-route');
   }
 }

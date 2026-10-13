@@ -42,16 +42,16 @@ export class MenuComponent {
     addIcons({ personOutline, extensionPuzzleOutline, logOutOutline });
   }
 
-  readonly userName = computed(() => this.sessionStore.user()?.displayName?.trim() || '訪客使用者');
-  readonly userEmail = computed(() => this.sessionStore.user()?.email?.trim() || '尚未連結帳號');
+  readonly userName = computed(() => this.sessionStore.displayName() || '訪客使用者');
+  readonly userEmail = computed(() => this.sessionStore.email() || '尚未連結帳號');
   readonly userInitial = computed(() => this.userName().charAt(0).toUpperCase());
   readonly userPortrait = computed(() => {
-    const photoUrl = this.sessionStore.user()?.photoUrl || null;
+    const photoUrl = this.sessionStore.photoUrl();
     return photoUrl === this.failedPortraitUrl() ? null : photoUrl;
   });
 
   onPortraitError(): void {
-    this.failedPortraitUrl.set(this.sessionStore.user()?.photoUrl || null);
+    this.failedPortraitUrl.set(this.sessionStore.photoUrl());
   }
 
   logOut(): void {

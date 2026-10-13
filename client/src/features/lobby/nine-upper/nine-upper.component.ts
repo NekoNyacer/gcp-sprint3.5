@@ -27,7 +27,6 @@ import { NineUpperPlayer, NineUpperSpectatorVoteType, NineUpperStore } from './n
     IonCardTitle,
     IonChip,
     IonLabel,
-    IonHeader,
   ],
 })
 export class NineUpperComponent {
