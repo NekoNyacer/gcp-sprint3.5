@@ -93,3 +93,9 @@ Microsoft 官方特別建議先匯出少量既有 work items，以取得該組�
 - `CAT WALK - Missing estimates`：User Story 且 Story Points Empty。
 
 最後由 Backlogs 頁檢查每個 Epic rollup、Feature 子項數與總 Story Points；CSV 只是初始載入，之後的單一事實來源應是 Azure Boards，加上本 repo 的產品／架構決策文件。
+
+## 8. 已在看板建立的壓測紀錄
+
+2026/10/19 已建立 US14.5 #1925760 與 8 個子 Task #1925761–#1925768。完整／minimal 初始匯入模板同步列出該 Story，但沒有既有 ID；請勿為了同步紀錄而重新匯入整份模板，以免重複建單。
+
+load-test-20261001-records.csv 是含既有 ID 的工作項快照；load-test-20261001.work-items.json 保存父子關係、描述、已確認用量與限制；evidence/ 保存三日原始 CSV。這些是已建單的追溯資料，不是另一次新項目建立清單。

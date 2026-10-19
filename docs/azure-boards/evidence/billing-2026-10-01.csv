@@ -1,0 +1,14 @@
+Service description,Service ID,SKU description,SKU ID,Usage amount,Usage unit,Cost ($),Savings programs ($),Other savings ($),Unrounded subtotal ($),Subtotal ($),Percent change in subtotal compared to previous period
+Gemini API,AEFD-7695-64FA,Generate content output token count gemini 3.6 flash text,90DC-1471-C3D3,"9,342",count,0.04,0.00,0.00,0.035031,0.04,33%
+App Engine,F17B-412E-CB64,Cloud Firestore Read Ops Taiwan,28B9-8D93-5BC1,"108,637",count,0.02,0.00,0.00,0.020208,0.02,New
+Gemini API,AEFD-7695-64FA,Generate content input token count gemini 3.6 flash text,2F9F-F0E4-699C,"3,309",count,0.00,0.00,0.00,0.002481,0.00,0%
+App Engine,F17B-412E-CB64,Cloud Firestore Entity Writes Taiwan,4FC2-A968-7B7D,"1,145",count,0.00,0.00,0.00,0.000000,0.00,0%
+Firebase Hosting,2662-232A-AC11,Outgoing Bandwidth,5DF2-5F92-77F0,0.11,gibibyte,0.00,0.00,0.00,0.000000,0.00,0%
+Secret Manager,EE82-7A5E-871C,Secret version replica storage,7756-ADEF-84F4,0.03,month,0.00,0.00,0.00,0.000000,0.00,0%
+Cloud Run Functions,29E7-DA93-CA13,Cloud Run Functions Invocations,92DF-0F0E-630F,10,count,0.00,0.00,0.00,0.000000,0.00,0%
+Cloud Run Functions,29E7-DA93-CA13,Cloud Run functions CPU (Request-based billing) in asia-east1,AB4B-3507-1F33,64.03,second,0.00,0.00,-0.00,0.000000,0.00,0%
+App Engine,F17B-412E-CB64,Cloud Firestore Entity Deletes Taiwan,ADA0-16B6-63C1,3,count,0.00,0.00,0.00,0.000000,0.00,0%
+App Engine,F17B-412E-CB64,Cloud Firestore Internet Data Transfer Out from APAC to APAC,CF48-7219-8480,1.9,gibibyte,0.00,0.00,0.00,0.000000,0.00,0%
+App Engine,F17B-412E-CB64,Cloud Firestore Small Ops Taiwan,D6F0-6803-7417,24,count,0.00,0.00,0.00,0.000000,0.00,0%
+Secret Manager,EE82-7A5E-871C,Secret access operations,EBA7-264F-2D2C,1,count,0.00,0.00,0.00,0.000000,0.00,0%
+Cloud Run Functions,29E7-DA93-CA13,Cloud Run functions Memory (Request-based billing) in asia-east1,F7FB-D52D-9477,13.17,gibibyte second,0.00,0.00,-0.00,0.000000,0.00,0%

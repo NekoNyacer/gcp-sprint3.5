@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "recordedDate": "2026-10-19",
+  "testDate": "2026-10-01",
+  "timezone": "Asia/Taipei",
+  "project": "CUB-CAT_WALK_APP",
+  "collectionUrl": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection",
+  "parentFeature": {
+    "id": 1882629,
+    "key": "F14"
+  },
+  "estimation": "補登歷史工作；實際工時及剩餘工時待確認，未填報估算、實際工時或 Story Points；不併入 F14 原始 4 pd 基準。",
+  "story": {
+    "key": "US14.5",
+    "id": 1925760,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925760",
+    "type": "User Story",
+    "title": "US14.5 完成 10/1 多人壓測紀錄、雲端資源成本分析與畫冊復原",
+    "state": "Developing",
+    "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; user-story; performance; cost-analysis",
+    "description": "<p>作為專案負責人，我要保留 2026/10/1 多人活動的壓測過程、成果、效能與費用證據，供主管與決賽簡報評估資源需求、成本及後續擴充。</p><ul><li>原規劃約 100 人，使用者確認實際約 70 人同時上線；精確起訖、部署版本、量測峰值、成功率及持續時間待補。</li><li>專案 cathay-ai-hackathon-team-03；傳情畫意房間 a6d8b62d、e44f9146。此為小遊戲實測，不視為整個健走主流程的容量驗收。</li><li>使用者已確認幣別為 USD。10/1 帳單日淨費用 US$0.057720（畫面約 US$0.06）：Gemini US$0.037512、Firestore 讀取 US$0.020208；Firestore 108,637 Reads、1,145 Writes、3 Deletes；Gemini 3,309 input / 9,342 output Tokens。</li><li>Billing 已恢復，取得 9/10、9/28、10/1 SKU CSV；9/10 作 Firestore 低活動參考，9/28 作含 AI 操作的開發日對照。背景日版本未完全對齊，不以日費用直接相減作單場成本。</li><li>另有 9/25、9/28 generateGameTopic 歷史慢請求；不得直接歸因為 10/1 本場瓶頸。</li><li>本機 qrcode、jspdf 依賴已補齊，localhost recovery=1 可重建畫冊；使用者確認第一份 PDF 下載成功，另一房間尚待成功確認與頁數核對。</li><li>2026/10/19 補登。帳單與畫冊原始來源見 repo docs/azure-boards/；估算、實際工時及後續排程未預填。</li></ul>",
+    "acceptanceCriteria": "<ul><li>記錄計畫 100 人與實際約 70 人、測試時間與時區、場景、房間、版本、證據與未知事項。</li><li>同一測試時段匯出 Firestore 讀寫刪除、連線／listener、Cloud Run 請求／錯誤／延遲及運算／流量；無法回補者註明保留期限與缺口。</li><li>保留 Gemini 計費 Token，釐清呼叫路徑、計費專案、模型與請求數；不能以 Functions Invocations 計費項目推論 AI 呼叫次數。</li><li>保存三份原始帳單 CSV，明列 USD、未四捨五入費用、折抵及整日統計限制；9/10 與 9/28 僅作各自適用的對照。</li><li>兩房間 PDF 可匯出且與 Firestore 組別／頁數一致，記錄尚未驗證項目。</li><li>提出有證據的改善優先級與 100 人重測條件；未完成重測不得聲稱通過 100 人容量驗證。</li></ul>",
+    "relatedWorkItemIds": [
+      1882622,
+      1882633,
+      1925623
+    ]
+  },
+  "tasks": [
+    {
+      "key": "T14.5.1",
+    "id": 1925761,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925761",
+      "title": "T14.5.1 補登 Hosting 部署、CLI 重新登入與測試環境準備",
+      "state": "Closed",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; hosting",
+      "description": "<p>歷史工作已完成，於 2026/10/19 補登。</p><ul><li>依使用者終端截圖，Firebase CLI 過期憑證以 login --reauth 重新登入成功。</li><li>Hosting public 使用 client/dist/client/browser；deploy --only hosting 顯示 Deploy complete，56 個檔案完成發布。</li><li>曾使用 mobile-test Preview Channel；壓測當時實際 URL、部署 commit 與版本號仍須在 T14.5.2／T14.5.8 補齊。</li><li>不保存登入 Token 或憑證。</li></ul>"
+    },
+    {
+      "key": "T14.5.2",
+    "id": 1925762,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925762",
+      "title": "T14.5.2 補登 10/1 約 70 人同時上線測試與活動成果",
+      "state": "Closed",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; execution",
+      "description": "<p>使用者確認 2026/10/1 實際約 70 人同時上線，測試執行已完成；本 Task 僅補登已發生的活動。</p><ul><li>原先規劃 100 人，記錄實際 70 人，不將計畫人數當成量測峰值。</li><li>已確認傳情畫意房間 a6d8b62d、e44f9146 留有 relayGroups/pages 繪圖文件；一組截圖顯示 completed。</li><li>記錄活動回饋：使用者感受到資源回應慢與操作卡頓。</li><li>精確開始／結束時間、裝置與網路分布、部署版本、參與／完成率及各遊戲人數仍為證據缺口，由分析與重測 Task 追蹤。</li><li>不得將 9/30 14:30–15:30 五人預測資料混為 10/1 正式實測。</li></ul>"
+    },
+    {
+      "key": "T14.5.3",
+    "id": 1925763,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925763",
+      "title": "T14.5.3 對齊 Firestore 壓測時段並分析讀寫、連線與監聽器",
+      "state": "Active",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; firestore",
+      "description": "<p>已取得 10/1 帳單 CSV，仍待對齊精確壓測時段與客戶端操作。</p><ul><li>10/1 帳單日：108,637 Reads、1,145 Writes、3 Deletes、24 Small Ops、Firestore 對外傳輸 1.90 GiB。Read Ops Taiwan 淨費用 US$0.020208，CSV 歸在 App Engine 服務名稱下。</li><li>先前 Usage 截圖約 105.84k Reads 為另一觀測值；保留統計／時區差異待查，不以差異直接推論計費異常。</li><li>9/10 低活動日為 179 Reads、5 Writes、14 Small Ops；功能版本可能不同，只作 Firestore 對照。9/28 為 1,287 Reads、168 Writes，包含開發活動。</li><li>需以 Asia/Taipei 測試起訖核對帳單日邊界，取得同期 Connected Clients、Snapshot Listeners、API 延遲與背景基準。9/30 五人預測截圖不可作 10/1 量測結果。</li><li>檢查重複訂閱、初始讀取、繪圖廣播及離頁取消 listener，提出證據後決定修正；無法回補的監控資料明列缺口。</li></ul>"
+    },
+    {
+      "key": "T14.5.4",
+    "id": 1925764,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925764",
+      "title": "T14.5.4 彙整 Cloud Run 請求、延遲、錯誤、運算與流量",
+      "state": "Active",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; cloud-run; performance",
+      "description": "<p>已查閱 generategametopic 的指標及 request logs，待擴及 10/1 實際使用服務。</p><ul><li>歷史截圖可見 9/25、9/28 POST HTTP 200 請求約 8–19 秒；先前查詢 41 筆 POST、38 筆 >=8s、4 筆 >=15s，均僅為當時查詢結果，並非本次壓測延遲統計。</li><li>取得 10/1 同時段所有相關服務請求數、2xx／4xx／5xx／429、P50／P95／P99、instance、startup、CPU、memory、concurrency 與傳出／入流量。</li><li>追蹤慢請求 trace 或執行階段耗時，區分容器啟動、排隊、Firestore 與外部 AI，不直接判定為冷啟動。</li><li>CPU／memory 利用率不得直接當成帳單 vCPU-seconds／GiB-seconds；計費用量由 Billing SKU 交叉核對。</li><li>若該場 generateGameTopic 無資料，先查實際功能與呼叫路徑，再記未呼叫或證據缺口。</li></ul><p>最新帳單補充：10/1 Functions Invocations SKU 為 10 次、CPU 計費用量 64.03 秒、記憶體 13.17 GiB·秒，未四捨五入淨費用均為 US$0。Hosting 對外傳輸 0.11 GiB；SKU 用量不等於所有服務 HTTP 請求數。</p>"
+    },
+    {
+      "key": "T14.5.5",
+    "id": 1925765,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925765",
+      "title": "T14.5.5 確認 Gemini 呼叫路徑、模型、Token 與計費專案",
+      "state": "Active",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; gemini",
+      "description": "<p>已取得計費 Token 與淨費用，呼叫次數及執行路徑仍待核對。</p><ul><li>10/1 CSV 的 SKU 原文為 gemini 3.6 flash text：輸入 3,309 Tokens / US$0.002481，輸出 9,342 Tokens / US$0.035031，合計 12,651 Tokens / US$0.037512。這是帳單 SKU 標示，不自行推論部署端模型設定。</li><li>9/28 為 8,561 input / 25,304 output Tokens，AI 活動高於 10/1，不能將 9/28 全日費用當無人背景。</li><li>核對當時程式呼叫途徑、計費專案、模型設定、請求數、重試、錯誤、延遲及用量 metadata；缺資料列未知。</li><li>傳情畫意使用靜態題庫不代表其他遊戲無 AI 呼叫；Functions Invocations 計費用量 10 不可直接當 AI 請求 10 次。</li><li>API key、Token、個資與完整 prompt 不進工作項或 Git。</li></ul>"
+    },
+    {
+      "key": "T14.5.6",
+    "id": 1925766,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925766",
+      "title": "T14.5.6 彙整三日帳單、美元費用與背景比較限制",
+      "state": "Closed",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; billing; cost-analysis",
+      "description": "<p>使用者確認採用現有三份 CSV，日帳單證據整理已完成；本 Task 不代表單場成本歸因或容量外推已完成。</p><ul><li>Billing 畫面已正常；幣別由使用者確認為 USD。</li><li>10/1 全日淨費用 US$0.057720：Gemini US$0.037512、Firestore 讀取 US$0.020208；顯示總額約 US$0.06。原始未四捨五入數值見 CSV。</li><li>9/10 淨費用 US$0，Firestore 179 Reads、5 Writes，作低活動日參考；版本可能不同，不當成完整系統空載基準。</li><li>9/28 全日淨費用 US$0.103349，含較多 AI 操作，作一般開發日比較；不得直接用兩日總費用相減當壓測成本。</li><li>未四捨五入淨費用為零的 SKU 仍有用量；CSV 不能單獨判斷所有免費／折抵機制，不能將零費用視為無資源消耗。</li><li>保存三份來源 CSV 與 SHA-256，報告以帳務日呈現，未對齊精確測試起訖或扣除背景流量；不據此估算每人／每局成本。</li></ul>"
+    },
+    {
+      "key": "T14.5.7",
+    "id": 1925767,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925767",
+      "title": "T14.5.7 復原壓測畫冊並核對兩房間 PDF 完整性",
+      "state": "Active",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; relay-game; recovery",
+      "description": "<p>已完成本機依賴修復與第一份 PDF 匯出，保留第二房間及完整性驗證為進行中。</p><ul><li>Firestore 來源：rooms/{roomId}/relayGroups/{groupId}/pages/{pageId}，strokes 為繪圖原始資料；PDF 在瀏覽器產生後下載。</li><li>qrcode、jspdf 與型別套件已安裝；development build 曾成功。production build 另有 relay-game SCSS budget 超限，未因此宣稱正式 build 通過。</li><li>僅 localhost／127.0.0.1 且 recovery=1 的救援模式會自動匯出全部畫冊，不修改 Firestore Rules 或房間資料；仍受現行 Firestore 讀取規則約束。</li><li>第一房間 a6d8b62d 已由使用者確認下載成功，已提供 1001-開發科2-畫冊_3016.pdf 作為成果檔案參照；本次未重新驗證其頁數。</li><li>第二房間 e44f9146 已提供 localhost:4200/lobby/relay/e44f9146?recovery=1，尚未確認成功。</li><li>核對全部組別、原題、成員、每頁作者、頁數、繪圖、空白／遺漏頁及可開啟性；確認所有 pages 完整載入才下載。</li></ul>"
+    },
+    {
+      "key": "T14.5.8",
+    "id": 1925768,
+    "url": "https://pialm01.cathaybk.intra.uwccb/tfs/DefaultCollection/CUB-CAT_WALK_APP/_workitems/edit/1925768",
+      "title": "T14.5.8 彙整壓測改善建議、主管簡報數據與 100 人重測條件",
+      "state": "New",
+      "tags": "cat-walk; load-test; load-test-20261001; retrospective; bonus-game; task; report; retest",
+      "description": "<ul><li>彙整本 Story 的原始證據、查詢設定、已確認結果、未證實假設與資料缺口，供 US15.4 #1925623 決賽簡報引用。</li><li>依 T14.5.3–T14.5.6 結果排序 listener／讀取、載入資源、AI timeout／快取／fallback、instance／concurrency 等改善；保留具體責任人與驗證方式，未取得證據不直接擴增資源。</li><li>準備下一場 100 人同時上線的測試腳本，明訂實際功能比例、升載／穩態時間、客戶端端到端量測、錯誤率與 P95／P99 驗收標準、成本上限及中止條件。</li><li>配置未來測試 run ID、起訖時區、版本、房間、匿名統計事件與受控資源／AI 計量，保留測試前背景基準及測試後報表。</li><li>本工作項僅安排分析與後續重測準備；100 人重測尚未執行，不列通過，不將小遊戲結果當完整健走產品或市場用戶規模證明。</li></ul><p>日帳務證據已整理：10/1 為 US$0.057720；9/10 為 Firestore 低活動參考，9/28 為含 AI 的開發日比較。後續評估須保留背景與版本差異，不再把 Billing 載入異常列為現行阻礙。</p>"
+    }
+  ],
+  "currency": "USD",
+  "evidence": {
+    "billing": {
+      "testDay": {
+        "date": "2026-10-01",
+        "sha256": "80748397388F4D66D21A0E40A9E87DD6071700554825A7EC067BDAA8275E6CC4",
+        "currency": "USD",
+        "netCost": 0.05772,
+        "geminiCost": 0.037512,
+        "firestoreReadCost": 0.020208,
+        "firestoreReads": 108637,
+        "firestoreWrites": 1145,
+        "firestoreDeletes": 3,
+        "firestoreSmallOps": 24,
+        "firestoreEgressGiB": 1.9,
+        "hostingEgressGiB": 0.11,
+        "geminiInputTokens": 3309,
+        "geminiOutputTokens": 9342,
+        "functionInvocationSkuCount": 10,
+        "functionCpuSeconds": 64.03,
+        "functionMemoryGiBSeconds": 13.17,
+        "source": "evidence/billing-2026-10-01.csv"
+      },
+      "lowActivityDay": {
+        "date": "2026-09-10",
+        "sha256": "56438552B56FEF817591D20A47B724798BCA7F7F0EA353190D611774A70789C1",
+        "netCost": 0,
+        "firestoreReads": 179,
+        "firestoreWrites": 5,
+        "firestoreSmallOps": 14,
+        "source": "evidence/billing-2026-09-10.csv",
+        "limitation": "僅作 Firestore 低活動日參考；部署功能可能不同，不代表 10/1 全系統空載成本。"
+      },
+      "developmentDay": {
+        "date": "2026-09-28",
+        "sha256": "3A7FD099E532C96B575A5E20D81B6BB7373296D216AC4078EA29B4E2EC878C6D",
+        "netCost": 0.103349,
+        "firestoreReads": 1287,
+        "firestoreWrites": 168,
+        "firestoreDeletes": 1,
+        "geminiInputTokens": 8561,
+        "geminiOutputTokens": 25304,
+        "functionInvocationSkuCount": 26,
+        "source": "evidence/billing-2026-09-28.csv",
+        "limitation": "包含較高 AI 活動，只作開發日比較，不直接扣除為壓測背景值。"
+      },
+      "limitations": [
+        "以上為帳務日統計，未對齊精確活動起訖或扣除背景流量。",
+        "不將 70 人實測記為 100 人驗證通過。",
+        "Functions Invocations SKU 用量不等於 Gemini 請求數。",
+        "各 SKU 費用為零不代表資源用量為零。",
+        "帳單日與 Asia/Taipei 活動日的時區對齊仍待確認。",
+        "不以單場小遊戲資料證明整個健走主流程容量，亦不直接線性外推市場用戶成本。"
+      ]
+    }
+  }
+}

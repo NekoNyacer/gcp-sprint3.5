@@ -69,10 +69,12 @@ User Story,US14.1,F14,完成核心 domain unit 與 Rules tests,Must,S4,hour,12,1
 User Story,US14.2,F14,驗證 Chrome Edge 360x800 與 S22 browser,Must,S4,hour,8,8,2,PO + Ops,
 User Story,US14.3,F14,完成鍵盤焦點語意與 reduced motion,Must,S4,hour,6,6,2,PO + UIUX,
 User Story,US14.4,F14,驗證首頁延遲 timeout 與資源釋放,Must,S4,hour,6,6,2,PO,
-Feature,F15,E05,五兩分鐘腳本錄影與彩排,Must,S4,pd,3,24,,PO + UIUX + Ops,含 0.5 Ops 與 1 UIUX pd
+User Story,US14.5,F14,10/1 多人壓測紀錄雲端成本與畫冊復原,補登,歷史實測及後續待排程,hour,,,,PO + Ops,Azure #1925760；工時與 Story Points 待確認；不併入 F14 原始 4 pd；Task 明細見 load-test-20261001-records.csv
+Feature,F15,E05,決賽簡報五兩分鐘腳本錄影與彩排,Must,S4,pd,4.5,36,,PO + UIUX + Ops,含決賽簡報與 0.5 Ops、1 UIUX pd
 User Story,US15.1,F15,完成五分鐘兩分鐘 presenter runbook,Must,S4,hour,8,8,2,PO + UIUX,
 User Story,US15.2,F15,錄製完整端到端 fallback 影片,Must,S4,hour,8,8,2,PO + Ops,
 User Story,US15.3,F15,完成兩次現場條件彩排與 release freeze,Must,S4,hour,8,8,2,全員,
+User Story,US15.4,F15,製作決賽簡報 PPT,Must,S4,hour,12,12,3,PO + UIUX,依技術可行性、商業應用性、提案完整度與 BONUS 評分標準組織簡報內容
 Feature,F16,E05,Android APK native auth camera notification,Should,Earned,pd,9,72,,PO + Java 1 + Ops,需公司政策允許
 User Story,US16.1,F16,導入 Capacitor signed APK 與 App Distribution,Should,Earned,hour,16,16,5,PO + Ops,
 User Story,US16.2,F16,執行 native Google auth plugin spike,Should,Earned,hour,8,8,2,Java 1 + PO,
