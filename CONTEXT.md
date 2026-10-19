@@ -1,6 +1,6 @@
 # CAT WALK project context
 
-Last updated: 2026-10-01
+Last updated: 2026-10-19
 
 ## Status
 
@@ -608,6 +608,11 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-10-05 | Pause bonus-game development and return delivery focus to the walking-map and task-acquisition main demo path. Investigate a Mapbox-style map renderer because the desired visual direction resembles location-based walking games; the final map-provider choice remains open pending feasibility, cost, and technical-spike results. | Confirmed focus; provider undecided |
 | 2026-10-05 | Keep the user's live location in a shared, in-memory `LocationStore`, keep route and Demo movement progress in a separate `WalkSessionStore`, and keep only task-specific location evidence snapshots in `TaskStore`. The location store may expose current position, permission, tracking state, source (`gps` or `demo`), and lifecycle controls; raw coordinates and complete walking tracks must not be persisted or logged. | Confirmed |
 | 2026-10-05 | Retain `SessionStore` as the shared account-context seam. It now owns the Firebase identity summary, the Firestore profile snapshot, Demo/normal data scope, authentication/session status, and common profile selectors such as display name, portrait, email, daily goal, and profile loading/error state. Location, walking progress, inventory, tasks, collection, wallet, and bonus-game state remain separate stores. | Confirmed |
+
+| 2026-10-19 | Add Azure Boards story US15.4 #1925623 under F15 #1882634 for the 2026-11-09 final presentation PowerPoint. Cover the user problem, target audience, core experience, business value, Demo scope/results and recommendations; distinguish mocked or unimplemented capabilities and provide an offline projection copy. Estimate: 12 hours / 3 Story Points, Must, Sprint 4. | Confirmed |
+| 2026-10-19 | Require US15.4's final deck to address the supplied judging rubric: technical feasibility, business applicability, proposal completeness and BONUS items. Include cloud services, Agent/AI integration, architecture and PoC; user/business value, costs, ROI and scale assumptions; problem/solution fit, security/compliance/privacy and UX; plus presentation quality, teamwork/Q&A and distinctive project merits. | Confirmed |
+| 2026-10-19 | Record the 2026-10-01 bonus-game load test as US14.5 #1925760 under F14 #1882629, with Tasks #1925761–#1925768. The user confirmed approximately 70 simultaneous participants against an original 100-person plan; exact run times, version, measured peak, success rate and the 100-person retest remain unverified. At registration, three Tasks were Closed, four Active and one New; the Story was Developing. This process uses Developing for in-progress Stories and Active for Tasks. Preserve the records, billing evidence and source hashes under docs/azure-boards/; three original CSVs are attached to the Story. Effort, Story Points and future scheduling remain unconfirmed and are not added to F14's original 4 pd baseline. | Confirmed |
+| 2026-10-19 | Billing now loads and the user confirmed USD. The 2026-10-01 billing-day net cost is US$0.057720: Gemini US$0.037512 and Firestore reads US$0.020208. Recorded usage includes 108,637 reads, 1,145 writes, 3 deletes, 3,309 input and 9,342 output Tokens. Use 2026-09-10 only as a low-activity Firestore comparison and 2026-09-28 as an AI-active development-day comparison, not matched idle baselines. Whole billing-day totals are not isolated test or per-user costs and do not prove 100-user or walking-main-flow capacity. Functions invocation SKU usage is not the Gemini request count; zero net cost does not mean zero resource use. See docs/azure-boards/load-test-20261001.work-items.json and evidence/. | Confirmed |
 
 ## Open decisions
 
