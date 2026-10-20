@@ -2,6 +2,7 @@ import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withHooks, withMethods, withProps, withState } from '@ngrx/signals';
 import { Subscription, take } from 'rxjs';
 import { ProgressStore } from '../../shared/stores/progress-store';
+import { ProgressSyncService } from '../../shared/services/progress-sync.service';
 import { SessionStore } from '../../shared/stores/session-store';
 import { TaskLocationService } from './task-location.service';
 import { DemoLocationState, LocationEvidence, TASK_AREAS, TaskCadence, TaskCompletionResult, TaskItem } from './task.models';
@@ -14,7 +15,7 @@ const initialState: TaskState = { tasks: [], history: [], selectedAreaId: null, 
 export const TaskStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
-  withProps(() => ({ repository: inject(TaskRepository), locationService: inject(TaskLocationService), progressStore: inject(ProgressStore), sessionStore: inject(SessionStore), subscriptions: { tasks: undefined as Subscription | undefined, history: undefined as Subscription | undefined }, clock: { intervalId: undefined as ReturnType<typeof setInterval> | undefined } })),
+  withProps(() => ({ progressSync: inject(ProgressSyncService), repository: inject(TaskRepository), locationService: inject(TaskLocationService), progressStore: inject(ProgressStore), sessionStore: inject(SessionStore), subscriptions: { tasks: undefined as Subscription | undefined, history: undefined as Subscription | undefined }, clock: { intervalId: undefined as ReturnType<typeof setInterval> | undefined } })),
   withComputed((store) => ({
     areas: computed(() => TASK_AREAS),
     isDemoMode: computed(() => store.sessionStore.isDemoMode()),
@@ -38,7 +39,7 @@ export const TaskStore = signalStore(
     setDemoLocationState(state: DemoLocationState): void { patchState(store, { demoLocationState: state, location: null }); },
     distanceTo(task: TaskItem): number | null { const location = store.location(); return location ? calculateDistanceMeters(location, task.destination) : null; },
     canComplete(task: TaskItem): boolean { const location = store.location(); return !!location && location.accuracy <= 10 && calculateDistanceMeters(location, task.destination) <= 10 && task.endsAt.getTime() > store.now() && task.status !== 'completed' && (task.cadence !== 'event' || task.status === 'active'); },
-    async completeSelectedTask(): Promise<void> { const task = findSelected(store); const location = store.location(); if (!task || !location) return; const currentAttempt = store.completionAttempt(); const attempt = currentAttempt?.taskId === task.taskId ? currentAttempt : { taskId: task.taskId, idempotencyKey: crypto.randomUUID() }; patchState(store, { submitting: true, error: null, completionAttempt: attempt }); try { const result = await store.repository.completeTask(task, location, attempt.idempotencyKey); store.progressStore.applyTaskInventory(result.inventory); patchState(store, { completionResult: result, completionAttempt: null }); } catch (error) { patchState(store, { error: messageFrom(error) }); } finally { patchState(store, { submitting: false }); } },
+    async completeSelectedTask(): Promise<void> { const task = findSelected(store); const location = store.location(); if (!task || !location) return; const currentAttempt = store.completionAttempt(); const attempt = currentAttempt?.taskId === task.taskId ? currentAttempt : { taskId: task.taskId, idempotencyKey: crypto.randomUUID() }; patchState(store, { submitting: true, error: null, completionAttempt: attempt }); try { const result = await store.repository.completeTask(task, location, attempt.idempotencyKey); if (store.sessionStore.isDemoMode()) store.progressStore.applyTaskInventory(result.inventory); else await store.progressSync.reload(); patchState(store, { completionResult: result, completionAttempt: null }); } catch (error) { patchState(store, { error: messageFrom(error) }); } finally { patchState(store, { submitting: false }); } },
     dismissCompletionResult(): void { patchState(store, { completionResult: null }); },
   })),
   withHooks({ onDestroy(store) { store.subscriptions.tasks?.unsubscribe(); store.subscriptions.history?.unsubscribe(); if (store.clock.intervalId) clearInterval(store.clock.intervalId); } }),

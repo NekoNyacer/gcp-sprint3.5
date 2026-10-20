@@ -22,38 +22,36 @@
       <ion-card-subtitle>肥料</ion-card-subtitle>
     </ion-card>
   </div>
-  <ion-card>
+  <ion-card class="big-card">
     <ion-card-subtitle class="today-steps">今日步數</ion-card-subtitle>
     <ion-card-title class="today-steps-count">{{
       ps.todaySteps() | number: '1.0-0'
     }}</ion-card-title>
   </ion-card>
 </div>
-<ion-card class="bottom">
-  <div class="destination-title">
-    <h2>選擇一顆樹，出發後可收成</h2>
-    <cub-badge color="primary">1顆可收成</cub-badge>
-  </div>
-  <div class="tree-list">
-    @for (
-      tree of [
-        { seq: 1, name: '櫻花', status: '可收成' },
-        { seq: 2, name: '柿子', status: '還差64陽光' },
-        { seq: 3, name: '榕樹', status: '還差64陽光' },
-      ];
-      track $index
-    ) {
-      <ion-card [class.on-chosen]="selectedTree() === $index" (click)="selectedTree.set($index)">
-        <header>
-          <ion-icon name="leaf"></ion-icon>
-          <p>{{ tree.name }}</p>
-        </header>
-        <p>{{ tree.status }}</p>
-      </ion-card>
-    }
-  </div>
+
+@if (hasActiveRoute()) {
+  <button
+    type="button"
+    class="start-btn terminate-btn"
+    [class.holding]="holding()"
+    aria-describedby="terminate-hint"
+    (pointerdown)="beginPointerHold($event)"
+    (pointermove)="movePointer($event)"
+    (pointerup)="endPointerHold($event)"
+    (pointercancel)="endPointerHold($event)"
+    (lostpointercapture)="endPointerHold($event)"
+    (keydown)="beginKeyHold($event)"
+    (keyup)="endKeyHold($event)"
+    (blur)="cancelHold()"
+    (contextmenu)="$event.preventDefault()"
+  >
+    <ion-icon name="stop-circle-outline"></ion-icon>
+    <span>終止本次路線</span>
+  </button>
+} @else {
   <ion-button class="start-btn" color="primary" expand="block" (click)="start.emit()">
     <ion-icon name="walk"></ion-icon>
-    <span>出發</span>
+    <span>開始散步</span>
   </ion-button>
-</ion-card>
+}

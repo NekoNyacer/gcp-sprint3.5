@@ -1,42 +1,247 @@
-import { LngLatLike } from 'mapbox-gl';
+import { DEMO_POI_ENVIRONMENTS } from '../shared/models/tree-scene-environment';
+import type { SceneWeather, SceneTimeOfDay } from '../shared/models/tree-scene-environment';
+import type { DemoSupplyStation } from '../shared/models/walk-task.models';
 
 export const settings = {
   mockMap: false,
+  isDev: false,
 };
 
-//mock樹標與路線
+export const USER_MOVE_METER_PER_STEP = 0.75;
+export const DEMO_WALKING_SPEED_METERS_PER_SECOND = 100;
+export const DEMO_JOYSTICK_DEAD_ZONE_RATIO = 0.3;
+export const DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND = 90;
+export const LIGHT_ENERGY_PER_SECOND = 500;
+export const TREE_GROWTH_PER_HARVEST = 50;
+export const WATER_DROP_PER_SECOND = 50;
+export const TREE_CULTIVATION_RADIUS_METERS = 500;
+export const TREE_WEED_PENALTY_THRESHOLD = 10;
+/** Temporarily paused; restore this switch to re-enable weeds and their care penalty. */
+export const TREE_WEEDS_ENABLED = false;
+export type CultivationWeather = SceneWeather;
+export type CultivationTimeOfDay = SceneTimeOfDay;
+
+export const demoPlantingSpots = [
+  {
+    id: 'planting-banqiao-1',
+    nickName: '萬坪新芽',
+    species: '榕樹',
+    poiName: '萬坪公園步道',
+    position: { longitude: 121.4628, latitude: 25.0134 },
+    ...DEMO_POI_ENVIRONMENTS['planting-banqiao-1'],
+  },
+  {
+    id: 'planting-banqiao-2',
+    nickName: '廣場小樹',
+    species: '榕樹',
+    poiName: '新北市民廣場步道',
+    position: { longitude: 121.4663, latitude: 25.0113 },
+    ...DEMO_POI_ENVIRONMENTS['planting-banqiao-2'],
+  },
+  {
+    id: 'planting-banqiao-3',
+    nickName: '新板綠芽',
+    species: '榕樹',
+    poiName: '新板公共步道',
+    position: { longitude: 121.4613, latitude: 25.0096 },
+    ...DEMO_POI_ENVIRONMENTS['planting-banqiao-3'],
+  },
+] as const;
+
+// Demo 補給站；routeFraction 為主路線進度 (0~1)，步數為道路路線載入前的模擬值。
+export const demoSupplyStations: readonly DemoSupplyStation[] = [
+  {
+    id: 'route-water-1',
+    ...DEMO_POI_ENVIRONMENTS['route-water-1'],
+    name: '台北咖啡工坊',
+    kind: 'water',
+    routeFraction: 0.15,
+    estimatedExtraSteps: 850,
+    category: '美食',
+    isCathayTwqrMerchant: true,
+    offer: '買一送一 · 冰拿鐵 / 熱拿鐵',
+    terms: '單筆消費滿 NT$150 即可享；可與其他優惠併用。',
+    supply: { resource: 'water', amount: 10 },
+    validUntil: '2026/10/31',
+  },
+  {
+    id: 'route-water-2',
+    ...DEMO_POI_ENVIRONMENTS['route-water-2'],
+    name: '小樹輕食廚房',
+    kind: 'water',
+    routeFraction: 0.3,
+    estimatedExtraSteps: 875,
+    category: '美食',
+    isCathayTwqrMerchant: true,
+    offer: '健康餐盒享 9 折',
+    terms: '使用 TWQR 付款，單筆限折一次；不可與其他優惠併用。',
+    supply: { resource: 'water', amount: 10 },
+    validUntil: '2026/11/30',
+  },
+  {
+    id: 'route-water-3',
+    ...DEMO_POI_ENVIRONMENTS['route-water-3'],
+    name: '綠日生活選物',
+    kind: 'water',
+    routeFraction: 0.45,
+    estimatedExtraSteps: 900,
+    category: '購物',
+    isCathayTwqrMerchant: true,
+    offer: '滿 NT$500 現折 NT$50',
+    terms: '使用 TWQR 付款；特價品除外，每人每日限用一次。',
+    supply: { resource: 'water', amount: 10 },
+
+    validUntil: '2026/11/30',
+  },
+  {
+    id: 'route-water-4',
+    ...DEMO_POI_ENVIRONMENTS['route-water-4'],
+    name: '果日鮮果茶',
+    kind: 'water',
+    routeFraction: 0.6,
+    estimatedExtraSteps: 925,
+    category: '美食',
+    isCathayTwqrMerchant: true,
+    offer: '鮮果茶第二杯半價',
+    terms: '使用 TWQR 付款，折扣以低價品項計；不可與其他優惠併用。',
+    supply: { resource: 'water', amount: 10 },
+
+    validUntil: '2026/10/31',
+  },
+  {
+    id: 'route-fertilizer',
+    ...DEMO_POI_ENVIRONMENTS['route-fertilizer'],
+    name: '森活戶外用品',
+    kind: 'fertilizer',
+    routeFraction: 0.5,
+    estimatedExtraSteps: 2500,
+    category: '購物',
+    isCathayTwqrMerchant: true,
+    offer: '滿 NT$1,000 現折 NT$100',
+    terms: '使用 TWQR 付款；單筆限折一次，不可與其他優惠併用。',
+    supply: { resource: 'water', amount: 10 },
+    validUntil: '2026/11/30',
+  },
+];
+
+//mock樹標與路線；weather 為各樹隨機分配後固定的測試天氣，不依相鄰地區判斷。
 export const destination = {
   type: 'FeatureCollection',
   features: [
     {
       type: 'Feature',
-      properties: { treeId: 'tree-1' },
+      properties: {
+        treeId: 'tree-1',
+        weedCount: 6,
+        ...DEMO_POI_ENVIRONMENTS['tree-1'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.1),
+        fertilizerRemainingMs: 18 * 60 * 60 * 1000,
+      },
       geometry: { type: 'Point', coordinates: [121.55563921922585, 25.0850596110976] },
     },
     {
       type: 'Feature',
-      properties: { treeId: 'tree-2' },
+      properties: {
+        treeId: 'tree-2',
+        weedCount: 12,
+        ...DEMO_POI_ENVIRONMENTS['tree-2'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.752),
+        fertilizerRemainingMs: 0,
+      },
       geometry: { type: 'Point', coordinates: [121.5751557682424, 25.0800804465638] },
     },
     {
       type: 'Feature',
-      properties: { treeId: 'tree-3' },
+      properties: {
+        treeId: 'tree-3',
+        weedCount: 10,
+        ...DEMO_POI_ENVIRONMENTS['tree-3'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.9),
+        fertilizerRemainingMs: 6 * 60 * 60 * 1000,
+      },
       geometry: { type: 'Point', coordinates: [121.56737274697623, 25.08256899377965] },
     },
     {
       type: 'Feature',
-      properties: { treeId: 'tree-4' },
+      properties: {
+        treeId: 'tree-4',
+        weedCount: 4,
+        ...DEMO_POI_ENVIRONMENTS['tree-4'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.58),
+        fertilizerRemainingMs: 0,
+      },
       geometry: { type: 'Point', coordinates: [121.56756543034211, 25.079253203623452] },
     },
     {
       type: 'Feature',
-      properties: { treeId: 'tree-5' },
+      properties: {
+        treeId: 'tree-5',
+        weedCount: 15,
+        ...DEMO_POI_ENVIRONMENTS['tree-5'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.984),
+        fertilizerRemainingMs: 12 * 60 * 60 * 1000,
+      },
       geometry: { type: 'Point', coordinates: [121.46472052639257, 25.014441981908295] },
+    },
+    {
+      type: 'Feature',
+      properties: {
+        treeId: 'tree-6',
+        weedCount: 0,
+        ...DEMO_POI_ENVIRONMENTS['tree-6'],
+        growth: TREE_GROWTH_PER_HARVEST,
+        fertilizerRemainingMs: 0,
+      },
+      geometry: { type: 'Point', coordinates: [121.4642, 25.0124] },
+    },
+    {
+      type: 'Feature',
+      properties: {
+        treeId: 'tree-7',
+        weedCount: 9,
+        ...DEMO_POI_ENVIRONMENTS['tree-7'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.926),
+        fertilizerRemainingMs: 8 * 60 * 60 * 1000,
+      },
+      geometry: { type: 'Point', coordinates: [121.4592, 25.0084] },
+    },
+    {
+      type: 'Feature',
+      properties: {
+        treeId: 'tree-8',
+        weedCount: 3,
+        ...DEMO_POI_ENVIRONMENTS['tree-8'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.86),
+        fertilizerRemainingMs: 0,
+      },
+      geometry: { type: 'Point', coordinates: [121.4653, 25.012] },
+    },
+    {
+      type: 'Feature',
+      properties: {
+        treeId: 'tree-9',
+        weedCount: 11,
+        ...DEMO_POI_ENVIRONMENTS['tree-9'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.78),
+        fertilizerRemainingMs: 0,
+      },
+      geometry: { type: 'Point', coordinates: [121.458, 25.0062] },
+    },
+    {
+      type: 'Feature',
+      properties: {
+        treeId: 'tree-10',
+        weedCount: 1,
+        ...DEMO_POI_ENVIRONMENTS['tree-10'],
+        growth: Math.floor(TREE_GROWTH_PER_HARVEST * 0.1),
+        fertilizerRemainingMs: 20 * 60 * 60 * 1000,
+      },
+      geometry: { type: 'Point', coordinates: [121.4496, 25.0237] },
     },
   ],
 };
 
-export const routeCoordinatesByTree: Record<string, LngLatLike[]> = {
+export const routeCoordinatesByTree: Record<string, readonly MapCoordinate[]> = {
   'tree-1': [
     [121.567008, 25.08211],
     [121.566897, 25.082117],
@@ -173,4 +378,44 @@ export const routeCoordinatesByTree: Record<string, LngLatLike[]> = {
     [121.465302, 25.014488],
     [121.464908, 25.014218],
   ],
+  'tree-6': [
+    [121.454754, 25.001002],
+    [121.455515, 25.00238],
+    [121.457415, 25.003565],
+    [121.458465, 25.007379],
+    [121.461042, 25.010239],
+    [121.4642, 25.0124],
+  ],
+  'tree-7': [
+    [121.454754, 25.001002],
+    [121.45529, 25.002182],
+    [121.45659, 25.005331],
+    [121.457683, 25.006524],
+    [121.4592, 25.0084],
+  ],
+  'tree-8': [
+    [121.454754, 25.001002],
+    [121.456012, 25.002675],
+    [121.45756, 25.003915],
+    [121.458465, 25.007379],
+    [121.461199, 25.010436],
+    [121.463594, 25.012965],
+    [121.4653, 25.012],
+  ],
+  'tree-9': [
+    [121.454754, 25.001002],
+    [121.455515, 25.00238],
+    [121.45659, 25.005331],
+    [121.458, 25.0062],
+  ],
+  'tree-10': [
+    [121.454754, 25.001002],
+    [121.4539, 25.0042],
+    [121.4528, 25.0091],
+    [121.4517, 25.0148],
+    [121.4506, 25.0196],
+    [121.4496, 25.0237],
+  ],
 };
+
+type MapCoordinate = readonly [longitude: number, latitude: number];

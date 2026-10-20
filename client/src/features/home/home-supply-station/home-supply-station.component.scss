@@ -1,0 +1,302 @@
+﻿ion-modal {
+  --width: min(100%, 430px);
+  --height: 94%;
+  --border-radius: 30px 30px 0 0;
+  --background: #f3f5ed;
+  --box-shadow: 0 18px 60px #23352930;
+  color: #171c18;
+}
+ion-content {
+  --background: #f3f5ed;
+}
+.station-layout {
+  --station-inset-right: max(16px, env(safe-area-inset-right));
+  --station-inset-left: max(16px, env(safe-area-inset-left));
+  min-height: 100%;
+  padding: 0 var(--station-inset-right) max(30px, env(safe-area-inset-bottom))
+    var(--station-inset-left);
+  background: radial-gradient(ellipse at 50% 0, #ffffffb3, transparent 48%), #f3f5ed;
+}
+h1,
+h2,
+p {
+  margin: 0;
+}
+.station-header {
+  position: relative;
+  min-height: 54px;
+  padding: 0 40px;
+  text-align: center;
+}
+h1 {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.station-header > span:not(.station-category) {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #697366;
+}
+.station-category,
+.station-close {
+  position: absolute;
+  top: -7px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ffffffd9;
+  border-radius: 50%;
+  background: #ffffffc9;
+  color: #252c25;
+  box-shadow: 0 4px 16px #273c2610;
+}
+.station-category {
+  left: 0;
+  font-size: 22px;
+  color: #ee9400;
+}
+.station-close {
+  right: 0;
+  font-size: 28px;
+  cursor: pointer;
+}
+.station-spinner {
+  width: 50%;
+  aspect-ratio: 1;
+  margin: 12px auto 0;
+  padding: 3px;
+  border-radius: 50%;
+  background: conic-gradient(#d87d00 var(--spin-progress, 0deg), #ff9d00 0deg);
+  perspective: 700px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  &:focus-visible {
+    outline: 3px solid #ad6400;
+    outline-offset: 5px;
+  }
+  &.dragging {
+    cursor: grabbing;
+  }
+  &.claimed {
+    filter: saturate(0.65);
+  }
+}
+.station-disc {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #ff9d00;
+}
+.station-art {
+  width: 58%;
+  height: 58%;
+  pointer-events: none;
+  user-select: none;
+}
+.dragging .station-disc,
+.rotating .station-disc {
+  will-change: transform;
+}
+.spin-help {
+  margin: 9px 0 18px;
+  color: #818777;
+  font-size: 11px;
+  text-align: center;
+}
+.top {
+  position: relative;
+  isolation: isolate;
+  margin: 0 calc(-1 * var(--station-inset-right)) 0 calc(-1 * var(--station-inset-left));
+  padding: 30px var(--station-inset-right) 28px var(--station-inset-left);
+  background-color: #d6dfce;
+  background-image:
+    linear-gradient(180deg, #f3f5ede8 0%, #f3f5edb8 28%, #f3f5ed24 58%, #f3f5edb3 82%, #f3f5ed 100%),
+    url("https://lh3.googleusercontent.com/grass-cs/AABkmLeLtaC8yBZWyRPXekYmfn4vHcyOa6mwpJ-y2c-_1F6YUQJIG5j_bJ_h-ifvXH0tuhsEhyiMG97AEIHtKjE9eoHONayYIsRT1WAsOEcL_e4s2sJjx6ElVWSkH27v-b1UEElpHq4=w408-h544-k-no");
+  background-size: cover;
+  background-position: center, center 42%;
+  background-repeat: no-repeat;
+
+  .station-header {
+    padding: 0 12px;
+    text-shadow: 0 1px 12px #ffffffb3;
+  }
+
+  ion-chip {
+    --background: #ffffffe0;
+    --color: #314b38;
+    min-height: 28px;
+    margin: 10px 3px 0;
+    border: 1px solid #ffffffb3;
+    box-shadow: 0 3px 12px #263d2510;
+    font-size: 11px;
+
+    .twqr-logo { margin: 0 5px 0 0; }
+  }
+
+  .station-spinner {
+    margin-top: 22px;
+    box-shadow: 0 0 0 7px #ffffff5c, 0 12px 30px #754c222e;
+  }
+
+  .spin-help {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin: 18px auto 0;
+    padding: 6px 12px;
+    border: 1px solid #ffffffa6;
+    border-radius: 20px;
+    background: #f8faf2e8;
+    color: #52604b;
+    line-height: 1.5;
+  }
+}
+.station-facts {
+  justify-items: center;
+  display: flex;
+  overflow-x: auto;
+  margin: 18px -4px;
+  padding-bottom: 5px;
+  scrollbar-width: thin;
+  > div {
+    flex: 1 0 78px;
+    padding: 0 8px;
+    text-align: center;
+  }
+  > div + div {
+    border-left: 1px solid #dfe4d9;
+  }
+  span {
+    display: block;
+    margin-bottom: 4px;
+    color: #858c7f;
+    font-size: 10px;
+  }
+  strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .orange {
+    color: #e88800;
+  }
+}
+.twqr-logo {
+  display: block;
+  width: 42px;
+  height: 16px;
+  margin: auto;
+  object-fit: contain;
+}
+.station-cards {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+}
+.station-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex: 1 0 140px;
+  min-height: 150px;
+  padding: 16px 12px;
+  border-radius: 22px;
+  scroll-snap-align: start;
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    width: 130px;
+    height: 130px;
+    right: -48px;
+    top: -35px;
+    border: 24px solid #ffffff26;
+    border-radius: 50%;
+  }
+  h2 {
+    margin-top: 5px;
+    font-size: 18px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  p {
+    margin-top: 6px;
+    font-size: 10px;
+    line-height: 1.5;
+    opacity: 0.8;
+  }
+}
+.reward-card {
+  background: linear-gradient(145deg, #f8c36d, #ef9a31);
+  color: #593911;
+}
+.offer-card {
+  background: linear-gradient(145deg, #b9d7b6, #689c7a);
+  color: #173d2a;
+}
+.card-label {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.card-symbol {
+  margin-bottom: 12px;
+  font-size: 30px;
+  line-height: 1;
+}
+.station-about {
+  margin-top: 24px;
+  h2 {
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  p {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+}
+.station-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.station-terms {
+  padding-bottom: 6px;
+  color: #5c665a;
+}
+.station-terms h2 {
+  color: #171c18;
+}
+.expiry {
+  margin-top: 8px;
+}
+.station-terms small {
+  display: block;
+  margin-top: 8px;
+  color: #8b9184;
+  font-size: 10px;
+}
+.station-close:focus-visible {
+  outline: 2px solid #ad6400;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .station-disc {
+    transform: none !important;
+  }
+}

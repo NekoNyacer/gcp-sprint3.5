@@ -1,42 +1,36 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { IonAlert } from '@ionic/angular';
+import { Component, inject } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { IonButton, IonIcon, IonModal } from '@ionic/angular';
+import {
+  timeOutline,
+  footstepsOutline,
+  sunnyOutline,
+  waterOutline,
+  sparklesOutline,
+} from 'ionicons/icons';
+import type { OverlayEventDetail } from '@ionic/core';
 import { DialogService } from '../../services/dialog.service';
 
 @Component({
   selector: 'app-dialog',
   templateUrl: './dialog.component.html',
   styleUrls: ['./dialog.component.scss'],
-  imports: [IonAlert],
+  imports: [IonButton, IonIcon, IonModal, DecimalPipe],
 })
 
 /**共用的確認彈窗元件 */
 export class DialogComponent {
-  protected readonly dialogService = inject(DialogService);
-  isDialogOpen = computed(() => this.dialogService.isDialogOpen());
+  protected readonly ds = inject(DialogService);
+  protected readonly icons = {
+    timeOutline,
+    footstepsOutline,
+    sunnyOutline,
+    waterOutline,
+    sparklesOutline,
+  };
 
-  /**彈窗說明內容 */
-  content = computed(() => this.dialogService.content());
-
-  buttonHandler = computed(() => [
-    /**副按鈕*/
-    {
-      text: computed(() => this.dialogService.config().subBtnTxt)(),
-      role: 'cancel',
-      handler: () => {
-        this.dialogService.closeDialog('cancel');
-      },
-    },
-    /**主按鈕 */
-    {
-      text: computed(() => this.dialogService.config().mainBtnTxt)(),
-      role: 'confirm',
-      handler: () => {
-        this.dialogService.closeDialog('confirm');
-      },
-    },
-  ]);
-
-  onDialogDismiss() {
-    this.dialogService.closeDialog('cancel');
+  onDialogDismiss(event: CustomEvent<OverlayEventDetail>) {
+    if (!this.ds.isDialogOpen()) return;
+    this.ds.closeDialog(event.detail.role === 'confirm' ? 'confirm' : 'cancel');
   }
 }

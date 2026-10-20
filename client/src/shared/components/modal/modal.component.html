@@ -1,28 +1,83 @@
 <ion-modal
+  #sheet
   [isOpen]="modal.isOpen()"
   [breakpoints]="modal.breakPoint()"
   [initialBreakpoint]="modal.initialBreakpoint()"
   [handle]="true"
-  (didDismiss)="modal.isOpen.set(false)"
+  [class.supply-station-sheet]="isSupplyStation()"
+  [class.auto-height-sheet]="modal.autoHeight()"
+  (didDismiss)="onModalDismiss($event)"
 >
   <ng-template>
-    <ion-content class="ion-padding">
+    @if (modal.autoHeight()) {
+      <div class="modal-auto-content ion-content-scroll-host">
+        <ng-container [ngTemplateOutlet]="modalBody" />
+      </div>
+    } @else {
+      <ion-content class="ion-padding">
+        <ng-container [ngTemplateOutlet]="modalBody" />
+      </ion-content>
+    }
+    <ng-template #modalBody>
       @let c = modal.modalContent();
-      <ion-toolbar>
-        <h1 slot="start">{{ c.title }}</h1>
-        <cub-badge slot="end" color="primary">{{ c.titleBadge }}</cub-badge>
-      </ion-toolbar>
-      <h5>{{ c.subTitle }}</h5>
-      <p>{{ c.description }}</p>
-      <div class="badge-row">
-        @for (b of c.otherBadges; track $index) {
-          <cub-badge>{{ b }}</cub-badge>
-        }
-      </div>
-      <div class="btn-row">
-        <ion-button expand="block" color="medium">{{ c.subBtnText }}</ion-button>
-        <ion-button expand="block">{{ c.mainBtnText }}</ion-button>
-      </div>
-    </ion-content>
+      @if (isTreeProfile(c)) {
+        <ion-toolbar>
+          <h1 slot="start">{{ c.treeType }}</h1>
+        </ion-toolbar>
+        <img [src]="c.img" alt="" />
+        <h1 slot="start">{{ c.name }}</h1>
+      } @else {
+        <ion-toolbar>
+          <div class="modal-title">
+            <h1>
+              {{ c.title }}
+            </h1>
+            @if (c.titleBadge) {
+              <cub-badge color="primary">{{ c.titleBadge }}</cub-badge>
+            }
+            @if (c.stationBadges; as badges) {
+              <div class="station-title-badges">
+                <cub-badge>{{ badges.category }}</cub-badge>
+                @if (badges.isCathayTwqrMerchant) {
+                  <cub-badge class="twqr-badge" aria-label="國泰 TWQR 特店">
+                    <span class="twqr-badge-content">
+                      <img class="twqr-logo" src="/images/assets/twqr-logo.svg" alt="TWQR" />
+                      <span>特店</span>
+                    </span>
+                  </cub-badge>
+                }
+              </div>
+            }
+          </div>
+          @if (c.subTitle) {
+            <h5>{{ c.subTitle }}</h5>
+          }
+          <p>{{ c.description }}</p>
+          @if (c.otherBadges?.length) {
+            <div class="badge-row">
+              @for (b of c.otherBadges; track $index) {
+                <cub-badge
+                  [color]="
+                    $index === (c.appearance === 'supply-station' ? 0 : 2) ? 'primary' : 'light'
+                  "
+                  >{{ b }}</cub-badge
+                >
+              }
+            </div>
+          }
+        </ion-toolbar>
+        <div class="btn-row">
+          <ion-button expand="block" color="medium" (click)="sheet.dismiss(undefined, 'cancel')">{{
+            c.subBtnText
+          }}</ion-button>
+          <ion-button
+            expand="block"
+            color="primary"
+            (click)="sheet.dismiss(undefined, 'confirm')"
+            >{{ c.mainBtnText }}</ion-button
+          >
+        </div>
+      }
+    </ng-template>
   </ng-template>
 </ion-modal>

@@ -7,6 +7,7 @@ import {
   copyOutline,
   footstepsOutline,
   leafOutline,
+  logOutOutline,
   ribbonOutline,
   sparklesOutline,
   timeOutline,
@@ -45,6 +46,7 @@ export class ProfileComponent {
       copyOutline,
       footstepsOutline,
       leafOutline,
+      logOutOutline,
       ribbonOutline,
       sparklesOutline,
       timeOutline,
@@ -107,5 +109,9 @@ export class ProfileComponent {
     } catch {
       this.copyMessage.set('無法複製，請稍後再試');
     }
+  }
+
+  logOut(): void {
+    this.sessionStore.logOut();
   }
 }

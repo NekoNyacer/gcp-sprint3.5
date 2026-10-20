@@ -5,7 +5,106 @@
       src="/images/dev/EF786399-FCC0-467F-9E4F-8DC9AB938F49.png"
       alt=""
     />
+  } @else if (mapError(); as error) {
+    <section class="map-fallback" role="status">
+      <strong>地圖暫時無法顯示</strong>
+      <span>{{ error }}</span>
+    </section>
   } @else {
     <div #map class="map"></div>
+    <div #playerHeading class="player-heading" hidden aria-hidden="true">
+      <span class="player-heading__arrow"></span>
+    </div>
   }
+  <ng-template #treePopupTemplate let-tree>
+    <button
+      class="tree-recommendation"
+      type="button"
+      [attr.aria-label]="'選擇推薦小樹 ' + tree.nickName + ' 作為終點'"
+      [attr.aria-pressed]="selectedTreeId() === tree.id"
+      (click)="clickIcon(tree.id)"
+    >
+      <strong class="tree-recommendation__name" [title]="tree.nickName">{{
+        tree.empty ? '空地' : tree.nickName
+      }}</strong>
+      <span class="tree-recommendation__place" [title]="tree.species + ' · ' + tree.poiName">
+        {{ tree.empty ? '待種植' : tree.species }} · {{ tree.poiName }}
+      </span>
+      <b>約 {{ tree.estimatedSteps | number: '1.0-0' }} 步</b>
+      @if (tree.recommendedReason) {
+        <span class="tree-recommendation__status">{{ tree.recommendedReason }}</span>
+      } @else if (tree.empty) {
+        <span class="tree-recommendation__status">可使用背包中的種子</span>
+      }
+    </button>
+  </ng-template>
+  <div hidden>
+    <section
+      #stationPopupContent
+      class="station-card"
+      role="dialog"
+      aria-modal="false"
+      [attr.aria-label]="popupTree() ? '沿途種植點詳情' : '補給站詳情'"
+      (keydown.escape)="closeStationPopup()"
+    >
+      <button
+        class="station-card__close"
+        type="button"
+        aria-label="關閉站點詳情"
+        (click)="closeStationPopup()"
+      >
+        ×
+      </button>
+      @if (popupTree(); as tree) {
+        <div class="station-card__body">
+          <header>
+            <h2>{{ tree.empty ? '空地' : tree.nickName }}</h2>
+            <p>{{ tree.empty ? '等待種植中' : tree.species }} · {{ tree.poiName }}</p>
+            <p class="station-card__distance">{{ popupDistance() }}</p>
+          </header>
+          <p class="station-card__terms">
+            {{ tree.empty ? '攜帶種子造訪即可進行種植。' : '造訪此處以照護小樹。' }}
+          </p>
+        </div>
+        <div class="station-card__actions">
+          <ion-button color="medium" (click)="closeStationPopup()">下次再來</ion-button>
+          <ion-button color="primary" (click)="confirmTreeStop()">
+            {{ popupTreeSelected() ? '移出路線' : '加入路線' }}
+          </ion-button>
+        </div>
+      } @else if (popupTask(); as task) {
+        <div class="station-card__body">
+          <header>
+            <h2>{{ task.name }}</h2>
+            <div class="station-card__badges">
+              <cub-badge>{{ task.supplyStation.category }}</cub-badge>
+              @if (task.supplyStation.isCathayTwqrMerchant) {
+                <cub-badge aria-label="國泰 TWQR 特店">
+                  <span class="station-card__twqr">
+                    <img src="/images/assets/twqr-logo.svg" alt="TWQR" />
+                    <span>特店</span>
+                  </span>
+                </cub-badge>
+              }
+            </div>
+            <p class="station-card__distance">
+              {{ popupDistance() }} · 約 +{{ extraMinutes(task) }} 分鐘
+            </p>
+          </header>
+          <h3>{{ task.supplyStation.offer }}</h3>
+          <p class="station-card__terms">{{ task.supplyStation.terms }}</p>
+          <div class="station-card__details">
+            <span>有效期限 {{ task.supplyStation.validUntil }}</span>
+            <strong>{{ supplyRewardLabel(task.supplyStation.supply) }}</strong>
+          </div>
+        </div>
+        <div class="station-card__actions">
+          <ion-button color="medium" (click)="closeStationPopup()">下次再來</ion-button>
+          <ion-button color="primary" (click)="confirmStation()">
+            {{ popupSelected() ? '移出路線' : '加入路線' }}
+          </ion-button>
+        </div>
+      }
+    </section>
+  </div>
 </main>

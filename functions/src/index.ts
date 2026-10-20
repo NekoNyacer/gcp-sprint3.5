@@ -1,17 +1,10 @@
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
-import * as functionsV1 from 'firebase-functions/v1';
-import { provisionStarterSeed } from './starter-seed.js';
 
 initializeApp();
 
-export const initializeNewUser = functionsV1
-  .region('asia-east1')
-  .auth.user()
-  .onCreate(async (user) => {
-    await provisionStarterSeed(getFirestore(), user.uid);
-  });
+export { initializeWalkProgress, saveWalkProgress } from './walk-progress.js';
 
 type CompleteTaskInput = {
   taskId?: unknown;

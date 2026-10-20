@@ -2,8 +2,13 @@
   <ion-button size="medium" color="light" (click)="stop.emit()">
     <ion-icon slot="icon-only" name="chevron-back-outline" class="arrow-back"></ion-icon>
   </ion-button>
-  <ion-card>
-    <h3>(走路動畫)行走中...</h3>
-    <p>可以關閉手機畫面，抵達興趣點時將會通知您</p>
+  <ion-card class="destination-info">
+    <ion-card-subtitle>目前目的地</ion-card-subtitle>
+    <ion-card-title>{{ destinationName() }}</ion-card-title>
+    <div>
+      <cub-badge name="walk">Mapbox 步行路線</cub-badge>
+      <cub-badge name="list" color="primary">{{ taskCount() }} 個補給站</cub-badge>
+    </div>
   </ion-card>
 </div>
+<div class="bottom"></div>

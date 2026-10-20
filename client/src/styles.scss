@@ -2,6 +2,7 @@ html {
   background: #f7f8f3;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overscroll-behavior-x: none;
 }
 
 *,
@@ -11,9 +12,7 @@ html {
 }
 
 :root {
-  --ion-font-family:
-    'Roboto', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-  --bonus-game-font: var(--ion-font-family);
+  --ion-font-family: 'Roboto', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
 }
 
 body {
@@ -32,14 +31,14 @@ ion-input,
 ion-textarea,
 ion-select,
 ion-alert {
-  font-family: var(--bonus-game-font);
+  font-family: var(--ion-font-family);
 }
 
 ion-button::part(native),
 ion-input::part(native),
 ion-textarea::part(native),
 ion-select::part(text) {
-  font-family: var(--bonus-game-font);
+  font-family: var(--ion-font-family);
 }
 
 ion-input,
@@ -50,6 +49,7 @@ ion-select {
 
 ion-content::part(scroll) {
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: none;
 }
 
 button,
@@ -61,13 +61,194 @@ a {
   touch-action: none;
 }
 
+// Mapbox creates these elements outside Angular's template style scoping.
+.supply-station-popup,
+.tree-recommendation-popup {
+  z-index: 2;
+
+  .mapboxgl-popup-content {
+    padding: 0;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgb(33 54 45 / 20%);
+  }
+}
+
+.tree-recommendation-popup {
+  z-index: 1;
+
+  .mapboxgl-popup-content {
+    border-radius: 12px;
+  }
+}
+
+.supply-station-marker,
+.tree-marker {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--marker-color, #f56b0b);
+  cursor: pointer;
+  isolation: isolate;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--marker-color, #f56b0b);
+    pointer-events: none;
+    animation: supply-station-ripple 2.4s ease-out infinite;
+  }
+
+  &::after {
+    animation-delay: -1.2s;
+  }
+
+  &[aria-pressed='true'] {
+    z-index: 1;
+    box-shadow:
+      0 0 0 3px #fff,
+      0 0 0 6px var(--marker-outline, #b54400);
+
+    &::before,
+    &::after {
+      content: none;
+      animation: none;
+    }
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+
+  .supply-station-marker__check,
+  .tree-marker__check {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--marker-outline, #b54400);
+    pointer-events: none;
+
+    &::after {
+      content: '';
+      width: 6px;
+      height: 10px;
+      margin-top: -2px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+  }
+}
+
+.tree-marker {
+  --marker-color: #168f55;
+  --marker-outline: #00643d;
+
+  &.tree-marker--empty {
+    --marker-color: #bc923e;
+    --marker-outline: #806020;
+  }
+
+  .tree-marker__harvested-icon {
+    color: var(--ion-color-medium-shade);
+    font-size: 24px;
+    pointer-events: none;
+  }
+
+  &.tree-marker--unavailable {
+    opacity: 0.4;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  &[hidden] {
+    display: none;
+  }
+
+  img {
+    width: 28px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+}
+
+@keyframes supply-station-ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supply-station-marker::before,
+  .supply-station-marker::after,
+  .tree-marker::before,
+  .tree-marker::after {
+    animation: none;
+    transform: scale(1.4);
+    opacity: 0.25;
+  }
+}
+
 button:focus-visible {
   outline: 3px solid rgba(0, 133, 102, 0.28);
   outline-offset: 2px;
 }
 
 ion-card {
-  --background: #eaf1fd09;
-  border: 1px solid transparent;
+  --background: #ffffffe0;
+  padding: 0.9rem;
+  box-shadow: none;
+  border-radius: 8px;
+  text-align: center;
   // border-image: linear-gradient(48.68deg, #7cda97 -2.91%, #80e1f7, #b3afff, #80e1f7, #7cda97 87.43%) 1;
+}
+
+ion-button {
+  --background: #ffffffe0;
+  pointer-events: auto;
+  --box-shadow: none;
+  border-radius: 8px;
+  align-self: center;
+  margin: 0;
+}
+
+ion-toast.interaction-warning-toast {
+  --background: rgba(30, 30, 30, 0.8);
+  --color: #fff;
+  --border-radius: 16px;
+  --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --width: fit-content;
+  --max-width: 85%;
+}
+
+ion-toast.interaction-warning-toast::part(message) {
+  font-size: 15px;
+  text-align: center;
 }

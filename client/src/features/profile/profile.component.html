@@ -7,9 +7,15 @@
         <p>每一步，都在寫下你的綠色旅程。</p>
       </div>
 
-      @if (sessionStore.isDemoMode()) {
-        <span class="demo-badge">DEMO</span>
-      }
+      <div class="page-heading__actions">
+        @if (sessionStore.isDemoMode()) {
+          <span class="demo-badge">DEMO</span>
+        }
+        <button class="logout-button" type="button" (click)="logOut()">
+          <ion-icon name="log-out-outline" aria-hidden="true" />
+          <span>登出</span>
+        </button>
+      </div>
     </header>
 
     @if (sessionStore.profileLoading()) {

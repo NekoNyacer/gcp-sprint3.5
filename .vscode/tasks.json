@@ -1,0 +1,53 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Temporary HomePlan focused test",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"test",
+				"--",
+				"--watch=false",
+				"--include=src/features/home/home-plan/home-plan.component.spec.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Home feature focused tests",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"test",
+				"--",
+				"--watch=false",
+				"--include=src/features/home/**/*.spec.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Home feature focused tests rerun",
+			"type": "shell",
+			"command": "npm.cmd",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"test",
+				"--",
+				"--watch=false",
+				"--include=src/features/home/**/*.spec.ts"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

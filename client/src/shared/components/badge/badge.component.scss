@@ -13,7 +13,7 @@ div{
   color: black;
 
   &.primary{
-    background-color:color-mix(var(--ion-color-primary) 10%, transparent);
+    background-color:color-mix(var(--ion-color-primary) 10%, white);
     color:var(--ion-color-primary);
   }
 }

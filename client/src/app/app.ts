@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ProgressSyncService } from '../shared/services/progress-sync.service';
 import { IonApp, IonRouterOutlet } from '@ionic/angular';
+import { SessionStore } from '../shared/stores/session-store';
 
 @Component({
   imports: [IonRouterOutlet, IonApp],
@@ -7,4 +9,15 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular';
   styleUrl: './app.scss',
   templateUrl: './app.html',
 })
-export class App {}
+export class App {
+  readonly progressSync = inject(ProgressSyncService);
+  readonly sessionStore = inject(SessionStore);
+
+  enterDemo(): void {
+    this.sessionStore.enterDemo('Demo五分鐘版');
+  }
+
+  logOut(): void {
+    this.sessionStore.logOut();
+  }
+}

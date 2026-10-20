@@ -44,6 +44,31 @@ ion-content {
 	}
 }
 
+.page-heading__actions {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+}
+
+.logout-button {
+	align-items: center;
+	appearance: none;
+	background: rgba(255, 255, 255, 0.82);
+	border: 1px solid rgba(8, 122, 84, 0.18);
+	border-radius: 999px;
+	color: var(--profile-green-dark);
+	display: inline-flex;
+	font: inherit;
+	font-size: 0.82rem;
+	font-weight: 700;
+	gap: 5px;
+	padding: 8px 11px;
+}
+
+.logout-button ion-icon {
+	font-size: 1rem;
+}
+
 .eyebrow,
 .section-heading p {
 	color: #1c9368;

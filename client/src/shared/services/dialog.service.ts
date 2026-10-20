@@ -1,5 +1,6 @@
 import { linkedSignal, Service, signal } from '@angular/core';
 import { Subject } from 'rxjs';
+import { WalkResult } from '../models/walk-result';
 
 const DEFAULT_DIALOG_CONFIG: DialogConfig = {
   mainBtnTxt: '確認',
@@ -10,9 +11,12 @@ const DEFAULT_DIALOG_CONFIG: DialogConfig = {
 export class DialogService {
   //追蹤點選了確認還是取消
   private dialogSubject: Subject<'confirm' | 'cancel'> | null = null;
-
   //追蹤彈窗是否開啟
   readonly isDialogOpen = signal(false);
+  //追蹤彈窗是否僅通知
+  readonly isNotifyDialog = signal(false);
+  readonly treePointResult = signal<TreePointResult | null>(null);
+  readonly walkResult = signal<WalkResult | null>(null);
 
   //彈窗文字的內容
   readonly content = linkedSignal({
@@ -33,8 +37,11 @@ export class DialogService {
    * @param content 彈窗內容，開啟時必須填入彈窗內容
    */
   openDialog(content: string, config?: Partial<DialogConfig>) {
+    this.walkResult.set(null);
+    this.treePointResult.set(null);
     this.config.set({ ...DEFAULT_DIALOG_CONFIG, ...config });
     this.content.set(content);
+    this.isNotifyDialog.set(false);
     this.isDialogOpen.set(true);
 
     this.dialogSubject = new Subject<'confirm' | 'cancel'>();
@@ -42,16 +49,56 @@ export class DialogService {
   }
 
   closeDialog(action: 'confirm' | 'cancel') {
+    const subject = this.dialogSubject;
+    this.dialogSubject = null;
     this.isDialogOpen.set(false);
-    if (this.dialogSubject) {
-      this.dialogSubject.next(action);
-      this.dialogSubject.complete();
-      this.dialogSubject = null;
-    }
+    this.isNotifyDialog.set(false);
+    this.treePointResult.set(null);
+    this.walkResult.set(null);
+    subject?.next(action);
+    subject?.complete();
+  }
+
+  /**僅通知的dialog，不讓用戶做選擇 */
+  openNotifyDialog(content: string, config?: Partial<DialogConfig>) {
+    this.walkResult.set(null);
+    this.treePointResult.set(null);
+    this.config.set({ ...DEFAULT_DIALOG_CONFIG, ...config });
+    this.content.set(content);
+    this.isNotifyDialog.set(true);
+    this.isDialogOpen.set(true);
+    this.dialogSubject = new Subject<'confirm' | 'cancel'>();
+    return this.dialogSubject.asObservable();
+  }
+
+  /**僅通知的小樹點結算結果，不讓用戶做選擇 */
+  openTreePointResultDialog(result: TreePointResult, config?: Partial<DialogConfig>) {
+    const response = this.openNotifyDialog('今天的你也辛苦了！', {
+      title: '收成完成',
+      ...config,
+    });
+    this.treePointResult.set({ ...result });
+    return response;
+  }
+
+  openWalkResultDialog(result: WalkResult) {
+    const response = this.openNotifyDialog('今天的你也辛苦了！', {
+      title: '成功抵達',
+      mainBtnTxt: '太棒了!',
+    });
+    this.walkResult.set({ ...result });
+    return response;
   }
 }
 
-type DialogConfig = {
+export type DialogConfig = {
+  title?: string;
   mainBtnTxt: string;
   subBtnTxt: string;
+};
+
+export type TreePointResult = {
+  earnedPoints: number;
+  balance: number;
+  isDemo: boolean;
 };

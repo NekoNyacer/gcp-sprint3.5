@@ -1,0 +1,382 @@
+<div
+  class="scene"
+  [class.time-dawn]="timeOfDay() === 'dawn'"
+  [class.time-day]="timeOfDay() === 'day'"
+  [class.time-dusk]="timeOfDay() === 'dusk'"
+  [class.time-night]="timeOfDay() === 'night'"
+  [class.weather-sunny]="weather() === 'sunny'"
+  [class.weather-rainy]="weather() === 'rainy'"
+  [class.weather-cloudy]="weather() === 'cloudy'"
+  [class.targeting]="targeting()"
+  [class.illuminated]="resourceEffect() === 'light'"
+  [class.watered]="waterState() === 'watered'"
+  [class.dry]="waterState() === 'dry'"
+  [class.swayable]="canSway()"
+  [class.harvestable]="canShakeHarvest()"
+  [class.fruit-falling]="fruitState() === 'falling'"
+  (pointerdown)="beginShake($event)"
+  (pointermove)="moveShake($event)"
+  (pointerup)="endShake($event)"
+  (pointercancel)="endShake($event)"
+  (lostpointercapture)="endShake($event)"
+>
+  <div
+    class="sky"
+    [style.background-image]="'url(' + backgroundUrl() + ')'"
+    aria-hidden="true"
+  ></div>
+  @if (resourceEffect() === 'light') {
+    <div class="sunlight-glow" aria-hidden="true"></div>
+  }
+  @for (generation of [canvasGeneration()]; track generation) {
+    <canvas
+      #canvas
+      [class.visible]="ready()"
+      [attr.aria-label]="
+        label() +
+        ' 3D 模型，' +
+        waterStateLabel() +
+        (canSway() ? (canShakeHarvest() ? '，可左右輕晃收成果實' : '，可左右輕晃') : '')
+      "
+      [attr.aria-hidden]="!ready()"
+    ></canvas>
+  }
+  @if (renderError()) {
+    <div class="render-status" role="alert" (pointerdown)="$event.stopPropagation()">
+      <p>{{ renderError() }}要改用 2D 顯示嗎？</p>
+      <div class="render-actions">
+        <button type="button" (click)="confirmFallback()">切換為 2D</button>
+        <button type="button" (click)="retry3D()">重試 3D</button>
+      </div>
+    </div>
+  } @else if (!sceneAvailable()) {
+    <div class="render-status" role="status">正在載入 3D 樹木…</div>
+  }
+  @if (show2D()) {
+    <svg
+      class="tree-fallback"
+      [attr.viewBox]="fallbackViewBox()"
+      preserveAspectRatio="none"
+      role="img"
+      [attr.aria-label]="
+        label() +
+        ' 2D 預覽，' +
+        waterStateLabel() +
+        (canSway() ? (canShakeHarvest() ? '，可左右輕晃收成果實' : '，可左右輕晃') : '')
+      "
+    >
+      <defs>
+        <linearGradient id="seedling-leaf-shade" x1="0" y1="1" x2=".6" y2="0">
+          <stop stop-color="#396571" />
+          <stop offset=".5" stop-color="#789b58" />
+          <stop offset="1" stop-color="#c4ce87" />
+        </linearGradient>
+        <radialGradient id="seed-hull-shade" cx=".3" cy=".2" r=".9">
+          <stop stop-color="#c4ad7e" />
+          <stop offset=".55" stop-color="#937b53" />
+          <stop offset="1" stop-color="#4e5142" />
+        </radialGradient>
+        <radialGradient id="botanical-soil-shade">
+          <stop offset="0" stop-color="#e0d6b9" stop-opacity="0.12" />
+          <stop offset="0.7" stop-color="#637454" stop-opacity="0.15" />
+          <stop offset="1" stop-color="#172a2c" stop-opacity="0.65" />
+        </radialGradient>
+        <pattern id="botanical-soil-grain" width="13" height="9" patternUnits="userSpaceOnUse">
+          <path d="M2 3h1 M9 7h.6 M6 1h.5" stroke="#d2c3a0" stroke-width=".7" opacity=".5" />
+          <path d="M4 8h1 M11 2h1" stroke="#374d44" stroke-width=".9" opacity=".4" />
+        </pattern>
+        <radialGradient id="botanical-turf-shade" cx=".35" cy=".25" r=".85">
+          <stop stop-color="#a8b96e" />
+          <stop offset=".55" stop-color="#829f53" />
+          <stop offset="1" stop-color="#526e3e" />
+        </radialGradient>
+        <pattern id="botanical-turf-grain" width="8" height="4" patternUnits="userSpaceOnUse">
+          <path
+            d="M1 3l1 -1 M5 2l.5 -1 M7 4l1 -1"
+            stroke="#c2cc83"
+            stroke-width=".5"
+            opacity=".6"
+          />
+          <path d="M3 2l.5 -1 M6 4l.5 -.8" stroke="#476638" stroke-width=".45" opacity=".45" />
+        </pattern>
+      </defs>
+      <g class="fallback-ground-projection" [attr.transform]="fallbackFrame().soilTransform">
+        <ellipse cx="160" cy="215" rx="91" ry="15" fill="#09181e" opacity=".3" />
+        <ellipse class="soil-base" cx="160" cy="211" rx="86" ry="15" [attr.fill]="soilColor()" />
+        <ellipse cx="160" cy="211" rx="86" ry="15" fill="url(#botanical-soil-shade)" />
+        <ellipse cx="160" cy="211" rx="86" ry="15" fill="url(#botanical-soil-grain)" />
+        <path
+          class="ground-turf"
+          [attr.d]="turfPath()"
+          fill="url(#botanical-turf-shade)"
+          fill-rule="evenodd"
+        />
+        <path [attr.d]="turfPath()" fill="url(#botanical-turf-grain)" fill-rule="evenodd" />
+        @if (fertilized()) {
+          <foreignObject class="fertilizer-layer" x="74" y="196" width="172" height="30">
+            <div class="fertilizer-soil" aria-hidden="true">
+              <div class="soil-glow"></div>
+              @for (sparkle of soilSparkles; track $index) {
+                <span
+                  class="soil-sparkle"
+                  [style.left.%]="sparkle.x"
+                  [style.top.%]="sparkle.y"
+                  [style.animation-delay.s]="sparkle.delay"
+                ></span>
+              }
+            </div>
+          </foreignObject>
+        }
+      </g>
+      <g class="ground-scenery" aria-hidden="true">
+        @for (detail of groundDetails(); track $index) {
+          <g [attr.transform]="detail.transform">
+            @switch (detail.kind) {
+              @case ('stone') {
+                <path d="M-1 -.2 L-.65 -.7 .2 -.85 .9 -.4 .8 0 -.6 .1Z" fill="#9fa698" />
+                <path d="M-.65 -.7 .2 -.85 .5 -.3 -.4 -.25Z" fill="#c2c1ab" />
+                <path d="M.5 -.3 .9 -.4 .8 0 -.4 .05Z" fill="#7e8e81" />
+              }
+              @case ('grass') {
+                <image
+                  href="/images/assets/botanical-grass-patch.svg"
+                  x="-.85"
+                  y="-1"
+                  width="1.7"
+                  height="1"
+                  preserveAspectRatio="none"
+                />
+              }
+              @case ('flower') {
+                <path d="M0 0 Q-.1 -.5 0 -1" fill="none" stroke="#718950" stroke-width=".05" />
+                <path d="M0 -.25 Q-.5 -.6 -.45 -.7 Q0 -.65 0 -.25" fill="#879a58" />
+                <path d="M0 -.35 Q.4 -.8 .5 -.7 Q.4 -.4 0 -.35" fill="#a0ad66" />
+                @for (angle of [0, 60, 120, 180, 240, 300]; track angle) {
+                  <ellipse
+                    cx="0"
+                    cy="-1.18"
+                    rx=".12"
+                    ry=".18"
+                    fill="#e8dfb9"
+                    [attr.transform]="'rotate(' + angle + ' 0 -1)'"
+                  />
+                }
+                <circle cx="0" cy="-1" r=".12" fill="#c8aa54" />
+              }
+            }
+          </g>
+        }
+      </g>
+      <g class="fallback-projection" [attr.transform]="fallbackFrame().transform">
+        <g
+          class="fallback-tree"
+          [style.display]="empty() ? 'none' : null"
+          [style.transform]="'scale(' + visualScale() + ')'"
+        >
+          @if (stage() === 'seed') {
+            <path
+              class="fallback-seed"
+              d="M145 211 C140 202 153 191 166 196 Q178 200 175 211 Z"
+              fill="url(#seed-hull-shade)"
+            />
+            <path d="M153 197 Q158 201 169 211" fill="none" stroke="#625c42" stroke-width=".9" />
+            <path
+              d="M149 202 Q152 198 156 198"
+              fill="none"
+              stroke="#d4c29d"
+              stroke-width=".65"
+              opacity=".7"
+            />
+            <path
+              class="seed-soil-rim"
+              d="M142 211 Q160 216 178 211"
+              fill="none"
+              stroke="#805a39"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          } @else if (sapling(); as plant) {
+            <g class="fallback-seedling">
+              @for (branch of plant.branches; track $index) {
+                <path
+                  class="seedling-stem"
+                  [attr.d]="branch.d"
+                  fill="none"
+                  stroke="#8d825e"
+                  [attr.stroke-width]="branch.width"
+                  stroke-linecap="round"
+                />
+              }
+              @for (leaf of plant.leaves; track $index) {
+                <g [attr.transform]="leaf.transform">
+                  <path
+                    class="seedling-leaf"
+                    d="M0 0 Q.45 -.3 1 0 Q.45 .3 0 0"
+                    fill="url(#seedling-leaf-shade)"
+                  />
+                  <path d="M0 0 Q.4 -.015 .88 0" fill="none" stroke="#c3cf8d" stroke-width=".012" />
+                </g>
+              }
+            </g>
+          } @else {
+            @for (current of [stage()]; track current) {
+              <g class="fallback-tree-model">
+                <image
+                  href="/images/assets/botanical-tree-trunk.svg"
+                  x="0"
+                  y="0"
+                  width="320"
+                  height="240"
+                />
+                <g class="fallback-crown" [style.transform]="'rotate(' + shakeAngle() + 'deg)'">
+                  <g class="crown-growth" [class.stage-burst]="stageBurst()">
+                    <image
+                      [attr.href]="
+                        stage() === 'young'
+                          ? '/images/assets/botanical-tree-young-crown.svg'
+                          : '/images/assets/botanical-tree-crown.svg'
+                      "
+                      x="0"
+                      y="0"
+                      width="320"
+                      height="240"
+                    />
+                    @if (stage() === 'flowering') {
+                      @for (flower of ornaments; track $index) {
+                        <g
+                          class="tree-flower"
+                          [attr.transform]="'translate(' + flower.x + ' ' + flower.y + ')'"
+                        >
+                          <path
+                            d="M0 -1 C-5 -7 -7 0 -2 1 C-6 6 1 8 2 3 C7 5 8 -2 3 -2 C4 -7 -2 -7 0 -1"
+                            fill="#e8ead4"
+                          />
+                          <circle r="1.2" fill="#d5b35f" />
+                        </g>
+                      }
+                    }
+                  </g>
+                </g>
+              </g>
+            }
+          }
+        </g>
+        @if (stage() === 'large' && fruitState() !== 'none') {
+          <g [style.transform]="'rotate(' + shakeAngle() + 'deg)'" class="fallback-fruits">
+            @for (fruit of fallbackFruits; track $index) {
+              <g [attr.transform]="'translate(' + fruit.x + ' ' + fruit.y + ')'">
+                <g
+                  class="fallback-fruit"
+                  [style]="fruit.motionStyle"
+                  [class.falling]="fruitState() === 'falling'"
+                  [class.concealed]="fruitState() === 'ripe' && !fruit.visibleWhenRipe"
+                  [style.--fall-x]="fruit.landingX - fruit.x + 'px'"
+                  [style.--fall-y]="fruit.landingY - fruit.y + 'px'"
+                  [style.animation-duration.ms]="fruitFallDuration"
+                  [style.animation-delay.ms]="fruit.delayMs + fruitAnimationDelay()"
+                >
+                  <image [attr.href]="fruitIcon" x="-4" y="-4" width="8" height="8" />
+                </g>
+              </g>
+            }
+          </g>
+        }
+      </g>
+    </svg>
+  }
+  <div class="falling-leaves" aria-hidden="true">
+    @for (leaf of fallenLeaves(); track leaf.id) {
+      <span
+        class="fallen-leaf"
+        [style.left.px]="leaf.x"
+        [style.top.px]="leaf.y"
+        [style.--leaf-drift]="leaf.drift + 'px'"
+        [style.--leaf-drop]="leaf.drop + 'px'"
+        [style.--leaf-spin]="leaf.spin + 'deg'"
+        [style.animation-duration.ms]="leaf.duration"
+      >
+        <svg viewBox="0 0 18 10">
+          <path d="M1 5 Q8 -3 17 3 Q10 13 1 5" fill="#9eae65" />
+          <path d="M2 5 L15 4" stroke="#d1d395" stroke-width=".6" />
+        </svg>
+      </span>
+    }
+  </div>
+  @if (weather() === 'rainy') {
+    <svg class="weather-rain" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+      @for (drop of rainParticles; track $index) {
+        <line
+          class="rain-drop"
+          [attr.x1]="drop.x"
+          y1="-28"
+          [attr.x2]="drop.x - 8"
+          y2="0"
+          [style.animation-duration.s]="drop.duration"
+          [style.animation-delay.s]="drop.delay"
+          [style.--resting-y]="drop.restingY + 'px'"
+        />
+      }
+    </svg>
+  }
+  @for (weed of sceneAvailable() ? weedPositions() : []; track weed.id) {
+    <button
+      type="button"
+      class="weed"
+      [style.left.px]="weed.x"
+      [style.top.px]="weed.y"
+      [disabled]="!interactive()"
+      [attr.aria-label]="'向上拖曳拔除第 ' + (weed.id + 1) + ' 株雜草'"
+      [class.pulling]="pullingWeed()?.id === weed.id"
+      [class.uprooted]="pullingWeed()?.id === weed.id && pullingWeed()?.uprooted"
+      [style.--weed-lift]="(pullingWeed()?.id === weed.id ? pullingWeed()!.lift : 0) + 'px'"
+      (pointerdown)="beginWeedPull($event, weed.id)"
+      (pointermove)="moveWeedPull($event)"
+      (pointerup)="endWeedPull($event)"
+      (pointercancel)="cancelWeedEvent($event)"
+      (lostpointercapture)="cancelWeedEvent($event)"
+      aria-keyshortcuts="ArrowUp"
+      (keydown)="pullWeedWithKeyboard($event, weed.id)"
+      (click)="$event.stopPropagation()"
+    >
+      <svg viewBox="0 0 32 36" aria-hidden="true">
+        <g fill="none" stroke-linecap="round">
+          <path
+            d="M16 35 Q15 21 10 8 M16 35 Q20 20 24 5 M16 35 Q11 23 4 19 M16 35 Q22 27 29 18 M16 35 Q16 18 17 3"
+            stroke="#658573"
+            stroke-width="0.8"
+          />
+          <path d="M16 35 Q12 21 8 15 M16 35 Q21 24 26 22" stroke="#9fae67" stroke-width="0.7" />
+        </g>
+        <g fill="#77995b">
+          <path
+            d="M11 17 Q3 15 4 10 Q10 10 11 17 M13 23 Q5 22 5 17 Q11 17 13 23 M21 19 Q21 12 27 11 Q28 17 21 19 M18 28 Q21 21 27 23 Q25 28 18 28"
+          />
+        </g>
+        <g fill="#b3c775">
+          <path
+            d="M17 13 Q12 9 15 5 Q19 7 17 13 M17 20 Q18 13 22 14 Q23 19 17 20 M9 12 Q4 8 6 5 Q10 6 9 12 M24 10 Q22 5 26 2 Q29 6 24 10"
+          />
+        </g>
+        <g fill="#436d66">
+          <path
+            d="M8 25 Q1 24 2 19 Q7 19 8 25 M24 27 Q25 20 30 21 Q30 26 24 27 M15 29 Q10 25 12 21 Q17 24 15 29"
+          />
+        </g>
+        <path d="M12 35 Q16 32 20 35" fill="none" stroke="#88734e" stroke-width="1.2" />
+      </svg>
+    </button>
+  }
+  @if (interactive()) {
+    <div
+      class="care-target"
+      [style.left.px]="target().x"
+      [style.top.px]="target().y"
+      [style.width.px]="target().radius * 2"
+      [style.height.px]="target().radius * 2"
+      aria-hidden="true"
+    ></div>
+  }
+</div>
+@if (show2D()) {
+  <p class="caption" role="status">{{ fallbackReason() }}</p>
+}

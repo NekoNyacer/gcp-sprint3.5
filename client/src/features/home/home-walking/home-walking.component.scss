@@ -1,22 +1,36 @@
-:host{
- flex:1;
- display: flex;
- flex-direction: column;
- justify-content: space-between;
+:host {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-ion-card {
- margin: 0;
-  --background: white;
-  padding: 0.9rem 0px;
-  box-shadow: none;
-  text-align: center;
-  border-radius: 10px;
-  color: black;
+.arrow-back {
+  color: gray;
 }
 
-ion-button{
- pointer-events: auto;
- --box-shadow:none;
- --border-radius:10px;
+.top{
+  .arrow-back{
+    color: gray;
+  }
+
+  .destination-info{
+    text-align: left;
+    margin: 2px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    ion-card-title{
+      font-size: 18pt;
+      font-weight: 800;
+    }
+  }
+}
+
+.bottom{
+  margin-bottom: 5vh;
+  display: flex;
+  justify-content: end;
 }

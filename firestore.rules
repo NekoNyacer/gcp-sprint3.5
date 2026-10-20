@@ -147,6 +147,16 @@ service cloud.firestore {
         allow write: if false;
       }
 
+      match /progress/{documentId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
+      match /dailyProgress/{day} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+
       match /ledger/{entryId} {
         allow read: if isOwner(uid);
         allow write: if false;

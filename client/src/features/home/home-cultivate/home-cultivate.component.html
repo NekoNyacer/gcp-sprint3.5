@@ -1,0 +1,292 @@
+<ion-modal
+  [isOpen]="isOpen()"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [handle]="true"
+  handleBehavior="none"
+  [canDismiss]="true"
+  [backdropDismiss]="false"
+  (didPresent)="onDidPresent()"
+  (willDismiss)="onWillDismiss()"
+  (didDismiss)="dismissed()"
+>
+  <ng-template>
+    <ion-content (touchstart)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()">
+      <div #layout class="cultivation-layout">
+        <div class="scene-shell">
+          <app-tree-scene
+            [empty]="!ps.demoTreePlanted()"
+            [weather]="weather()"
+            [timeOfDay]="timeOfDay()"
+            [growth]="ps.demoTreeGrowth()"
+            [celebration]="celebration()"
+            [expanded]="true"
+            [interactive]="isOpen()"
+            [interactionKey]="ps.activeDemoTreeId()"
+            [targeting]="inRange()"
+            [resourceEffect]="resourceEffect()"
+            [fertilized]="fertilized()"
+            [weeds]="ps.demoTreeWeeds()"
+            (weedPulled)="pullWeed($event)"
+            [waterState]="waterState()"
+            [fruitState]="fruitState()"
+            [harvestStartedAt]="ps.demoHarvestStartedAt()"
+            [canHarvest]="canHarvest()"
+            (shakeStarted)="onShakeStarted()"
+            (harvestRequested)="harvest()"
+          />
+          <section class="panel">
+            <div class="top">
+              <header class="tree-header">
+                <div class="tree-title">
+                  <h1>「{{ treeName() }}」</h1>
+                  <p>{{ treeLocation() }}</p>
+                </div>
+                <div class="tree-badges">
+                  <cub-badge color="primary">{{
+                    ps.demoTreePlanted() ? treeSpecies() : '待種植'
+                  }}</cub-badge>
+                </div>
+              </header>
+              <div class="growth-heading">
+                <span>成長進度</span>
+                <span
+                  >{{
+                    (ps.demoTreeGrowth() / ps.demoGrowthTarget()) * 100 | number: '1.0-2'
+                  }}%</span
+                >
+                <progress [max]="ps.demoGrowthTarget()" [value]="ps.demoTreeGrowth()"></progress>
+                <div class="tree-status-row">
+                  @if (!ps.demoTreePlanted()) {
+                    <ion-chip color="warning"
+                      ><ion-icon [icon]="seedIcon" /><ion-label>可使用種子</ion-label></ion-chip
+                    >
+                  } @else if (ps.demoTreeHarvested()) {
+                    <ion-chip color="medium"><ion-label>已收成</ion-label></ion-chip>
+                  } @else if (ps.demoFruitReady()) {
+                    <ion-chip color="success" (click)="openInfoModal('123')">
+                      <ion-icon name="leaf" />
+                      <ion-label>現可採收</ion-label>
+                    </ion-chip>
+                  }
+                  @if (fertilized()) {
+                    <ion-chip color="warning" (click)="openInfoModal('234')">
+                      <ion-icon name="sparkles" />
+                      <ion-label>肥料施放</ion-label>
+                    </ion-chip>
+                  }
+                  @if (ps.demoWeedPenaltyActive()) {
+                    <ion-chip color="danger" (click)="openInfoModal('345')">
+                      <ion-icon name="alert" />
+                      <ion-label>雜草叢生</ion-label>
+                    </ion-chip>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (showDestinationCheckIn()) {
+              <ion-button
+                class="destination-check-in"
+                color="primary"
+                expand="block"
+                [disabled]="!canCultivate()"
+                (click)="confirmDestinationCheckIn()"
+                >確認打卡終點</ion-button
+              >
+            }
+
+            <div class="resource-dock">
+              @for (resource of resources; track resource) {
+                @if (resource !== 'fertilizer') {
+                  <div class="resource-slot">
+                    <button
+                      type="button"
+                      class="resource"
+                      [class]="resource"
+                      [class.held]="heldResource() === resource"
+                      [disabled]="canCultivate() && !canUse(resource)"
+                      [attr.aria-pressed]="heldResource() === resource"
+                      aria-describedby="care-cost"
+                      (pointerdown)="grab($event, resource)"
+                      (pointermove)="move($event)"
+                      (pointerup)="release($event)"
+                      (pointercancel)="cancel($event)"
+                      (lostpointercapture)="cancel($event)"
+                      (click)="$event.detail === 0 && keyboardUse(resource)"
+                    >
+                      <ion-icon [icon]="icons[resource]" />
+                      <strong
+                        >{{ labels[resource] }}
+                        <span>{{ inventory(resource) | number }}</span></strong
+                      >
+                    </button>
+                  </div>
+                }
+              }
+              <button
+                type="button"
+                class="resource backpack"
+                [attr.aria-expanded]="backpackOpen()"
+                aria-controls="cultivation-backpack"
+                (click)="toggleBackpack()"
+              >
+                <ion-icon name="medkit" />
+                <strong>道具</strong>
+              </button>
+            </div>
+            @if (backpackOpen()) {
+              <section id="cultivation-backpack" class="backpack-panel" aria-label="背包道具">
+                <header>
+                  <strong>背包</strong
+                  ><button type="button" (click)="toggleBackpack()">關閉</button>
+                </header>
+                <button
+                  type="button"
+                  class="backpack-item"
+                  [disabled]="canCultivate() && !canUse('fertilizer')"
+                  (click)="useBackpackItem('fertilizer')"
+                >
+                  <ion-icon [icon]="icons.fertilizer" />
+                  <span
+                    ><strong>肥料 × {{ ps.inventory().fertilizer | number }}</strong
+                    ><small>對一處種植點使用，可提升該處的成長值</small></span
+                  >
+                  <span>使用</span>
+                </button>
+                <button
+                  type="button"
+                  class="backpack-item"
+                  [disabled]="canCultivate() && !canPlant()"
+                  (click)="useBackpackItem('seed')"
+                >
+                  <ion-icon [icon]="seedIcon" />
+                  <span
+                    ><strong>種子 × {{ ps.inventory().seeds | number }}</strong
+                    ><small>前往空地種下種子吧！</small></span
+                  >
+                  <span>使用</span>
+                </button>
+              </section>
+            }
+          </section>
+        </div>
+
+        @if (watering()) {
+          @if (waterGeometry(); as geometry) {
+            <svg class="water-stream" aria-hidden="true">
+              <ellipse
+                class="water-impact"
+                [attr.cx]="geometry.target.x"
+                [attr.cy]="geometry.target.y + 4"
+                rx="24"
+                ry="5"
+              />
+              @for (drop of geometry.drops; track $index) {
+                @if (reducedMotion()) {
+                  <ellipse
+                    class="water-drop"
+                    [attr.cx]="drop.x"
+                    [attr.cy]="drop.y"
+                    [attr.rx]="drop.ry"
+                    [attr.ry]="drop.rx"
+                  />
+                } @else {
+                  <ellipse class="water-drop" [attr.rx]="drop.rx" [attr.ry]="drop.ry">
+                    <animateMotion
+                      [attr.path]="drop.path"
+                      dur="0.6s"
+                      [attr.begin]="drop.delay"
+                      repeatCount="indefinite"
+                      rotate="auto"
+                    />
+                  </ellipse>
+                }
+              }
+              @for (splash of geometry.splashes; track $index) {
+                @if (reducedMotion()) {
+                  <circle
+                    class="water-splash"
+                    [attr.cx]="splash.x"
+                    [attr.cy]="splash.y"
+                    [attr.r]="splash.radius"
+                  />
+                } @else {
+                  <circle class="water-splash" [attr.r]="splash.radius">
+                    <animateMotion
+                      [attr.path]="splash.path"
+                      dur="0.45s"
+                      [attr.begin]="splash.delay"
+                      repeatCount="indefinite"
+                    />
+                  </circle>
+                }
+              }
+            </svg>
+          }
+        }
+
+        @if (heldPosition(); as position) {
+          @if (heldResource(); as resource) {
+            <div
+              class="held-item"
+              [class]="resource"
+              [class.in-range]="inRange()"
+              [style.left.px]="
+                resource === 'water' ? (waterGeometry()?.can?.x ?? position.x) : position.x
+              "
+              [style.top.px]="
+                resource === 'water' ? (waterGeometry()?.can?.y ?? position.y) : position.y
+              "
+              aria-hidden="true"
+            >
+              @if (resource === 'water') {
+                <svg
+                  class="watering-can"
+                  [class.pouring]="watering()"
+                  [style.transform]="
+                    'rotate(' +
+                    (waterGeometry()?.angle ?? 0) +
+                    'deg) scaleX(' +
+                    (waterGeometry()?.mirrored ? -1 : 1) +
+                    ')'
+                  "
+                  viewBox="0 0 80 80"
+                  aria-hidden="true"
+                >
+                  <path d="M25 32 C5 20 4 61 24 54" fill="none" stroke="#3488ba" stroke-width="6" />
+                  <path d="M45 38 L65 25 L72 34 L49 56 Z" fill="#3488ba" />
+                  <rect x="23" y="30" width="31" height="33" rx="6" fill="#65c7ef" />
+                  <path d="M30 30 V24 H46 V30" fill="none" stroke="#3488ba" stroke-width="4" />
+                  <path d="M27 39 H49" stroke="#a9e7ff" stroke-width="4" stroke-linecap="round" />
+                  <path
+                    d="M62 24 L73 20 L79 30 L70 36 Z"
+                    fill="#8cd8f6"
+                    stroke="#3488ba"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M72 25 L75 29"
+                    stroke="#3488ba"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              } @else {
+                <ion-icon [icon]="icons[resource]" />
+              }
+            </div>
+          }
+        }
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+<ion-toast
+  [isOpen]="harvestRecoveryToastOpen()"
+  [message]="harvestRecoveryMessage()"
+  [duration]="0"
+  position="middle"
+  swipeGesture="none"
+  cssClass="interaction-warning-toast"
+/>

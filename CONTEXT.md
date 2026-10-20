@@ -1,6 +1,366 @@
 # CAT WALK project context
+- 2026-10-20 production Mapbox worker repair: The preview map failed after
+  initial load because Angular production optimization broke the embedded blob
+  worker (ReferenceError: s is not defined). Serve mapbox-gl 3.32.0's unmodified
+  mapbox-gl-csp-worker.js as assets/mapbox/3.32.0/mapbox-gl-csp-worker.js and use
+  an explicit workerClass. Keep the copied worker path aligned with package
+  upgrades. Preserve the current token, Standard basemap and optional HD-road
+  error handling. Rebuilt and redeployed sprint3-preview; 54 Home map tests
+  pass and the deployed map remains visible in headless Chrome. The browser
+  regression script is client/scripts/verify-preview-map.cjs; it observes tile
+  parsing after initial map load because component mocks miss this build bug.
 
-Last updated: 2026-10-01
+- 2026-10-20 preview delivery: Update the existing sprint3-preview Firebase
+  Hosting channel with the current app and existing local Mapbox public token
+  in generated runtime-config.js; never record the token in project memory.
+  Build with production,preview configurations: production optimizations remain
+  enabled and the preview-only component-style error budget is 16 kB, allowing
+  the existing 12.84 kB relay-game stylesheet. Production retains its 12 kB
+  component-style error budget. The walking sync fix is confirmed by the user.
+
+- 2026-10-20 walking sync deployment repair: Earlier Cloud Build attempts for
+  initializeWalkProgress failed during npm installation ("Exit handler never
+  called"). The Functions lockfile contained company-internal npm tarball URLs.
+  Use public https://registry.npmjs.org/ tarball URLs for cloud builds while
+  retaining locked versions and integrity hashes. For local Firebase CLI access,
+  use the company HTTP/HTTPS proxy http://pxoawcg:8080, NO_PROXY localhost,127.0.0.1,
+  NODE_USE_ENV_PROXY=1 and NODE_USE_SYSTEM_CA=1. Do not store login credentials.
+  Both walking callables were successfully deployed to asia-east1. Their Cloud
+  Run services initially had empty IAM policies and returned platform HTTP 403.
+  Both now explicitly declare invoker: public, and roles/run.invoker for allUsers
+  was applied to these two services via the Cloud Run API because deployment did
+  not populate IAM. Firebase request.auth and UID checks remain mandatory inside
+  the handlers. Verified both callable endpoints return HTTP 401 UNAUTHENTICATED
+  for anonymous requests instead of the earlier 404/403. Actual signed-in client
+  loading and saving were confirmed fixed by the user on 2026-10-20.
+
+
+Last updated: 2026-10-20
+
+- 2026-10-19 Demo map error correction: The Standard basemap's optional
+  mapbox.hd-road-v1-bounded source can return HTTP 403. Do not replace the
+  entire Home map or detach camera following for that resource error; retain
+  the remaining basemap. Other map errors still use the existing failure UI.
+  This client correction does not grant access to the rejected Mapbox resource.
+
+- 2026-10-20 login-time initialization: Do not require an Auth-triggered
+  `initializeNewUserV2` Function. The existing callable
+  `initializeWalkProgress` provisions the idempotent starter seed when a
+  normal user first loads cloud progress, using the authenticated Firebase
+  UID. This avoids the 2nd-gen Auth trigger IAM/Eventarc deployment path while
+  preserving one starter seed per user. The previously deployed 1st-gen
+  `initializeNewUser`, if present, is not required by the client flow and is
+  not deleted automatically.
+
+
+- 2026-10-19 local Firebase testing recovery: A normal Firebase identity may
+  temporarily fail to load cloud walking progress while callable Functions are
+  unavailable. Keep the loading state blocking only during the initial load;
+  show a non-blocking error banner after failure so Mapbox and the testing
+  joystick remain usable. The banner keeps retry, Demo entry and logout
+  actions. This is a local/demo testing fallback and does not replace cloud
+  progress synchronization.
+
+- 2026-10-19 identity data separation: The user requested that Demo keep the
+  existing mock data while Firebase-authenticated identities persist their own
+  daily steps, resources and walking/cultivation progress. Scope progress by
+  Firebase UID; reset active routes and pending cultivation timers at identity
+  changes. Demo progress remains memory-only and must never write normal user
+  documents. Normal accounts start with zero steps/resources except the existing
+  idempotent one-seed starter grant. Persist inventory in users/{uid}/inventory/current,
+  cultivation and progress in users/{uid}/progress/current, and Taipei-day step/light
+  summaries in users/{uid}/dailyProgress/{YYYY-MM-DD}. Use authenticated callable
+  Functions and owner-only reads; preserve server task reward balances via inventory
+  deltas and reload after task completion. Revision conflicts require an explicit
+  cloud reload. These are prototype client-reported progress records, not verified
+  health or anti-cheat evidence. The mock joystick is currently retained for
+  Firebase-authenticated users to support location testing; this temporary
+  testing behavior does not change the identity-scoped persistence rules.
+  The user confirmed this increment covers identity isolation and cloud storage
+  only. Actual step acquisition is deferred; its eventual source (native pedometer/
+  health integration versus GPS estimation) remains unresolved.
+  Shared map POIs remain curated fixtures. Shop/collection production integration
+  is outside this progress change and remains pending. Deploy the two new callable
+  Functions and Firestore read rules before testing against the hosted project.
+
+- 2026-10-19 station photo header: The user requested a photo background in
+  the upper station-details area using their supplied image URL. Treat it as
+  a decorative cover image behind the title, chips and existing orange
+  rotating droplet, with a readability overlay and fade into the pale body.
+  Keep rotation and reward eligibility unchanged. The supplied URL is the
+  current shared visual; station-specific photography remains unresolved.
+
+- 2026-10-19 supply-station reference design: The user requested a rounded,
+  pale station-details panel with a centered title and orange circular hero,
+  following the supplied reference. The orange circle is the existing draggable
+  rotating droplet, not a separate decoration. Rotation is always available
+  while the modal is open, including after claiming and outside reward range
+  or an active route. A completed turn requests a reward only when the existing
+  route, proximity and daily eligibility conditions pass. Keep interruption
+  cleanup and duplicate-reward guards. Use existing merchant and reward data;
+  photos, ratings and additional toolbar actions remain unconfirmed.
+
+- 2026-10-19 dense undergrowth correction: The user rejected the short sparse
+  grass treatment and supplied a dense meadow/undergrowth reference. Replace
+  the wirelike blades with overlapping painted grass clumps, rich green
+  undergrowth, height variation and moss on the three large stones. Keep a
+  clear planting/root opening. Bake blade detail into one small alpha texture
+  and batch static crossed cards in one additional grass draw call; retain
+  one opaque turf/stone/flower mesh. No grass animation, shadows or per-blade
+  objects. The optional 2D grass sprite uses the matching baked blade plan.
+  Dispose grass geometry and texture when leaving the scene. Weeds stay off.
+
+- 2026-10-19 continuous lawn refinement: The user requested a grassy ground
+  surface like the supplied meadow reference instead of a few sparse tufts.
+  Cover most of the platform with continuous mottled turf and dense short
+  grass, retaining a small irregular bare-soil opening around the trunk.
+  Reduce rocks to three larger stones. Keep small wildflowers and match the
+  2D view. Turf and decorations share the existing single scenery mesh, with
+  no grass animation or interaction; weeds remain disabled.
+
+- 2026-10-19 ground scenery and paused weeds: Temporarily disable removable
+  weeds and their nutrient-absorption penalty, including weed recommendations
+  and clearing notifications. Keep the implementation and mock seed data for
+  later restoration with TREE_WEEDS_ENABLED in environment-dev.ts (false).
+  Decorate the soil with a few static pebbles, small wildflowers and grass
+  tufts in the existing botanical style, including the optional 2D view.
+  Decorative grass is scenery and cannot be pulled or cause a penalty. Keep
+  the trunk/root area clear. Merge 3D decoration geometry into one static mesh
+  to limit draw calls; retain the existing soil/watering/fertilizer behavior.
+
+- 2026-10-19 explicit tree rendering preference: Default to 3D and show a
+  loading message without a 2D tree until the first successful visible frame.
+  A 3D initialization/render/context failure must ask whether to switch to 2D;
+  only user acceptance enables that scene's fallback. Offer a 3D retry as the
+  alternative. Never persist failure acceptance as a display preference.
+  TreeDisplayService exposes readonly mode() and setMode('3d' | '2d') for a
+  future settings page, saved locally on the device and applied immediately.
+  Explicit 2D selection avoids loading WebGL. Reduced motion keeps the chosen
+  renderer and suppresses animation rather than silently choosing 2D. Switching
+  modes or destroying a scene must discard pending loads and release WebGL.
+  This supersedes the automatic 2D preview/reduced-motion fallback below.
+
+- 2026-10-19 constant tree brightness: The user requested the 3D tree remain
+  as bright as the 2D preview, without deliberate darkening. Use consistent
+  daylight model lighting for every weather/time background; remove the
+  previous environment-dependent dimming and tint. Retain the temporary
+  light-resource highlight. This supersedes matching tree lighting to each
+  background's time and weather below.
+
+- 2026-10-19 modal tree handoff: The user requested matching the immediately
+  visible 2D tree preview to the 3D model's size to prevent a visual jump when
+  opening a modal. Share camera framing across both renderers, anchor roots at
+  the same projected position, fit tree height to its growth scale, and match
+  the soil footprint. Keep framing responsive to modal resizing; watering,
+  fertilizer and weed coordinates must follow the same projection. Preserve
+  the existing 3D appearance and immediate 2D/reduced-motion fallback.
+
+- 2026-10-19 illustrated scene backgrounds: The user requested twelve actual
+  background images combining 晴天 / 雨天 / 陰天 with 清晨 / 白日 / 黃昏 / 夜晚,
+  matching the supplied softly painted meadow, distant hills, village and
+  dimensional-cloud reference. This replaces the dark studio backdrop while
+  retaining the approved botanical tree style and interactions. Keep the same
+  landscape composition across variants and match tree lighting to each scene.
+  Produce a rendered overview image, like the earlier tree-model preview.
+  All eighteen existing mock POIs (ten trees, three empty planting points and
+  five supply stations) have fixed randomized weather/time parameters. Seed
+  20261019 distributes the four periods within each existing tree-weather group;
+  the thirteen tree/planting POIs expose all twelve combinations. Reopening a
+  POI or reloading must preserve its scene; these are Demo parameters, not live
+  weather or the current clock. Keep resource, growth, watering and reward
+  rules unchanged. Use compressed images and load only the selected background.
+
+- 2026-10-19 fruiting and shake refinement: In the final stage, replace the
+  flowers with 小樹點 icons at the same positions; do not use fruit models.
+  Harvested points scatter, bounce and roll independently on the soil before
+  fading rather than forming a tidy ground arrangement. Keep the existing
+  harvest payout amount and deadline. Reduce crown motion to a subtle sway
+  and emit a small, bounded number of falling leaves during shaking and stage
+  emergence. The trunk remains fixed. Reduced motion suppresses leaf scatter.
+  The initial sway cap is 1.6 degrees; this is an implementation tuning value.
+
+- 2026-10-19 eight-stage tree lifecycle: The user confirmed eight visuals and
+  their harvest-target ratios: 種子 0%, 幼苗 10%, 小樹苗 16%, 大樹苗 23%,
+  小樹 30%, 大樹 60%, 開花 85%, 結果 100%. Keep the current botanical style
+  and large-tree silhouette. Early plants must have distinct shoots, slender
+  stems, sparse leaves and progressively more branches, as in the reference.
+  Every credited growth update gradually increases absolute model size within
+  its stage; remove the previous whole-tree shrink/grow celebration. From 小樹
+  onward, entering a stage reveals foliage, flowers or fruit with a short
+  spring-like crown motion while the trunk stays fixed. Size remains bounded
+  at the fruiting-stage limit for growth beyond 100%. Harvest eligibility,
+  rewards, recovery and weed pulling remain unchanged. These thresholds replace
+  the previous five-stage visuals and mature-stage size cap.
+
+- 2026-10-19 seedling, crown motion and weed pulling: Match seeds and seedlings
+  to the approved botanical tree style. Sway the crown while keeping the trunk
+  and roots fixed, including during harvest. Replace click-to-remove weeds with
+  an upward drag and visible uprooting; taps, incomplete pulls and interrupted
+  gestures do not remove weeds. After the last weed is successfully removed,
+  show the existing centered toast with `已清除雜草，恢復養分吸收率。`.
+  Preserve the existing persistent weed penalty until every weed is removed.
+  A 32 CSS-pixel upward pull, a short 220 ms release animation, and ArrowUp as
+  the keyboard equivalent are implementation defaults, not confirmed product
+  thresholds. Reduced motion skips the release animation.
+
+- 2026-10-19 tree-scene refinement: The user approved the leaf style and
+  requested more natural trunks plus matching soil, background, and weeds.
+  Keep the existing leaf treatment; use organically curved, tapered branching
+  and a consistent botanical treatment throughout the scene. Soil water-state
+  feedback, individually removable weeds, cultivation, and shaking/harvesting remain intact.
+
+- 2026-10-19 tree-scene visual direction: The user requested trees and a
+  background resembling the supplied botanical reference: slender branching
+  trunks, irregular airy crowns with small yellow-green leaves and blue-green
+  shaded foliage, against a dark blue-gray backdrop. Favor modest geometry and
+  device performance over fine model detail. The model manipulation required
+  is swaying/shaking; no rotation, zoom, or more elaborate model controls are
+  requested. Existing cultivation and harvest behavior remains applicable.
+  Visual acceptance and actual mobile performance remain to be verified.
+
+- 2026-10-16 harvest recovery: Each planted cycle can be harvested once. The
+  24-hour recovery clock starts when fruit lands and points are credited. Until
+  recovery, show a gray `arrow-redo` Ionicon marker and keep the harvested tree
+  inspectable; its open cultivation modal displays a persistent toast with
+  whole hours remaining. The toast uses the centered dark interaction-warning
+  style and stays below the harvest-result modal. At 24 hours, clear that site
+  into an empty planting point that can be selected and replanted. Keep
+  previously credited points and same-day destination-completion tracking
+  unchanged.
+
+- 2026-10-16 cultivation soil appearance: Empty planting points use the same
+  soil platform as trees when 3D is available, without showing a seed/tree
+  until planted. Rain displays an empty point's platform in the watered color
+  but does not change the saved watering state.
+
+- 2026-10-16 two-stage route planning: The user confirmed selecting a candidate
+  tree or empty planting point first, then pressing `確定此終點` in the upper
+  destination card to lock it without departing. Only after locking can other
+  eligible trees, empty points and supply stations be added/removed as
+  intermediate stops using explicit map-popup actions. In planning, a short
+  marker tap only selects an eligible candidate destination before the lock;
+  after locking, short taps on tree or empty-point markers do not open details
+  or change route stops. A 500 ms long press opens tree details. For supply
+  stations, a short tap opens the route-options popup and a 500 ms long press
+  opens the station-details modal; the generated click is suppressed. Outside
+  planning, existing marker click behavior stays unchanged. Updating the
+  preview requests one continuous route through both kinds of stops, ordered
+  along the original route; departure still requires the existing route confirmation.
+  Changing a locked destination requires returning and starting a new plan.
+  Trees in their 24-hour post-harvest recovery and points already completed as
+  destinations today remain view-only and cannot be new intermediate stops;
+  recheck eligibility before departure and allow removing selected points
+  that become ineligible. Recovered sites become empty planting points.
+  Tree stops are separate from reward-granting supply stations and retain
+  ordinary optional cultivation/planting; no new rewards or mandatory
+  intermediate check-ins are introduced.
+  Active routes now retain the destination, selected tree/empty-point stops
+  and selected stations, hiding unrelated trees. Reset all draft selections
+  and the destination lock when restarting/cancelling planning. Candidate
+  route/station data can preload, but station markers/actions are gated until
+  destination confirmation. Recommendation popups remain suppressed after
+  any candidate selection.
+
+- 2026-10-16 backpack and empty planting points: The user requested replacing
+  the cultivation fertilizer dock button with a backpack picker containing
+  fertilizer and seeds. Fertilizer keeps its existing 24-hour, +20% effect
+  and per-tree daily activation guard. A seed can only be used at an empty
+  planting point; spend one seed and turn that point into a planted seed
+  with zero growth, then enable ordinary care. Keep the existing starter
+  seed quantity of one and the inclusive 500 m interaction restriction.
+  Add three curated Demo empty points around Banqiao; show soil-yellow
+  circular markers with the same selection and ripple treatment. Empty
+  points can be walking destinations. Planting, growth and inventory use
+  the same session-local Demo state as existing tree care.
+- 2026-10-16 destination eligibility: Exclude trees still within the 24-hour
+  post-harvest recovery period and points already checked in as a walk destination today from both recommendation
+  filling and route selection/confirmation. Track completed destinations
+  per Asia/Taipei day, independently of route state, so starting/cancelling
+  another plan does not erase eligibility. Cancellation alone does not
+  consume a destination. At 24 hours after harvest payout, clear the tree to
+  an empty planting point; a new seed starts a new harvest cycle. This is not
+  natural tree regrowth.
+  Ineligible markers remain visible in a faded treatment and can open their
+  cultivation/status modal even while planning. Closing that modal restores
+  the same plan and camera; in-flight route responses can still finish while
+  inspecting. Active routes retain only their selected tree/empty-point markers.
+  The requested Home seed action is direct backpack use at the point; this
+  does not add a new photo flow or change the separately documented backend
+  planting-task contract.
+
+- 2026-10-16 recommendation reasons: The user confirmed one reason per tree
+  and this ranking priority within the existing 8,000-step group:
+  `可收成` > `即將收成` > `缺水了` > `附近雜草叢生` > `即將進入新階段`.
+  Prefix the reason with `種子` below 10%, `樹苗` from 10% to below 30%,
+  `小樹` from 30% to below 60%, and `大樹` from 60% onward, using the same
+  configurable-target thresholds as cultivation. `即將收成` starts at 90%
+  and ends at 100%; at 100% use `大樹可收成`. Near-next-stage means remaining
+  growth to the next stage is at most 5% of the harvest target. Use existing
+  dry-state timing (strictly over seven days since watering or creation) and
+  the configured weed-count threshold (currently ten), not the persistent
+  weed-debuff flag. Harvested trees have no actionable reason. Trees without
+  reasons still fill remaining slots using the original harvest/growth/distance
+  ordering; farther-than-8,000-step fallback retains nearest-first ordering.
+  Popup reasons use per-tree live growth, weeds and watering timestamps instead
+  of a single placeholder. Refresh time-dependent planning reasons each minute
+  while no destination is selected; stop the clock on selection or leaving
+  planning. Keep map camera and popup visibility behavior unchanged.
+
+- 2026-10-16 active-route tree visibility: Once a route is confirmed, show
+  its destination and selected intermediate tree markers; hide unrelated trees. Keep the
+  selected supply-station markers unchanged. The destination still opens care,
+  and other trees stay hidden while care is open or the active route is
+  arrived. Restore all trees when the route ends or is cancelled. Planning,
+  including choosing/changing a destination before confirmation, still shows
+  all tree markers. Use active-route state rather than the walking phase.
+
+- 2026-10-16 recommendation-visibility follow-up: Add a planning button to
+  toggle recommendation information without hiding tree markers. Start each
+  new plan with the three recommendation popups visible. As soon as any tree
+  is selected as the destination, remove all recommendation popups and hide
+  the toggle for that selection; station popups remain available. Reopening
+  recommendations must not override a selected destination or refit the map.
+
+- 2026-10-16 tree-map planning: The user confirmed green circular tree
+  markers matching supply-station styling, with white tree silhouettes,
+  ripples before selection, and a check badge/double outline when selected.
+  In planning, automatically show exactly the three highest-ranked existing
+  recommendations as simultaneous compact map popups. Their contents are
+  nickname/species, place, estimated walking steps, and growth remaining/status;
+  do not add weather. Other trees remain selectable by marker without a popup.
+  Clicking a recommendation card also selects that destination. On entering
+  planning, fit the player and all three recommended tree positions between
+  the planning panels rather than using a fixed zoom. Reserve card clearance
+  and choose popup anchors to reduce edge clipping and overlap. Leaving
+  planning removes recommendation popups; idle/active-route tree clicks still
+  open cultivation. Ranking uses current session tree growth/harvest state.
+
+- 2026-10-16 popup-fit follow-up: The user reported oversized station popups
+  extending offscreen. Use a compact 260px-wide card capped at 300px and at the
+  actual gap between planning panels. Keep route action buttons outside the
+  scrollable details. After rendering, automatically pan only enough to keep
+  the complete popup inside the visible map area with 12px margins; preserve
+  zoom/bearing and refit on viewport/content resizing. No manual map movement
+  is required to reveal the popup.
+
+- 2026-10-16: Planning supply-station details now open as a map-anchored
+  Mapbox popup when clicking a loaded station marker, replacing the bottom
+  sheet. Preserve merchant/category badges, offers, Demo terms, expiry,
+  current-location distance, extra minutes, and configured resource rewards.
+  Only the explicit `加入路線` / `移出路線` action changes selection; closing
+  or clicking elsewhere leaves it unchanged. Switching stations replaces the
+  popup, and invalidated routes or leaving planning close it. Station changes
+  still require `更新預覽路線`. Active-walk station check-in retains its modal.
+  No station photos or ratings are invented; existing seeded details are used.
+
+- 2026-10-16: The cultivation modal's status chips use compact height and reduced
+  horizontal padding to leave room for readable text and icons, with three chips
+  per row on mobile. Their backgrounds are transparent, while the text and icons
+  retain the Ionic status shade. This styling is local to the cultivation status
+  row and does not change chips elsewhere.
+- 2026-10-16: Supply-station success, access, and error feedback uses the same
+  transient centered toast treatment as tree-cultivation interaction feedback,
+  rather than inline status text.
 
 ## Status
 
@@ -47,9 +407,9 @@ The company group already offers a related feature called `健康吧` inside the
 - A user may own and cultivate several planted trees at the same time.
 - Walking earns an unallocated, tree-themed growth resource rather than immediately growing one designated tree. The resource's final name remains open.
 - To invest accumulated resources, the user returns near a planted tree and chooses how much to allocate. The user can concentrate resources on one tree or distribute them across several trees.
-- Tree visual thresholds are 0 seed, 500 seedling, 1,500 young tree, 3,000 mature tree, and 5,000 large tree.
+- Frontend tree visual thresholds depend on `TREE_GROWTH_PER_HARVEST` in `client/src/environments/environment-dev.ts`: 種子 below 10%, 幼苗 at 10%, 小樹苗 at 16%, 大樹苗 at 23%, 小樹 at 30%, 大樹 at 60%, 開花 at 85%, and 結果 at 100%. These are the eight thresholds confirmed on 2026-10-19; development targets can be changed without separately editing model stages.
 - Every cumulative 5,000 growth value enables a 50 `小樹點` harvest without removing or resetting the tree. Later milestones are 10,000, 15,000, 20,000, and so on.
-- After rendered size reaches a sensible limit, later levels use rings, stars, seasonal decoration, and resident animals rather than unbounded physical scale.
+- Tree model size grows smoothly with credited growth and is capped at the fruiting-stage size in WebGL and SVG. Growth beyond 100% does not enlarge it. The 2026-10-19 growth rule supersedes the earlier mature-stage cap and whole-tree shrinking celebration.
 - Each account can trigger at most one `小樹點` tree harvest per day in the Demo.
 - The intended product lets invited friends contribute resources to collaborative visual growth, decoration, or resident animals. Friend contributions do not count toward the owner's monetary-value `小樹點` harvest.
 - The Demo represents one friend contribution with seeded data rather than implementing real invitations, friend search, or resource transfer.
@@ -67,9 +427,9 @@ The company group already offers a related feature called `健康吧` inside the
   - One `小樹點` can offset one New Taiwan dollar at supported merchants.
 - CAT WALK must not issue tens of `小樹點` directly for one ordinary walk. Steps grant `光能`; the documented water, fertilizer, 5,000-growth harvest, and mock catalog amounts are the Demo baseline. Only final resource naming remains open.
 - The current resource family is:
-  - `光能` (working name): the common step-generated resource. The team may rename it later without changing its mechanics. From 0–5,000 daily steps, each completed 500-step block grants 3 `光能`, totaling 30. From 5,001–7,500, each additional completed 500-step block grants 4, bringing the daily total to 50. Steps above 7,500 remain visible but grant no additional `光能`. One `光能` becomes one tree-growth value when allocated.
-  - `水滴`: acquired by reaching and checking in at a designated public water-source task point. Each eligible source grants one per day, and one `水滴` provides 10 tree-growth value.
-  - `肥料`: acquired from a pickup-and-delivery task. One use gives the current allocation a 20% growth bonus, limited to once per tree per day.
+  - `光能` (working name): the common step-generated resource. On 2026-10-14 the user confirmed one eligible step produces one `光能`, capped at 7,500 `光能` per Asia/Taipei day; 150 `光能` produces one base tree-growth value. Thus 7,500 eligible steps produce 50 base growth. This supersedes the earlier 30/50-per-day light denomination and 1:1 light/growth rule; task value remains the economic reference rather than another name for light. Steps above the cap remain visible but earn no extra light. Step credits are incremental and cannot be claimed again after spending.
+  - `水滴`: acquired by reaching and checking in at a designated public water-source task point. Each eligible source grants one per day. On 2026-10-14 the user confirmed one `水滴` equals the growth effectiveness of 10 `光能`: 15 drops provide one base growth, superseding the earlier 10-growth-per-drop rule.
+  - `肥料`: acquired from a pickup-and-delivery task. Activation grants a 20% bonus to all light-energy and water allocations for the following 24 hours, limited to once per tree per `Asia/Taipei` calendar day. An active effect cannot be reactivated or stacked. This duration rule was confirmed on 2026-10-14 and supersedes the original single-allocation bonus.
   - Special items: may alter appearance or attract an animal. The Demo only considers one optional `鳥巢` item and does not implement a real pest, defense, treatment, or death system.
 - Google Weather API is available in Taiwan and can report daytime, conditions, precipitation probability, cloud cover, UV, sunrise, and sunset. Weather may alter visual flavor or resource storytelling, but it does not change expected economic value by weather or time of day because the target users often walk after work.
 - If weather is represented, a failure never reduces the base walking reward and Demo Mode can select sunny, rainy, cloudy, or night presentation states.
@@ -83,7 +443,7 @@ The company group already offers a related feature called `健康吧` inside the
 - Route planning uses the current position and the user's next commute destination rather than requiring the entire home-to-work journey to be walked. The user selects an acceptable extra walking duration, and the recommendation applies a bounded geographic detour from the normal commute direction.
 - Normal mode can use GPS proximity for arrival, while Demo Mode always provides a simulated-arrival fallback.
 - Resource investment and `小樹點` harvest require the user to be within approximately 150 meters of the tree. Demo Mode can simulate proximity.
-- The nurture interaction uses a light-energy amount slider plus optional water/fertilizer toggles. Before confirmation it previews each resource deduction, base growth, bonuses, and resulting tree progress. Confirmed resource spending is integer-valued and cannot be undone.
+- The Home nurture interaction was updated on 2026-10-14 to a larger tree scene with directly held resources. Drag a sun or watering can into the indicated care range to continuously feed while held inside; leaving the range or releasing stops feeding. Light and water each have an adjustable, positive integer per-second rate (initially 100 light energy and 1 water drop per second). Fertilizer activates on release inside the range. Successful feeding immediately spends integer-valued resources and cannot be undone; unsuccessful drops spend nothing. The earlier slider/toggle confirmation interface is superseded for this Home interaction.
 - Crossing a growth milestone reveals an immediate harvest action while the user is near the tree.
 - A user who cannot physically return may remotely allocate resources. Crossing one milestone marks that tree as the account's single `harvestReady` tree until the user returns; remote care cannot collect the `小樹點`.
 - The system does not create a queue of multiple unclaimed reward milestones. An account can have at most one `harvestReady` milestone globally. Before `nurtureTree` commits, it checks that no existing ready milestone or daily harvest limit would make the new milestone unclaimable.
@@ -127,6 +487,19 @@ The company group already offers a related feature called `健康吧` inside the
 
 ## Client terminology and code naming
 
+- On 2026-10-15 the user merged destination selection and optional supply-station selection into one planning screen, removing the separate destination-confirmation step. After choosing a destination, its loaded stations can be toggled immediately and the destination can still be changed; changing it resets the previous route and station selections. In the follow-up, the user required a separate `更新預覽路線` action before confirmation whenever stations change: update the visible continuous route and distance first, remain in planning for review, and only then enable `確認路線` to return to the active-route idle-style dashboard. Confirmation never silently updates a stale preview. Routing failure keeps planning open with an explicit retry, and Back cancels the whole plan.
+- On 2026-10-15 the user confirmed that completing destination/supply-station planning returns Home to the idle-style resources and daily-step interface while retaining the active route, destination, and selected stations. The departure button becomes `終止本次路線`: hold for one second to open the shared confirmation dialog, then explicitly confirm before clearing the route. Short clicks, interrupted holds, and dialog cancellation preserve it. The active-route dashboard also retains the idle-style navigation tabs.
+- On 2026-10-15 the user confirmed that idle and active-route tree clicks open the clicked tree's modal regardless of distance or missing location. Viewing is unrestricted; feeding, fertilizer activation, and harvest require a valid location within the inclusive `TREE_CULTIVATION_RADIUS_METERS` (currently 500 metres). Moving out of range stops spending immediately but leaves the modal open for viewing. Moving back enables care again. Opening/closing care preserves the active route and returns to the prior walking/arrived state. This supersedes the earlier out-of-range modal-opening restriction and automatic-close behavior.
+- In the 2026-10-15 interaction-feedback follow-up, the user replaced the persistent tree proximity alert with an action-triggered warning toast: `請靠近一點再進行互動`. Remote resource buttons remain clickable to show the warning without spending resources; remote supply-station claim attempts show the same toast without awarding supplies. Mature/large trees retain their existing sway animation remotely, with one warning per shake gesture and no falling fruit or earned tree points. Nearby care and harvest behavior remain unchanged.
+- On 2026-10-16 the user confirmed that the shared proximity warning toast appears vertically centered in the viewport (`position: 'middle'`), rather than at the bottom; its message, duration, and interaction restrictions remain unchanged.
+- Home-map extra checkpoints are presented uniformly as `補給站`, without water/fertilizer-specific icons or labels. In the 2026-10-15 follow-up, the user changed unselected stations to the same reference orange used by selected stations, retaining the white droplet and continuously expanding ripples. For selected stations, the user chose white/deep-orange double outlines plus a top-right check badge, keeping the orange circle and white droplet with no ripple animation. Planning and walking summaries use `補給站` as well; underlying task kinds and resource rewards are unchanged.
+- On 2026-10-15 the user requested station-specific merchant details and a bottom sheet matching the supplied design. Each of the six route-generated Demo stations carries a store name, food/shopping category, Cathay TWQR merchant flag, featured offer, terms, and expiry. Clicking a loaded planning station only opens its details; only `加入路線` confirmation adds it. Cancel, backdrop, and swipe dismissal preserve selection. Already-selected stations retain removal through an explicit `移出路線` confirmation. Merchant/offer data is seeded Demo fiction, not verified live merchant offers; distance uses current location and approximate added minutes use 100 steps/minute with routed extra steps. Station changes still require `更新預覽路線` before route confirmation. A stale station sheet cannot change a replaced destination or task.
+- In the station-sheet follow-up, the user requested category (`美食` / `購物`) and TWQR merchant status as badges beside the title. Use the user-provided transparent TWQR logo in the merchant badge with `特店`, rather than redrawing it; omit that badge for non-partner stores. Keep the Demo disclaimer in the offer terms. The user will verify the visual result and requested no further browser validation.
+- The user subsequently requested a vector SVG based on the supplied TWQR image. The title badge now uses `client/public/images/assets/twqr-logo.svg`, with transparent background, vector paths, and sampled reference colors (pink `#e74e95`, blue `#008bba`). This Demo reconstruction is not an official brand-master asset and supersedes the earlier PNG-only choice.
+- Station title badges keep their contents on a single line without shrinking the TWQR logo. On narrow layouts, the whole badge may wrap to the next line, but the logo and `特店` must stay together.
+- The TWQR image and `特店` share an explicit inline-flex content wrapper inside the shared badge's projected text span. Host-level `white-space: nowrap` alone cannot prevent a block-level image from placing the text on a separate line.
+- The user confirmed moving only the supply-station test data, not the tree metadata, into `client/src/environments/environment-dev.ts`. `demoSupplyStations` is the single typed list for station IDs, store/offer details, task kinds, route anchor fractions, and initial extra-step estimates. The task generator consumes it directly; existing station identities, default placement, rewards, and route-confirmation behavior remain unchanged. Loaded Mapbox road-distance estimates still replace the initial simulated step values.
+- The user requested station-sheet height that follows its contents, avoiding excess blank space and clipping. Station calls use `ModalService.open(content, 'auto')`, with natural CSS height, `[0, 1]` sheet breakpoints, an 80dvh maximum constrained by the top safe area, bottom safe-area padding, and a scrollable `.ion-content-scroll-host` for long content. CSS naturally reflows on content/viewport changes without measuring in JavaScript. Existing numeric-breakpoint calls and tree-profile sheets retain fixed sizing.
 - Use `Collection` instead of `Forest` for the client feature, route-level page, Signal Store, repository, and related implementation names. The existing client route is `/collection`; future names should therefore use forms such as `CollectionStore` and `CollectionRepository` rather than `ForestStore` and `ForestRepository`.
 - Use `Task` consistently across the client, Cloud Functions, Firestore paths, seed data, tests, and documentation. The client route remains `/task`; implementation names use forms such as `TaskStore` and `TaskRepository`.
 - The Traditional Chinese product language may continue to use `森林` and `任務`, and the underlying concepts remain a personal forest and active walking tasks.
@@ -219,6 +592,25 @@ The company group already offers a related feature called `健康吧` inside the
 - Reset only the active Demo user, never all shared test data.
 
 ## Confirmed technical direction
+
+- Shared confirmation and notification dialogs use a compact centered `ion-modal`
+  with Angular template content, rather than `ion-alert`. Preserve the
+  `DialogService.openDialog` / `openNotifyDialog` API, customizable button text,
+  and `confirm` / `cancel` results; an optional config title separates the heading
+  from the message. Button results are emitted after modal dismissal completes.
+- Route confirmation uses the shared bottom-sheet modal instead of the centered
+  dialog, with `確定路線` / `確定要挑戰本路線?` and `確認` / `返回` buttons.
+  `ModalService.open` returns an observable emitting `confirm` / `cancel` once,
+  after dismissal. Only confirmation starts the walk; returning, tapping the
+  backdrop, or swiping down keeps route planning unchanged. Other dialogs retain
+  their existing centered presentation.
+- The harvest-result dialog shows the points earned in that harvest and the
+  updated balance in a two-column summary card. It has only a `確認` button and
+  stays on the current screen after dismissal; it does not navigate to Home or
+  redemption. Demo harvest results are explicitly marked `Demo` and use the
+  current demo cultivation point balance, not a production wallet balance.
+  Show the result after falling fruit finishes and the points are credited,
+  rather than at the start of the harvest animation.
 
 - Host the Ionic Angular SPA on Firebase Hosting.
 - Do not build a Java or .NET application backend unless Firebase-only implementation proves insufficient.
@@ -345,19 +737,360 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 
 ## Three.js optional enhancement
 
+- 2026-10-16 cultivation weather: The user confirmed at least sunny, rainy,
+  and cloudy backgrounds, including rain particles, with a weather field in
+  frontend environment configuration. In a follow-up, the user confirmed
+  independent weather per tree, with randomly mixed test conditions and no
+  neighboring-area consistency logic for now. Each tree's
+  `destination.features[].properties.weather` in
+  `client/src/environments/environment-dev.ts` stores a fixed sunny/rainy/cloudy
+  seed value instead of a global weather setting. Switching trees updates the
+  cultivation background and badge; reopening preserves the tree's configured
+  weather. The shared scene input serves both WebGL and SVG.
+  Reduced-motion mode uses static rain. This is cosmetic only:
+  rain does not water trees or change resources, growth, or rewards. Live local
+  weather is intended for a later Google integration; no API calls or keys are
+  added now. Provider wiring, condition mapping, and failure UI remain unresolved.
+  The user subsequently requested that sunny weather retain the original blue
+  sky without any extra sunlight overlay. Preserve light-feeding effects.
+
+- 2026-10-16 cultivation blank-scene follow-up: The user reported intermittent
+  missing soil and tree after reopening the modal. Keep the SVG preview until
+  a visible, nonzero-sized WebGL frame is rendered, redraw after making the
+  canvas visible, and refresh dimensions/visibility after modal presentation.
+  Do not reset the drawing buffer for unchanged canvas dimensions. Preserve
+  context-loss fallback, teardown, weather, care state, and map camera behavior.
+
+- 2026-10-16 cultivation camera follow-up: Closing tree care must preserve
+  the current map camera and follow mode instead of requesting player recentering.
+  This also applies when endpoint check-in completes the walk while care is open
+  and closing returns to idle. Keep initial map positioning, route planning,
+  and the explicit recenter button unchanged.
+
+- 2026-10-16 cultivation-dismissal smoothness follow-up: Dragging the top
+  handle past the native sheet dismissal threshold must continue downward
+  directly into dismissal, without snapping back to the open breakpoint first.
+  Use boolean `canDismiss: true` rather than a callback, because Ionic's
+  callback path intentionally snaps back before checking dismissal. Retain
+  `[0, 1]` breakpoints, disabled handle-click cycling, `backdropDismiss: false`
+  (also blocks Escape/hardware-back dismissal), content-start gesture blocking,
+  and the existing resource cleanup and walking-state restoration.
+
+- 2026-10-15 cultivation-dismissal follow-up: The user confirmed that the
+  cultivation sheet can only be closed interactively by dragging its handle
+  downward. Disable handle-click cycling, backdrop/Escape/hardware-back
+  dismissal, and sheet gestures starting in content. Preserve resource and
+  tree pointer interactions, dismissal cleanup, and overlay teardown on destroy.
+
+- 2026-10-15 interaction-position follow-up: The user requested that becoming
+  mature not move the interaction area upward. Anchor the WebGL feeding/shake
+  area to fixed scene coordinates rather than the current canopy bounds, and
+  reproject it only for viewport changes. Preserve the SVG sprouted-stage
+  interaction area, model-center tracking, root watering aim, and soil effects.
+
+- 2026-10-15 fertilizer-soil visual follow-up: Show a soft golden soil glow
+  and staggered sparkles while the existing fertilizer buff is active, in both
+  WebGL and SVG. Align the effect to the soil surface on resize and stage
+  changes; keep it independent of simultaneous light/water feeding. Reduced
+  motion uses static sparkles. Do not change fertilizer duration or economics.
+  On 2026-10-16 the user clarified back-to-front layering: soil, fertilizer
+  glow/sparkles, then tree. WebGL fertilizer belongs inside the depth-tested
+  scene rather than an HTML overlay above the canvas; SVG places the effect
+  between the soil ellipse and tree group.
+  The user subsequently confirmed the corrected layer order but preferred the
+  earlier animation: preserve six scattered four-point sparkles, staggered
+  2.4-second pulses, gentle upward drift, and the soft golden soil glow rather
+  than the replacement's regular distribution and faster flashing.
+
+- 2026-10-16 proximity-warning lifecycle: The user confirmed that the
+  too-far interaction toast must disappear with the cultivation modal.
+  Dismiss it when closing starts, invalidate pending creation/presentation,
+  and prevent repeated interactions from stacking warnings. Also clear the
+  shared warning on station closure and Home view teardown.
+
+- 2026-10-16 weeds: Each Demo tree seeds an independent `weedCount` in
+  `client/src/environments/environment-dev.ts`. At least 10 remaining weeds
+  activate a stored per-tree debuff reducing new light/water conversion by 10%;
+  the user subsequently confirmed that it persists below ten, including at
+  one remaining weed, and only clears at zero. Tree switches and reopening
+  do not reset the debuff; trees seeded below ten start without it.
+  Multiply with fertilizer
+  (1.2 x 0.9 = 1.08), without reducing existing growth or earned fractions.
+  Users click individual weeds on the soil to remove one, subject to the
+  same 500 m cultivation radius and proximity-warning behavior. Removal
+  persists when switching trees or reopening care; reload restores seeds,
+  and there is no timed regrowth yet. Pulling weeds grants no resources or
+  points. Growth precision is now 1/7,500 per integer tick, superseding the
+  earlier 1/750 representation, to keep all multiplier combinations exact.
+  Display remaining weeds and the current conversion rate in care.
+  A simultaneous sparkle fix must preserve all six scattered stars: composite
+  soil, then fertilizer without soil depth occlusion, then tree/fruit, retaining
+  soil depth so planted seeds remain correctly buried.
+
+- 2026-10-15 seedling visual follow-up: The user requested a more sapling-like
+  seedling model. WebGL and SVG now use a slender green stem, four spreading
+  pointed leaves, and one upright new leaf rather than a miniature mature
+  canopy. Keep the existing stage thresholds, soil, care interactions, and
+  young/mature/large models unchanged.
+
+- 2026-10-14 reward-particle follow-up: The user requested smaller fruit markers,
+  using 50 yellow particles with a central leaf motif instead of volumetric fruit
+  meshes. Use an original yellow/white-leaf SVG in the public image assets, not
+  the read-only reference attachment. WebGL uses one textured `THREE.Points`
+  object with 50 vertices; SVG uses 50 small instances of the same image. Each
+  particle represents one of the existing 50 Demo points, not an extra reward.
+  Distribute markers over the canopy, stagger their falls and soil landings,
+  and finish the entire animation within the store's existing 1,150 ms payout
+  deadline. Preserve reduced-motion static landings, cleanup, and the ripe-only
+  harvest gate. Harvested state lasts through the confirmed 24-hour recovery
+  period described above. This supersedes the original
+  five volumetric fruits and numeric ten-point labels.
+  Preserve the developer's latest compact modal markup: percentage spans and
+  the stage badge remain, while the standalone harvest panel/button is absent.
+  Direct shaking triggers harvest; the component/store action remains available.
+
+- 2026-10-15 tree-size follow-up: The user confirmed that the mature tree model
+  is the maximum rendered size. Large/ripe and later growth retain mature trunk
+  and canopy dimensions in WebGL and the mature transform in SVG. Fruit origins
+  follow the capped canopy; watering/feeding targets remain aligned. Mature and
+  large growth pulses shrink and return rather than exceeding the cap. Stage
+  thresholds, labels, growth values, sway, and harvest rules are unchanged.
+
+- 2026-10-14 configurable stage-threshold follow-up: The five-stage boundaries
+  below were superseded by the eight stages confirmed on 2026-10-19;
+  harvest-target configuration and reward rules still apply. The user confirmed
+  that development must allow freely changing the environment harvest target and
+  that every visual stage should derive from a percentage of that target.
+  Use one shared stage function: seed below 10%, seedling from 10%, young from
+  30%, mature from 60%, and large/ripe at 100%. For example, a target of 100
+  yields boundaries of 10/30/60/100; preserve the developer's chosen environment
+  value rather than resetting it. Targets must be positive safe integers.
+  WebGL geometry, SVG fallback, stage labels, growth celebrations, and sway/
+  harvest gates all use the same function. Ordinary sway starts at 60%, fruit
+  can fall only at 100% with harvest permission. Keep the 50 Demo-point reward
+  and resource ratios unchanged. The 5,000-growth economic reference is not
+  a hardcoded development threshold. Store and interaction tests provision
+  inventory relative to the actual environment target, while pure conversion
+  tests also preserve the 5,000-growth economic reference. Stage tests cover
+  multiple targets and integration covers the actual target. Preserve the developer's
+  compact markup edits, including the removed cost-warning paragraph.
+
+- 2026-10-14 sway-only interaction follow-up: Remove free model rotation at every
+  stage. Only mature (60% of target) and large trees in interactive scenes respond
+  to horizontal pointer movement with a gentle, bounded +/-5-degree sway and
+  return upright on release/cancellation. Seed, seedling, and young stages do not
+  respond. Ordinary sway has no growth, resource, reward, or fruit-drop effect,
+  including after harvest. Only a large tree with ripe fruit and explicit harvest
+  permission can emit a harvest request after the existing deliberate-reversal
+  gesture. Disable interaction during fruit falling; preserve the accessible
+  harvest button, single-harvest reward guard, and 2D/WebGL consistency.
+  This supersedes the earlier free horizontal drag rotation.
+
+- 2026-10-14 soil/seed visual follow-up: The user requested a brown ground base
+  and a seed that looks planted rather than resting on top. Use brown soil in
+  both WebGL and the SVG fallback. Center the 3D seed on the derived soil top
+  so its lower half is occluded by the opaque ground; changing ground height
+  or vertical placement in the constructor also updates seed planting depth.
+  The fallback shows only the upper seed cap with a small foreground soil rim.
+  Update the fallback model center while retaining the root watering point,
+  feeding rules, later growth stages, and harvest behavior.
+
+- 2026-10-14 water/overflow follow-up: Water shares light's conversion system
+  with ten times the effectiveness per resource unit: one drop equals 10 light,
+  so 15 drops produce one base growth. Fertilizer still adds 20% for 24 hours;
+  15 boosted drops yield 1.2 growth and 25 yield exactly 2. Preserve the unified
+  integer 1/750-growth remainder across mixed and small allocations. While
+  growth is below 5,000, accept any valid, affordable batch, including one that
+  exceeds the remaining growth. Deduct the full batch, cap credited growth at
+  5,000, and discard overflow and the remaining fraction upon reaching 100%.
+  Continuous feeding is inventory-limited, not trimmed to the exact final cost;
+  stop immediately after the crossing batch and reject further feeding at 100%.
+  Show a final-batch resource-cost warning. Preserve the existing compact modal
+  layout, 50-point harvest, terminal `已收成` state, and configured feeding rates.
+  This supersedes the old water value and exact-final-cost limits below.
+
+- 2026-10-14 light/growth separation: The user rejected one light energy equalling
+  one growth value and explicitly chose one eligible step -> one light energy,
+  150 light -> one base growth, and a 7,500-light daily cap. Keep the confirmed
+  5,000-growth/50-point single harvest and terminal `已收成` state. The step-only
+  baseline is now 750,000 eligible light/steps over 100 capped days, not 5,000 light.
+  Credit light incrementally when steps arrive, retaining displayed daily steps
+  and preventing duplicate credits. Reset eligibility at Taipei midnight, without
+  converting yesterday's steps. Fertilizer remains +20% for 24 hours
+  (150 boosted light yields 1.2 growth; 125 yields 1). Water's original
+  10-base-growth/drop value is superseded by the water/overflow follow-up above.
+  Carry earned fractional growth in integer 1/750-growth ticks across gestures,
+  rate changes, modal closure, fertilizer activation/expiry, and mixed feeding.
+  Whole growth drives tree-level progress. The original next-point percentage
+  row is absent from the current compact markup, but fractions remain in state.
+  The original minimum-final-light and water-capacity limits are superseded
+  by the water/overflow follow-up above.
+
+- 2026-10-15 cultivation layout follow-up: The user requested floating controls
+  over the tree scene and a follow-up layout cleanup. Keep tree information,
+  growth progress, and the active fertilizer indicator grouped at the top, with
+  the resource dock centered at the bottom. The overlay must not block tree
+  gestures outside the resource buttons or change feeding coordinates.
+
+- 2026-10-14 completed-harvest follow-up: The user requested that this cultivation
+  Demo stop after its first harvest and display `已收成`, rather than opening
+  another growth cycle. Keep the grown tree and 5,000 growth, remove fruit, and
+  block light, water, fertilizer, and duplicate harvest even after reopening or
+  a new calendar day. This supersedes the repeatable Demo cycle below, not the
+  broader persistent-tree product plan. The existing 50 Demo-point reward is
+  unchanged. The user asked for an economic recommendation based on 7,500 steps
+  yielding 50 task value and 5,000 task value redeeming 50 `小樹點`, and then
+  explicitly chose 5,000 growth/50 points instead of the currently edited
+  150,000-growth Demo threshold. Update that environment constant only; preserve
+  the user's light/water rate settings. Treat harvest as redemption, not an
+  additional second award. Assuming one task value becomes one growth, pure step
+  earning takes 100 capped 7,500-step days; water/fertilizer acceleration must
+  account for extra task effort. This does not change step conversion logic.
+  Frontend seeded inventory and adjustable visual feeding rates are not evidence
+  of real earning rates. Sharing the Demo balance with the shop remains unresolved.
+
+- 2026-10-14 mirror/fruit-harvest follow-up (repeatable Demo cycle superseded
+  by completed-harvest follow-up above): Mirror the can horizontally when
+  its nozzle is to the right of the root, preserving nozzle anchoring and an
+  upright opening. Bound tilt to +/-75 degrees for near-vertical pouring.
+  At each cumulative 5,000 growth, show five golden fruits (10 Demo points each).
+  Deliberate left/right shaking drops the fruits; a button offers a keyboard
+  alternative. The user confirmed automatic 50-point credit after landing,
+  temporarily keeping the large tree and cumulative growth during the recovery
+  period, then clearing the site to an empty planting point, and continuing to 10,000,
+  15,000, etc. Apply one harvest per Asia/Taipei calendar day. Stop feeding at
+  a ripe milestone until it is harvested; a same-day next batch remains ripe
+  until the next day. Reward credit is guarded and owned by the session-local
+  store, so closing the modal during the fall cannot duplicate or lose a credit.
+  No Firebase/real points are involved; the modal explicitly shows its own Demo
+  points balance. Sharing this balance with the separate shop seed remains
+  unresolved and is not implemented here. Preserve the SVG/reduced-motion
+  fallback and disposal. This supersedes the initial no-harvest Demo restriction.
+
+- 2026-10-15 watering animation/state follow-up: Replace the root-reaching
+  water ribbon with eight short nozzle-local drops and twelve separate root
+  splashes; no particles travel between the can and root. Preserve nozzle
+  anchoring, mirroring, root projection, reduced-motion static effects, and
+  existing feeding costs/growth. Each Demo tree records its last successful
+  water allocation separately: `已澆水` for less than 24 elapsed hours, then
+  `正常`, and `缺水` only after more than seven elapsed days without watering.
+  Before the first watering, use the Demo tree's session creation time as its
+  age baseline. Only successful allocations spending at least one drop refresh
+  the timestamp; picking up the can, light, fertilizer, and rejected allocations
+  do not. Show the status badge and use darker wet soil in both WebGL and SVG,
+  with lighter dry soil. These visual states do not alter growth or care limits.
+  Demo tree data remains session-local, matching existing cultivation data.
+  This supersedes the root-reaching ribbon below.
+
+- 2026-10-14 root-watering follow-up (ribbon superseded above): Aim the held can and water stream at the
+  projected trunk base/soil, not the model center; the seed uses its soil point.
+  Keep feeding-range detection separate from this visual aim, and update both
+  WebGL and SVG fallback targets with stage/resize changes. Make pouring fuller
+  with a bounded 60-drop curved ribbon and 12 small root-impact splashes, without
+  cone-shaped particle fields. These decorative droplets do not change inventory
+  spending or growth. Reduced motion uses static droplets and splashes; retain
+  the clipped, absolute overlay so effects never resize the canvas.
+
+- 2026-10-14 visual follow-up: Remove the background sun disk and explicit
+  sunlight rays. Light feeding instead adds a broad, static upper-sky glow;
+  retain blue sky, white clouds, and brighter model lighting. Keep the held
+  light-resource icon. Water-stream styles must apply to the layout-level SVG,
+  not descendants of the held can: the stream is an absolute, clipped overlay
+  that does not resize the scene or disturb feeding-range detection. Preserve
+  nozzle alignment, continuous feeding rates, resource deductions, and fertilizer.
+
+- 2026-10-14 visual revision (sun/rays superseded by the follow-up above):
+  The user rejected cone-shaped particle effects.
+  Replace them with a blue-sky/white-cloud backdrop, parallel soft sky-to-tree
+  sunlight rays, and a curved water stream originating at the pointer's actual
+  watering-can nozzle. Rotate and position the can to aim at the projected
+  model, not the center of the larger feeding radius. Track stage and resize
+  changes. Remove Three.js point-cloud care effects; preserve the care economy,
+  transparent WebGL/SVG layering, reduced-motion alternatives, and cleanup.
+
+- 2026-10-14 watering follow-up (water value and final-capacity limits superseded
+  by the water/overflow follow-up above): The user requested a watering-can graphic while
+  dragging water, continuous pouring inside the tree range, and separate
+  per-second injection controls for both water and light. Water retains 10 base
+  growth per drop (12 with fertilizer). Rate changes stop the current gesture;
+  the next gesture uses the new rate. Whole resources are deducted atomically
+  and automatically limited by inventory and remaining permitted growth.
+
+- 2026-10-14 follow-up: The user confirmed a larger, resource-holding care scene
+  with immediate spending rather than a final confirmation button. Holding a
+  dragged sun inside the model's care range feeds at exactly 100 light energy
+  per second of active in-range time by default; the later watering follow-up
+  adds configurable rates and replaces single-drop water feeding.
+  Fertilizer activation costs one item and boosts all light/water feeding by 20%
+  for the next 24 hours, not just one feeding. Daily activation uses Taipei time;
+  the effect itself expires 24 hours after activation, not at midnight.
+- Pause resource spending on release, pointer cancellation, leaving the range,
+  loss of focus, hidden/offscreen scenes, modal closure, and inventory/growth
+  limits. Preserve fractional light time until a gesture ends and fractional
+  fertilizer bonuses across feeding ticks during the active effect so small
+  timer updates do not lose the promised 20% bonus. SVG and keyboard operation
+  retain the same resource rules without requiring WebGL.
+
+- 2026-10-14 harvest/foliage follow-up (completed 2026-10-15): The user
+  confirmed that each Demo map tree may harvest once independently, without the
+  account-wide daily harvest restriction. This supersedes that restriction for
+  the frontend Demo only; each harvested tree remains completed, cannot grant
+  another reward, and still credits exactly 50 session-local Demo points after
+  landing. Fertilizer and daily light limits are unchanged. Multiple pending
+  falls credit their original trees even if the user switches trees or closes
+  the modal. The user requested rewards buried among leaves rather than all
+  50 visibly arranged in front of the tree: WebGL origins cluster within the
+  five foliage volumes with depth occlusion; the SVG fallback conceals 40 and
+  partly covers ten glimpses. During shaking harvest, all 50 particles become
+  visible and fall within the existing 1,150 ms payout deadline.
+
+- 2026-10-14 map-tree cultivation follow-up: The user confirmed a provisional
+  500-metre cultivation radius, adjustable through
+  `TREE_CULTIVATION_RADIUS_METERS` in `client/src/environments/environment-dev.ts`,
+  and requested initial growth plus a mix of active/inactive fertilizer for every
+  existing tree marker. The Home modal now uses the clicked map tree rather than
+  the independent showcase tree described below. Each marker's Demo seed properties
+  include `growth` (scaled with the configurable harvest target) and
+  `fertilizerRemainingMs` (zero means inactive); five of ten trees start with a
+  timed effect. Growth, fertilizer expiry, fractional growth, and harvest state
+  are tree-specific and session-local; inventory and the daily account harvest
+  restriction remain shared. Home recommendations read current growth from the
+  same store. No Firebase, collection persistence, or real reward integration is
+  added. The 2026-10-15 follow-up supersedes the original modal-access restriction:
+  idle and active-route clicks always open the tree for viewing, while care
+  actions check straight-line Haversine distance inclusively. Missing location or
+  leaving the radius disables care and stops spending without closing the modal.
+  Planning clicks still select destinations.
+  This supersedes the independent-map-tree restriction in the initial prototype.
+
+- 2026-10-14: The user requested a Three.js tree in the Home cultivation modal
+  and confirmed an interactive frontend Demo with resource previews, actual
+  deductions from the existing frontend inventory, and growth effects, without
+  Firebase integration in this increment.
+- This increment uses an explicitly labelled, independent Demo tree rather than
+  modifying map/collection tree records. State is session-local and reload resets
+  it. The initial no-harvest restriction is superseded by the mirror/fruit-harvest
+  follow-ups above: the Demo now grants session-local Demo `小樹點` once at its
+  first 5,000-growth milestone and then displays `已收成`, not real wallet points.
+- The prototype pins `three` 0.186.1 with `@types/three` 0.186.0, loads the scene
+  dynamically, and keeps SVG care controls available without WebGL. Accepting
+  the enhancement still depends on the device/performance spike below. Broader
+  multi-tree persistence, species styling, and harvest integration remain outside
+  this increment.
+
 - Three.js is a Could item rather than a Demo requirement. If capacity permits, use it only as a controlled, reusable 3D tree showcase, not as a 3D game world.
 - Use direct `three` integration rather than an Angular-specific wrapper. Pin an exact version for the project.
 - Reuse one `TreeSceneComponent` on the home dashboard, task-growth result, and memory-tree detail.
 - Keep Google Maps, route preview, collection-map markers, lists, navigation, and all required workflows independent of Three.js.
-- Generate three stylized low-poly tree species and four growth stages parametrically rather than commissioning twelve separate detailed models.
+- Generate stylized tree species parametrically, using the eight growth stages confirmed on 2026-10-19 rather than separately commissioned detailed models.
 - The provisional art direction is warm, stylized low-poly geometry led by Cathay green with restrained seasonal color variation. The UI/UX advisor will review this direction before optional implementation.
-- Use a short `THREE.Points` particle burst with approximately 128–256 leaves or light points for growth and reward celebrations. Do not add a separate particle engine.
+- Use progressive growth sizing, brief crown emergence, and bounded sunlight/water/leaf effects. The 2026-10-19 growth animation replaces the earlier whole-tree pulse. Use a bounded point scatter for harvest rather than a separate physics engine.
 - Keep a permanent WebP/SVG/CSS fallback for WebGL initialization, context-loss, performance, or reduced-motion cases.
 - Allow only one active renderer at a time. Stop animation when an Ionic page is left, the tab is hidden, or no animation is required.
 - Cap mobile device pixel ratio, avoid real-time shadows and post-processing, and dispose all Three.js resources explicitly.
 - Run a two-person-day spike before committing the feature. Test desktop Chrome, S22+ Chrome, and later the Android WebView.
 - Spike acceptance targets:
-  - At least 30 FPS during the particle effect on S22+, targeting 45–60 FPS.
+  - At least 30 FPS during care effects on S22+, targeting 45–60 FPS.
   - No growing renderer memory after twenty Tree → Map → Tree navigation cycles.
   - 2D fallback appears within one second when WebGL is unavailable or lost.
   - Three.js is lazy-loaded and its compressed lazy chunk targets at most 250 KB.
@@ -608,8 +1341,69 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-10-05 | Pause bonus-game development and return delivery focus to the walking-map and task-acquisition main demo path. Investigate a Mapbox-style map renderer because the desired visual direction resembles location-based walking games; the final map-provider choice remains open pending feasibility, cost, and technical-spike results. | Confirmed focus; provider undecided |
 | 2026-10-05 | Keep the user's live location in a shared, in-memory `LocationStore`, keep route and Demo movement progress in a separate `WalkSessionStore`, and keep only task-specific location evidence snapshots in `TaskStore`. The location store may expose current position, permission, tracking state, source (`gps` or `demo`), and lifecycle controls; raw coordinates and complete walking tracks must not be persisted or logged. | Confirmed |
 | 2026-10-05 | Retain `SessionStore` as the shared account-context seam. It now owns the Firebase identity summary, the Firestore profile snapshot, Demo/normal data scope, authentication/session status, and common profile selectors such as display name, portrait, email, daily goal, and profile loading/error state. Location, walking progress, inventory, tasks, collection, wallet, and bonus-game state remain separate stores. | Confirmed |
+| 2026-10-13 | Keep Home map camera effects behind a feature-scoped `MapCameraController`. `WalkSessionStore` owns the Home walk phase, selected destination, route, and progress; `LocationStore` owns only live location concerns. The Mapbox map instance, sources, layers, listeners, readiness, and camera animation implementation remain inside `HomeMapComponent`. Home stage components emit domain events and never call Mapbox methods or reference layer/source IDs. Camera intents issued before map readiness use latest-intent-wins replay; walking location updates move the player marker without repeatedly refitting the route. | Confirmed |
+| 2026-10-13 | The Home planning Demo shows at least five tree markers near the seeded starting point and three recommended trees. Recommendations first prefer candidates estimated at no more than 8,000 steps (the 7,500-step goal plus a small tolerance), then rank by the remaining growth needed for the next harvest and walking distance; farther candidates only fill a shortage. Selecting either a map marker or recommendation card uses the same route-selection flow, draws the seeded route, and fits the player, route, and target into the camera view. These are Demo tree markers and do not resolve the separate open decision on the six curated public task POIs. | Confirmed |
+| 2026-10-13 | Use one provider-neutral `GeoPoint` shape for domain coordinates. `LocationPoint` extends it with accuracy, observation time, heading, and speed metadata; Mapbox `LngLat` remains confined to the map adapter. Both recommended and currently selected Home trees use the same recommendation enrichment so estimated steps, harvest status, and remaining growth stay consistent. | Confirmed |
+| 2026-10-14 | Disable Ionic Router Outlet's swipe-to-go-back gesture and set `overscroll-behavior-x: none` on the document and Ionic scroll surface to prevent browser-level horizontal overscroll navigation inside the SPA. | Confirmed |
 
 ## Open decisions
+
+### Home task-point planning update (2026-10-14; merged 2026-10-15)
+
+- Home planning combines destination selection and optional supply-station selection in one screen. After stations change, `更新預覽路線` updates the visible continuous route for review while remaining in planning. Only an up-to-date, successfully loaded preview enables the separate `確認路線` action to enter the active-route idle-style dashboard. Selecting a destination or adding a station never starts Walking automatically.
+- As soon as a selected destination's main route is available, preview all extra supply stations on the map. Preview markers become interactive as soon as their challenge routes finish loading, without an intermediate destination-confirmation step.
+- Task candidates are virtual Demo challenges generated from anchors along the original route: five water points and exactly one farther fertilizer point. Their initial placement targets 800–1,000 and 2,000–3,000 extra steps respectively, but the user confirmed retaining all six and displaying Mapbox's actual road-distance-based estimates even when outside those ranges. Adding detours does not expand the eligible candidate set.
+- Do not present nearby task points as bottom cards. Keep tree recommendations, the map-station hint, and final confirmation together in the bottom panel. Players may change the destination after adding stations; doing so clears the previous station selection. Back cancels the whole plan and returns to idle.
+- The user superseded the schematic-routing decision: use Mapbox Directions v5 `mapbox/walking`, with full GeoJSON geometry. Draw returned road geometry, never direct-line connectors or a silent seeded fallback. Display loading/error states and offer retry; block confirmation until routing succeeds. Coordinates are transmitted transiently to Mapbox for these user-requested routes and are not persisted or logged.
+- Per endpoint selection, request one main route and six independent challenge previews in parallel after it loads. These out-and-back previews only estimate a single challenge's cost; they must not be stitched into the walking route as branches.
+- Task selection is a draft. Pressing `更新預覽路線` requests one continuous route when the selected stations have changed, with waypoints ordered along the original route: origin → selected task points → destination, without mandatory returns to the original anchors. Keep the last successful route/distance visible with an explicit stale-result notice until preview updating succeeds; block confirmation until the selected set matches the successful routed set. Updating the preview does not enter Walking; explicit confirmation is still required. An error keeps planning open for retry.
+- Updating a new task combination adds one Directions request (at most eight coordinates). Cache completed combinations in memory for the current plan; reusing a cached combination adds no API calls, and removing all tasks restores the original route without a call. Clear this cache on endpoint changes/cancellation/leaving Home. Abort superseded/cancelled requests, discard stale responses, and use a 20-second timeout per request. A cancelled request already sent to Mapbox may still count toward quota/billing.
+- Adding/removing task points must not move the map camera. Planning camera framing follows the original route and candidate points, not task-selection detours; destination selection may frame the route, while confirmed departure switches to player-follow navigation.
+- After selecting a destination, frame the map using the actual rendered upper/lower planning-panel edges rather than fixed screen percentages. Orient the destination toward the top and the player toward the bottom, placing both as close to the visible gap edges as route/candidate visibility allows. Reserve marker clearance so neither endpoint hides under a card; short routes may zoom closer than the old 15.5 limit. Task toggles still do not reframe the camera.
+- Apply a small +0.15 zoom adjustment to the fitted planning camera after destination selection (capped at zoom 19), per the user's visual-tuning request. Use one camera animation rather than a second zoom after fitting. Walking navigation uses the separately defined follow-player camera instead of a fitted overview.
+- Remove all green planting-task points from the Home route-planning map; keep the existing tree destination markers and the separate planting-task product concept unchanged. Demo water/fertilizer coordinates are generated per route, not approved public POIs, and do not resolve the six-POI field-check decision below.
+- The displayed total distance/steps come from the complete updated Directions route, at 0.75 m/step, not the sum of independent challenge estimates. Marker estimates remain single-point references because a continuous route may share detours. Mapbox may still require a real-world U-turn or retracing a dead-end; the app no longer forces an out-and-back branch for each task.
+- Selected task points belong to the current in-memory walk, remain visible after departure, and clear when the destination changes or the walk is cancelled. Adding points does not complete tasks, consume a seed, or award resources; check-in and task completion remain separate work.
+
+### Home Demo supply-station and endpoint check-ins (2026-10-15)
+
+- The user requested explicit supply-station check-in within the existing configurable 500 m cultivation radius, using the same Ionic modal pattern as tree care. Selected stations remain clickable during an active walk. The later interaction-feedback request supersedes the original disabled remote claim button: remote attempts show the shared proximity toast without granting resources. Revalidate location/session on submission.
+- Supply rewards come from each station's `supply`, not its challenge kind or a fixed multiplier. The user approved adjusting this attribute: use typed `{ resource: 'water' | 'fertilizer', amount: positive integer }` data for preview labels, confirmation totals and actual inventory credit. Preserve the existing six stations' 10-water values unless their settings are changed.
+- On 2026-10-16, the user changed the claim limit to once per station per Taipei calendar day across in-memory walks. The shared ProgressStore records the last successful claim day by station ID; each distinct station remains independently claimable. A new day allows another claim, while reload resets this Demo-only claim state along with its mock inventory.
+- Proximity, opening the modal, or dismissing it does not grant resources; successful submission updates the shared inventory and records both daily station and current-walk claim status. Cancellation/completion/new planning clears only current-walk tracking, not the daily claim record or inventory already earned. Invalid reward settings, stale sessions, daily duplicates and range failures show explicit errors.
+- The user confirmed that `確認打卡終點` completes the walk and clears the route rather than only marking arrival. Add this button only to the active destination's existing tree-care modal, subject to the same radius; keep care open afterward with an idle return phase and a completion message. Other trees retain ordinary care. No additional endpoint reward or requirement to claim all optional stations is introduced.
+- This is a location-based Home Demo flow, not the production photo-check-in/backend task pipeline or daily-reward economics. No photo upload or real reward integration is added; state resets on reload.
+
+### Home supply-station spinning interaction
+
+- The user replaced the station claim button with horizontal icon spinning, inspired by the interaction concept rather than copied artwork. The user confirmed that actual flick speed determines momentum: slow flicks may rotate only slightly, fast flicks may continue rotating, and completing one revolution triggers a claim attempt. Do not force a small swipe to complete a turn. Use the existing original station icon.
+- Revalidate live range, route and claim state at the full-turn threshold through the existing Home/store flow. Multiple revolutions from one flick must not repeatedly submit or duplicate supplies; successful status derives from credited store state. Keep remote attempts available for proximity feedback.
+- The user requires station closure to match cultivation: full-height `[0, 1]` sheet, handle-only gesture dismissal, boolean `canDismiss`, no backdrop dismissal, and content gesture propagation blocked. Stop pending spinning and dismiss the shared warning at `willDismiss`, not after the closing animation. Destruction also releases listeners/capture and dismisses the overlay.
+- Implementation details: signed rotation tracks net progress, partial turns persist during one opening, and reversing unwinds them. A new gesture after an attempted full turn starts fresh progress. Arrow keys provide 45-degree steps; reduced motion suppresses visual 3D rotation while preserving real progress and claim validation. These are implementation defaults, not additional user-confirmed product rules.
+
+### Home endpoint settlement dialog (2026-10-15)
+
+- Successful destination check-in opens a white, rounded settlement dialog matching the supplied reference: a success heading, encouragement, duration and claimed-station badges, a steps/distance card, and gray resource rows with orange earned amounts and current balances. Its only button is `太棒了!`; it does not navigate to a game.
+- Show actual steps recorded after departure, estimated traveled distance at the existing 0.75 m/step rate, elapsed whole minutes, and only successfully claimed station supplies. Show light and water rows even when zero; include fertilizer when earned. Step/light accounting uses cumulative counters so spending resources or a Taipei-day rollover does not distort the result.
+- Snapshot the result before clearing route/session data; endpoint completion grants no additional resources. Preserve the open tree-care modal and its idle return phase. The result is in-memory Demo data, not persisted across reloads.
+- Per the user's request, validate with unit tests and build only; do not open a browser for this increment.
+
+### Home walking recenter button (2026-10-14)
+
+- The walking screen's recenter button enables continuous player following through a `MapCameraController` follow-player intent, initially returning to the latest `LocationStore` position with a 500 ms animation and zoom 17. On 2026-10-15, the user confirmed pitch 50 degrees and heading-up navigation instead of the previous north-up, flat-pitch camera; use north-up only until a simulated heading is available.
+- On confirmed departure (2026-10-15), automatically use the same follow-player camera instead of fitting a walking-route overview. Cancelled or blocked departure does not enable following. Manual map dragging, rotation, or pitch adjustment pauses following until recenter is pressed; arrival and returning from cultivation preserve that choice rather than reframing the route or re-enabling following.
+- The user superseded the original one-shot recenter behavior: while following is active, location updates move both the player marker and camera center without repeatedly refitting the route or resetting zoom or pitch. Camera bearing follows valid simulated heading; missing heading preserves the current bearing. Manual map dragging, rotation, or pitch adjustment cancels following; pressing the button enables it again. Zoom-only changes (wheel, pinch, double-click, or zoom buttons) retain following and the user's selected zoom, per the 2026-10-15 request; do not cancel on generic map movement events, since zoom also emits them. Other camera intents and map detachment/errors also clear following. The walking session and route remain unchanged, and a missing current position shows an explicit message.
+- Web joystick movement simulates user facing as a clockwise-from-north heading, retained when the joystick is released. A blue directional arrow rotates with that heading even while camera following is paused. Camera rotation alone must not change the joystick's current geographic movement direction. This increment does not read phone compass/orientation sensors.
+- The user subsequently clarified the joystick controls on 2026-10-15: 0 degrees moves forward, holding 90/270 degrees continuously turns right/left in place, and 180 degrees moves backward without reversing the player's facing. Split forward/back translation from steering; pure rotation awards no simulated steps. Initialize from the player's last heading (map bearing only when heading is unavailable), and do not feed following-camera rotation back into steering. This supersedes fixed absolute heading targets per gesture.
+- After trying the hybrid pointer-correction behavior, the user confirmed pure forward/backward plus left/right rate steering on 2026-10-15. Horizontal stick displacement controls signed turn speed, and vertical displacement controls signed movement speed relative to the player's facing. Moving a right-side stick from 30 to 20 degrees reduces right-turn speed rather than briefly turning left; mirror this on the left. Remove angular pointer-delta corrections entirely. Apply 0.25-second angular-velocity damping to changes in turn speed, including crossing from right to left. Backward input does not reinterpret 180 degrees as a turn-around command. Neutral horizontal input stops turning; dead-zone entry and release stop all movement/turning immediately and preserve the last facing.
+- On 2026-10-16, the user confirmed separate joystick rules based on camera follow mode. While following, retain forward/backward movement plus left/right turn-rate steering. When not following, move directly in the screen-relative stick direction at a speed determined by radial strength, with facing smoothly following movement via the existing shortest-arc heading damping; right/left input translates rather than rotating in place, and downward input moves toward the screen bottom rather than preserving facing in reverse. Read the shared `MapCameraController` follow state when a gesture starts. The user confirmed deferring mode changes until release and the next gesture; keep the gesture's map-bearing reference fixed as well to avoid recenter-induced rotation feeding back into ongoing screen-relative movement. Both modes retain dead-zone handling, elapsed-time limits, and step credit only for translation.
+- Maximum held turn speed is initially 90 degrees/second, configured by `DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND`. Integrate angular velocity by elapsed time, wrap heading through 0/360 degrees, and cap each frame's simulation elapsed time at 0.1 seconds to avoid background catch-up. Both the player arrow and follow camera consume the same facing heading, independently of forward/backward movement direction.
+- Per the 2026-10-15 dead-zone request, apply a radial joystick dead zone. Initial tuning is 15% of maximum knob travel, controlled by `DEMO_JOYSTICK_DEAD_ZONE_RATIO` in `client/src/environments/environment-dev.ts`. Inside or at that radius, do not move, change heading, or add simulated steps; retain visual knob feedback. Outside it, remap remaining travel continuously from zero to full strength, preserving direction and capping diagonal input at full speed. Returning to the dead zone stops movement immediately without resetting the last heading.
+- Demo recentering uses the simulated player position; this change does not implement device GPS acquisition or permission handling.
+- Render the recenter control as a 48 by 48 px circular, icon-only Ionic button with zero horizontal padding and a 50% border radius, rather than relying on the pill-shaped `shape="round"` default.
+- The button's active appearance and `aria-pressed` reflect follow mode rather than coincidental geometric centering. A missing current position hides the active appearance until a position returns. The controller separately retains actual player-center status with an 8 CSS-pixel tolerance; map movements and location changes refresh that measurement.
+- On 2026-10-15, the user tried Mapbox's experimental `clip` layer to remove foreground buildings/models in a navigation corridor. The clip layer cannot reuse the native zoom-out building shrink/disappear transition; the user declined replacing Standard buildings with custom building layers.
+- Later on 2026-10-15, the user explicitly requested removing the clip effect. Remove the clip source/layer, corridor geometry, update scheduling and clip-only tests. Retain normal Standard 3D buildings, trees and landmark models, as well as pitch 50 navigation, heading smoothing, zoom-preserving following, route rendering and check-ins. No automatic building-occlusion removal is currently applied.
 
 ### External follow-ups
 

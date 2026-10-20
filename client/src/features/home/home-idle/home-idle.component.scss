@@ -13,67 +13,9 @@
   gap: 5px;
 }
 
-.destination-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 4px;
 
-  h2 {
-    margin: 0;
-    color: black;
-    font-size: 1.1rem;
-    font-weight: 500;
-  }
-}
 
-.tree-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
 
-  ion-card {
-    pointer-events: auto;
-    margin: 4px;
-    padding: 4px 10px;
-    border: 1px solid var(--ion-color-medium);
-    text-align: left;
-
-    header {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin: 6px 0;
-      ion-icon {
-        padding: 4px;
-        border-radius: 50%;
-        background-color: rgb(224, 224, 224)
-      }
-      p{
-        color: black;
-      }
-    }
-
-    p{
-      margin: 3px 0;
-    }
-
-    &.on-chosen{
-      border: 1px solid var(--ion-color-primary);
-      background-color: color-mix(var(--ion-color-primary) 10%,transparent);
-
-      header  {
-        ion-icon{
-          background-color: white;
-          color: var(--ion-color-primary);
-        }
-      }
-      p{
-        color: var(--ion-color-primary);
-      }
-
-    }
-  }
-}
 
 .resources {
   display: grid;
@@ -83,14 +25,6 @@
     margin: 5px;
     margin-bottom: 0;
   }
-}
-
-ion-card {
-  --background: white;
-  padding: 0.9rem 0px;
-  box-shadow: none;
-  text-align: center;
-  border-radius: 10px;
 }
 
 ion-card-subtitle {
@@ -113,10 +47,53 @@ ion-card-subtitle {
   font-weight: 500;
 }
 
-ion-button {
-  pointer-events: auto;
+.start-btn{
+  margin-bottom: 90px;
+  align-self: auto;
+}
 
-  &.start-btn{
-    --border-radius: 8px;
+.big-card{
+  margin: 8px 5px;
+}
+
+.terminate-btn {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 56px;
+  padding: 0.6rem 1rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  color: var(--ion-color-primary-contrast);
+  font: inherit;
+  background: var(--ion-color-primary);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+
+  small {
+    flex-basis: 100%;
+    font-size: 0.7rem;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.22);
+    transform: scaleX(0);
+    transform-origin: left;
+    pointer-events: none;
+  }
+
+  &.holding::before {
+    transform: scaleX(1);
+    transition: transform 1s linear;
   }
 }

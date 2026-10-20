@@ -1,0 +1,405 @@
+:host {
+  display: block;
+}
+.scene {
+  position: relative;
+  height: clamp(180px, 30vh, 280px);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 48% 38%, #2c4550 0%, #1b2e38 58%, #101c24 100%);
+}
+.weather-cloudy {
+  background: radial-gradient(ellipse at 48% 38%, #34434b, #192730 75%, #111c24);
+}
+.weather-rainy {
+  background: radial-gradient(ellipse at 48% 38%, #2a3c47, #152631 75%, #0e1c26);
+}
+.time-dawn {
+  background: linear-gradient(#839eae, #c2b9a5 55%, #4f7156);
+}
+.time-dusk {
+  background: linear-gradient(#79788b, #d9ad88 55%, #3d6250);
+}
+.time-night {
+  background: linear-gradient(#101e39, #25374b 55%, #1b3433);
+}
+.sky {
+  opacity: 0.6;
+  background-size: cover;
+  background-position: center 62%;
+  background-repeat: no-repeat;
+}
+.render-status {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(88%, 320px);
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f8f0ee;
+  color: #28423d;
+  text-align: center;
+  p {
+    margin: 0 0 12px;
+  }
+}
+.render-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  button {
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid #48684f;
+    border-radius: 8px;
+    background: #fff;
+    color: #28423d;
+    cursor: pointer;
+  }
+}
+.time-night .rain-drop {
+  stroke: #a8c2d5;
+  opacity: 0.45;
+}
+.weather-rain {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+.rain-drop {
+  stroke: #e0f3ff;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.65;
+  animation: weather-rain-fall linear infinite;
+}
+@keyframes weather-rain-fall {
+  from {
+    transform: translateY(-40px);
+  }
+  to {
+    transform: translateY(1040px);
+  }
+}
+.sky,
+.sunlight-glow,
+canvas,
+.tree-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.sky,
+.sunlight-glow {
+  pointer-events: none;
+}
+.sunlight-glow {
+  height: 72%;
+  background:
+    radial-gradient(ellipse at 50% 0%, #e5efb52e 0%, #dce7a914 35%, #fff4bd00 75%),
+    linear-gradient(#fffdf50d, #fffdf500 85%);
+}
+.fertilizer-layer {
+  overflow: visible;
+  pointer-events: none;
+}
+.weed {
+  position: absolute;
+  width: 32px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transform: translate(-50%, -100%);
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+  &.pulling {
+    transform: translate(-50%, calc(-100% - var(--weed-lift, 0px)));
+    cursor: grabbing;
+  }
+  &.uprooted {
+    animation: weed-uproot 220ms ease-out both;
+  }
+  &.uprooted::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    bottom: -6px;
+    width: 9px;
+    height: 10px;
+    background: #9b8057;
+    clip-path: polygon(40% 0, 65% 0, 100% 80%, 60% 48%, 55% 100%, 35% 45%, 0 70%);
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 1px #091c2299);
+  }
+  &:focus-visible {
+    outline: 2px solid #008c50;
+    border-radius: 6px;
+  }
+}
+.fertilizer-soil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.soil-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #ffe9a14d 20%, #ffda7133 65%, #ffda7100 100%);
+  box-shadow: 0 0 12px #ffe6a14d;
+}
+.soil-sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  background: #fff5c4;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: soil-shimmer 2.4s ease-in-out infinite;
+}
+@keyframes soil-shimmer {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: translateY(0) scale(0.55);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.1);
+  }
+}
+canvas {
+  visibility: hidden;
+  touch-action: pan-y;
+}
+canvas.visible {
+  visibility: visible;
+}
+.caption {
+  color: #66756c;
+  font-size: 0.8rem;
+  text-align: center;
+}
+.care-target {
+  position: absolute;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+.swayable,
+.swayable canvas {
+  touch-action: none;
+  cursor: grab;
+}
+.swayable:active,
+.swayable canvas:active {
+  cursor: grabbing;
+}
+.fallback-crown,
+.fallback-fruits {
+  transform-origin: 160px 140px;
+}
+.fallback-fruits {
+  pointer-events: none;
+}
+.fallback-fruit.falling {
+  animation: fruit-drop 1150ms linear both;
+}
+.fallback-fruit.concealed {
+  visibility: hidden;
+}
+.fruit-falling .fallback-crown {
+  animation: tree-shake 400ms ease-in-out;
+}
+@keyframes fruit-drop {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 1;
+  }
+  25% {
+    transform: translate(var(--p25-x), var(--p25-y)) rotate(var(--p25-spin));
+    opacity: var(--p25-alpha);
+  }
+  50% {
+    transform: translate(var(--p50-x), var(--p50-y)) rotate(var(--p50-spin));
+    opacity: var(--p50-alpha);
+  }
+  65% {
+    transform: translate(var(--p65-x), var(--p65-y)) rotate(var(--p65-spin));
+    opacity: var(--p65-alpha);
+  }
+  80% {
+    transform: translate(var(--p80-x), var(--p80-y)) rotate(var(--p80-spin));
+    opacity: var(--p80-alpha);
+  }
+  100% {
+    transform: translate(var(--p100-x), var(--p100-y)) rotate(var(--p100-spin));
+    opacity: 0;
+  }
+}
+@keyframes tree-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25%,
+  75% {
+    transform: rotate(-1.6deg);
+  }
+  50% {
+    transform: rotate(1.6deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rain-drop {
+    animation: none;
+    transform: translateY(var(--resting-y));
+    opacity: 0.4;
+  }
+  .soil-sparkle {
+    animation: none;
+    opacity: 0.8;
+  }
+  .fallback-fruit.falling {
+    animation: none;
+    transform: translate(var(--fall-x), var(--fall-y));
+  }
+  .fruit-falling .fallback-crown {
+    animation: none;
+  }
+}
+:host.expanded {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+:host.expanded .scene {
+  height: auto;
+  flex: 1;
+  min-height: 180px;
+}
+:host.expanded .caption {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 128px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #ffffffe6;
+  pointer-events: none;
+}
+
+@keyframes weed-uproot {
+  from {
+    transform: translate(-50%, calc(-100% - var(--weed-lift)));
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, calc(-145% - var(--weed-lift))) rotate(-8deg);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .weed.uprooted {
+    animation: none;
+  }
+}
+
+.fallback-tree {
+  transform-origin: 160px 210px;
+  transition: transform 520ms ease-out;
+}
+.crown-growth {
+  transform-origin: 160px 140px;
+}
+.crown-growth.stage-burst {
+  animation: crown-leaf-burst 850ms ease-out both;
+}
+@keyframes crown-leaf-burst {
+  0% {
+    transform: scale(0.2) rotate(-1deg);
+  }
+  35% {
+    transform: scale(1.08) rotate(0.7deg);
+  }
+  60% {
+    transform: scale(0.99) rotate(-0.5deg);
+  }
+  80% {
+    transform: scale(1.01) rotate(0.2deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fallback-tree {
+    transition: none;
+  }
+  .crown-growth.stage-burst {
+    animation: none;
+  }
+}
+
+.falling-leaves {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fallen-leaf {
+  position: absolute;
+  width: 12px;
+  height: 7px;
+  pointer-events: none;
+  animation: leaf-scatter 1500ms ease-in both;
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+@keyframes leaf-scatter {
+  0% {
+    transform: translate(0, 0) rotate(0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  40% {
+    transform: translate(calc(var(--leaf-drift) * -0.2), calc(var(--leaf-drop) * 0.3))
+      rotate(calc(var(--leaf-spin) * 0.5));
+  }
+  78% {
+    transform: translate(var(--leaf-drift), var(--leaf-drop)) rotate(var(--leaf-spin));
+    opacity: 0.75;
+  }
+  100% {
+    transform: translate(calc(var(--leaf-drift) * 1.15), var(--leaf-drop))
+      rotate(calc(var(--leaf-spin) * 1.1));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fallen-leaf {
+    display: none;
+  }
+}

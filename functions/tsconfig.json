@@ -4,5 +4,6 @@
     "outDir": "lib", "rootDir": "src", "strict": true, "esModuleInterop": true,
     "skipLibCheck": true, "noImplicitReturns": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
 }

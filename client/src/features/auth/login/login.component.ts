@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { IonButton, IonContent } from '@ionic/angular';
 import { SessionStore } from '../../../shared/stores/session-store';
 import { Router } from '@angular/router';
@@ -12,12 +12,10 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
-  private readonly isAnonymousGameEntry = signal(false);
-
   constructor() {
     effect(() => {
       if (this.sessionStore.canAccessApp()) {
-        void this.router.navigateByUrl(this.isAnonymousGameEntry() ? '/lobby' : '/home');
+        void this.router.navigateByUrl('/home');
       }
     });
   }
@@ -26,8 +24,7 @@ export class LoginComponent {
     this.sessionStore.logInWithGoogle();
   }
 
-  loginDemo() {
-    this.isAnonymousGameEntry.set(true);
-    this.sessionStore.logInAnonymously();
+  enterDemo() {
+    this.sessionStore.enterDemo('Demo五分鐘版');
   }
 }

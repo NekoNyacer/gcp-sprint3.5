@@ -2,6 +2,13 @@ import { Component, ElementRef, inject, signal, viewChild } from '@angular/core'
 import { LocationStore } from '../../../shared/stores/location-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
 import { DecimalPipe } from '@angular/common';
+import { MapCameraController } from '../home-map/map-camera.controller';
+import {
+  DEMO_JOYSTICK_DEAD_ZONE_RATIO,
+  DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND,
+} from '../../../environments/environment-dev';
+
+const TURN_DAMPING_SECONDS = 0.25;
 
 @Component({
   selector: 'app-joy-stick',
@@ -12,18 +19,28 @@ import { DecimalPipe } from '@angular/common';
 export class JoyStickComponent {
   protected readonly ls = inject(LocationStore);
   protected readonly ps = inject(ProgressStore);
+  private readonly camera = inject(MapCameraController);
   private joystickElement = viewChild.required<ElementRef<HTMLDivElement>>('joystick');
   readonly joystickTransform = signal('translate3d(0, 0, 0)');
   readonly isJoystickActive = signal(false);
   readonly mapBearing = signal(0);
   private joystickPointerId: number | null = null;
   private joystickScreenDirection = { x: 0, y: 0 };
-  private joystickDirection = { latitude: 0, longitude: 0 };
+  private joystickHeading = 0;
+  private joystickTurnRate = 0;
+  private joystickFollowsPlayer = false;
+  private joystickReferenceBearing = 0;
   private joystickFrame: number | null = null;
   private lastJoystickFrameAt: number | null = null;
 
   startJoystick(event: PointerEvent): void {
     this.joystickPointerId = event.pointerId;
+    this.joystickFollowsPlayer = this.camera.isFollowingPlayer();
+    this.joystickReferenceBearing = this.mapBearing();
+    const heading = this.ls.current()?.heading;
+    this.joystickHeading =
+      typeof heading === 'number' && Number.isFinite(heading) ? heading : this.mapBearing();
+    this.joystickTurnRate = 0;
     this.joystickElement().nativeElement.setPointerCapture(event.pointerId);
     this.isJoystickActive.set(true);
     this.updateJoystick(event);
@@ -53,7 +70,7 @@ export class JoyStickComponent {
 
     this.joystickPointerId = null;
     this.joystickScreenDirection = { x: 0, y: 0 };
-    this.joystickDirection = { latitude: 0, longitude: 0 };
+    this.joystickTurnRate = 0;
     this.joystickTransform.set('translate3d(0, 0, 0)');
     this.isJoystickActive.set(false);
     this.stopJoystickLoop();
@@ -66,7 +83,6 @@ export class JoyStickComponent {
 
   setMapBearing(bearing: number): void {
     this.mapBearing.set(bearing);
-    this.updateGeographicDirection();
   }
 
   private updateJoystick(event: PointerEvent): void {
@@ -81,24 +97,27 @@ export class JoyStickComponent {
     const scale = distance > maxOffset ? maxOffset / distance : 1;
     const offsetX = rawX * scale;
     const offsetY = rawY * scale;
+    const radius = Math.min(distance / maxOffset, 1);
+    const strength = Math.max(
+      0,
+      (radius - DEMO_JOYSTICK_DEAD_ZONE_RATIO) / (1 - DEMO_JOYSTICK_DEAD_ZONE_RATIO),
+    );
+    const directionScale = radius > 0 ? strength / radius : 0;
 
     this.joystickTransform.set(`translate3d(${offsetX}px, ${offsetY}px, 0)`);
-    this.joystickScreenDirection = {
-      x: offsetX / maxOffset,
-      y: -offsetY / maxOffset,
+    const direction = {
+      x: (offsetX / maxOffset) * directionScale,
+      y: (-offsetY / maxOffset) * directionScale,
     };
-    this.updateGeographicDirection();
-  }
-
-  private updateGeographicDirection(): void {
-    const bearingRadians = (this.mapBearing() * Math.PI) / 180;
-    const screenEast = this.joystickScreenDirection.x;
-    const screenNorth = this.joystickScreenDirection.y;
-
-    this.joystickDirection = {
-      longitude: screenEast * Math.cos(bearingRadians) + screenNorth * Math.sin(bearingRadians),
-      latitude: screenNorth * Math.cos(bearingRadians) - screenEast * Math.sin(bearingRadians),
-    };
+    if (Math.abs(direction.x) < 1e-6) direction.x = 0;
+    if (Math.abs(direction.y) < 1e-6) direction.y = 0;
+    if (
+      Math.abs(direction.x - this.joystickScreenDirection.x) < 1e-6 &&
+      Math.abs(direction.y - this.joystickScreenDirection.y) < 1e-6
+    )
+      return;
+    this.joystickScreenDirection = direction;
+    if (direction.x === 0) this.joystickTurnRate = 0;
   }
 
   private simulatedStepRemainder = 0;
@@ -114,18 +133,38 @@ export class JoyStickComponent {
       }
 
       const previousTimestamp = this.lastJoystickFrameAt ?? timestamp;
-      const elapsedSeconds = (timestamp - previousTimestamp) / 1000;
+      const elapsedSeconds = Math.min(Math.max((timestamp - previousTimestamp) / 1000, 0), 0.1);
       this.lastJoystickFrameAt = timestamp;
-      this.ls.moveDemoBy(
-        this.joystickDirection.latitude,
-        this.joystickDirection.longitude,
-        elapsedSeconds,
-      );
-      const directionStrength = Math.hypot(
-        this.joystickDirection.latitude,
-        this.joystickDirection.longitude,
-      );
-      this.simulatedStepRemainder += directionStrength * elapsedSeconds * 2;
+      const { x: steering, y: forward } = this.joystickScreenDirection;
+      if (this.joystickFollowsPlayer) {
+        const targetRate = steering * DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND;
+        const blend = -Math.expm1(-elapsedSeconds / TURN_DAMPING_SECONDS);
+        // Integrate the damped angular velocity exactly so turning is independent of frame rate.
+        const turn =
+          targetRate * elapsedSeconds +
+          (this.joystickTurnRate - targetRate) * TURN_DAMPING_SECONDS * blend;
+        this.joystickTurnRate += (targetRate - this.joystickTurnRate) * blend;
+        this.joystickHeading = (((this.joystickHeading + turn) % 360) + 360) % 360;
+        if (this.ls.current() && (forward !== 0 || turn !== 0)) {
+          const radians = (this.joystickHeading * Math.PI) / 180;
+          this.ls.moveDemoBy(
+            forward * Math.cos(radians),
+            forward * Math.sin(radians),
+            elapsedSeconds,
+            this.joystickHeading,
+          );
+          this.simulatedStepRemainder += Math.abs(forward) * elapsedSeconds * 2;
+        }
+      } else if (this.ls.current() && (forward !== 0 || steering !== 0)) {
+        // Keep the gesture's reference fixed even if recenter enables camera rotation mid-gesture.
+        const radians = (this.joystickReferenceBearing * Math.PI) / 180;
+        this.ls.moveDemoBy(
+          forward * Math.cos(radians) - steering * Math.sin(radians),
+          forward * Math.sin(radians) + steering * Math.cos(radians),
+          elapsedSeconds,
+        );
+        this.simulatedStepRemainder += Math.hypot(forward, steering) * elapsedSeconds * 2;
+      }
 
       const steps = Math.floor(this.simulatedStepRemainder);
       if (steps > 0) {

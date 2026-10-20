@@ -1,0 +1,86 @@
+<div #topPanel class="top">
+  <ion-button size="medium" color="light" (click)="back.emit()">
+    <ion-icon slot="icon-only" name="chevron-back-outline" class="arrow-back"></ion-icon>
+  </ion-button>
+
+  @if (selectedTree(); as tree) {
+    <ion-card class="selected-destination">
+      <span>{{ destinationConfirmed() ? '本次終點' : '候選終點' }}</span>
+      <h1>{{ tree.empty ? '空地' : tree.nickName }} - {{ tree.poiName }}</h1>
+      <div class="route-info">
+        <ion-chip>
+          <ion-icon name="time-outline" />
+          <ion-label> 約 {{ estimateSteps() | number: '1.0-0' }} 步 </ion-label>
+        </ion-chip>
+        <ion-chip>
+          <ion-icon name="location-outline" />
+          <ion-label>{{ distanceMeters() / 1000 | number: '1.0-2' }} 公里</ion-label>
+        </ion-chip>
+        @if (destinationConfirmed()) {
+          <ion-chip>
+            <ion-icon name="storefront-outline" />
+            <ion-label>{{ selectedTaskPoints().length }} 個補給站</ion-label>
+          </ion-chip>
+        }
+      </div>
+      <ion-button
+        color="primary"
+        class="plan-confirm"
+        [fill]="destinationConfirmed() && routeNeedsUpdate() ? 'outline' : 'solid'"
+        [disabled]="!selectedTree() || routeLoading() || routingFailed()"
+        (click)="
+          !destinationConfirmed()
+            ? confirmDestination.emit()
+            : routeNeedsUpdate()
+              ? routeUpdate.emit()
+              : confirmRoute.emit()
+        "
+      >
+        <ion-icon
+          [name]="
+            !destinationConfirmed()
+              ? 'flag-outline'
+              : routeNeedsUpdate()
+                ? 'reload-outline'
+                : 'walk'
+          "
+        ></ion-icon>
+        <span>
+          @if (!destinationConfirmed()) {
+            確定此終點
+          } @else if (routeLoading()) {
+            正在規劃步行路線中…
+          } @else if (routeNeedsUpdate()) {
+            更新預覽路線
+          } @else {
+            確認路線
+          }
+        </span>
+      </ion-button>
+      @if (planningError()) {
+        <p role="alert">{{ planningError() }}</p>
+        @if (routingFailed()) {
+          <ion-button class="route-retry" fill="clear" size="small" (click)="routeRetry.emit()"
+            >重新取得路線</ion-button
+          >
+        }
+      }
+    </ion-card>
+  }
+</div>
+<div #bottomPanel class="bottom">
+  @if (!hasDestination()) {
+    <ion-button
+      class="recommendations-toggle"
+      [color]="recommendationsVisible() ? 'light' : 'primary'"
+      [attr.aria-pressed]="recommendationsVisible()"
+      (click)="toggleRecommendations.emit()"
+    >
+      <ion-icon
+        slot="start"
+        [name]="recommendationsVisible() ? 'eye-off-outline' : 'eye-outline'"
+      />
+      {{ recommendationsVisible() ? '隱藏推薦資訊' : '顯示推薦資訊' }}
+    </ion-button>
+  }
+</div>

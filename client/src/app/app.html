@@ -1,1 +1,18 @@
-<ion-app><ion-router-outlet /></ion-app>
+<ion-app [class.normal-identity]="!progressSync.demoMode()">
+  @if (progressSync.loading()) {
+    <div class="sync-loading-overlay" role="status">
+      <p>正在載入你的散步資料…</p>
+    </div>
+  }
+  @if (progressSync.error()) {
+    <div class="sync-error-banner" role="alert">
+      <p>散步資料同步失敗：{{ progressSync.error() }}</p>
+      <div class="sync-error-banner__actions">
+        <button type="button" (click)="progressSync.retry()">重新載入雲端資料</button>
+        <button type="button" (click)="enterDemo()">免登入進入 Demo</button>
+        <button type="button" (click)="logOut()">登出並返回登入</button>
+      </div>
+    </div>
+  }
+  <ion-router-outlet [swipeGesture]="false" />
+</ion-app>

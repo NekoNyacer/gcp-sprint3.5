@@ -129,6 +129,7 @@ type SessionStoreSource = SessionStateSource & {
 };
 
 function logInWithGoogle(store: SessionStoreSource): void {
+  if (store.dataScope().mode === 'demo') exitDemo(store);
   patchState(store, {
     authStatus: '初始化中',
     error: null,
@@ -147,6 +148,7 @@ function logInWithGoogle(store: SessionStoreSource): void {
 }
 
 function logInAnonymously(store: SessionStoreSource): void {
+  if (store.dataScope().mode === 'demo') exitDemo(store);
   patchState(store, {
     authStatus: '初始化中',
     error: null,
@@ -207,6 +209,9 @@ function exitDemo(store: SessionStateSource): void {
 }
 
 function logOut(store: SessionStoreSource): void {
+  if (store.dataScope().mode === 'demo') {
+    exitDemo(store);
+  }
   store.authService.logOut().subscribe({
     error: (error: unknown) => {
       console.error('登出失敗:', error);
@@ -222,7 +227,7 @@ function observeAuthentication(store: SessionStoreSource): void {
   store.subscriptions.auth?.unsubscribe();
   store.subscriptions.auth = store.authService.user$.subscribe({
     next: (firebaseUser) => {
-      console.log('已從Firebase恢復登入，使用者：', firebaseUser);
+      if (store.dataScope().mode === 'demo') return;
 
       if (firebaseUser === null) {
         if (store.dataScope().mode === 'demo') {
@@ -247,6 +252,8 @@ function observeAuthentication(store: SessionStoreSource): void {
 
       patchState(store, {
         authStatus: '已登入',
+        profile: null,
+        onboardingStatus: 'unknown',
         user: {
           uid: firebaseUser.uid,
           displayName: firebaseUser.displayName,

@@ -1,0 +1,244 @@
+ion-modal.shared-dialog-modal {
+  --width: min(360px, calc(100vw - 32px));
+  --height: auto;
+  --max-height: calc(100% - 48px);
+  --border-radius: 24px;
+  --background: #f7f8f3;
+  --backdrop-opacity: 0.4;
+}
+
+ion-modal.tree-point-result-modal {
+  --background: #fff;
+  --border-radius: 20px;
+  z-index: 70000 !important;
+}
+
+ion-modal.walk-result-modal {
+  --width: min(360px, calc(100vw - 32px));
+  --background: #fff;
+  --border-radius: 20px;
+}
+
+.walk-result {
+  padding: 24px;
+
+  #shared-dialog-title {
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  #shared-dialog-content {
+    margin-bottom: 6px;
+    color: #858581;
+    font-size: 14px;
+  }
+
+  .walk-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 22px;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f4f4f4;
+      font-size: 11px;
+    }
+
+    ion-icon {
+      font-size: 12px;
+    }
+
+    .station-badge {
+      background: #fff1e7;
+      color: #f56a12;
+    }
+  }
+
+  .walk-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 8px;
+    padding: 12px 14px;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+
+    dt {
+      margin-bottom: 3px;
+      color: #858581;
+      font-size: 11px;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .walk-rewards {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .resource-row {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f4f4f4;
+
+    > ion-icon {
+      font-size: 21px;
+    }
+
+    span {
+      display: block;
+      margin-bottom: 3px;
+      color: #858581;
+      font-size: 10px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    strong {
+      font-size: 14px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .resource-earned strong {
+    color: #f56a12;
+  }
+
+  .resource-balance {
+    text-align: right;
+  }
+
+  .dialog-actions ion-button {
+    --background: #f56a12;
+    --background-hover: #de5b08;
+    --background-activated: #de5b08;
+    --color: #fff;
+    --border-radius: 8px;
+    --box-shadow: none;
+    min-height: 44px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+.dialog-content {
+  padding: 24px;
+  overflow-y: auto;
+  color: var(--ion-color-dark);
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+p {
+  margin: 0 0 24px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.dialog-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  &.notify-only {
+    grid-template-columns: 1fr;
+  }
+
+  .tree-point-result {
+
+    h2 {
+      margin-bottom: 4px;
+      font-size: 20px;
+    }
+
+    p {
+      margin-bottom: 16px;
+      color: var(--ion-color-medium-shade);
+      font-size: 14px;
+    }
+
+    .dialog-actions ion-button {
+      --border-radius: 8px;
+    }
+  }
+
+  .result-demo {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--ion-color-secondary);
+    color: var(--ion-color-medium-shade);
+    font-size: 11px;
+  }
+
+  ion-button {
+    width: 100%;
+    margin: 0;
+    --border-radius: 12px;
+  }
+}
+
+#shared-dialog-title{
+ margin:  0 0 5px;
+}
+
+#shared-dialog-content{
+ margin:  0 0 10px;
+}
+
+.point-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 20px;
+    padding: 12px;
+    border: 1px solid var(--ion-color-medium);
+    border-radius: 8px;
+
+    dt {
+      margin-bottom: 4px;
+      color: var(--ion-color-medium-shade);
+      font-size: 12px;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .earned-points {
+      color: var(--ion-color-primary);
+    }
+  }

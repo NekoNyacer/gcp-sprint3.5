@@ -3,7 +3,9 @@ import { Router } from '@angular/router';
 import { IonLabel, IonIcon, IonTabBar, IonTabButton, IonTabs, IonBadge } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
+  alert,
   walk,
+  arrowRedo,
   refresh,
   people,
   navigateCircle,
@@ -43,11 +45,22 @@ import {
   bagHandleOutline,
   locationOutline,
   chevronBackOutline,
+  pencil,
+  compassOutline,
+  locateOutline,
+  stopCircleOutline,
+  storefrontOutline,
+  reloadOutline,
+  sparkles,
+  eye,
+  eyeOffOutline,
+  eyeOutline,
+  medkit,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
 import { DialogComponent } from '../dialog/dialog.component';
-import { LocationStore } from '../../stores/location-store';
+import { WalkSessionStore } from '../../stores/walk-session-store';
 import { CubModalComponent } from '../modal/modal.component';
 
 @Component({
@@ -68,12 +81,23 @@ import { CubModalComponent } from '../modal/modal.component';
 export class AppShellComponent {
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
-  protected readonly ls = inject(LocationStore);
+  protected readonly walkSession = inject(WalkSessionStore);
   readonly taskStore = inject(TaskStore);
 
   //註冊icon
   constructor() {
     addIcons({
+      arrowRedo,
+      medkit,
+      eyeOutline,
+      eyeOffOutline,
+      alert,
+      reloadOutline,
+      storefrontOutline,
+      stopCircleOutline,
+      locateOutline,
+      compassOutline,
+      pencil,
       chevronBackOutline,
       locationOutline,
       bagHandleOutline,
@@ -81,6 +105,7 @@ export class AppShellComponent {
       person,
       personOutline,
       arrowBack,
+      sparkles,
       sparklesOutline,
       walk,
       downloadOutline,
@@ -149,6 +174,10 @@ export class AppShellComponent {
   });
 
   readonly hasTabBar = computed(() => {
-    return this.currentUrl().includes('lobby') || this.ls.status() === '閒置中';
+    return (
+      this.currentUrl().includes('lobby') ||
+      this.walkSession.isIdle() ||
+      (this.walkSession.hasActiveRoute() && !this.walkSession.isCultivating())
+    );
   });
 }

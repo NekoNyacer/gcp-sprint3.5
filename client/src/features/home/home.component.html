@@ -1,15 +1,68 @@
 <ion-content>
   <section class="floating-panel">
-    @if (isIdle()) {
-      <home-idle (start)="startPlanning()" />
-    } @else if (isPlanning()) {
-      <home-choose (back)="back()" (go)="go()" />
-    } @else if (isWalking()) {
-      <home-walking (stop)="stop()" />
-    } @else if (isArrived()) {}
+    @if (ws.isIdle() || ws.isCultivating() || ws.hasActiveRoute()) {
+      <home-idle (start)="startPlanning()" (terminate)="requestRouteTermination()" />
+    } @else if (ws.isPlanning()) {
+      <home-plan
+        [recommendationNow]="recommendationNow()"
+        [recommendationsVisible]="showTreeRecommendations()"
+        (toggleRecommendations)="toggleTreeRecommendations()"
+        (back)="back()"
+        (confirmRoute)="confirmRoute()"
+        (confirmDestination)="confirmDestination()"
+        (treeSelect)="selectDestination($event)"
+        (routeRetry)="retryRoute()"
+        (routeUpdate)="updateRoute()"
+      />
+    }
+
+    @if (!ws.isPlanning()) {
+      <ion-button
+        class="recenter-button"
+        shape="round"
+        [color]="isCentered() ? 'primary' : 'light'"
+        [attr.aria-pressed]="isCentered()"
+        aria-label="回到目前位置"
+        (click)="reCenter()"
+      >
+        <ion-icon
+          slot="icon-only"
+          [name]="isCentered() ? 'compass-outline' : 'locate-outline'"
+        ></ion-icon>
+      </ion-button>
+      <app-joy-stick />
+    }
   </section>
-  @if (isWalking()) {
-    <app-joy-stick />
+
+  <!-- 培養小樹彈窗 -->
+  <home-cultivate
+    (feedbackRequested)="showToast($event)"
+    (destinationCheckIn)="confirmDestinationCheckIn()"
+    (interactionDenied)="showInteractionWarning()"
+    (closing)="dismissToast()"
+  />
+  <home-supply-station
+    [station]="checkInStation()"
+    (checkIn)="claimStationSupply()"
+    (feedbackRequested)="showToast($event)"
+    (closing)="dismissToast()"
+    (closed)="closeStationCheckIn()"
+  />
+  @if (cultivationMessage()) {
+    <p class="cultivation-message" role="alert">{{ cultivationMessage() }}</p>
   }
-  <app-home-map (bearingChange)="joystickTransform().setMapBearing($event)" />
+
+  <!-- 地圖本人 -->
+  <app-home-map
+    [visibleMapArea]="planningMapArea"
+    [recommendedTrees]="planningRecommendations()"
+    [showRecommendations]="showTreeRecommendations()"
+    (bearingChange)="setMapBearing($event)"
+    (destinationSelect)="selectDestination($event.toString())"
+    (cultivationSelect)="openCultivation($event)"
+    (taskToggle)="toggleTaskPoint($event)"
+    (stationDetails)="openStationDetails($event)"
+    (treeStopToggle)="toggleTreeStop($event)"
+    (stationCheckIn)="openStationCheckIn($event)"
+  />
 </ion-content>

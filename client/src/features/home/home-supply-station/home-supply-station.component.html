@@ -1,0 +1,114 @@
+<ion-modal
+  [isOpen]="station() !== null"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [handle]="true"
+  handleBehavior="none"
+  [canDismiss]="true"
+  [backdropDismiss]="false"
+  (didPresent)="onDidPresent()"
+  (willDismiss)="onWillDismiss()"
+  (didDismiss)="dismissed()"
+>
+  <ng-template>
+    <ion-content (touchstart)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()">
+      @if (station(); as point) {
+        <section class="station-layout">
+          <div class="top">
+            <header class="station-header">
+              <h1>「{{ point.name }}」</h1>
+              <span>板橋。新板</span>
+              <ion-chip>{{ point.supplyStation.category }}</ion-chip>
+              @if (point.supplyStation.isCathayTwqrMerchant) {
+                <ion-chip>
+                  <img class="twqr-logo" src="/images/assets/twqr-logo.svg" alt="國泰 TWQR 特店" />
+                  <span>特店</span>
+                </ion-chip>
+              }
+            </header>
+            <div
+              class="station-spinner"
+              role="slider"
+              aria-label="旋轉補給站圖標"
+              aria-describedby="station-spin-help"
+              aria-valuemin="0"
+              aria-valuemax="360"
+              [attr.aria-valuenow]="turnProgress()"
+              [attr.aria-valuetext]="
+                claimed()
+                  ? '本次散步已領取'
+                  : !firstTime()
+                    ? '本日已領取此補給站'
+                    : '已旋轉 ' + turnProgress() + ' 度，轉滿一圈領取'
+              "
+              [attr.aria-disabled]="false"
+              tabindex="0"
+              [class.dragging]="dragging()"
+              [class.rotating]="rotating()"
+              [class.claimed]="claimUnavailable()"
+              [style.--spin-progress]="turnProgress() + 'deg'"
+              (pointerdown)="beginSpin($event)"
+              (pointermove)="moveSpin($event)"
+              (pointerup)="endSpin($event)"
+              (pointercancel)="cancelSpin($event)"
+              (lostpointercapture)="cancelSpin($event)"
+              (keydown)="keySpin($event)"
+              (dragstart)="$event.preventDefault()"
+            >
+              <div class="station-disc" [style.transform]="'rotateY(' + rotation() + 'deg)'">
+                <img
+                  class="station-art"
+                  src="/images/assets/supply-station-icon.svg"
+                  alt=""
+                  draggable="false"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="station-facts" aria-label="補給站資訊">
+            <div>
+              <span>目前狀態</span>
+              <strong class="orange">{{ claimUnavailable() ? '已領取' : '可領取補給' }}</strong>
+            </div>
+            <div>
+              <span>補給獎勵</span><strong>{{ rewardLabel() }}</strong>
+            </div>
+            <div>
+              <span>店家類型</span><strong>{{ point.supplyStation.category }}</strong>
+            </div>
+            <div>
+              <span>CUBE卡方案</span>
+              <strong>全支付</strong>
+            </div>
+          </div>
+          <div class="station-cards" aria-label="補給與優惠">
+            <article class="station-card reward-card">
+              <span class="card-symbol" aria-hidden="true">{{
+                point.kind === 'water' ? '◉' : '✿'
+              }}</span>
+              <span class="card-label">散步補給</span>
+              <h2>{{ rewardLabel() }}</h2>
+              <p>走近補給站，收集成長能量</p>
+            </article>
+            <article class="station-card offer-card">
+              <span class="card-symbol" aria-hidden="true">✧</span>
+              <span class="card-label">店家優惠 · Demo</span>
+              <h2>{{ point.supplyStation.offer }}</h2>
+              <p>{{ point.supplyStation.category }}好去處</p>
+            </article>
+          </div>
+          <section class="station-about" aria-labelledby="station-about-title">
+            <h2 id="station-about-title">關於補給站</h2>
+            <p>{{ point.description }}</p>
+          </section>
+          <section class="station-about station-terms" aria-labelledby="station-terms-title">
+            <h2 id="station-terms-title">優惠資訊</h2>
+            <p>{{ point.supplyStation.terms }}</p>
+            <p class="expiry">優惠期限：{{ point.supplyStation.validUntil }}</p>
+            <small>Demo 示範資料，非實際店家優惠。</small>
+          </section>
+        </section>
+      }
+    </ion-content>
+  </ng-template>
+</ion-modal>
