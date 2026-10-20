@@ -1,4 +1,70 @@
 # CAT WALK project context
+- 2026-10-20 collection grid card action: Enable Ionic card button behavior
+  in the grid so clicking or keyboard-activating a card opens the same tree
+  preview/navigation modal as map mode. Map popup cards remain non-button cards
+  with their existing separate 查看 action.
+- 2026-10-20 collection info bar: Match map mode's count and mode controls
+  to grid mode's padding, text color, paragraph margins and shape. Only map
+  mode floats the bar over the map and adds an 80% light-color background.
+- 2026-10-20 collection navigation button placement: Fix 導航到此樹木 at
+  the modal bottom, spanning the width with equal 12px side insets and 16px
+  bottom spacing (respect device safe areas). Keep pointer events enabled
+  inside the scene's non-interactive overlay panel.
+- 2026-10-20 collection tree preview navigation: Collection modals hide the
+  resource dock/backpack and disable cultivation interactions. Replace the dock
+  with 導航到此樹木. Dismiss the modal, navigate to /home and consume a one-time
+  tree selection on Home entry, using startPlanning/selectDestination so the
+  selected destination and route loading match a Home marker selection. Do not
+  confirm the destination or depart automatically. Existing eligibility/location
+  checks remain in force. This supersedes allowing direct collection cultivation.
+- 2026-10-20 collection card close control: Hide the Mapbox popup's default
+  top-right close button. Retain click-on-map dismissal and the 查看 action.
+- 2026-10-20 collection selected-tree framing: Position a tapped tree at
+  the lower center (80% of map height) to leave room above for its card.
+  Apply a camera offset of 30% of the map container height, retaining zoom
+  and the bottom-anchored popup. This supersedes geometric centering on tap.
+- 2026-10-20 collection popup placement: Anchor the card's bottom to the
+  selected tree marker with a 26px offset so the card always opens above it,
+  preserving the existing camera centering behavior.
+- 2026-10-20 collection map framing: Tapping a tree smoothly centers the
+  camera on its coordinates while opening the card, retaining the current zoom.
+  Map mode fills all available content below the segment toolbar, with the
+  count/view controls floating over it. Use flex sizing rather than a fixed
+  height subtraction or minimum map height; disable content scrolling in map
+  mode and retain grid scrolling. The shell header and bottom tabs stay visible.
+- 2026-10-20 collection tree interaction: Use the Home green circular tree
+  marker and cathay-tree-icon.svg in collection, without ripple effects.
+  A tap opens the shared grid TreeCardComponent with a 查看 button beneath it.
+  查看 or a stationary long press opens HomeCultivateComponent in an independent
+  modal, without changing Home walking-session phase. Preserve existing proximity
+  and resource rules. Cancel long presses on drag, interruption and marker removal.
+- 2026-10-20 Home marker clusters: Extend numbered, click-to-expand clusters
+  to Home trees, empty planting spots and currently displayed supply stations.
+  Preserve individual marker tap/long-press actions and route visibility.
+  Use Mapbox clustering (55px radius, max zoom 18) with DOM number buttons;
+  hide clustered individual buttons until they separate. Clicking a cluster
+  stops camera following and zooms to its expansion level. User-position and
+  route lines are excluded. Dispose cluster markers with the Home map.
+- 2026-10-20 collection map: Connect map mode to the same filtered trees as
+  the grid, including current cultivation state. Keep the map inside collection
+  content and fit its initial bounds to those trees. Dense markers merge into
+  orange numbered clusters when zoomed out; clicking a cluster zooms to its
+  expansion level. Single trees show name, species, location and status on click.
+  Use a dedicated collection map so browsing does not change Home route/camera
+  state. Cluster radius 55px and maximum cluster zoom 18 are implementation
+  defaults. Long-absence criteria remain unresolved.
+- 2026-10-20 collection harvest chip: Use a compact 20px height, 10px text
+  and 6px horizontal padding to leave more card width for the tree name.
+- 2026-10-20 collection grid sizing: Keep two equal columns across phone
+  widths. Allow card names to shrink and truncate with an ellipsis while
+  keeping the harvest chip on one line without forcing wider columns.
+- 2026-10-20 collection tab icon: Use the solid orange twin-tree SVG when
+  /collection is selected; retain the outlined twin-tree SVG otherwise.
+- 2026-10-20 collection segment appearance: Follow the supplied reference
+  with three equal-width tabs on white, muted gray inactive labels and an
+  orange active label with a thin orange underline. Keep the existing labels
+  and selection values. Place the segment across the content width below
+  the shared header, with padding applied to the tree grid separately.
 - 2026-10-20 harvest point result notification guard: Open the result modal
   only for a point increase following a successful user initiated harvest in
   the active cultivation component. Hydrating or switching progress scopes
@@ -1464,3 +1530,17 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 6. Choose the map renderer/provider after the Mapbox feasibility assessment and a focused visual/performance spike; preserve deterministic seeded routes and the existing map-failure fallback regardless of provider.
 
 The product design frontier is closed. Any later scope change must be recorded as a new decision rather than silently replacing this baseline.
+
+### Collection Demo data connection (2026-10-20)
+
+- User requested collection use the existing mock Demo tree data. Cards now
+  derive names, species and POI locations from homeTreesWithProgress, and
+  planting dates, growth stages and harvest readiness from ProgressStore.
+  Exclude empty planting spots until planted; exclude the internal demo-tree.
+  Preserve the existing two-column layout. Replace the mountain placeholder
+  with the existing botanical tree illustration (a shared image, not a
+  stage-specific model). Planting dates use Taipei time.
+- The existing planting/harvest segments reflect current cultivation state;
+  harvested trees follow the existing recovery lifecycle, not a permanent
+  harvest archive. Long-absence duration and historical harvest retention
+  remain unresolved; show an explicit pending-definition message for absence.

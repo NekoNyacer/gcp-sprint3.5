@@ -52,6 +52,7 @@ import { TREE_CULTIVATION_RADIUS_METERS } from '../../environments/environment-d
 import { GeoPoint } from '../../shared/models/geo.models';
 import { DialogService } from '../../shared/services/dialog.service';
 import { HomeSupplyStationComponent } from './home-supply-station/home-supply-station.component';
+import { TreeNavigationService } from '../../shared/services/tree-navigation.service';
 
 @Component({
   selector: 'app-home',
@@ -71,6 +72,13 @@ import { HomeSupplyStationComponent } from './home-supply-station/home-supply-st
   providers: [MapCameraController],
 })
 export class HomeComponent implements OnDestroy {
+  private readonly treeNavigation = inject(TreeNavigationService);
+  async ionViewDidEnter(): Promise<void> {
+    const treeId = this.treeNavigation.take();
+    if (!treeId) return;
+    this.startPlanning();
+    await this.selectDestination(treeId);
+  }
   protected readonly ls = inject(LocationStore);
   protected readonly ws = inject(WalkSessionStore);
   protected readonly ps = inject(ProgressStore);

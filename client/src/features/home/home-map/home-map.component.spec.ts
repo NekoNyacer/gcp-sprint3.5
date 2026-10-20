@@ -31,6 +31,8 @@ const mock = vi.hoisted(() => ({
     addSource: vi.fn(),
     addLayer: vi.fn(),
     getSource: vi.fn(),
+    isSourceLoaded: vi.fn(() => true),
+    querySourceFeatures: vi.fn(() => []),
     getLayer: vi.fn(),
     getContainer: vi.fn(() => ({
       clientWidth: 390,
@@ -309,6 +311,35 @@ describe('Home map player following', () => {
     name: '肥料極限繞路挑戰',
     kind: 'fertilizer',
   };
+
+  it('replaces dense markers with a count, expands on click and restores singles', async () => {
+    vi.mocked(HomeMapComponent.prototype.drawDestination).mockRestore();
+    const { fixture, activeRoute, camera } = await setup();
+    const source = { setData: vi.fn(), getClusterExpansionZoom: vi.fn() };
+    mock.map.getSource.mockImplementation((name) => name === 'home-marker-clusters' ? source : mock.source);
+    activeRoute.set(false);
+    fixture.detectChanges();
+    const trees = mock.markers.filter(({ element }) => element.classList.contains('tree-marker'));
+    const clustered = [{ geometry: { type: 'Point', coordinates: [121.55, 25.08] },
+      properties: { cluster_id: 7, point_count: 3 } }];
+    mock.map.querySourceFeatures.mockReturnValue(clustered as never);
+    mock.handlers.get('render')!({});
+    const cluster = mock.markers.find(({ element }) => element.classList.contains('home-map-cluster'))!;
+    expect(cluster.element.textContent).toBe('3');
+    expect(trees[0].element.style.visibility).toBe('hidden');
+    const stop = vi.spyOn(camera, 'stopFollowing');
+    cluster.element.click();
+    expect(source.getClusterExpansionZoom).toHaveBeenCalledWith(7, expect.any(Function));
+    source.getClusterExpansionZoom.mock.calls[0][1](null, 16);
+    expect(stop).toHaveBeenCalled();
+    expect(mock.map.easeTo).toHaveBeenCalledWith({ center: [121.55, 25.08], zoom: 16, duration: 500 });
+    mock.map.querySourceFeatures.mockReturnValue([{ geometry: { type: 'Point', coordinates: [121.55, 25.08] },
+      properties: { id: `tree:${homeTrees[0].id}` } }] as never);
+    mock.handlers.get('render')!({});
+    expect(trees[0].element.style.visibility).toBe('');
+    expect(cluster.remove).toHaveBeenCalled();
+    fixture.destroy();
+  });
 
   it('renders all trees as green-style circular markers and preserves selection/cultivation clicks', async () => {
     vi.mocked(HomeMapComponent.prototype.drawDestination).mockRestore();
