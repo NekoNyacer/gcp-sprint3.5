@@ -1,0 +1,29 @@
+<section class="profile-identity-row" aria-labelledby="profile-name">
+  <div class="avatar">
+    @if (portraitUrl(); as portrait) {
+      <img
+        [src]="portrait"
+        [alt]="displayName() + ' 的頭像'"
+        referrerpolicy="no-referrer"
+        (error)="onPortraitError()"
+      />
+    } @else {
+      <span aria-hidden="true">🌲</span>
+    }
+  </div>
+
+  <div class="identity-card__copy">
+    <h2 id="profile-name">{{ displayName() }}</h2>
+    <button class="traveler-id" type="button" aria-label="複製旅人編號" (click)="copyTravelerId()">
+      <span>旅人編號 {{ travelerId() }}</span>
+    </button>
+  </div>
+</section>
+
+<ion-toast
+  [isOpen]="copyMessage() !== ''"
+  [message]="copyMessage()"
+  [duration]="1800"
+  position="bottom"
+  (didDismiss)="copyMessage.set('')"
+/>

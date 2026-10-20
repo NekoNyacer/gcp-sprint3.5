@@ -228,6 +228,7 @@ export class HomeCultivateComponent implements OnDestroy {
   }
   private capture: { element: HTMLElement; pointerId: number } | null = null;
   private pointer: { x: number; y: number } | null = null;
+  private pendingHarvestResult = false;
   private keyboardFeeding = false;
   private feedingClock: ResourceFeedingClock | null = null;
   private feedingTimer: ReturnType<typeof setInterval> | null = null;
@@ -268,7 +269,8 @@ export class HomeCultivateComponent implements OnDestroy {
       const points = this.ps.demoTreePoints();
       const earnedPoints = points - this.previousTreePoints;
       this.previousTreePoints = points;
-      if (earnedPoints > 0) {
+      if (earnedPoints > 0 && this.pendingHarvestResult) {
+        this.pendingHarvestResult = false;
         untracked(() => {
           this.feedback.set(`已收成！果實已落地，獲得 ${earnedPoints} 點 Demo 小樹點。`);
           this.dialog.openTreePointResultDialog({
@@ -534,6 +536,7 @@ export class HomeCultivateComponent implements OnDestroy {
     if (!this.canHarvest() || document.hidden || !this.scene()?.canInteract()) return;
     this.stopGesture();
     if (!this.ps.startDemoHarvest()) return;
+    this.pendingHarvestResult = true;
     this.now.set(Date.now());
     this.feedback.set(`果實掉落中，落地後自動獲得 ${DEMO_HARVEST_POINTS} 點 Demo 小樹點。`);
   }

@@ -1,4 +1,4 @@
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="false">
   <div class="profile-page">
     <header class="page-heading">
       <div>
@@ -29,40 +29,6 @@
       </output>
     }
 
-    <section class="identity-card" aria-labelledby="profile-name">
-      <div class="identity-card__glow" aria-hidden="true"></div>
-      <div class="avatar">
-        @if (portraitUrl(); as portrait) {
-          <img
-            [src]="portrait"
-            [alt]="displayName() + ' 的頭像'"
-            referrerpolicy="no-referrer"
-            (error)="onPortraitError()"
-          />
-        } @else {
-          <span aria-hidden="true">{{ userInitial() }}</span>
-        }
-      </div>
-
-      <div class="identity-card__copy">
-        <p class="level-label">Lv. {{ levelPreview().level }} · {{ levelPreview().title }}</p>
-        <h2 id="profile-name">{{ displayName() }}</h2>
-        <button
-          class="traveler-id"
-          type="button"
-          aria-label="複製旅人編號"
-          (click)="copyTravelerId()"
-        >
-          <span>旅人編號 {{ travelerId() }}</span>
-          <ion-icon name="copy-outline" aria-hidden="true" />
-        </button>
-      </div>
-
-      <div class="identity-card__mark" aria-hidden="true">
-        <ion-icon name="leaf-outline" />
-      </div>
-    </section>
-
     <section class="level-card" aria-labelledby="level-heading">
       <div class="section-heading">
         <div class="section-icon section-icon--gold">
@@ -78,7 +44,10 @@
       <ion-progress-bar [value]="levelProgress()" aria-label="目前等級進度" />
 
       <div class="progress-copy">
-        <span>{{ levelPreview().currentXp | number }} / {{ levelPreview().nextLevelXp | number }} XP</span>
+        <span
+          >{{ levelPreview().currentXp | number }} /
+          {{ levelPreview().nextLevelXp | number }} XP</span
+        >
         <strong>再獲得 {{ remainingXp() | number }} XP 即可升級</strong>
       </div>
 
@@ -144,12 +113,4 @@
 
     <p class="data-note">等級與健走統計將依活動紀錄更新；目前 XP 規則仍在規劃中。</p>
   </div>
-
-  <ion-toast
-    [isOpen]="copyMessage() !== ''"
-    [message]="copyMessage()"
-    [duration]="1800"
-    position="bottom"
-    (didDismiss)="copyMessage.set('')"
-  />
 </ion-content>

@@ -1,9 +1,16 @@
-// :host {
-//   display: flex;
-//   flex-direction: column;
-//   height: 100%;
-//   min-height: 0;
-// }
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+ion-tabs {
+  position: relative;
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
 
 // .cathay-custom-logo {
 //   width: 248px;
@@ -42,6 +49,57 @@
 //     color: var(--ion-color-secondary);
 //   }
 // }
+
+ion-header {
+  flex-shrink: 0;
+}
+
+.arrow-back{
+    color: gray;
+}
+
+ion-toolbar {
+  --min-height: 72px;
+  --border-color:var(--ion-color-medium);
+  --border-width:0 0 1px 0;
+
+  ion-title {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    text-align: center;
+    pointer-events: none;
+    color: black;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  ion-buttons {
+    min-height: 48px;
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+
+    &.back-button-hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+}
+
+.toolbar-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 16px 24px 8px;
+  min-height: 48px;
+  width: 100%;
+}
+
+ion-toolbar.profile-toolbar {
+  --background: #4d6815;
+  --color: #fff;
+}
 
 ion-tab-bar {
   --background: #FFFFFF;

@@ -1,6 +1,19 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonLabel, IonIcon, IonTabBar, IonTabButton, IonTabs, IonBadge } from '@ionic/angular';
+import {
+  IonLabel,
+  IonIcon,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  IonBadge,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  IonButton,
+  IonButtons,
+  NavController,
+} from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   alert,
@@ -52,7 +65,6 @@ import {
   storefrontOutline,
   reloadOutline,
   sparkles,
-  eye,
   eyeOffOutline,
   eyeOutline,
   medkit,
@@ -62,12 +74,19 @@ import { TaskStore } from '../../../features/task/task-store';
 import { DialogComponent } from '../dialog/dialog.component';
 import { WalkSessionStore } from '../../stores/walk-session-store';
 import { CubModalComponent } from '../modal/modal.component';
+import { ProfileIdentityComponent } from '../profile-identity/profile-identity.component';
 
 @Component({
   selector: 'app-shell',
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
   imports: [
+    ProfileIdentityComponent,
+    IonButton,
+    IonButtons,
+    IonTitle,
+    IonToolbar,
+    IonHeader,
     IonLabel,
     IonIcon,
     IonTabBar,
@@ -80,9 +99,48 @@ import { CubModalComponent } from '../modal/modal.component';
 })
 export class AppShellComponent {
   private readonly router = inject(Router);
+  private readonly navController = inject(NavController);
   private readonly sessionStore = inject(SessionStore);
   protected readonly walkSession = inject(WalkSessionStore);
   readonly taskStore = inject(TaskStore);
+
+  /**header文字設定，用route位置判斷該顯示的內容 */
+  protected readonly headerTxt = computed(() => {
+    const url = this.currentUrl();
+    switch (url) {
+      case '/collection':
+        return '回憶林';
+      case '/task':
+        return '任務';
+      case '/shop':
+        return '兌換';
+      default:
+        return '未知標題';
+    }
+  });
+
+  /**健走(home)有特別的排版，需要設定一個signal來監聽 */
+  protected readonly isInHomeTab = computed(() => this.currentUrl() === '/home');
+
+  protected readonly isProfileRoot = computed(() => {
+    const segments = this.router.parseUrl(this.currentUrl()).root.children['primary']?.segments ?? [];
+    return segments.length === 1 && segments[0].path === 'profile';
+  });
+
+  /**各 tab 首頁不顯示返回按鈕；忽略 query string 與 fragment。 */
+  protected readonly showBackButton = computed(() => {
+    const urlTree = this.router.parseUrl(this.currentUrl());
+    const segments = urlTree.root.children['primary']?.segments ?? [];
+    const tabRoots = ['home', 'task', 'shop', 'collection', 'profile'];
+    return !(segments.length === 1 && tabRoots.includes(segments[0].path));
+  });
+
+  protected goToParentRoute(): void {
+    const urlTree = this.router.parseUrl(this.currentUrl());
+    const segments = urlTree.root.children['primary']?.segments ?? [];
+    const parentUrl = '/' + segments.slice(0, -1).map((segment) => segment.toString()).join('/');
+    void this.navController.navigateBack(parentUrl);
+  }
 
   //註冊icon
   constructor() {

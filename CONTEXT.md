@@ -1,4 +1,53 @@
 # CAT WALK project context
+- 2026-10-20 harvest point result notification guard: Open the result modal
+  only for a point increase following a successful user initiated harvest in
+  the active cultivation component. Hydrating or switching progress scopes
+  must never be treated as newly earned points.
+- 2026-10-20 header sizing correction: Use one shared ion-toolbar with a
+  common 48px minimum content row for both profile identity and other tab
+  titles. Explicitly reset identity-card margin, padding, border, radius,
+  shadow and background; the olive color belongs to the toolbar.
+- 2026-10-20 profile header alignment update: Use the same toolbar height,
+  padding, border and rectangular shape as other tabs. Only the olive
+  background and identity content differ. Share a 72px toolbar minimum and
+  48px content/button row minimum; use a 44px avatar and 24px name. This
+  supersedes the rounded standalone identity-card frame below.
+- 2026-10-20 profile identity header appearance: Follow the supplied compact
+  reference with a solid dark olive background, large rounded top corners,
+  thin dark outline, muted green circular portrait and white display name
+  above a subdued traveler ID. Remove the gradient, header level label and
+  decorative badge; use a tree emoji when the account has no usable portrait.
+  Preserve traveler-ID copying and existing ID values.
+- 2026-10-20 profile header: Render the existing identity card in the shared
+  shell header on the /profile root, including when query parameters or a
+  fragment are present. ProfileIdentityComponent owns account name, portrait
+  fallback and traveler-ID copy feedback. Remove the duplicate identity card
+  from profile content. Share the existing demo/normal level preview values
+  between header and progress card; actual XP rules remain unresolved.
+- 2026-10-20 shared header sizing: Preserve the back-button group's layout
+  space on tab roots using visibility: hidden rather than removing it with
+  @if. Match the height, padding and title position of the visible-button
+  header; hidden buttons cannot receive pointer or keyboard focus.
+- 2026-10-20 shared header back visibility: Hide the back button on the five
+  tab roots (/home, /task, /shop, /collection, /profile); show it on other
+  routes where the shared header is present. Ignore query parameters and
+  fragments when identifying a tab root.
+- 2026-10-20 shared header back action: Navigate to the parent URL path by
+  removing the last primary path segment, using NavController.navigateBack
+  for the back transition. For example, /shop/history returns to /shop.
+  Drop query parameters and fragments. This replaces history-based back
+  navigation and the earlier fixed /home fallback.
+- 2026-10-20 shared toolbar alignment: Keep the back icon button at the start
+  in ion-buttons and center the title across the full toolbar width with
+  symmetric title padding. The title must not intercept button clicks.
+- 2026-10-20 app shell layout: Stack the shared header and tabs vertically.
+  Override ion-tabs' default absolute positioning with relative positioning
+  and flex sizing so routed content occupies the remaining space below the
+  header. Let Ionic apply the first toolbar's top safe-area inset once.
+- 2026-10-20 app shell header: Center the page title and remove the header
+  shadow and toolbar border. Use Ionic's ion-no-border class on ion-header;
+  the installed Material header stylesheet sets box-shadow directly and does
+  not consume a --box-shadow custom property.
 - 2026-10-20 production Mapbox worker repair: The preview map failed after
   initial load because Angular production optimization broke the embedded blob
   worker (ReferenceError: s is not defined). Serve mapbox-gl 3.32.0's unmodified
