@@ -5,6 +5,7 @@ import {
   effect,
   ElementRef,
   inject,
+  input,
   OnDestroy,
   output,
   signal,
@@ -99,19 +100,31 @@ export class HomeCultivateComponent implements OnDestroy {
   private readonly tree = computed(() => findHomeTree(this.ps.activeDemoTreeId()));
   readonly weather = computed<CultivationWeather>(() => this.tree()?.weather ?? 'sunny');
   readonly timeOfDay = computed<CultivationTimeOfDay>(() => this.tree()?.timeOfDay ?? 'day');
-  readonly isOpen = computed(() => this.ws.isCultivating());
+  readonly externalOpen = input<boolean | null>(null);
+  readonly collectionPreview = input(false);
+  readonly navigationRequested = output<string>();
+  private navigationTreeId: string | null = null;
+  navigateToTree(): void {
+    if (this.navigationTreeId !== null) return;
+    this.navigationTreeId = this.ps.activeDemoTreeId();
+    void this.modal()?.dismiss(undefined, 'navigate');
+  }
+  readonly closed = output<void>();
+  readonly isOpen = computed(() => this.externalOpen() ?? this.ws.isCultivating());
   readonly treeName = computed(() =>
     !this.ps.demoTreePlanted() ? '空的種植點' : (this.tree()?.nickName ?? '小樹'),
   );
   readonly treeLocation = computed(() => this.tree()?.poiName ?? '');
   readonly treeSpecies = computed(() => this.tree()?.species ?? '榕樹');
   readonly canCultivate = computed(() => {
+    if (this.collectionPreview()) return false;
     const tree = this.tree();
     return (
       !!tree && isWithinGeoRadius(this.ls.current(), tree.position, TREE_CULTIVATION_RADIUS_METERS)
     );
   });
   readonly accessMessage = computed(() => {
+    if (this.collectionPreview()) return null;
     if (this.canCultivate()) return null;
     const position = this.ls.current();
     if (!isValidGeoPoint(position)) {
@@ -123,7 +136,7 @@ export class HomeCultivateComponent implements OnDestroy {
     return `距離「${tree.nickName}」約 ${distance} 公尺，目前僅能查看；請靠近至 ${TREE_CULTIVATION_RADIUS_METERS} 公尺內再培育。`;
   });
   readonly showDestinationCheckIn = computed(
-    () => this.ws.hasActiveRoute() && this.ws.destination()?.id === this.tree()?.id,
+    () => this.externalOpen() === null && this.ws.hasActiveRoute() && this.ws.destination()?.id === this.tree()?.id,
   );
   readonly checkInMessage = computed(() => this.ws.checkInError());
   readonly destinationCheckIn = output<void>();
@@ -597,7 +610,11 @@ export class HomeCultivateComponent implements OnDestroy {
 
   dismissed(): void {
     this.stopGesture();
-    this.ws.finishCultivating();
+    if (this.externalOpen() === null) this.ws.finishCultivating();
+    const treeId = this.navigationTreeId;
+    this.navigationTreeId = null;
+    if (treeId !== null) this.navigationRequested.emit(treeId);
+    this.closed.emit();
   }
 
   ngOnDestroy(): void {

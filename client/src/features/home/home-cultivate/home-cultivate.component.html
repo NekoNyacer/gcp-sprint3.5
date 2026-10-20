@@ -96,78 +96,90 @@
               >
             }
 
-            <div class="resource-dock">
-              @for (resource of resources; track resource) {
-                @if (resource !== 'fertilizer') {
-                  <div class="resource-slot">
-                    <button
-                      type="button"
-                      class="resource"
-                      [class]="resource"
-                      [class.held]="heldResource() === resource"
-                      [disabled]="canCultivate() && !canUse(resource)"
-                      [attr.aria-pressed]="heldResource() === resource"
-                      aria-describedby="care-cost"
-                      (pointerdown)="grab($event, resource)"
-                      (pointermove)="move($event)"
-                      (pointerup)="release($event)"
-                      (pointercancel)="cancel($event)"
-                      (lostpointercapture)="cancel($event)"
-                      (click)="$event.detail === 0 && keyboardUse(resource)"
-                    >
-                      <ion-icon [icon]="icons[resource]" />
-                      <strong
-                        >{{ labels[resource] }}
-                        <span>{{ inventory(resource) | number }}</span></strong
-                      >
-                    </button>
-                  </div>
-                }
-              }
-              <button
-                type="button"
-                class="resource backpack"
-                [attr.aria-expanded]="backpackOpen()"
-                aria-controls="cultivation-backpack"
-                (click)="toggleBackpack()"
+            @if (collectionPreview()) {
+              <ion-button
+                color="primary"
+                class="nav-to-this-tree"
+                expand="block"
+                (click)="navigateToTree()"
               >
-                <ion-icon name="medkit" />
-                <strong>道具</strong>
-              </button>
-            </div>
-            @if (backpackOpen()) {
-              <section id="cultivation-backpack" class="backpack-panel" aria-label="背包道具">
-                <header>
-                  <strong>背包</strong
-                  ><button type="button" (click)="toggleBackpack()">關閉</button>
-                </header>
+                <ion-icon name="compass-outline" />
+                <ion-label>導航到此樹木</ion-label>
+              </ion-button>
+            } @else {
+              <div class="resource-dock">
+                @for (resource of resources; track resource) {
+                  @if (resource !== 'fertilizer') {
+                    <div class="resource-slot">
+                      <button
+                        type="button"
+                        class="resource"
+                        [class]="resource"
+                        [class.held]="heldResource() === resource"
+                        [disabled]="canCultivate() && !canUse(resource)"
+                        [attr.aria-pressed]="heldResource() === resource"
+                        aria-describedby="care-cost"
+                        (pointerdown)="grab($event, resource)"
+                        (pointermove)="move($event)"
+                        (pointerup)="release($event)"
+                        (pointercancel)="cancel($event)"
+                        (lostpointercapture)="cancel($event)"
+                        (click)="$event.detail === 0 && keyboardUse(resource)"
+                      >
+                        <ion-icon [icon]="icons[resource]" />
+                        <strong
+                          >{{ labels[resource] }}
+                          <span>{{ inventory(resource) | number }}</span></strong
+                        >
+                      </button>
+                    </div>
+                  }
+                }
                 <button
                   type="button"
-                  class="backpack-item"
-                  [disabled]="canCultivate() && !canUse('fertilizer')"
-                  (click)="useBackpackItem('fertilizer')"
+                  class="resource backpack"
+                  [attr.aria-expanded]="backpackOpen()"
+                  aria-controls="cultivation-backpack"
+                  (click)="toggleBackpack()"
                 >
-                  <ion-icon [icon]="icons.fertilizer" />
-                  <span
-                    ><strong>肥料 × {{ ps.inventory().fertilizer | number }}</strong
-                    ><small>對一處種植點使用，可提升該處的成長值</small></span
-                  >
-                  <span>使用</span>
+                  <ion-icon name="medkit" />
+                  <strong>道具</strong>
                 </button>
-                <button
-                  type="button"
-                  class="backpack-item"
-                  [disabled]="canCultivate() && !canPlant()"
-                  (click)="useBackpackItem('seed')"
-                >
-                  <ion-icon [icon]="seedIcon" />
-                  <span
-                    ><strong>種子 × {{ ps.inventory().seeds | number }}</strong
-                    ><small>前往空地種下種子吧！</small></span
+              </div>
+              @if (backpackOpen()) {
+                <section id="cultivation-backpack" class="backpack-panel" aria-label="背包道具">
+                  <header>
+                    <strong>背包</strong
+                    ><button type="button" (click)="toggleBackpack()">關閉</button>
+                  </header>
+                  <button
+                    type="button"
+                    class="backpack-item"
+                    [disabled]="canCultivate() && !canUse('fertilizer')"
+                    (click)="useBackpackItem('fertilizer')"
                   >
-                  <span>使用</span>
-                </button>
-              </section>
+                    <ion-icon [icon]="icons.fertilizer" />
+                    <span
+                      ><strong>肥料 × {{ ps.inventory().fertilizer | number }}</strong
+                      ><small>對一處種植點使用，可提升該處的成長值</small></span
+                    >
+                    <span>使用</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="backpack-item"
+                    [disabled]="canCultivate() && !canPlant()"
+                    (click)="useBackpackItem('seed')"
+                  >
+                    <ion-icon [icon]="seedIcon" />
+                    <span
+                      ><strong>種子 × {{ ps.inventory().seeds | number }}</strong
+                      ><small>前往空地種下種子吧！</small></span
+                    >
+                    <span>使用</span>
+                  </button>
+                </section>
+              }
             }
           </section>
         </div>

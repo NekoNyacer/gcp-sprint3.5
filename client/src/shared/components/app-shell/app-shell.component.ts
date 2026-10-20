@@ -68,6 +68,8 @@ import {
   eyeOffOutline,
   eyeOutline,
   medkit,
+  gridOutline,
+  mapOutline,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
@@ -123,7 +125,8 @@ export class AppShellComponent {
   protected readonly isInHomeTab = computed(() => this.currentUrl() === '/home');
 
   protected readonly isProfileRoot = computed(() => {
-    const segments = this.router.parseUrl(this.currentUrl()).root.children['primary']?.segments ?? [];
+    const segments =
+      this.router.parseUrl(this.currentUrl()).root.children['primary']?.segments ?? [];
     return segments.length === 1 && segments[0].path === 'profile';
   });
 
@@ -138,13 +141,20 @@ export class AppShellComponent {
   protected goToParentRoute(): void {
     const urlTree = this.router.parseUrl(this.currentUrl());
     const segments = urlTree.root.children['primary']?.segments ?? [];
-    const parentUrl = '/' + segments.slice(0, -1).map((segment) => segment.toString()).join('/');
+    const parentUrl =
+      '/' +
+      segments
+        .slice(0, -1)
+        .map((segment) => segment.toString())
+        .join('/');
     void this.navController.navigateBack(parentUrl);
   }
 
   //註冊icon
   constructor() {
     addIcons({
+      mapOutline,
+      gridOutline,
       arrowRedo,
       medkit,
       eyeOutline,

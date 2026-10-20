@@ -83,6 +83,11 @@ a {
 
 .supply-station-marker,
 .tree-marker {
+  &.collection-tree-marker::before,
+  &.collection-tree-marker::after {
+    content: none;
+    animation: none;
+  }
   display: grid;
   place-items: center;
   width: 44px;

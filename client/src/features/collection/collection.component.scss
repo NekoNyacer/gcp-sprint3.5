@@ -1,3 +1,61 @@
-ion-card{
- height: 100px;
+ion-card {
+  height: 100px;
+}
+
+.collection-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  > ion-toolbar { flex-shrink: 0; }
+
+  &.map-mode {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.collection-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.collection-map-container {
+  position: absolute;
+  inset: 0;
+}
+.top{
+  padding: 10px 27px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &.float{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: color-mix(in srgb, var(--ion-color-light) 80%, transparent);
+  }
+
+  p{
+    color: var(--ion-color-medium-shade);
+  }
+}
+.mode-btns{
+  :first-child{
+    --border-radius:8px 0 0 8px;
+  }
+  
+  :last-child{
+    --border-radius:0 8px 8px 0;
+  }
+}
+
+ion-col{
+  min-width: 0;
+  --ion-grid-column-padding:0;
 }

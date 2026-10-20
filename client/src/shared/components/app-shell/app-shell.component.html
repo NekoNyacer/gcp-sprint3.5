@@ -27,7 +27,7 @@
           [name]="currentUrl() === '/home' ? 'navigate-circle' : 'navigate-circle-outline'"
         />
         <ion-label>健走</ion-label>
-        <ion-badge color="danger"></ion-badge>
+        <!-- <ion-badge color="danger"></ion-badge> -->
       </ion-tab-button>
 
       <ion-tab-button tab="task">
@@ -38,13 +38,42 @@
         }
       </ion-tab-button>
       <ion-tab-button tab="shop">
-        <ion-icon [name]="currentUrl() === '/shop' ? 'gift' : 'gift-outline'" />
+        <ion-icon [name]="currentUrl() === '/shop' ? 'leaf' : 'leaf-outline'" />
         <ion-label>兌換</ion-label>
       </ion-tab-button>
 
       <ion-tab-button tab="collection">
-        <ion-icon [name]="currentUrl() === '/collection' ? 'leaf' : 'leaf-outline'" />
-        <ion-label>回憶</ion-label>
+        @if (currentUrl() === '/collection') {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="#ee6a17"
+          >
+            <path
+              d="M280-80v-160H0l154-240H80l280-400 120 172 120-172 280 400h-74l154 240H680v160H520v-160h-80v160H280Z"
+            />
+          </svg>
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24px"
+            viewBox="0 -960 960 960"
+            width="24px"
+            fill="none"
+            stroke="#595959"
+            stroke-width="60"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              transform="translate(48 -48) scale(0.9)"
+              d="M280-80v-160H0l154-240H80l280-400 120 172 120-172 280 400h-74l154 240H680v160H520v-160h-80v160H280Z M480-708l160 228h-74l154 240H440"
+            />
+          </svg>
+        }
+        <ion-label>回憶林</ion-label>
       </ion-tab-button>
 
       <ion-tab-button tab="profile">

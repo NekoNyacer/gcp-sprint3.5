@@ -91,6 +91,10 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     { marker: mapboxgl.Marker; button: HTMLButtonElement }
   >();
   private treeMarkerGestureCleanups: (() => void)[] = [];
+  private readonly clusterMarkers = new Map<number, mapboxgl.Marker>();
+  private stationClusterPoints: { id: string; button: HTMLButtonElement; position: GeoPoint }[] =
+    [];
+  private clusterRevision = 0;
   private treePopups: {
     tree: RecommendedHomeTree;
     view: EmbeddedViewRef<{ $implicit: RecommendedHomeTree }>;
@@ -196,6 +200,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
         button.append(check);
       }
     }
+    this.syncClusterSource();
   });
 
   private readonly treePopupEffect = afterRenderEffect(() => {
@@ -500,7 +505,9 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
           .setLngLat([task.position.longitude, task.position.latitude])
           .addTo(this.map),
       );
+      this.stationClusterPoints.push({ id: task.id, button, position: task.position });
     }
+    this.syncClusterSource();
   });
   private readonly locationEffect = effect(() => {
     const position = this.ls.current();
@@ -628,6 +635,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     });
     this.map.on('move', () => this.reportPlayerCenterOffset(this.ls.current()));
     this.map.on('moveend', () => this.schedulePopupFit());
+    this.map.on('render', () => this.renderClusters());
     for (const interaction of ['dragstart', 'rotatestart', 'pitchstart'] as const) {
       this.map.on(interaction, (event) => {
         if ('originalEvent' in event && event.originalEvent) {
@@ -654,6 +662,9 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     this.treeMarkerGestureCleanups = [];
     for (const { marker } of this.treeMarkers.values()) marker.remove();
     this.treeMarkers.clear();
+    for (const marker of this.clusterMarkers.values()) marker.remove();
+    this.clusterMarkers.clear();
+    this.clusterRevision++;
     this.playerHeadingMarker?.remove();
     this.map?.remove();
   }
@@ -663,6 +674,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     this.taskMarkerGestureCleanups = [];
     for (const marker of this.taskMarkers) marker.remove();
     this.taskMarkers = [];
+    this.stationClusterPoints = [];
   }
 
   /**Dispatches marker taps and long presses without letting a long press trigger a tap. */
@@ -966,6 +978,134 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
         .setLngLat([tree.position.longitude, tree.position.latitude])
         .addTo(this.map);
       this.treeMarkers.set(tree.id, { marker, button });
+    }
+    this.map.addSource('home-marker-clusters', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+      cluster: true,
+      clusterRadius: 55,
+      clusterMaxZoom: 18,
+    });
+    this.map.addLayer({
+      id: 'home-marker-cluster-data',
+      type: 'circle',
+      source: 'home-marker-clusters',
+      slot: 'top',
+      paint: { 'circle-radius': 0, 'circle-opacity': 0 },
+    });
+    this.syncClusterSource();
+  }
+
+  private clusterPoints() {
+    return [
+      ...homeTrees.flatMap((tree) => {
+        const entry = this.treeMarkers.get(tree.id);
+        return entry && !entry.button.hidden
+          ? [{ id: `tree:${tree.id}`, button: entry.button, position: tree.position }]
+          : [];
+      }),
+      ...this.stationClusterPoints.map((point) => ({ ...point, id: `station:${point.id}` })),
+    ];
+  }
+
+  private syncClusterSource(): void {
+    const source = this.map?.getSource('home-marker-clusters') as
+      mapboxgl.GeoJSONSource | undefined;
+    if (!source) return;
+    this.clusterRevision++;
+    for (const marker of this.clusterMarkers.values()) marker.remove();
+    this.clusterMarkers.clear();
+    for (const { button } of this.treeMarkers.values()) button.style.visibility = '';
+    for (const { button } of this.stationClusterPoints) button.style.visibility = '';
+    source.setData({
+      type: 'FeatureCollection',
+      features: this.clusterPoints().map((point) => ({
+        type: 'Feature',
+        properties: { id: point.id },
+        geometry: {
+          type: 'Point',
+          coordinates: [point.position.longitude, point.position.latitude],
+        },
+      })),
+    });
+  }
+
+  private renderClusters(): void {
+    const map = this.map;
+    if (
+      !map ||
+      !this.mapReady() ||
+      !map.getSource('home-marker-clusters') ||
+      !map.isSourceLoaded('home-marker-clusters')
+    )
+      return;
+    // Mapbox's package lacks GeoJSON declarations in this repo; use the point shape read here.
+    const features = map.querySourceFeatures('home-marker-clusters') as unknown as {
+      geometry: { type: string; coordinates: [number, number] };
+      properties: { id?: string; cluster_id?: number; point_count?: number };
+    }[];
+    const singles = new Set(
+      features
+        .filter((feature) => !feature.properties.point_count)
+        .map((feature) => feature.properties.id),
+    );
+    for (const point of this.clusterPoints())
+      point.button.style.visibility = singles.has(point.id) ? '' : 'hidden';
+    const visible = new Set<number>();
+    for (const feature of features) {
+      const { cluster_id: id, point_count: count } = feature.properties;
+      if (id === undefined || !count || feature.geometry.type !== 'Point' || visible.has(id))
+        continue;
+      visible.add(id);
+      if (this.clusterMarkers.has(id)) continue;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'home-map-cluster';
+      button.textContent = String(count);
+      button.setAttribute('aria-label', `${count} 個地點，點擊放大展開`);
+      Object.assign(button.style, {
+        width: '48px',
+        height: '48px',
+        borderRadius: '50%',
+        border: '3px solid white',
+        background: '#e77732',
+        color: 'white',
+        fontSize: '16px',
+        fontWeight: '700',
+        cursor: 'pointer',
+        boxShadow: '0 2px 6px #0003',
+      });
+      const coordinates = feature.geometry.coordinates;
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const revision = this.clusterRevision;
+        const source = map.getSource('home-marker-clusters') as mapboxgl.GeoJSONSource;
+        source.getClusterExpansionZoom(id, (error, zoom) => {
+          if (
+            error ||
+            zoom == null ||
+            !this.mapReady() ||
+            this.map !== map ||
+            revision !== this.clusterRevision
+          )
+            return;
+          this.camera.stopFollowing(this);
+          this.closeStationPopup();
+          map.easeTo({ center: coordinates, zoom, duration: 500 });
+        });
+      });
+      this.clusterMarkers.set(
+        id,
+        new mapboxgl.Marker({ element: button, anchor: 'center' })
+          .setLngLat(coordinates)
+          .addTo(map),
+      );
+    }
+    for (const [id, marker] of this.clusterMarkers) {
+      if (!visible.has(id)) {
+        marker.remove();
+        this.clusterMarkers.delete(id);
+      }
     }
   }
 

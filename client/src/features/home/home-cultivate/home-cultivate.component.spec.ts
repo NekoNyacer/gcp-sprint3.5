@@ -77,6 +77,35 @@ function createFixture() {
 }
 
 describe('HomeCultivateComponent direct feeding', () => {
+  it('disables collection preview care and requests navigation only after dismissal', () => {
+    const fixture = createFixture();
+    fixture.componentRef.setInput('externalOpen', true);
+    fixture.componentRef.setInput('collectionPreview', true);
+    const component = fixture.componentInstance;
+    const navigate = vi.fn();
+    component.navigationRequested.subscribe(navigate);
+    expect(component.canCultivate()).toBe(false);
+    expect(component.canHarvest()).toBe(false);
+    component.navigateToTree();
+    expect(navigate).not.toHaveBeenCalled();
+    component.dismissed();
+    expect(navigate).toHaveBeenCalledExactlyOnceWith(component.ps.activeDemoTreeId());
+    expect(walkSession.finishCultivating).not.toHaveBeenCalled();
+    fixture.destroy();
+  });
+  it('opens independently for collection and closes without finishing the Home session', () => {
+    const fixture = createFixture();
+    walkSession.isCultivating.set(false);
+    fixture.componentRef.setInput('externalOpen', true);
+    const closed = vi.fn();
+    fixture.componentInstance.closed.subscribe(closed);
+    expect(fixture.componentInstance.isOpen()).toBe(true);
+    expect(fixture.componentInstance.showDestinationCheckIn()).toBe(false);
+    fixture.componentInstance.dismissed();
+    expect(closed).toHaveBeenCalledTimes(1);
+    expect(walkSession.finishCultivating).not.toHaveBeenCalled();
+    fixture.destroy();
+  });
   beforeEach(() => {
     TestBed.overrideProvider(TreeDisplayService, { useValue: { mode: signal('2d') } });
     locationOverride = signal<LocationPoint | null | undefined>(undefined);

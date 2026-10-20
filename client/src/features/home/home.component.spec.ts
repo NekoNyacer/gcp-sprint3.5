@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { HomeComponent } from './home.component';
+import { TreeNavigationService } from '../../shared/services/tree-navigation.service';
 import { HomePlanComponent } from './home-plan/home-plan.component';
 import { LocationPoint, LocationStore } from '../../shared/stores/location-store';
 import { WalkSessionStore } from '../../shared/stores/walk-session-store';
@@ -137,6 +138,19 @@ describe('Home task-selection camera', () => {
       dismissToast,
     };
   }
+
+  it('loads a collection navigation destination once when Home enters', async () => {
+    const { fixture, store, directions } = setup();
+    TestBed.inject(TreeNavigationService).request('tree-5');
+    await fixture.componentInstance.ionViewDidEnter();
+    expect(store.isPlanning()).toBe(true);
+    expect(store.destination()?.id).toBe('tree-5');
+    expect(store.destinationConfirmed()).toBe(false);
+    expect(directions.walking).toHaveBeenCalled();
+    const requests = directions.walking.mock.calls.length;
+    await fixture.componentInstance.ionViewDidEnter();
+    expect(directions.walking).toHaveBeenCalledTimes(requests);
+  });
 
   it('starts following the latest player position only after departure is confirmed', async () => {
     const { fixture, store, current, intents, camera } = setup();

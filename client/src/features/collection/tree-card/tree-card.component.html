@@ -1,14 +1,19 @@
-<ion-card>
+<ion-card
+  [button]="interactive()"
+  [attr.aria-label]="interactive() ? '查看 ' + tree().name : null"
+  (click)="select()"
+>
   <img
-    alt="Silhouette of mountains"
-    src="https://ionicframework.com/docs/img/demos/card-media.png"
+    [alt]="tree().species"
+    src="/images/assets/botanical-tree.svg"
   />
-  <ion-card-header>
-    <ion-card-title>{{ tree().name }}</ion-card-title>
-    <ion-card-subtitle>{{ tree().location }}</ion-card-subtitle>
-  </ion-card-header>
-
-  <ion-card-content>
-    <div class="growthPercentage"></div>
-  </ion-card-content>
+  <legend>
+    <div>
+      <ion-label color="secondary">{{ tree().name }}</ion-label>
+      <ion-chip [color]="tree().canHarvest ? 'primary' : 'medium'">{{ tree().harvested ? '已收成' : tree().canHarvest ? '可收成' : tree().stage }}</ion-chip>
+    </div>
+    <p>{{ tree().location }}</p>
+    <p>{{ tree().species }} · {{ tree().stage }}</p>
+    <p>種植於 {{ tree().plantedAt | date: 'yyyy/MM/dd' : '+0800' }}</p>
+  </legend>
 </ion-card>
