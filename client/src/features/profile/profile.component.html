@@ -1,116 +1,124 @@
-<ion-content [fullscreen]="false">
-  <div class="profile-page">
-    <header class="page-heading">
-      <div>
-        <p class="eyebrow">MY JOURNEY</p>
-        <h1>個人資料</h1>
-        <p>每一步，都在寫下你的綠色旅程。</p>
-      </div>
-
-      <div class="page-heading__actions">
-        @if (sessionStore.isDemoMode()) {
-          <span class="demo-badge">DEMO</span>
-        }
-        <button class="logout-button" type="button" (click)="logOut()">
-          <ion-icon name="log-out-outline" aria-hidden="true" />
-          <span>登出</span>
-        </button>
-      </div>
-    </header>
-
+﻿<ion-content class="profile-page">
+  <main class="profile-content">
     @if (sessionStore.profileLoading()) {
-      <output class="sync-status">
-        <ion-spinner name="crescent" />
-        <span>正在同步個人資料</span>
-      </output>
+      <output class="sync-status"><ion-spinner name="crescent" />正在同步個人資料</output>
     } @else if (sessionStore.profileError()) {
-      <output class="sync-status sync-status--warning">
-        <span>暫時無法同步雲端資料，以下顯示本機資訊。</span>
-      </output>
+      <output class="sync-status">暫時無法同步雲端資料，以下顯示本機資訊。</output>
     }
 
-    <section class="level-card" aria-labelledby="level-heading">
+    <section class="profile-section level-section" aria-labelledby="level-heading">
+      <p class="eyebrow">玩家等級</p>
+      <h2 id="level-heading">
+        <span class="accent">Lv. {{ levelPreview().level }}</span> {{ levelPreview().title }}
+      </h2>
+      <div class="progress-label">
+        <span>距下一級</span><strong>{{ levelProgress() * 100 | number: '1.0-0' }}%</strong>
+      </div>
+      <ion-progress-bar [value]="levelProgress()" aria-label="玩家等級進度" />
+      <p class="level-tip">完成健走任務、達成每日步數目標，以及培育樹木，都能累積旅人經驗值。</p>
+    </section>
+
+    <section class="profile-section" aria-labelledby="trees-heading">
       <div class="section-heading">
-        <div class="section-icon section-icon--gold">
-          <ion-icon name="sparkles-outline" />
-        </div>
-        <div>
-          <p>LEVEL PROGRESS</p>
-          <h2 id="level-heading">下一級進度</h2>
-        </div>
-        <strong>{{ levelProgress() * 100 | number: '1.0-0' }}%</strong>
-      </div>
-
-      <ion-progress-bar [value]="levelProgress()" aria-label="目前等級進度" />
-
-      <div class="progress-copy">
-        <span
-          >{{ levelPreview().currentXp | number }} /
-          {{ levelPreview().nextLevelXp | number }} XP</span
+        <h2 id="trees-heading">百樹夥伴</h2>
+        <span class="tree-count"
+          ><strong>{{ matureTrees() | number }}</strong> 棵</span
         >
-        <strong>再獲得 {{ remainingXp() | number }} XP 即可升級</strong>
       </div>
-
-      <div class="level-tip">
-        <ion-icon name="ribbon-outline" aria-hidden="true" />
-        <p>完成健走任務、達成每日步數目標，以及培育樹木，都能累積旅人經驗值。</p>
+      <ion-progress-bar [value]="treeProgress()" aria-label="百樹夥伴進度" />
+      <div class="progress-label tree-summary">
+        <span>{{ matureTrees() | number }} / 100 棵</span
+        ><span>還差 {{ remainingTrees() | number }} 棵</span>
       </div>
     </section>
 
-    <section class="stats-section" aria-labelledby="stats-heading">
-      <div class="section-title-row">
-        <div>
-          <p class="eyebrow">WALKING STATS</p>
-          <h2 id="stats-heading">健走統計</h2>
-        </div>
-        <div class="goal-chip">
-          <ion-icon name="checkmark-circle" aria-hidden="true" />
-          每日目標 {{ dailyGoal() | number }} 步
-        </div>
+    <section class="profile-section" aria-labelledby="stats-heading">
+      <div class="section-heading">
+        <h2 id="stats-heading">健走統計</h2>
+        <span class="goal-chip">每日目標 {{ dailyGoal() | number }} 步</span>
       </div>
-
-      <div class="stats-grid">
-        <article class="stat-card stat-card--today">
-          <div class="stat-card__icon">
-            <ion-icon name="footsteps-outline" />
-          </div>
-          <p>今日步數</p>
-          <strong>{{ walkingStats().today | number }}</strong>
-          <span>步</span>
-          <div class="goal-track" aria-hidden="true">
-            <div class="goal-track__fill" [style.width.%]="todayGoalProgress() * 100"></div>
-          </div>
+      <article class="today-stat">
+        <p>今日步數</p>
+        <div class="today-summary">
+          <strong class="accent">{{ walkingStats().today | number }}</strong>
           <small>
             @if (walkingStats().today >= dailyGoal()) {
-              今日目標已達成！
+              已超過今日目標 🎉
             } @else {
-              距離目標還差 {{ dailyGoal() - walkingStats().today | number }} 步
+              距目標還差 {{ dailyGoal() - walkingStats().today | number }} 步
             }
           </small>
-        </article>
-
+        </div>
+        <ion-progress-bar [value]="todayGoalProgress()" aria-label="今日步數目標進度" />
+      </article>
+      <div class="stats-grid">
         <article class="stat-card">
-          <div class="stat-card__icon stat-card__icon--blue">
-            <ion-icon name="trending-up-outline" />
-          </div>
           <p>本週累積</p>
           <strong>{{ walkingStats().week | number }}</strong>
-          <span>步</span>
-          <small>持續累積本週足跡</small>
         </article>
-
         <article class="stat-card">
-          <div class="stat-card__icon stat-card__icon--purple">
-            <ion-icon name="time-outline" />
-          </div>
           <p>歷史總步數</p>
           <strong>{{ walkingStats().allTime | number }}</strong>
-          <span>步</span>
-          <small>你的每一步都算數</small>
         </article>
       </div>
     </section>
 
-    <p class="data-note">等級與健走統計將依活動紀錄更新；目前 XP 規則仍在規劃中。</p>
-  </div>
+    <section class="profile-section" aria-labelledby="recent-heading">
+      <div class="section-heading">
+        <h2 id="recent-heading">近期紀錄</h2>
+        <a routerLink="/shop/history">查看全部</a>
+      </div>
+      @if (sessionStore.isDemoMode() && shopStore.loadStatus() === 'loading') {
+        <p class="empty-state">正在載入紀錄…</p>
+      } @else if (sessionStore.isDemoMode() && shopStore.loadError()) {
+        <p class="empty-state">暫時無法載入紀錄</p>
+      } @else {
+        @for (transaction of recentTransactions(); track transaction.id) {
+          <article class="transaction">
+            <span
+              class="transaction-icon"
+              [class.transaction-icon--charity]="transaction.type === 'CHARITY'"
+              aria-hidden="true"
+              ><ion-icon
+                [name]="transaction.type === 'CHARITY' ? 'leaf-outline' : 'ticket-outline'"
+            /></span>
+            <div class="transaction-copy">
+              <h3>
+                {{
+                  transaction.type === 'CHARITY'
+                    ? '生態公益投入'
+                    : transaction.type === 'TREE_POINTS'
+                      ? '小樹點兌換'
+                      : '樹木額度到期'
+                }}
+              </h3>
+              <p>
+                @if (transaction.type === 'TREE_POINTS') {
+                  累計使用 {{ transaction.treePointsAmount | number }} 點
+                } @else if (transaction.type === 'CHARITY') {
+                  公益投入 NT$ {{ transaction.charityTotalAmount | number }}
+                }
+                · 預計使用 {{ transaction.requestedTreeCount }} 棵
+              </p>
+              <time>{{ transaction.occurredAt | date: 'yyyy/MM/dd HH:mm' : '+0800' }}</time>
+            </div>
+            <span class="transaction-status">{{
+              transaction.status === 'FAILED'
+                ? '未完成'
+                : transaction.status === 'EXPIRED'
+                  ? '已到期'
+                  : transaction.type === 'CHARITY'
+                    ? '投入成功'
+                    : '兌換成功'
+            }}</span>
+          </article>
+        } @empty {
+          <p class="empty-state">尚無近期紀錄</p>
+        }
+      }
+    </section>
+    <ion-button class="logout-button" color="secondary" expand="block" (click)="logOut()"
+      >登出</ion-button
+    >
+  </main>
 </ion-content>

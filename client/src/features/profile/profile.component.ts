@@ -1,16 +1,8 @@
-import { DecimalPipe } from '@angular/common';
+﻿import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { IonContent, IonIcon, IonProgressBar, IonSpinner } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import {
-  checkmarkCircle,
-  footstepsOutline,
-  logOutOutline,
-  ribbonOutline,
-  sparklesOutline,
-  timeOutline,
-  trendingUpOutline,
-} from 'ionicons/icons';
+import { IonButton, IonContent, IonIcon, IonProgressBar, IonSpinner } from '@ionic/angular';
+import { RouterLink } from '@angular/router';
+import { ShopStore } from '../shop/shop-store';
 import { SessionStore } from '../../shared/stores/session-store';
 import { profileLevelPreview } from '../../shared/components/profile-identity/profile-level-preview';
 
@@ -24,23 +16,28 @@ type WalkingStats = {
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
-  imports: [DecimalPipe, IonContent, IonIcon, IonProgressBar, IonSpinner],
+  imports: [
+    IonButton,
+    DecimalPipe,
+    DatePipe,
+    RouterLink,
+    IonContent,
+    IonIcon,
+    IonProgressBar,
+    IonSpinner,
+  ],
 })
 export class ProfileComponent {
   readonly sessionStore = inject(SessionStore);
-
-  constructor() {
-    addIcons({
-      checkmarkCircle,
-      footstepsOutline,
-      logOutOutline,
-      ribbonOutline,
-      sparklesOutline,
-      timeOutline,
-      trendingUpOutline,
-    });
-  }
-
+  readonly shopStore = inject(ShopStore);
+  readonly matureTrees = computed(() =>
+    this.sessionStore.isDemoMode() ? this.shopStore.lifetimeMatureTrees() : 0,
+  );
+  readonly treeProgress = computed(() => Math.min(this.matureTrees() / 100, 1));
+  readonly remainingTrees = computed(() => Math.max(100 - this.matureTrees(), 0));
+  readonly recentTransactions = computed(() =>
+    this.sessionStore.isDemoMode() ? this.shopStore.recentTransactions() : [],
+  );
   readonly dailyGoal = computed(() => this.sessionStore.dailyGoal());
 
   // Profile 統計與 XP 後續應改由可信任的活動 read model 提供。

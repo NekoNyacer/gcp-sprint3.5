@@ -70,6 +70,9 @@ import {
   medkit,
   gridOutline,
   mapOutline,
+  footsteps,
+  footstepsOutline,
+  ticketOutline,
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
@@ -153,6 +156,8 @@ export class AppShellComponent {
   //註冊icon
   constructor() {
     addIcons({
+      ticketOutline,
+      footstepsOutline,
       mapOutline,
       gridOutline,
       arrowRedo,
