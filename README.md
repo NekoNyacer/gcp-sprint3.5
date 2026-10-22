@@ -30,6 +30,8 @@ Android APK、Gemini、Health Connect、真實 GPS 與 Three.js 等功能，只�
 
 ## Repository 結構
 
+本專案以 CAT-WALK-APP 根目錄作為單一 Git repository；`cms` 分支同時包含 [`client/`](./client/) 與 [`cms/`](./cms/) 兩個前端，以及共用後端、設定和文件。請在根目錄管理分支與提交；依賴、建置產物及快取不納入追蹤。
+
 - `client/`：前端應用程式
 - `cms/`：Angular 20.3 + 行內 rootNgV2 營運後台，詳見 [設定與驗收說明](cms/README.md)
 - `docs/`：產品規格、系統設計、專案規劃與 Azure Boards 匯入資料

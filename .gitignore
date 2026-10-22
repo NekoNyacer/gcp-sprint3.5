@@ -7,5 +7,16 @@ client/src/app/mapbox-config.ts
 client/public/runtime-config.js
 functions/node_modules/
 functions/lib/
-.tmp/
+.tmp
 cms/public/maps-config.json
+
+# Frontend dependencies and generated output (client and CMS)
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+*.tsbuildinfo
+
+# Local tooling logs
+*.log

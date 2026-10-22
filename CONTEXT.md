@@ -1,5 +1,14 @@
 # CAT WALK project context
 
+## Repository tracking scope (2026-10-22)
+
+- Manage the complete CAT-WALK-APP repository from its root. The `cms` branch
+  includes both `client/` and `cms/`, together with shared Functions,
+  Firebase configuration and documentation; CMS is not a separate repository.
+- Keep frontend source, package manifests and lockfiles tracked. Ignore local
+  dependencies, Angular caches, build/test output and tooling logs for both
+  frontends. Preserve local runtime/map configuration exclusions.
+
 ## Redemption reference layout (2026-10-21)
 
 - The user requests the client redemption screen match the supplied reference:
