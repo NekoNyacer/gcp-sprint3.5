@@ -1,0 +1,4 @@
+Service description,Service ID,SKU description,SKU ID,Usage amount,Usage unit,Cost ($),Savings programs ($),Other savings ($),Unrounded subtotal ($),Subtotal ($),Percent change in subtotal compared to previous period
+App Engine,F17B-412E-CB64,Cloud Firestore Read Ops Taiwan,28B9-8D93-5BC1,179,count,0.00,0.00,0.00,0.000000,0.00,0%
+App Engine,F17B-412E-CB64,Cloud Firestore Entity Writes Taiwan,4FC2-A968-7B7D,5,count,0.00,0.00,0.00,0.000000,0.00,0%
+App Engine,F17B-412E-CB64,Cloud Firestore Small Ops Taiwan,D6F0-6803-7417,14,count,0.00,0.00,0.00,0.000000,0.00,0%

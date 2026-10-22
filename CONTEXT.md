@@ -110,7 +110,6 @@
   pages; preserve the existing importer behavior and draft-only safety on the
   dedicated page.
 
-
 - The user requires the CMS frontend to use rootNgV2 components and official
   utilities throughout, without custom visual styles or replacement UI widgets.
 - The user further confirms CRD as the implementation reference, especially
@@ -489,7 +488,6 @@
   for anonymous requests instead of the earlier 404/403. Actual signed-in client
   loading and saving were confirmed fixed by the user on 2026-10-20.
 
-
 Last updated: 2026-10-21
 
 - 2026-10-19 Demo map error correction: The Standard basemap's optional
@@ -506,7 +504,6 @@ Last updated: 2026-10-21
   preserving one starter seed per user. The previously deployed 1st-gen
   `initializeNewUser`, if present, is not required by the client flow and is
   not deleted automatically.
-
 
 - 2026-10-19 local Firebase testing recovery: A normal Firebase identity may
   temporarily fail to load cloud walking progress while callable Functions are
@@ -1666,7 +1663,7 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 ## Decision log
 
 | Date       | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Status                                                                                       |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | 2026-09-03 | Use Azure Boards for project planning.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Confirmed                                                                                    |
 | 2026-09-03 | Time-box delivery to two months and prioritize demo completeness over production integrations.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Confirmed                                                                                    |
 | 2026-09-03 | Keep the shared Matt Pocock skills inside this repository under `skills-main/`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Confirmed                                                                                    |
@@ -1804,6 +1801,11 @@ To keep the core path date-safe, Must routing ranks six versioned, manually revi
 | 2026-10-13 | Use one provider-neutral `GeoPoint` shape for domain coordinates. `LocationPoint` extends it with accuracy, observation time, heading, and speed metadata; Mapbox `LngLat` remains confined to the map adapter. Both recommended and currently selected Home trees use the same recommendation enrichment so estimated steps, harvest status, and remaining growth stay consistent. | Confirmed |
 | 2026-10-14 | Disable Ionic Router Outlet's swipe-to-go-back gesture and set `overscroll-behavior-x: none` on the document and Ionic scroll surface to prevent browser-level horizontal overscroll navigation inside the SPA. | Confirmed |
 
+| 2026-10-19 | Add Azure Boards story US15.4 #1925623 under F15 #1882634 for the 2026-11-09 final presentation PowerPoint. Cover the user problem, target audience, core experience, business value, Demo scope/results and recommendations; distinguish mocked or unimplemented capabilities and provide an offline projection copy. Estimate: 12 hours / 3 Story Points, Must, Sprint 4. | Confirmed |
+| 2026-10-19 | Require US15.4's final deck to address the supplied judging rubric: technical feasibility, business applicability, proposal completeness and BONUS items. Include cloud services, Agent/AI integration, architecture and PoC; user/business value, costs, ROI and scale assumptions; problem/solution fit, security/compliance/privacy and UX; plus presentation quality, teamwork/Q&A and distinctive project merits. | Confirmed |
+| 2026-10-19 | Record the 2026-10-01 bonus-game load test as US14.5 #1925760 under F14 #1882629, with Tasks #1925761–#1925768. The user confirmed approximately 70 simultaneous participants against an original 100-person plan; exact run times, version, measured peak, success rate and the 100-person retest remain unverified. At registration, three Tasks were Closed, four Active and one New; the Story was Developing. This process uses Developing for in-progress Stories and Active for Tasks. Preserve the records, billing evidence and source hashes under docs/azure-boards/; three original CSVs are attached to the Story. Effort, Story Points and future scheduling remain unconfirmed and are not added to F14's original 4 pd baseline. | Confirmed |
+| 2026-10-19 | Billing now loads and the user confirmed USD. The 2026-10-01 billing-day net cost is US$0.057720: Gemini US$0.037512 and Firestore reads US$0.020208. Recorded usage includes 108,637 reads, 1,145 writes, 3 deletes, 3,309 input and 9,342 output Tokens. Use 2026-09-10 only as a low-activity Firestore comparison and 2026-09-28 as an AI-active development-day comparison, not matched idle baselines. Whole billing-day totals are not isolated test or per-user costs and do not prove 100-user or walking-main-flow capacity. Functions invocation SKU usage is not the Gemini request count; zero net cost does not mean zero resource use. See docs/azure-boards/load-test-20261001.work-items.json and evidence/. | Confirmed |
+
 ## Open decisions
 
 ### Home task-point planning update (2026-10-14; merged 2026-10-15)
@@ -1911,8 +1913,6 @@ The product design frontier is closed. Any later scope change must be recorded a
   pages so each can be tuned independently. Merchants, rewards, scenes, tasks
   and trees own their table markup and rootNgV2 imports; shared workspace state
   continues to provide row data and CRUD operations.
-
-
 
 ## Reward avatar images (2026-10-21)
 
