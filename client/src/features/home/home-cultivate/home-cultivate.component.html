@@ -41,6 +41,10 @@
                 <div class="tree-title">
                   <h1>「{{ treeName() }}」</h1>
                   <p>{{ treeLocation() }}</p>
+                  @if (merchant(); as m) {
+                    <p>{{ m.twqr ? 'TWQR 特約店家 · ' : '' }}{{ m.offer }}</p>
+                    <small>{{ m.terms }} · {{ m.validUntil }}</small>
+                  }
                 </div>
                 <div class="tree-badges">
                   <cub-badge color="primary">{{

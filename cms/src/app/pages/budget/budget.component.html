@@ -1,0 +1,85 @@
+<div class="row">
+  <div class="col-12 col-lg-6 mb-24">
+    <cub-card class="h-100"
+      ><cub-card-content>
+        <h2>獎勵預算</h2>
+        <p>每月／新台幣，依已完成兌換的版本成本計算。</p>
+        <cub-form-field
+          ><cub-label>每月預算（NT$）</cub-label
+          ><input
+            cubInput
+            type="number"
+            min="0"
+            [(ngModel)]="vm.rewardBudget"
+            placeholder="請設定預算"
+        /></cub-form-field>
+        <div class="d-flex justify-content-between my-16">
+          <span>本月使用</span
+          ><b>{{ vm.money(vm.dashboard()?.rewardMonthlyCostNtd) }}</b>
+        </div>
+        <div class="my-16">
+          {{
+            vm.alertLevel(
+              vm.dashboard()?.rewardMonthlyCostNtd ?? 0,
+              vm.api.budget()?.rewardMonthlyNtd
+            )
+          }}
+        </div>
+      </cub-card-content></cub-card
+    >
+  </div>
+  <div class="col-12 col-lg-6 mb-24">
+    <cub-card class="h-100"
+      ><cub-card-content>
+        <h2>雲端與 API 費用</h2>
+        <p>專案總預算 US$500。人工帳單登錄，非即時 GCP 帳務。</p>
+        <cub-form-field
+          ><cub-label>累計費用（US$）</cub-label
+          ><input
+            cubInput
+            type="number"
+            min="0"
+            step="0.01"
+            [(ngModel)]="vm.cloudSpent" /></cub-form-field
+        ><cub-form-field
+          ><cub-label>帳單來源／統計截止日</cub-label
+          ><input
+            cubInput
+            [(ngModel)]="vm.billingSource"
+            placeholder="例如：GCP Billing，截至 2026/10/21"
+        /></cub-form-field>
+        <div class="my-16">
+          {{
+            vm.alertLevel(
+              vm.api.budget()?.cloudSpentUsd ?? 0,
+              vm.api.budget()?.cloudBudgetUsd
+            )
+          }}
+        </div>
+        <p>
+          更新時間：{{
+            vm.api.budget()?.updatedAt
+              ? (vm.api.budget()!.updatedAt
+                | date: "yyyy/MM/dd HH:mm" : "+0800")
+              : "尚未登錄"
+          }}
+        </p>
+      </cub-card-content></cub-card
+    >
+  </div>
+</div>
+<cub-card class="mb-24"
+  ><cub-card-content>
+    <div class="d-flex flex-wrap justify-content-between mb-16">
+      <p>達 50%、80%、100% 時於後台提示。超額不自動停止發獎。</p>
+      <button
+        cub-button
+        appearance="filled"
+        [disabled]="vm.busy()"
+        (click)="vm.saveBudget()"
+      >
+        儲存預算與費用
+      </button>
+    </div>
+  </cub-card-content></cub-card
+>

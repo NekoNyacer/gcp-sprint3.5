@@ -38,7 +38,7 @@ export const routes: Routes = [
       },
       {
         path: 'shop',
-        loadComponent: () => import('../features/shop/shop.component').then((m) => m.ShopComponent),
+        loadComponent: () => import('../features/shop/points-shop.component').then((m) => m.PointsShopComponent),
       },
       {
         path: 'profile',

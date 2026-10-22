@@ -1,0 +1,57 @@
+<div class="my-16">
+  <h3>地圖選擇位置</h3>
+  <cub-form-field>
+    <cub-input-group>
+      <input
+        cubInput
+        [(ngModel)]="query"
+        [ngModelOptions]="{ standalone: true }"
+        (keydown.enter)="$event.preventDefault(); search()" />
+      <button
+        cub-button
+        cubFieldSuffix
+        appearance="filled"
+        type="button"
+        [disabled]="loading() || searching() || !!loader.error() || !query.trim()"
+        (click)="search()">
+        {{ searching() ? '搜尋中…' : '搜尋地點' }}
+      </button>
+    </cub-input-group>
+    <cub-hint>點選地圖或拖曳標記更新經緯度；也可搜尋地址後選擇結果。</cub-hint>
+  </cub-form-field>
+  @for (result of results(); track $index) {
+    <div class="my-8">
+      <button
+        cub-button
+        type="button"
+        (click)="
+          choose(
+            result.geometry.location.lat(),
+            result.geometry.location.lng(),
+            result.formatted_address
+          )
+        ">
+        {{ result.formatted_address }}
+      </button>
+    </div>
+  }
+  @if (loading()) {
+    <p role="status">正在載入 Google Maps…</p>
+  }
+  @if (error() || loader.error()) {
+    <p role="alert">{{ error() || loader.error() }}</p>
+    <button
+      cub-button
+      type="button"
+      [disabled]="loading()"
+      (click)="retry()">
+      設定修正後重新載入地圖
+    </button>
+  }
+  <!-- Maps needs an explicit viewport height; all surrounding UI uses rootNgV2. -->
+  <div
+    #canvas
+    style="height: 360px; width: 100%"
+    role="region"
+    aria-label="Google Maps 地點選擇"></div>
+</div>

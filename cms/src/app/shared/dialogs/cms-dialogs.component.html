@@ -1,0 +1,227 @@
+﻿<ng-template #editorDrawer>
+  @if (vm.editor(); as e) {
+    <cub-default-drawer>
+      <cub-drawer-header>
+        <cub-drawer-title id="editor-title"
+          >{{ e.existing ? '編輯' : '新增' }}{{ vm.title() }}({{ e.item['id'] }})</cub-drawer-title
+        >
+        <button
+          cub-button
+          type="button"
+          (click)="vm.closeEditor()">
+          關閉
+        </button>
+      </cub-drawer-header>
+      <cub-drawer-content>
+        <form
+          class="d-flex flex-column g-8"
+          id="cms-editor-form"
+          (ngSubmit)="vm.applyEdit()">
+          @if (e.kind === 'merchants' || e.kind === 'trees' || e.kind === 'tasks') {
+            <cms-location-picker
+              [latitude]="e.item['latitude']"
+              [longitude]="e.item['longitude']"
+              [address]="e.item['address'] || e.item['place'] || ''"
+              (positionChange)="vm.setEditorPosition($event)">
+            </cms-location-picker>
+          }
+          @if (e.kind === 'tasks') {
+            <p>
+              每日／每週任務獎勵為水滴，活動任務為肥料。設定的是本期起訖時間，不會自動建立下一期。
+            </p>
+          }
+          @if (e.kind === 'merchants' || e.kind === 'trees') {
+            <cub-form-field
+              ><cub-label>套用展示場景 </cub-label
+              ><cub-select
+                name="scenePreset"
+                [ngModel]="''"
+                (ngModelChange)="vm.applyScene($event)">
+                <cub-option value="">選擇場景以帶入天氣與時段</cub-option>
+                @for (scene of vm.config().scenes; track scene.id) {
+                  <cub-option [value]="scene.id">{{ scene.name }}</cub-option>
+                }
+              </cub-select>
+            </cub-form-field>
+          }
+          @if (e.kind === 'rewards') {
+            <cub-form-field>
+              <cub-label>商品圖片：Icon</cub-label>
+              <cub-select
+                name="icon"
+                [filter]="true"
+                [(ngModel)]="e.item['icon']">
+                @for (icon of rewardIcons; track icon) {
+                  <cub-option [value]="icon"
+                    ><span
+                      [class]="'cub-icon-' + icon"
+                      aria-hidden="true"></span>
+                    {{ icon }}</cub-option
+                  >
+                }
+              </cub-select>
+            </cub-form-field>
+            <cub-form-field>
+              <cub-label>圖片背景色</cub-label>
+              <cub-select
+                name="backgroundColor"
+                [(ngModel)]="e.item['backgroundColor']">
+                @for (color of rewardBackgrounds; track color; let i = $index) {
+                  <cub-option [value]="color">{{
+                    ['薄荷綠', '天空藍', '蜜桃橙', '櫻花粉', '薰衣草紫', '奶油黃'][i]
+                  }}</cub-option>
+                }
+              </cub-select>
+            </cub-form-field>
+            <p>圖片預覽</p>
+            <div
+              class="d-flex align-items-center justify-content-center mb-24"
+              style="width: 160px; aspect-ratio: 1 / 1"
+              [style.background-color]="e.item['backgroundColor']"
+              role="img"
+              aria-label="商品圖片預覽">
+              <span
+                [class]="'cub-font-48 cub-icon-' + e.item['icon']"
+                aria-hidden="true"></span>
+            </div>
+          }
+          <div class="d-flex flex-column g-8">
+            @for (f of vm.editorFields(); track f.key) {
+              @if (f.type === 'checkbox') {
+                <cub-checkbox
+                  [id]="'field-' + f.key"
+                  [name]="f.key"
+                  [(ngModel)]="e.item[f.key]"
+                  >{{ f.label }}</cub-checkbox
+                >
+              } @else {
+                <cub-form-field>
+                  <cub-label>{{ f.label }}</cub-label>
+                  @if (f.type === 'select') {
+                    <cub-select
+                      [id]="'field-' + f.key"
+                      [name]="f.key"
+                      [(ngModel)]="e.item[f.key]">
+                      @for (o of f.options; track o) {
+                        <cub-option [value]="o">{{ vm.label(o) }}</cub-option>
+                      }
+                    </cub-select>
+                  } @else if (f.type === 'textarea') {
+                    <textarea
+                      cubInput
+                      [id]="'field-' + f.key"
+                      [name]="f.key"
+                      [(ngModel)]="e.item[f.key]"
+                      rows="3"></textarea>
+                  } @else if (f.type === 'number') {
+                    <input
+                      cubInput
+                      [id]="'field-' + f.key"
+                      [name]="f.key"
+                      type="number"
+                      step="any"
+                      [(ngModel)]="e.item[f.key]" />
+                  } @else if (f.type === 'datetime-local') {
+                    <input
+                      cubInput
+                      [id]="'field-' + f.key"
+                      [name]="f.key"
+                      type="datetime-local"
+                      [ngModel]="vm.taipeiDateTime(e.item[f.key])"
+                      (ngModelChange)="vm.setEditorTime(f.key, $event)" />
+                  } @else if (f.type === 'date') {
+                    <input
+                      cubInput
+                      [id]="'field-' + f.key"
+                      [name]="f.key"
+                      type="date"
+                      [(ngModel)]="e.item[f.key]" />
+                  } @else {
+                    <input
+                      cubInput
+                      [id]="'field-' + f.key"
+                      [name]="f.key"
+                      type="text"
+                      [(ngModel)]="e.item[f.key]" />
+                  }
+                </cub-form-field>
+              }
+            }
+            @if (e.kind === 'merchants') {
+              <fieldset>
+                <legend>AI 允許分配的角色（至少一種）</legend>
+                <cub-checkbox
+                  [checked]="e.item['roles'].includes('planting')"
+                  (change)="vm.role('planting', $event.checked)"
+                  >種樹點</cub-checkbox
+                >
+                <cub-checkbox
+                  [checked]="e.item['roles'].includes('supply')"
+                  (change)="vm.role('supply', $event.checked)"
+                  >補給站</cub-checkbox
+                >
+              </fieldset>
+            }
+          </div>
+          @if (vm.error()) {
+            <p role="alert">
+              {{ vm.error() }}
+            </p>
+          }
+        </form>
+      </cub-drawer-content>
+      <cub-drawer-actions>
+        <div class="d-flex g-8 justify-content-end">
+          <button
+            cub-button
+            type="button"
+            (click)="vm.closeEditor()">
+            取消
+          </button>
+          <button
+            cub-button
+            appearance="filled"
+            type="submit"
+            form="cms-editor-form">
+            儲存變更
+          </button>
+        </div>
+      </cub-drawer-actions>
+    </cub-default-drawer>
+  }
+</ng-template>
+<ng-template #releaseDialog>
+  @if (vm.confirmation(); as action) {
+    <cub-default-dialog>
+      <cub-dialog-content>
+        <h2 id="release-title">
+          {{ action === 'publish' ? '確認發布到用戶端？' : '確認下架所有發布內容？' }}
+        </h2>
+        <p>
+          模擬資料 · 草稿修訂
+          {{ vm.revision() }}
+        </p>
+        <p>變更項目：{{ vm.changedSummary().join('、') || '無內容變更' }}</p>
+        <p>
+          {{
+            action === 'publish'
+              ? '在線用戶端將接收新設定。已完成交易保留原版本，既有路線不自動改道。'
+              : '停止提供新站點與獎勵；保留玩家資料及已確認路線。'
+          }}
+        </p>
+        <div class="d-flex g-8 justify-content-end mt-24">
+          <button
+            cub-button
+            (click)="vm.closeRelease()">
+            返回檢查</button
+          ><button
+            cub-button
+            appearance="filled"
+            (click)="vm.release()">
+            {{ action === 'publish' ? '確認發布' : '確認下架' }}
+          </button>
+        </div>
+      </cub-dialog-content>
+    </cub-default-dialog>
+  }
+</ng-template>

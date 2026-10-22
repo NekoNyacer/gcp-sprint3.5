@@ -51,7 +51,7 @@ export class HomeSupplyStationComponent implements OnDestroy {
       !!station &&
       this.ws.hasActiveRoute() &&
       (this.ws.isWalking() || this.ws.isArrived()) &&
-      this.ws.taskPoints().includes(station) &&
+      this.ws.taskPoints().some(point => point.id === station.id) &&
       !this.claimUnavailable() &&
       isWithinGeoRadius(this.ls.current(), station.position, TREE_CULTIVATION_RADIUS_METERS)
     );
@@ -68,7 +68,7 @@ export class HomeSupplyStationComponent implements OnDestroy {
   readonly accessMessage = computed(() => {
     const station = this.station();
     if (!station || this.claimUnavailable() || this.canCheckIn()) return null;
-    if (!this.ws.hasActiveRoute() || !this.ws.taskPoints().includes(station)) {
+    if (!this.ws.hasActiveRoute() || !this.ws.taskPoints().some(point => point.id === station.id)) {
       return '本次路線已結束或補給站已變更，請返回地圖。';
     }
     const position = this.ls.current();
@@ -206,6 +206,9 @@ export class HomeSupplyStationComponent implements OnDestroy {
     this.rotation.set(this.spin.angle);
     this.turnProgress.set(Math.floor(this.spin.progress * 360));
     if (completed && this.canStart() && this.canCheckIn()) this.checkIn.emit();
+    else if (completed && this.canStart() && !this.claimed() && !this.claimUnavailable()) {
+      this.feedbackRequested.emit('請靠近一點再進行互動');
+    }
   }
 
   private readonly animate = (now: number): void => {

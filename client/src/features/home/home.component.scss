@@ -48,3 +48,17 @@
   --padding-start: 0;
   --padding-end: 0;
 }
+:host .cms-recommendation {
+  pointer-events: auto;
+  position: absolute;
+  z-index: 8;
+  top: 76px;
+  left: 12px;
+  right: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #f1f6edf2;
+  color: #365749;
+  font-size: 11px;
+  line-height: 1.5;
+}

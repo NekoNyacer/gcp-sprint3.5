@@ -1,0 +1,53 @@
+<cub-card class="mb-24"
+  ><cub-card-content>
+    <cub-content-field>
+      <h2>Gemini 站點角色推薦</h2>
+      <p>
+        從已發布、六公里內的有效商家中選擇種樹點與補給站，並說明推薦理由。不保存起點座標。AI
+        僅能選擇允許角色；實際道路需由用戶端地圖服務驗證。
+      </p>
+    </cub-content-field>
+    <div class="row">
+      <cub-form-field class="col-3">
+        <cub-label>模擬起點緯度</cub-label>
+        <input
+          cubInput
+          type="number"
+          [(ngModel)]="vm.aiLatitude" />
+      </cub-form-field>
+      <cub-form-field class="col-3">
+        <cub-label>模擬起點經度</cub-label>
+        <input
+          cubInput
+          type="number"
+          [(ngModel)]="vm.aiLongitude" />
+      </cub-form-field>
+      <button
+        class="col-3 align-self-start mt-24"
+        cub-button
+        appearance="filled"
+        [disabled]="vm.busy() || !vm.api.published()"
+        (click)="vm.recommend()">
+        {{ vm.busy() ? '推薦中…' : '取得推薦' }}
+      </button>
+    </div>
+    @if (vm.ai(); as result) {
+      <div class="mt-24">
+        <span class="mx-8">{{ result.source === 'gemini' ? 'Gemini 實際回應' : '規則備援' }}</span>
+        <p>{{ result.reason }}</p>
+        @if (result.model) {
+          <small>模型：{{ result.model }} · 設定版本 {{ result.version }}</small>
+        }
+        @for (s of result.selections; track s.merchantId) {
+          <cub-card class="mb-16"
+            ><cub-card-content>
+              <b>{{ vm.merchantName(s.merchantId) }}</b
+              ><span class="mx-8">{{ s.role === 'planting' ? '種樹點' : '補給站' }}</span>
+              <p>{{ s.reason }}</p>
+            </cub-card-content></cub-card
+          >
+        }
+      </div>
+    }
+  </cub-card-content></cub-card
+>

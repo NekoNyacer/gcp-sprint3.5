@@ -4,7 +4,7 @@ import type { DemoSupplyStation } from '../shared/models/walk-task.models';
 
 export const settings = {
   mockMap: false,
-  isDev: false,
+  isDev: true,
 };
 
 export const USER_MOVE_METER_PER_STEP = 0.75;

@@ -21,9 +21,12 @@ const appCheckProviders = firebaseAppCheckSiteKey
     ]
   : [];
 import { getFunctions, provideFunctions } from '@angular/fire/functions';
+import { CMS_CONNECTION } from '../shared/models/cms-publication';
+import { CmsClientService } from '../shared/services/cms-client.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: CMS_CONNECTION, useExisting: CmsClientService },
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideIonicAngular({}),

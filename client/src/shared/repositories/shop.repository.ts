@@ -1,4 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector, Optional } from '@angular/core';
+import { CmsClientService } from '../services/cms-client.service';
+import { cmsPublication } from '../models/cms-publication';
 import {
   SHOP_CHARITY_CAMPAIGN,
   SHOP_DEMO_SEED,
@@ -34,15 +36,19 @@ export class ShopRepositoryError extends Error {
  */
 @Injectable({ providedIn: 'root' })
 export class ShopRepository {
+  constructor(@Optional() private readonly injector?: Injector) {}
+  private get cms() { if (!this.injector) throw new Error('雲端資料來源尚未設定'); return this.injector.get(CmsClientService); }
   private snapshot = cloneSnapshot(SHOP_DEMO_SEED);
   private readonly commandResults = new Map<string, CachedCommand>();
   private transactionSequence = this.snapshot.transactions.length;
 
   async loadRedemptionData(): Promise<ShopRedemptionData> {
+    if (cmsPublication().managed) { const snapshot = await this.cms.wallet<ShopSnapshot>(); return cloneRedemptionData(snapshot); }
     return cloneRedemptionData(this.snapshot);
   }
 
   async loadTreePointsBalance(): Promise<number> {
+    if (cmsPublication().managed) return (await this.cms.wallet<ShopSnapshot>()).treePointsBalance;
     return this.snapshot.treePointsBalance;
   }
 
@@ -50,6 +56,7 @@ export class ShopRepository {
     optionId: RedemptionOptionId,
     idempotencyKey: string,
   ): Promise<ShopCommandResult> {
+    if (cmsPublication().managed) return this.cms.call<ShopCommandResult>('cmsRedeem', { rewardId: optionId, requestId: idempotencyKey, version: cmsPublication().version });
     const option = SHOP_REDEMPTION_OPTIONS.find((candidate) => candidate.id === optionId);
 
     if (!option) {
@@ -76,6 +83,7 @@ export class ShopRepository {
     campaignId: string,
     idempotencyKey: string,
   ): Promise<ShopCommandResult> {
+    if (cmsPublication().managed) return this.cms.call<ShopCommandResult>('cmsRedeem', { rewardId: campaignId, requestId: idempotencyKey, version: cmsPublication().version });
     if (campaignId !== SHOP_CHARITY_CAMPAIGN.id) {
       throw new ShopRepositoryError('UNKNOWN_CAMPAIGN');
     }
@@ -97,6 +105,7 @@ export class ShopRepository {
   }
 
   async resetDemo(): Promise<ShopSnapshot> {
+    if (cmsPublication().managed) { await this.cms.call('cmsResetDemo'); return this.cms.wallet<ShopSnapshot>(); }
     this.snapshot = cloneSnapshot(SHOP_DEMO_SEED);
     this.commandResults.clear();
     this.transactionSequence = this.snapshot.transactions.length;

@@ -2,6 +2,30 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isCmsAdmin() {
+      return request.auth != null
+        && request.auth.token.cmsAdmin == true
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+
+    // Published configuration contains only curated, non-sensitive demo content.
+    match /cmsPublished/{scope} {
+      allow read: if scope in ['demo', 'normal'];
+      allow write: if false;
+    }
+    match /cmsDrafts/{scope} {
+      allow read: if isCmsAdmin();
+      allow write: if false;
+    }
+    match /cmsBudgets/{scope} {
+      allow read: if isCmsAdmin();
+      allow write: if false;
+    }
+    match /cmsAudit/{entry} {
+      allow read: if isCmsAdmin();
+      allow write: if false;
+    }
     function isOwner(uid) {
       return request.auth != null
         && request.auth.uid == uid;
@@ -131,6 +155,8 @@ service cloud.firestore {
           && request.resource.data.taskId == taskId
           && request.resource.data.joinedAt == request.time
           && get(/databases/$(database)/documents/tasks/$(taskId)).data.cadence == 'event'
+          && (!('enabled' in get(/databases/$(database)/documents/tasks/$(taskId)).data)
+            || get(/databases/$(database)/documents/tasks/$(taskId)).data.enabled == true)
           && get(/databases/$(database)/documents/tasks/$(taskId)).data.startsAt <= request.time
           && get(/databases/$(database)/documents/tasks/$(taskId)).data.endsAt > request.time;
 

@@ -1,0 +1,34 @@
+<div class="d-flex flex-wrap align-items-start g-16 justify-content-between">
+  <p style="line-height: 2.5">
+    {{ vm.api.published() ? '已發布 v' + vm.api.publishedVersion() : '尚未發布' }}· 草稿修訂
+    {{ vm.revision() }}{{ vm.dirty() ? ' · 有未儲存修改' : '' }}
+  </p>
+  <div class="d-flex flex-wrap g-8">
+    <button
+      cub-button
+      [disabled]="vm.busy()"
+      (click)="vm.loadLatest()">
+      載入最新</button
+    ><button
+      cub-button
+      appearance="outline"
+      [disabled]="vm.busy() || !vm.dirty()"
+      (click)="vm.save()">
+      儲存草稿</button
+    ><button
+      cub-button
+      appearance="filled"
+      [disabled]="vm.busy() || vm.dirty() || !vm.api.draft()"
+      (click)="vm.confirmRelease('publish')">
+      發布到用戶端</button
+    ><button
+      cub-button
+      [disabled]="vm.busy() || !vm.api.published() || vm.dirty()"
+      (click)="vm.confirmRelease('unpublish')">
+      全部下架
+    </button>
+  </div>
+</div>
+@if (vm.api.draft() && vm.api.draft()!.revision !== vm.revision() && vm.dirty()) {
+  <div class="mb-16">其他管理員已更新草稿，請先載入最新版本再修改。</div>
+}

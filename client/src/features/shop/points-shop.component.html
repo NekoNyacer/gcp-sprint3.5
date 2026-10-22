@@ -1,0 +1,56 @@
+<ion-content>
+  <main>
+    <section class="wallet card">
+      <div><span>我的小樹點</span><strong class="orange">{{ balance() === null ? '—' : (balance() | number) }}</strong></div>
+      <a routerLink="/shop/history"><span>可用兌換券</span><strong>{{ availableVouchers() }} <small>張</small></strong></a>
+    </section>
+    @if (loading()) { <p class="feedback"><ion-spinner name="dots" /> 正在載入商品與錢包…</p> }
+    @if (error() && !selected()) { <p class="error" role="alert">{{ error() }} <button (click)="load()">重新載入</button></p> }
+    @if (notice()) { <p role="status">{{ notice() }}</p> }
+    <h2>投入生態公益</h2>
+    @for (reward of charities(); track reward.id) {
+      <button class="charity card" (click)="select(reward)" [disabled]="loading() || balance() === null">
+        <div class="charity-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true"><span [class]="'cub-icon-' + (reward.icon || 'gift-money')"></span></div>
+        <div class="charity-copy"><h3>{{ reward.name }}</h3><p>使用 {{ reward.requiredPoints | number }} 小樹點投入公益</p><p>NT${{ reward.costNtd | number }} 公益投入</p></div>
+      </button>
+    } @empty { <p class="empty">目前尚無開放的公益計畫</p> }
+    <h2>優惠來一點</h2>
+    <section class="products" aria-label="可兌換商品">
+      @for (reward of products(); track reward.id) {
+        <button class="product card" (click)="select(reward)" [disabled]="loading() || balance() === null">
+          <div class="product-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true"><span [class]="'cub-icon-' + (reward.icon || 'gift-money')"></span></div><h3>{{ reward.name }}</h3><b class="orange">{{ reward.requiredPoints | number }} 點</b>
+        </button>
+      } @empty { <p class="empty">目前尚無開放兌換的商品</p> }
+    </section>
+    <p class="disclaimer">模擬兌換展示，商品不具真實兌換效力。</p>
+    @if (session.isDemoMode()) { <ion-button fill="clear" color="medium" size="small" [disabled]="loading() || submitting()" (click)="resetRequested.set(true)">重設目前 Demo 錢包</ion-button> }
+  </main>
+</ion-content>
+
+<ion-modal [isOpen]="selected() !== null" [canDismiss]="!submitting()" (didDismiss)="selected.set(null)" class="detail-modal">
+  <ng-template>
+    <header class="detail-header"><button (click)="selected.set(null)" [disabled]="submitting()" aria-label="返回兌換列表">‹</button><h1>商品詳情</h1></header>
+    <div class="points-strip"><b>我的小樹點</b><b class="orange">{{ balance() | number }}</b></div>
+    <ion-content>
+      <div class="detail-content">
+        <section class="detail-product card"><div class="product-image reward-avatar" [style.background-color]="selected()?.reward?.backgroundColor || '#E4F2E7'" aria-hidden="true"><span [class]="'cub-icon-' + (selected()?.reward?.icon || 'gift-money')"></span></div><h3>{{ selected()?.reward?.name }}</h3><b class="orange">{{ selected()?.reward?.requiredPoints | number }} 點</b></section>
+        <h2>兌獎說明</h2><section class="copy card">{{ selected()?.reward?.kind === 'CHARITY' ? '使用小樹點參與生態公益計畫。' : '兌換後可至交易紀錄查看本次兌換明細。' }}<br>目前為模擬展示，不提供實體店家核銷。</section>
+        <h2>注意事項</h2><section class="copy card"><ul><li>兌換所需點數以本頁顯示為準。</li><li>請確認商品與點數後再進行兌換。</li><li>若網路中斷，請重試同一筆操作，系統會確認交易結果，避免重複扣點。</li><li>商品與價格更新時，需返回列表重新確認。</li><li>本示範商品與公益投入不具真實兌換或捐款效力。</li></ul></section>
+        @if ((balance() ?? 0) < (selected()?.reward?.requiredPoints ?? 0)) { <p class="error" role="alert">小樹點不足，請先散步種樹累積點數。</p> }
+        @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+      </div>
+    </ion-content>
+    <footer><ion-button expand="block" [disabled]="submitting() || balance() === null || (balance() ?? 0) < (selected()?.reward?.requiredPoints ?? 0)" (click)="redeem()">{{ submitting() ? '兌換中…' : '兌換' }}</ion-button></footer>
+  </ng-template>
+</ion-modal>
+
+<ion-modal [isOpen]="result() !== null" (didDismiss)="result.set(null)" class="result-modal">
+  <ng-template><section class="confirmation" aria-labelledby="success-title">
+    <div class="success-icon" aria-hidden="true">✓</div><h2 id="success-title">兌換成功</h2><p class="result-message">已使用 {{ result()?.points | number }} 小樹點，交易已存入紀錄</p>
+    <dl><div><dt>交易編號</dt><dd>{{ result()?.transaction?.transactionNumber ?? result()?.transaction?.id ?? '交易已確認' }}</dd></div><div><dt>時間</dt><dd>{{ result()?.transaction?.occurredAt | date: 'yyyy/MM/dd HH:mm' : '+0800' }}</dd></div><div><dt>餘額</dt><dd class="remaining">{{ result()?.balance | number }} 小樹點</dd></div></dl>
+    <p class="disclaimer">模擬票券，無實際核銷效力</p><div class="actions"><ion-button class="secondary" (click)="result.set(null)">繼續兌換</ion-button><ion-button routerLink="/shop/history" (click)="result.set(null)">查看票券</ion-button></div>
+  </section></ng-template>
+</ion-modal>
+<ion-modal [isOpen]="resetRequested()" [canDismiss]="!submitting()" (didDismiss)="resetRequested.set(false)" class="result-modal">
+  <ng-template><section class="confirmation"><h2>重設目前 Demo 錢包？</h2><p>清除目前模擬兌換與交易紀錄，恢復示範點數。</p><div class="actions"><ion-button fill="outline" [disabled]="submitting()" (click)="resetRequested.set(false)">取消</ion-button><ion-button [disabled]="submitting()" (click)="resetDemo()">確認重設</ion-button></div></section></ng-template>
+</ion-modal>

@@ -1,0 +1,33 @@
+{
+  "name": "cat-walk-cms",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve --port 4200",
+    "build": "ng build",
+    "test": "npm --prefix ../functions test -- cms-domain.spec.ts cms.spec.ts"
+  },
+  "dependencies": {
+    "@angular/animations": "20.3.24",
+    "@angular/common": "20.3.24",
+    "@angular/compiler": "20.3.24",
+    "@angular/core": "20.3.24",
+    "@angular/forms": "20.3.24",
+    "@angular/platform-browser": "20.3.24",
+    "@angular/router": "20.3.24",
+    "cub-lib-view-iconfont": "2.1.0",
+    "cub-lib-view-rootng": "2.2.1",
+    "cub-lib-view-utilities": "3.3.0",
+    "firebase": "12.18.0",
+    "moment": "2.29.4",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.8.1",
+    "zone.js": "~0.15.1"
+  },
+  "devDependencies": {
+    "@angular/build": "20.3.24",
+    "@angular/cli": "20.3.24",
+    "@angular/compiler-cli": "20.3.24",
+    "typescript": "~5.9.3"
+  }
+}

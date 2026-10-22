@@ -6,8 +6,8 @@ import { combineLatest, map, Observable, of } from 'rxjs';
 import { LocationEvidence, TaskCompletionResult, TaskItem } from './task.models';
 
 type DateLike = Date | { toDate(): Date };
-type TaskDocument = Omit<TaskItem, 'taskId' | 'startsAt' | 'endsAt' | 'status'> & { startsAt: DateLike; endsAt: DateLike };
-type UserTaskDocument = { taskId: string; joinedAt?: DateLike; completedAt?: DateLike; calculatedDistanceMeters?: number };
+type TaskDocument = Omit<TaskItem, 'taskId' | 'startsAt' | 'endsAt' | 'status'> & { startsAt: DateLike; endsAt: DateLike; enabled?: boolean };
+type UserTaskDocument = { taskId: string; joinedAt?: DateLike; completedAt?: DateLike; calculatedDistanceMeters?: number; reward?: TaskItem['reward']; taskSnapshot?: TaskDocument };
 
 @Service()
 export class FirebaseTaskRepository {
@@ -47,14 +47,14 @@ export class FirebaseTaskRepository {
     });
   }
 
-  async completeTask(taskId: string, location: LocationEvidence, idempotencyKey: string, isDemo: boolean): Promise<TaskCompletionResult> {
+  async completeTask(taskId: string, location: LocationEvidence, idempotencyKey: string, isDemo: boolean, expectedVersion?: number): Promise<TaskCompletionResult> {
     const callable = httpsCallable<unknown, {
       taskId: string;
       completedAt: string;
       reward: TaskCompletionResult['reward'];
       inventory: TaskCompletionResult['inventory'];
     }>(this.functions, 'completeTask');
-    const response = await callable({ taskId, location: { ...location, observedAt: location.observedAt.toISOString() }, idempotencyKey, isDemo });
+    const response = await callable({ taskId, location: { ...location, observedAt: location.observedAt.toISOString() }, idempotencyKey, isDemo, ...(expectedVersion === undefined ? {} : {expectedVersion}) });
     return { ...response.data, completedAt: new Date(response.data.completedAt) };
   }
 
@@ -79,14 +79,16 @@ function mergeUserState(tasks: Array<TaskDocument & { taskId: string }>, enrollm
   const enrollmentByTask = new Map(enrollments.map((item) => [item.taskId, item]));
   const completionByTask = new Map(completions.map((item) => [item.taskId, item]));
   const now = Date.now();
-  return tasks.map((task) => {
+  return tasks.filter(task => task.enabled !== false || completionByTask.has(task.taskId)).map((task) => {
     const enrollment = enrollmentByTask.get(task.taskId);
     const completion = completionByTask.get(task.taskId);
-    const startsAt = toDate(task.startsAt);
-    const endsAt = toDate(task.endsAt);
+    const snapshot = completion?.taskSnapshot ? {...task, ...completion.taskSnapshot} : task;
+    const startsAt = toDate(snapshot.startsAt);
+    const endsAt = toDate(snapshot.endsAt);
     const status = completion ? 'completed' : endsAt.getTime() <= now ? 'expired' : task.cadence === 'event' && !enrollment ? 'available' : 'active';
     return {
-      ...task,
+      ...snapshot,
+      reward: completion?.reward ?? snapshot.reward,
       startsAt,
       endsAt,
       status,

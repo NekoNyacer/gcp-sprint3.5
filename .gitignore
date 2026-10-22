@@ -7,3 +7,5 @@ client/src/app/mapbox-config.ts
 client/public/runtime-config.js
 functions/node_modules/
 functions/lib/
+.tmp/
+cms/public/maps-config.json

@@ -1,0 +1,82 @@
+:host { display: block; }
+.login-page {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 40px;
+  display: grid;
+  place-items: center;
+  background: #f1f4ef;
+  font-family: Arial, 'Microsoft JhengHei', sans-serif;
+  color: #233b34;
+  box-sizing: border-box;
+}
+.login-shell {
+  width: 100%;
+  max-width: 1120px;
+  min-height: 650px;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  overflow: hidden;
+  border: 1px solid #e0e7de;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 24px 70px #123b2910;
+}
+.brand-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 42px;
+  overflow: hidden;
+  color: #fff;
+  background: radial-gradient(ellipse at 95% 100%, #387556 0, transparent 65%), #153f34;
+}
+.brand-name, .brand-copy, .brand-footer { position: relative; z-index: 1; }
+.brand-name { display: flex; align-items: center; gap: 12px; font-size: 16px; font-weight: 700; letter-spacing: 2px; }
+.brand-symbol { display: grid; place-items: center; width: 34px; height: 34px; background: #d4eab4; border-radius: 50%; color: #153f34; font-size: 26px; }
+.eyebrow { display: block; margin-bottom: 22px; color: #c5dfb0; font-size: 13px; letter-spacing: 3px; }
+.brand-copy h1 { margin: 0 0 24px; color: #fff; font-size: clamp(36px, 4vw, 48px); line-height: 1.4; font-weight: 700; letter-spacing: 1px; }
+.brand-copy p { margin: 0; color: #c9d9d1; font-size: 15px; line-height: 1.9; }
+.brand-footer { display: flex; flex-wrap: wrap; gap: 10px; color: #c9d9d1; font-size: 12px; }
+.brand-footer i { font-style: normal; color: #91b98b; }
+.brand-orbit { position: absolute; width: 430px; height: 430px; right: -225px; bottom: -200px; border-radius: 50%; border: 1px solid #c9e2b733; box-shadow: 0 0 0 45px #c9e2b70a, 0 0 0 90px #c9e2b708; }
+.login-panel { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 56px 48px 28px; }
+.login-card { width: 100%; max-width: 350px; margin: auto 0; padding: 30px 0; }
+.panel-eyebrow { color: #62806f; font-size: 13px; letter-spacing: 2px; }
+.login-card h2 { margin: 12px 0 16px; font-size: 30px; font-weight: 700; line-height: 1.4; color: #233b34; }
+.login-description { margin: 0 0 32px; color: #75837b; font-size: 14px; line-height: 1.9; }
+.login-button {
+  display: flex; justify-content: center; align-items: center; gap: 12px;
+  width: 100%; min-height: 50px; padding: 12px 16px;
+  border: 1px solid #245d42; border-radius: 10px; background: #245d42; color: #fff;
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: background .15s;
+}
+.login-button:hover:not(:disabled) { background: #19482f; }
+.login-button:disabled { background: #e4e9e5; border-color: #e4e9e5; color: #75837b; cursor: wait; }
+.login-button:focus-visible, .switch-account:focus-visible { outline: 3px solid #80b995; outline-offset: 4px; }
+.google-mark { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #fff; color: #4285f4; font: 700 18px Arial, sans-serif; }
+.account-label { overflow-wrap: anywhere; margin: 16px 0 4px; font-size: 12px; color: #75837b; }
+.switch-account { border: 0; background: none; color: #245d42; cursor: pointer; padding: 8px 0; font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+.login-error { padding: 12px; margin-top: 18px; border-radius: 8px; background: #fff1ef; color: #a1372c; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.access-note { display: flex; gap: 12px; margin-top: 28px; padding-top: 24px; border-top: 1px solid #edf0eb; color: #728176; }
+.access-note > span { font-size: 20px; }
+.access-note p { margin: 0; font-size: 12px; line-height: 1.8; }
+.access-note small { font-size: 11px; color: #8b958d; }
+.login-footer { padding-top: 28px; color: #98a098; font-size: 10px; text-align: center; line-height: 1.8; }
+@media (max-width: 760px) {
+  .login-page { padding: 20px 16px; }
+  .login-shell { grid-template-columns: 1fr; min-height: 0; border-radius: 20px; }
+  .brand-panel { padding: 26px; gap: 28px; }
+  .brand-copy h1 { font-size: 30px; margin-bottom: 12px; }
+  .eyebrow { margin-bottom: 12px; font-size: 11px; letter-spacing: 2px; }
+  .brand-name { font-size: 13px; }
+  .brand-copy p { font-size: 13px; }
+  .brand-footer { font-size: 10px; }
+  .login-panel { padding: 28px 26px 22px; }
+  .login-card { max-width: none; padding: 0; }
+  .login-card h2 { font-size: 26px; }
+  .login-description { margin-bottom: 22px; }
+  .access-note { margin-top: 22px; padding-top: 18px; }
+}

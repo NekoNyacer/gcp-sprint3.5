@@ -1,4 +1,6 @@
 import { GeoPoint } from '../../shared/models/geo.models';
+import { computed } from '@angular/core';
+import { cmsPublication, cmsRouteRoles, cmsRetainedTrees } from '../../shared/models/cms-publication';
 import { haversineDistanceMeters } from '../../shared/models/geo-distance';
 import {
   TREE_STAGE_GROWTH_RATIOS,
@@ -172,9 +174,36 @@ export const homeTrees: readonly HomeTree[] = [
   })),
 ];
 
+/** Published metadata replaces fixtures; personal progress is merged separately. */
+export const currentHomeTrees = computed<readonly HomeTree[]>(() => {
+  const publication = cmsPublication();
+  if (!publication.managed) return homeTrees;
+  const config = publication.config;
+  if (!config) return cmsRetainedTrees();
+  const roles = cmsRouteRoles();
+  const preset: HomeTree[] = config.trees.map(t => ({ id: t.id, nickName: t.name, species: t.species,
+    poiName: t.place, position: { latitude: t.latitude, longitude: t.longitude }, empty: t.empty,
+    growth: t.growth, nextHarvestAt: TREE_GROWTH_PER_HARVEST, weedCount: 0, plantedAt: Date.now(),
+    lastWateredAt: null, weather: t.weather, timeOfDay: t.timeOfDay }));
+  const merchants: HomeTree[] = config.merchants.filter(m => m.enabled && m.roles.includes('planting') &&
+    (!roles || roles.some(s => s.merchantId === m.id && s.role === 'planting'))).map(m => ({
+      id: `merchant-${m.id}`, nickName: m.name, species: config.species[0] ?? '榕樹', poiName: m.address || m.name,
+      position: { latitude: m.latitude, longitude: m.longitude }, empty: true, growth: 0,
+      nextHarvestAt: TREE_GROWTH_PER_HARVEST, weedCount: 0, plantedAt: Date.now(), lastWateredAt: null,
+      weather: m.weather, timeOfDay: m.timeOfDay,
+  }));
+  const retained = cmsRetainedTrees();
+  const live = [...preset, ...merchants];
+  const stable = retained.map(site => {
+    const metadata = live.find(tree => tree.id === site.id);
+    return metadata ? { ...metadata, position: site.position, plantedAt: site.plantedAt } : site;
+  });
+  return [...stable, ...live].filter((tree, index, all) => all.findIndex(t => t.id === tree.id) === index);
+});
+
 export function findHomeTree(
   treeId: string,
-  trees: readonly HomeTree[] = homeTrees,
+  trees: readonly HomeTree[] = currentHomeTrees(),
 ): HomeTree | undefined {
   return trees.find((tree) => tree.id === treeId);
 }
@@ -197,7 +226,7 @@ export function homeTreesWithProgress(
   >,
   day = taipeiDay(),
 ): readonly HomeTree[] {
-  return homeTrees.map((tree) => ({
+  return currentHomeTrees().filter(tree => !!progress[tree.id]).map((tree) => ({
     ...tree,
     growth: progress[tree.id].growth,
     harvested: progress[tree.id].harvestCount > 0,
@@ -212,7 +241,7 @@ export function homeTreesWithProgress(
 export function getHomeTreeRecommendation(
   treeId: string | null | undefined,
   origin: GeoPoint | null,
-  trees: readonly HomeTree[] = homeTrees,
+  trees: readonly HomeTree[] = currentHomeTrees(),
   now = Date.now(),
 ): RecommendedHomeTree | null {
   if (!treeId || !origin) return null;
@@ -225,7 +254,7 @@ export function getHomeTreeRecommendation(
 export function recommendHomeTrees(
   origin: GeoPoint | null,
   limit = 3,
-  trees: readonly HomeTree[] = homeTrees,
+  trees: readonly HomeTree[] = currentHomeTrees(),
   now = Date.now(),
 ): readonly RecommendedHomeTree[] {
   if (!origin || limit <= 0) return [];

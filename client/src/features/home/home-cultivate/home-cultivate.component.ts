@@ -61,6 +61,7 @@ import {
   isValidGeoPoint,
   isWithinGeoRadius,
 } from '../../../shared/models/geo-distance';
+import { CMS_CONNECTION } from '../../../shared/models/cms-publication';
 
 @Component({
   selector: 'home-cultivate',
@@ -81,6 +82,15 @@ import {
   ],
 })
 export class HomeCultivateComponent implements OnDestroy {
+  private readonly cms = inject(CMS_CONNECTION, { optional: true });
+  readonly merchant = computed(() => {
+    const id = this.ps.activeDemoTreeId();
+    return id.startsWith('merchant-') ? this.cms?.config()?.merchants.find(m => m.id === id.slice(9)) : null;
+  });
+  private readonly merchantViewEffect = effect(() => {
+    const merchant = this.merchant();
+    if (merchant && this.isOpen()) untracked(() => this.cms?.track('offer_view', merchant.id));
+  });
   private readonly dialog = inject(DialogService);
   private readonly ws = inject(WalkSessionStore);
   private readonly ls = inject(LocationStore);

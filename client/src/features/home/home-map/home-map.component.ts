@@ -26,7 +26,7 @@ import { WalkSessionStore } from '../../../shared/stores/walk-session-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
 import { settings } from '../../../environments/environment-dev';
 import {
-  homeTrees,
+  currentHomeTrees,
   homeTreesWithProgress,
   RecommendedHomeTree,
 } from '../home-tree-recommendations';
@@ -45,6 +45,7 @@ import {
   MapCameraIntent,
 } from './map-camera.controller';
 import { IonButton } from '@ionic/angular';
+import { CMS_CONNECTION, cmsPublication } from '../../../shared/models/cms-publication';
 
 export const PLANNING_MARKER_LONG_PRESS_MS = 500;
 
@@ -55,6 +56,7 @@ export const PLANNING_MARKER_LONG_PRESS_MS = 500;
   imports: [CubBadgeComponent, DecimalPipe, IonButton],
 })
 export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
+  private readonly cms = inject(CMS_CONNECTION, { optional: true });
   readonly recommendedTrees = input<readonly RecommendedHomeTree[]>([]);
   readonly showRecommendations = input(true);
   readonly visibleMapArea = input<() => { top: number; bottom: number } | undefined>(
@@ -72,11 +74,18 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   private readonly ls = inject(LocationStore);
   private readonly walkSession = inject(WalkSessionStore);
   private readonly progress = inject(ProgressStore);
-  readonly taskPoints = computed(() =>
-    this.walkSession.isPlanning() && this.walkSession.destinationConfirmed()
-      ? this.walkSession.availableTaskPoints()
-      : [],
-  );
+  readonly taskPoints = computed<readonly WalkTaskPoint[]>(() => {
+    if (this.walkSession.isPlanning() && this.walkSession.destinationConfirmed()) return this.walkSession.availableTaskPoints();
+    if (!this.walkSession.isPlanning() && !this.walkSession.hasActiveRoute() && cmsPublication().managed) {
+      return (cmsPublication().config?.merchants ?? []).filter(m => m.enabled && m.roles.includes('supply') && !m.roles.includes('planting')).map(m => ({
+        id: m.id, name: m.name, position: { latitude: m.latitude, longitude: m.longitude }, kind: m.resource,
+        routeStop: { position: { latitude: m.latitude, longitude: m.longitude }, segmentIndex: 0, fraction: 0 },
+        estimatedExtraSteps: 0, isDemo: true, description: '模擬商家站點',
+        supplyStation: { category: m.category, isCathayTwqrMerchant: m.twqr, offer: m.offer, terms: m.terms,
+          validUntil: m.validUntil, supply: { resource: m.resource, amount: m.amount } },
+      }));
+    } return [];
+  });
   private readonly camera = inject(MapCameraController);
   private readonly mapElement = viewChild<ElementRef<HTMLDivElement>>('map');
   private readonly playerHeadingElement = viewChild<ElementRef<HTMLDivElement>>('playerHeading');
@@ -104,6 +113,17 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   }[] = [];
   readonly selectedTreeId = computed(() => this.walkSession.destination()?.id);
   private readonly mapReady = signal(false);
+  private renderedTreeSignature = '';
+  private readonly publishedTreesEffect = effect(() => {
+    const ready = this.mapReady(); const sites = currentHomeTrees();
+    if (!ready || !this.map || this.renderedTreeSignature === JSON.stringify(sites)) return;
+    untracked(() => {
+      for (const cleanup of this.treeMarkerGestureCleanups) cleanup();
+      this.treeMarkerGestureCleanups = [];
+      for (const entry of this.treeMarkers.values()) entry.marker.remove();
+      this.treeMarkers.clear(); this.drawDestination();
+    });
+  });
   private taskMarkers: mapboxgl.Marker[] = [];
   private taskMarkerGestureCleanups: (() => void)[] = [];
   private stationPopup?: mapboxgl.Popup;
@@ -144,8 +164,8 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     const trees = this.progress.demoTrees();
     for (const [id, { button }] of this.treeMarkers) {
       const isSelected = id === selected || stops.some((stop) => stop.id === id);
-      const empty = !trees[id].planted;
-      const harvested = trees[id].harvestCount > 0;
+      const empty = !trees[id]?.planted;
+      const harvested = (trees[id]?.harvestCount ?? 0) > 0;
       const cannotVisit = unavailable.includes(id);
       const canOpenRouteOptions =
         planning &&
@@ -182,7 +202,8 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
           ? '/images/assets/planting-spot-icon.svg'
           : '/images/assets/cathay-tree-icon.svg';
       }
-      const tree = homeTrees.find((tree) => tree.id === id)!;
+      const tree = currentHomeTrees().find((tree) => tree.id === id);
+      if (!tree) continue;
       const status = harvested
         ? ` · 已收成，等待種植地復原中 · ${interactionHint}`
         : cannotVisit
@@ -343,7 +364,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
       (task || tree) &&
       (!this.mapReady() ||
         !planning ||
-        (task && !this.walkSession.taskRoutes().some((point) => point === task)) ||
+        (task && !(cmsPublication().managed ? this.walkSession.availableTaskPoints().some(point => point.id === task.id && point.supplyStation.offer === task.supplyStation.offer && point.supplyStation.supply.amount === task.supplyStation.supply.amount) : this.walkSession.taskRoutes().some((point) => point === task))) ||
         (tree &&
           (tree.id === this.selectedTreeId() ||
             (!this.popupTreeSelected() && !this.progress.canVisitDemoTree(tree.id)))))
@@ -357,12 +378,13 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     if (!this.map || !content) return;
     this.closeStationPopup();
     this.popupTask.set(task);
+    this.cms?.track('offer_view', task.id);
     this.openPlanningPopup(task.position, content);
   }
 
   private openTreeStopPopup(treeId: string): void {
     const content = this.popupContent()?.nativeElement;
-    const tree = homeTrees.find((tree) => tree.id === treeId);
+    const tree = currentHomeTrees().find((tree) => tree.id === treeId);
     if (!this.map || !content || !tree) return;
     this.closeStationPopup();
     this.popupTreeId.set(treeId);
@@ -418,7 +440,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     if (
       !this.walkSession.isPlanning() ||
       !this.walkSession.destinationConfirmed() ||
-      !this.walkSession.taskRoutes().some((point) => point === task)
+      !(cmsPublication().managed ? this.walkSession.availableTaskPoints().some(point => point.id === task.id) : this.walkSession.taskRoutes().some((point) => point === task))
     ) {
       this.walkSession.setPlanningError('路線或補給站已變更，請重新選擇補給站。');
       this.closeStationPopup();
@@ -455,13 +477,14 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     const checkedInTaskIds = this.walkSession.checkedInTaskIds();
     this.clearTaskMarkers();
     if (!ready || !this.map) return;
-    for (const task of planning ? points : activeRoute ? selected : []) {
+    for (const task of planning ? points : activeRoute ? selected : points) {
       const isSelected = selected.some((point) => point.id === task.id);
       const canToggle =
         planning &&
         this.walkSession.destinationConfirmed() &&
-        taskRoutes.some((point) => point.id === task.id);
+        (cmsPublication().managed || taskRoutes.some((point) => point.id === task.id));
       const canCheckIn = !planning && activeRoute;
+      const canBrowse = !planning && !activeRoute && cmsPublication().managed;
       const claimed = checkedInTaskIds.includes(task.id);
       const interactionHint = canToggle
         ? `${isSelected ? '已加入，' : ''}點擊開啟路線選項，長按查看優惠詳情`
@@ -484,13 +507,14 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
         check.setAttribute('aria-hidden', 'true');
         button.append(check);
       }
-      button.disabled = !canToggle && !canCheckIn;
+      button.disabled = !canToggle && !canCheckIn && !canBrowse;
       this.taskMarkerGestureCleanups.push(
         this.bindPlanningMarkerActions(
           button,
           () => {
             if (canToggle) this.openStationPopup(task);
             else if (canCheckIn) this.stationCheckIn.emit(task.id);
+            else if (canBrowse) this.stationDetails.emit(task.id);
           },
           () => {
             if (canToggle) {
@@ -956,7 +980,8 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   /**繪製目標地點 */
   drawDestination(): void {
     if (!this.map) return;
-    for (const tree of homeTrees) {
+    this.renderedTreeSignature = JSON.stringify(currentHomeTrees());
+    for (const tree of currentHomeTrees()) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'tree-marker';
@@ -979,6 +1004,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
         .addTo(this.map);
       this.treeMarkers.set(tree.id, { marker, button });
     }
+    if (this.map.getSource('home-marker-clusters')) { this.syncClusterSource(); return; }
     this.map.addSource('home-marker-clusters', {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
@@ -998,7 +1024,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
 
   private clusterPoints() {
     return [
-      ...homeTrees.flatMap((tree) => {
+      ...currentHomeTrees().flatMap((tree) => {
         const entry = this.treeMarkers.get(tree.id);
         return entry && !entry.button.hidden
           ? [{ id: `tree:${tree.id}`, button: entry.button, position: tree.position }]

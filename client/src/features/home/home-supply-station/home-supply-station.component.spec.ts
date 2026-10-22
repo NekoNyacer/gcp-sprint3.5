@@ -109,13 +109,13 @@ describe('Supply station cultivation-style modal', () => {
     };
   }
 
-  it('uses the reference sheet without a handle and protects content gestures', async () => {
+  it('uses the shared handle-only sheet and protects content gestures', async () => {
     const { fixture, component } = setup();
     const modal = fixture.debugElement.query(By.directive(IonModal)).componentInstance;
     expect(modal.isOpen).toBe(true);
     expect(modal.breakpoints).toEqual([0, 1]);
     expect(modal.initialBreakpoint).toBe(1);
-    expect(modal.handle).toBe(false);
+    expect(modal.handle).toBe(true);
     expect(modal.handleBehavior).toBe('none');
     expect(modal.backdropDismiss).toBe(false);
     expect(modal.canDismiss).toBe(true);

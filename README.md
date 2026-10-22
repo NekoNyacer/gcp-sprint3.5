@@ -31,6 +31,7 @@ Android APK、Gemini、Health Connect、真實 GPS 與 Three.js 等功能，只�
 ## Repository 結構
 
 - `client/`：前端應用程式
+- `cms/`：Angular 20.3 + 行內 rootNgV2 營運後台，詳見 [設定與驗收說明](cms/README.md)
 - `docs/`：產品規格、系統設計、專案規劃與 Azure Boards 匯入資料
 - `skills-main/`：專案共用的 Matt Pocock skills，除非明確要求，請勿修改其第三方內容
 - `CONTEXT.md`：產品、技術、交付與未決事項的唯一事實來源

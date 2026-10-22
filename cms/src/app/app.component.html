@@ -1,0 +1,76 @@
+﻿@if (vm.api.authorized()) {
+  <cub-layout-container>
+    <div cubLayoutHeader>
+      <cub-header>
+        <button
+          cub-icon-button
+          type="button"
+          color="neutral"
+          appearance="text"
+          aria-label="切換側邊選單"
+          (click)="toggleSidebar()">
+          <span class="cub-icon-bars p-4"></span>
+        </button>
+        <div class="cub-header-logo">
+          <img
+            src="assets/images/cub_logo_cathay_green.svg"
+            alt="國泰世華銀行標誌" />
+          CATHAY PLANET 後台管理系統
+        </div>
+        <div class="d-flex align-items-center g-16 ml-auto">
+          <cms-publication-actions />
+          <span class="d-none d-md-flex mx-8">內部 Demo</span
+          ><span class="d-none d-lg-flex">{{ vm.api.identity() }}</span
+          ><button
+            cub-button
+            (click)="vm.api.logout()">
+            登出
+          </button>
+        </div>
+      </cub-header>
+    </div>
+    <cub-sidebar
+      cubLayoutPanel
+      [mode]="sidebarMode()"
+      position="start"
+      [autoFocus]="false"
+      [opened]="sidebarOpened()"
+      (openedChange)="sidebarOpened.set($event)">
+      <cub-collapsible-menu
+        [items]="menuItems"
+        [itemTemplateRef]="menuItemTemplate"
+        [collapsed]="menuCollapsed()"
+        (itemClick)="hideSidebar()">
+        <ng-template
+          #menuItemTemplate
+          let-item
+          >{{ item.label }}</ng-template
+        >
+      </cub-collapsible-menu>
+    </cub-sidebar>
+    <cub-layout-content>
+      <cub-breadcrumb>
+        <ng-template
+          cubBreadcrumbItem
+          let-breadcrumb
+          >{{ breadcrumb.label }}</ng-template
+        >
+      </cub-breadcrumb>
+      <h1>{{ vm.title() }}</h1>
+      <router-outlet></router-outlet>
+    </cub-layout-content>
+    <cub-footer cubLayoutFooter>CATHAY PLANET Demo營運展示 · CUB X GCP Cloud Hackathon </cub-footer>
+  </cub-layout-container>
+}
+
+@if (!vm.api.authorized() && isLoginRoute) {
+  <cms-login
+    [identity]="vm.api.identity()"
+    [initializing]="vm.api.initializing()"
+    [error]="vm.api.error()"
+    (signIn)="vm.api.login()"
+    (signOut)="vm.api.logout()"></cms-login>
+}
+
+<cms-dialogs></cms-dialogs>
+<cub-toast></cub-toast>

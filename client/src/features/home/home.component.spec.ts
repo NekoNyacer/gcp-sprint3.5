@@ -21,6 +21,7 @@ import { GeoPoint } from '../../shared/models/geo.models';
 import { findHomeTree } from './home-tree-recommendations';
 import {
   demoPlantingSpots,
+  demoSupplyStations,
   TREE_CULTIVATION_RADIUS_METERS,
 } from '../../environments/environment-dev';
 import { haversineDistanceMeters } from '../../shared/models/geo-distance';
@@ -586,7 +587,7 @@ describe('Home task-selection camera', () => {
     confirmDeparture(fixture);
     TestBed.inject(ModalService).close('confirm');
     expect(store.isWalking()).toBe(true);
-    expect(directions.walking).toHaveBeenCalledTimes(9);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 3);
   });
 
   it.each(['station-change', 'back'] as const)(
@@ -625,7 +626,7 @@ describe('Home task-selection camera', () => {
     expect(store.isPlanning()).toBe(true);
     expect(store.hasActiveRoute()).toBe(false);
     expect(store.planningError()).toContain('請先更新預覽路線');
-    expect(directions.walking).toHaveBeenCalledTimes(7);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 1);
 
     await fixture.componentInstance.updateRoute();
     expect(store.isPlanning()).toBe(true);
@@ -635,7 +636,7 @@ describe('Home task-selection camera', () => {
     confirmDeparture(fixture);
     TestBed.inject(ModalService).close('confirm');
     expect(store.isWalking()).toBe(true);
-    expect(directions.walking).toHaveBeenCalledTimes(8);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 2);
   });
 
   it('keeps destination selection separate from cultivation during planning', async () => {
@@ -713,7 +714,7 @@ describe('Home task-selection camera', () => {
     expect(store.route()).toEqual(originalRoute);
     expect(store.routeNeedsUpdate()).toBe(true);
     expect(intents).toHaveLength(cameraRequests);
-    expect(directions.walking).toHaveBeenCalledTimes(7);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 1);
 
     confirmStation(fixture, task.id);
     fixture.detectChanges();
@@ -1106,7 +1107,7 @@ describe('Home task-selection camera', () => {
     expect(intents).toHaveLength(requests);
   });
 
-  it('previews six stations before their routes finish loading and allows selection as soon as ready', async () => {
+  it('loads configured stations before locking and reveals them after destination confirmation', async () => {
     const { fixture, store, directions } = setup();
     const detours: { points: readonly GeoPoint[]; resolve: (route: WalkingDirections) => void }[] =
       [];
@@ -1117,17 +1118,20 @@ describe('Home task-selection camera', () => {
     );
     fixture.componentInstance.startPlanning();
     const request = fixture.componentInstance.selectDestination('tree-5');
-    await vi.waitFor(() => expect(detours).toHaveLength(6));
+    await vi.waitFor(() => expect(detours).toHaveLength(demoSupplyStations.length));
     fixture.detectChanges();
     expect(store.isPlanning()).toBe(true);
     expect(store.route().length).toBeGreaterThan(0);
-    expect(fixture.componentInstance.nearbyTaskPoints()).toHaveLength(6);
+    expect(store.availableTaskPoints()).toHaveLength(demoSupplyStations.length);
+    expect(fixture.componentInstance.nearbyTaskPoints()).toHaveLength(0);
     expect(store.routeLoading()).toBe(true);
     expect(store.startWalk('test')).toBe(false);
     for (const detour of detours) detour.resolve(responseFor(detour.points));
     await request;
     expect(store.routeLoading()).toBe(false);
-    expect(store.taskRoutes()).toHaveLength(6);
+    expect(store.taskRoutes()).toHaveLength(demoSupplyStations.length);
+    fixture.componentInstance.confirmDestination();
+    expect(fixture.componentInstance.nearbyTaskPoints()).toHaveLength(demoSupplyStations.length);
     expect(store.availableTaskPoints()[0].estimatedExtraSteps).toBe(Math.round(1600 / 0.75));
     confirmStation(fixture, store.availableTaskPoints()[0].id);
     expect(store.taskPoints()).toHaveLength(1);
@@ -1186,25 +1190,26 @@ describe('Home task-selection camera', () => {
     expect(store.startWalk('test')).toBe(false);
     await fixture.componentInstance.selectDestination('tree-5', true);
     expect(store.planningError()).toBeNull();
-    expect(store.taskRoutes()).toHaveLength(6);
+    expect(store.taskRoutes()).toHaveLength(demoSupplyStations.length);
   });
 
   it('requests one continuous multi-waypoint route only on update and reuses cached combinations', async () => {
     const { fixture, store, directions, intents } = setup();
     fixture.componentInstance.startPlanning();
     await fixture.componentInstance.selectDestination('tree-5');
+    fixture.componentInstance.confirmDestination();
     fixture.detectChanges();
     const cameraRequests = intents.length;
     const first = store.availableTaskPoints()[0];
     const second = store.availableTaskPoints()[1];
     confirmStation(fixture, second.id);
     confirmStation(fixture, first.id);
-    expect(directions.walking).toHaveBeenCalledTimes(7);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 1);
     expect(store.startWalk('test')).toBe(false);
     await fixture.componentInstance.updateRoute();
     fixture.detectChanges();
-    expect(directions.walking).toHaveBeenCalledTimes(8);
-    const points = directions.walking.mock.calls[7][0];
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 2);
+    const points = directions.walking.mock.calls[demoSupplyStations.length + 1][0];
     expect(points).toEqual([
       store.baseRoute()[0],
       first.position,
@@ -1218,16 +1223,16 @@ describe('Home task-selection camera', () => {
 
     confirmStation(fixture, second.id);
     await fixture.componentInstance.updateRoute();
-    expect(directions.walking).toHaveBeenCalledTimes(9);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 3);
     confirmStation(fixture, second.id);
     await fixture.componentInstance.updateRoute();
-    expect(directions.walking).toHaveBeenCalledTimes(9);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 3);
     expect(store.route()).toEqual(responseFor(points).coordinates);
     confirmStation(fixture, first.id);
     confirmStation(fixture, second.id);
     expect(store.route()).toEqual(store.baseRoute());
     expect(store.routeNeedsUpdate()).toBe(false);
-    expect(directions.walking).toHaveBeenCalledTimes(9);
+    expect(directions.walking).toHaveBeenCalledTimes(demoSupplyStations.length + 3);
   });
 
   it('cancels an in-flight update if task selection changes and discards its stale result', async () => {
@@ -1243,7 +1248,7 @@ describe('Home task-selection camera', () => {
         }),
     );
     const update = fixture.componentInstance.updateRoute();
-    const [points, signal] = directions.walking.mock.calls[7];
+    const [points, signal] = directions.walking.mock.calls[demoSupplyStations.length + 1];
     confirmStation(fixture, 'route-water-2');
     expect(signal.aborted).toBe(true);
     expect(store.routeLoading()).toBe(false);
@@ -1253,7 +1258,7 @@ describe('Home task-selection camera', () => {
     expect(store.routeNeedsUpdate()).toBe(true);
     expect(store.planningError()).toBeNull();
     await fixture.componentInstance.updateRoute();
-    expect(directions.walking.mock.calls[8][0]).toHaveLength(4);
+    expect(directions.walking.mock.calls[demoSupplyStations.length + 2][0]).toHaveLength(4);
     expect(store.routeNeedsUpdate()).toBe(false);
   });
 

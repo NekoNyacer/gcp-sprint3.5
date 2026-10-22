@@ -13,6 +13,7 @@ import { isWithinGeoRadius } from '../models/geo-distance';
 import { TREE_CULTIVATION_RADIUS_METERS } from '../../environments/environment-dev';
 import { LocationStore } from './location-store';
 import { ProgressStore } from './progress-store';
+import { cmsPublication } from '../models/cms-publication';
 
 export type WalkDestination = {
   id: string;
@@ -83,9 +84,15 @@ export const WalkSessionStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
-    availableTaskPoints: computed(() =>
-      store.taskRoutes().length > 0 ? store.taskRoutes() : createDemoWalkTasks(store.baseRoute()),
-    ),
+    availableTaskPoints: computed(() => {
+      if (!cmsPublication().managed) return store.taskRoutes().length > 0 ? store.taskRoutes() : createDemoWalkTasks(store.baseRoute());
+      return createDemoWalkTasks(store.baseRoute()).map(task => {
+        const routed = store.taskRoutes().find(old => old.id === task.id &&
+          old.position.latitude === task.position.latitude && old.position.longitude === task.position.longitude);
+        return { ...task, routeGeometry: routed?.routeGeometry ?? [], routeDistanceMeters: routed?.routeDistanceMeters ?? 0,
+          estimatedExtraSteps: routed?.estimatedExtraSteps ?? task.estimatedExtraSteps };
+      });
+    }),
     routeNeedsUpdate: computed(
       () =>
         store.taskPoints().length !== store.routedTaskIds().length ||
@@ -105,6 +112,9 @@ export const WalkSessionStore = signalStore(
     const location = inject(LocationStore);
     const progress = inject(ProgressStore);
     return {
+      refreshSelectedStation(station: RoutedWalkTaskPoint): void {
+        patchState(store, { taskPoints: store.taskPoints().map(p => p.id === station.id ? station : p) });
+      },
       setCheckInError: (checkInError: string | null) => patchState(store, { checkInError }),
       checkInTaskPoint: (taskId: string) => {
         const task = store.taskPoints().find((point) => point.id === taskId);
@@ -307,7 +317,9 @@ export const WalkSessionStore = signalStore(
       },
       toggleTaskPoint: (taskId: string) => {
         const destination = store.destination();
-        const candidate = store.taskRoutes().find((point) => point.id === taskId);
+        const source = store.availableTaskPoints().find((point) => point.id === taskId);
+        const candidate = source ? { ...source, routeGeometry: 'routeGeometry' in source ? source.routeGeometry : [],
+          routeDistanceMeters: 'routeDistanceMeters' in source ? source.routeDistanceMeters : 0 } as RoutedWalkTaskPoint : undefined;
         if (!store.isPlanning() || !store.destinationConfirmed() || !destination || !candidate) {
           patchState(store, {
             planningError: '請先確定此終點並等待補給站載入，再加入本次路線提供的補給站。',

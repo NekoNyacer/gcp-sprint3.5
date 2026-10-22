@@ -31,6 +31,10 @@
           <ion-label>{{ isExpired() ? '到期時間' : '交易時間' }}</ion-label>
           <strong slot="end">{{ transaction().occurredAt | date: 'yyyy/MM/dd HH:mm' }}</strong>
         </ion-item>
+        @if (transaction().type === 'PRODUCT' || transaction().type === 'HARVEST' || (transaction().treePointsAmount ?? 0) < 0) {
+          <ion-item><ion-label>小樹點異動</ion-label><strong slot="end">{{ transaction().treePointsAmount | number }} 點</strong></ion-item>
+          @if (transaction().productName) { <ion-item><ion-label>項目</ion-label><strong slot="end">{{ transaction().productName }}</strong></ion-item> }
+        } @else {
         <ion-item>
           <ion-label>{{
             isFailed() ? '預計使用' : isExpired() ? '到期數量' : '使用資格'
@@ -44,6 +48,7 @@
             }}棵大樹
           </strong>
         </ion-item>
+        }
         @if (transaction().type === 'TREE_POINTS') {
           <ion-item>
             <ion-label>{{ isFailed() ? '預計獲得' : '獲得點數' }}</ion-label>
@@ -93,6 +98,9 @@
           } @else if (isExpired()) {
             <strong>已超過使用期限</strong>
             <span>只有兌換資格失效，回憶林收藏不受影響。</span>
+          } @else if (transaction().type === 'PRODUCT' || transaction().type === 'HARVEST' || (transaction().treePointsAmount ?? 0) < 0) {
+            <strong>Demo 模擬交易</strong>
+            <span>點數異動已記錄；不具真實商品或付款效力。</span>
           } @else {
             <strong>回憶林收藏不受影響</strong>
             <span>本次僅使用大樹的兌換資格。</span>

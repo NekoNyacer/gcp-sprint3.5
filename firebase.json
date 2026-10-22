@@ -9,6 +9,10 @@
     "cleanUrls": true,
     "rewrites": [
       {
+        "source": "/cms/**",
+        "destination": "/cms/index.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

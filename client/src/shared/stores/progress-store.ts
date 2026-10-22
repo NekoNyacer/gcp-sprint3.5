@@ -28,8 +28,13 @@ import {
   TREE_GROWTH_PER_HARVEST,
 } from '../../environments/environment-dev';
 import { SupplyReward } from '../models/walk-task.models';
+import { cmsPublication } from '../models/cms-publication';
+import type { HomeTree } from '../../features/home/home-tree-recommendations';
 
 type DemoTreeCultivation = {
+  site?: HomeTree;
+  harvestVersion?: number;
+  harvestAwardPoints?: number;
   planted: boolean;
   harvestedOn: string | null;
   visitedOn: string | null;
@@ -204,6 +209,25 @@ export const ProgressStore = signalStore(
       });
     };
     return {
+      reconcileCmsHarvest(treeId: string, amount: number, version: number): void {
+        const tree = store.demoTrees()[treeId]; if (!tree || !tree.harvestCount) return;
+        const previous = tree.harvestAwardPoints ?? DEMO_HARVEST_POINTS;
+        if (previous === amount && tree.harvestVersion === version) return;
+        patchTree({ harvestVersion: version, harvestAwardPoints: amount },
+          { demoTreePoints: Math.max(0, store.demoTreePoints() + amount - previous) }, treeId);
+      },
+      ensureCmsTrees(trees: readonly HomeTree[], demo: boolean): void {
+        let changed = false; const next = { ...store.demoTrees() };
+        const template = createDemoTrees()['demo-tree'];
+        for (const site of trees) {
+          const existing = next[site.id];
+          if (!existing) { next[site.id] = { ...template, planted: !site.empty, growth: demo ? site.growth : 0, site }; changed = true; }
+          else if (!existing.site || (!existing.planted && JSON.stringify(existing.site) !== JSON.stringify(site))) {
+            next[site.id] = { ...existing, site }; changed = true;
+          }
+        }
+        if (changed) patchState(store, { demoTrees: next });
+      },
       replaceProgress(state: ProgressState): void {
         for (const timer of harvestTimers) clearTimeout(timer);
         for (const timer of recoveryTimers) clearTimeout(timer);
@@ -309,8 +333,9 @@ export const ProgressStore = signalStore(
           return false;
         }
         const treeId = store.activeDemoTreeId();
+        const harvestPoints = cmsPublication().config?.harvestPoints ?? DEMO_HARVEST_POINTS;
         patchTree(
-          { harvestStartedAt: Date.now() },
+          { harvestStartedAt: Date.now(), harvestVersion: cmsPublication().version, harvestAwardPoints: harvestPoints },
           {
             cultivationError: null,
           },
@@ -326,7 +351,7 @@ export const ProgressStore = signalStore(
               harvestedAt,
             },
             {
-              demoTreePoints: store.demoTreePoints() + DEMO_HARVEST_POINTS,
+              demoTreePoints: store.demoTreePoints() + harvestPoints,
             },
             treeId,
           );

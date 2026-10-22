@@ -39,6 +39,7 @@ import {
   transactionTitle,
 } from './shop-view.models';
 import { TransactionDetailDialogComponent } from './transaction-detail-dialog.component';
+import { CMS_CONNECTION, cmsPublication } from '../../shared/models/cms-publication';
 
 type ActionDialog =
   | { kind: 'points'; option: RedemptionOption }
@@ -87,6 +88,8 @@ interface ResultDialog {
   ],
 })
 export class ShopComponent implements OnInit, OnDestroy {
+  private readonly cms = inject(CMS_CONNECTION, { optional: true });
+  private selectedConfigVersion = 0;
   private readonly store = inject(ShopStore);
   private infoTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -152,6 +155,7 @@ export class ShopComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.cms?.track('shop_view');
     void this.store.load();
   }
 
@@ -198,6 +202,7 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   selectOption(option: RedemptionOption): void {
+    this.selectedConfigVersion = cmsPublication().version;
     if (this.availableTrees() < option.requiredTrees) {
       this.actionDialog.set({
         kind: 'insufficient',
@@ -214,6 +219,8 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   selectCharity(campaign: CharityCampaign): void {
+    if (!this.store.charityCampaign().enabled) return;
+    this.selectedConfigVersion = cmsPublication().version;
     if (this.availableTrees() < campaign.requiredTrees) {
       this.actionDialog.set({
         kind: 'insufficient',
@@ -237,6 +244,13 @@ export class ShopComponent implements OnInit, OnDestroy {
     if (!action || !dashboard || (action.kind !== 'points' && action.kind !== 'charity')) {
       return;
     }
+    if (this.selectedConfigVersion !== cmsPublication().version) {
+      this.actionDialog.set(null);
+      this.resultDialog.set({ success: false, kind: action.kind, title: '獎勵設定已更新，請重新確認', amountLabel: '',
+        beforeTrees: dashboard.availableMatureTrees, afterTrees: dashboard.availableMatureTrees,
+        beforePoints: dashboard.treePointsBalance, afterPoints: dashboard.treePointsBalance });
+      return;
+    }
 
     const beforeTrees = dashboard.availableMatureTrees;
     const beforePoints = dashboard.treePointsBalance;
@@ -245,7 +259,7 @@ export class ShopComponent implements OnInit, OnDestroy {
       const commandResult =
         action.kind === 'points'
           ? await this.store.redeemTreePoints(action.option.id)
-          : await this.store.donateToCharity();
+          : await this.store.donateToCharity(action.campaign.id);
       const failed = !commandResult?.success || !!this.store.commandError();
       const updated = this.dashboard();
       this.resultDialog.set({

@@ -41,6 +41,7 @@
             ],
             "styles": [
               "src/styles.scss",
+              "../cms/node_modules/cub-lib-view-iconfont/css/cub-lib-view-iconfont.min.css",
               "node_modules/mapbox-gl/dist/mapbox-gl.css",
               {
                 "input": "@ionic/angular/css/core.css"

@@ -84,33 +84,14 @@
             /></span>
             <div class="transaction-copy">
               <h3>
-                {{
-                  transaction.type === 'CHARITY'
-                    ? '生態公益投入'
-                    : transaction.type === 'TREE_POINTS'
-                      ? '小樹點兌換'
-                      : '樹木額度到期'
-                }}
+                {{ transactionTitle(transaction) }}
               </h3>
               <p>
-                @if (transaction.type === 'TREE_POINTS') {
-                  累計使用 {{ transaction.treePointsAmount | number }} 點
-                } @else if (transaction.type === 'CHARITY') {
-                  公益投入 NT$ {{ transaction.charityTotalAmount | number }}
-                }
-                · 預計使用 {{ transaction.requestedTreeCount }} 棵
+                {{ transactionSummary(transaction) }}
               </p>
               <time>{{ transaction.occurredAt | date: 'yyyy/MM/dd HH:mm' : '+0800' }}</time>
             </div>
-            <span class="transaction-status">{{
-              transaction.status === 'FAILED'
-                ? '未完成'
-                : transaction.status === 'EXPIRED'
-                  ? '已到期'
-                  : transaction.type === 'CHARITY'
-                    ? '投入成功'
-                    : '兌換成功'
-            }}</span>
+            <span class="transaction-status">{{ transactionStatusLabel(transaction) }}</span>
           </article>
         } @empty {
           <p class="empty-state">尚無近期紀錄</p>

@@ -1,4 +1,5 @@
-import { inject, Service } from '@angular/core';
+import { effect, inject, Service } from '@angular/core';
+import { CMS_CONNECTION } from '../../shared/models/cms-publication';
 import { Observable, of } from 'rxjs';
 import { SessionStore } from '../../shared/stores/session-store';
 import { DemoLocationState, LocationEvidence, TaskCompletionResult, TaskItem } from './task.models';
@@ -11,6 +12,14 @@ export class TaskRepository {
   private readonly demo = inject(SeededDemoTaskRepository);
   private readonly firebase = inject(FirebaseTaskRepository);
   private demoAreaId: string | undefined;
+
+  constructor() {
+    const cms = inject(CMS_CONNECTION, {optional: true});
+    if (cms) effect(() => {
+      if (this.sessionStore.isDemoMode() && cms.managed())
+        this.demo.setPublishedTasks(cms.config()?.tasks ?? []);
+    });
+  }
 
   watchTasks(areaId: string): Observable<TaskItem[]> {
     return this.sessionStore.isDemoMode() ? this.demo.watchTasks(areaId) : this.firebase.watchTasks(areaId);
@@ -27,7 +36,7 @@ export class TaskRepository {
   completeTask(task: TaskItem, location: LocationEvidence, idempotencyKey: string): Promise<TaskCompletionResult> {
     return this.sessionStore.isDemoMode()
       ? this.demo.completeTask(task.taskId, location)
-      : this.firebase.completeTask(task.taskId, location, idempotencyKey, false);
+      : this.firebase.completeTask(task.taskId, location, idempotencyKey, false, task.cmsVersion);
   }
 
   watchSelectedArea(): Observable<string | undefined> {

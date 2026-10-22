@@ -1,4 +1,335 @@
 # CAT WALK project context
+
+## Redemption reference layout (2026-10-21)
+
+- The user requests the client redemption screen match the supplied reference:
+  a white two-column wallet, ecological charity card, horizontally scrolling
+  product cards, a full-screen product detail view with an orange redemption
+  action, and a compact success dialog with transaction details and balance.
+- Preserve the published CMS catalog and current point-based redemption rules;
+  screenshot balances, products and voucher requirements do not establish new
+  reward rules. Gray image placeholders follow the reference.
+- The current implementation links the success dialog's ticket action to existing
+  transaction history and labels simulated redemption explicitly. Actual ticket
+  issuance, validity and merchant barcode redemption remain unresolved.
+
+## Unified simulation content (2026-10-21)
+
+- Hosting preview published to channel `cms-preview`, including client at `/`
+  and CMS at `/cms/`: https://cathay-ai-hackathon-team-03--cms-preview-y5yvbvh6.web.app
+  Expires 2026-10-28 14:35:50 Asia/Taipei. Verified HTTP 200 for the client,
+  CMS and `/cms/merchants`, with the correct CMS base path. Live Hosting is unchanged.
+- The user supplied the Mapbox public token for preview delivery. It is present
+  in the ignored generated runtime configuration and deployed preview assets;
+  do not record its literal value in project memory. The Mapbox Standard style
+  API returned 200 using that token and the preview origin. Future client builds
+  must set `MAPBOX_PUBLIC_TOKEN` because prebuild regenerates runtime-config.js.
+
+- Company network commands require process environment settings:
+  `HTTPS_PROXY=http://pxoawcg:8080`, `HTTP_PROXY=http://pxoawcg:8080`,
+  `NO_PROXY=localhost,127.0.0.1`, `NODE_USE_ENV_PROXY=1`,
+  `NODE_USE_SYSTEM_CA=1`. Use these for Firebase/Google network operations.
+  Firestore seed tooling uses REST transport for proxy compatibility.
+- With these settings, the shared Firestore seed import succeeded and was read
+  back at revision/version 1 with all expected content counts. This supersedes
+  the earlier unverified import status below.
+- Proxy-enabled deployment completed successfully for `cmsCommand`, `cmsRedeem`,
+  `cmsHarvest`, `cmsRecommend` and `cmsValidateStation`; CLI exited 0 with zero
+  Functions errors. All five live endpoints returned expected unauthenticated
+  401 responses and CORS for `http://localhost:4200`. Authenticated CMS CRUD still
+  needs administrator acceptance. Seed rerun confirmed existing content is
+  preserved. Client production+preview build also passed with the proxy settings.
+  Hosting was not deployed in this retry.
+
+- The user confirms all current CMS content is simulated; remove the Demo/normal
+  content selector and import the client's mock content into Firestore for CRUD.
+  A production launch will rebuild the database. This supersedes earlier CMS
+  content isolation requirements. Keep identity-scoped player progress and history.
+- Use the existing `demo` content document as the shared catalog, retaining draft,
+  publication and revision checks. Account authentication is unchanged.
+- Implementation prepared: CMS selector removed, client and trusted content
+  validation read the shared publication, and task publication updates `/tasks`.
+  Seed package contains 5 merchants, 13 tree presets, 7 species, 3 rewards,
+  12 scenes and 17 tasks. The importer preserves existing CMS documents on rerun.
+- Local verification: CMS build, client development build and 45 Functions tests
+  passed. Production client build hit a Google Fonts download timeout. Cloud
+  import and Functions deployment are pending: after CLI reauthentication,
+  Google Cloud endpoints still timed out from the execution environment. No
+  successful cloud write or deployment has been verified for this change.
+- Deployment retry on 2026-10-21 at 14:11 Taipei time: CLI token remained valid
+  and Functions predeploy build passed, but IAM and Cloud Resource Manager
+  requests again failed with connection timeouts. Firestore import did not
+  return a successful result; cloud completion remains unverified.
+
+## CMS scope extension (2026-10-21)
+
+### Additional CMS administrators (2026-10-21)
+
+- At the user's explicit request, granted `cmsAdmin: true` to verified Google
+  identities `mickylumc@gmail.com`, `shadow210021@gmail.com`,
+  `pon860516@gmail.com`, `yunchi.wu17@gmail.com`, `megan880330@gmail.com`, and
+  `ai-hackathon-team-03@demo-wsp-enterprise.reseller.dynacloud.co` in
+  `cathay-ai-hackathon-team-03`. All six grants were read back and verified;
+  unrelated existing claims were preserved. Users must sign out and sign in
+  again to refresh their ID token. This verifies role provisioning, not an
+  authenticated browser acceptance test for each account.
+
+### Login presentation exception (2026-10-21)
+
+- The user explicitly requests the initial custom login presentation again.
+  Custom styles are permitted on the CMS login page; the authenticated CMS
+  retains the established rootNgV2 direction. Original custom CSS was not found
+  in repository history, so the login is reconstructed as a standalone component
+  with a green brand panel and responsive white sign-in panel. Authentication,
+  verified Google identity and `cmsAdmin` checks remain unchanged.
+- Administrator provisioning can use the existing Firebase CLI login via the
+  optional package-path argument to `functions/scripts/grant-cms-admin.mjs`,
+  alongside the existing ADC option. Grant/revoke operations read the account
+  back to verify the claim; all existing unrelated claims are preserved.
+- Custom login was built and published to the existing `cms-preview` channel;
+  expiry is now 2026-10-28 14:44:27 Asia/Taipei. Chrome checks at 1440px and 390px
+  confirmed the desktop split layout, mobile stacked layout, a 50px sign-in
+  button and no horizontal overflow. Cached preview HTML can show the previous
+  design; hard refresh when reviewing. Mapbox runtime configuration is preserved.
+
+### CMS UI conformance (2026-10-21)
+
+#### Mock seed import navigation (2026-10-21)
+
+- The user requests mock seed import on its own CMS route with a sidebar menu
+  entry. Remove seed import blocks and unused imports from content-management
+  pages; preserve the existing importer behavior and draft-only safety on the
+  dedicated page.
+
+
+- The user requires the CMS frontend to use rootNgV2 components and official
+  utilities throughout, without custom visual styles or replacement UI widgets.
+- The user further confirms CRD as the implementation reference, especially
+  its Layout: header/logo/account alignment, `cub-collapsible-menu` inside the
+  sidebar, desktop collapse versus mobile overlay behavior, library-managed
+  content spacing, and `cub-footer` projected through `cubLayoutFooter`.
+- Preserve CMS behavior and the separate client UI; this direction changes the
+  CMS presentation rather than the confirmed operational scope.
+- The user additionally requires each CMS function to have its own component
+  and route, with each content block enclosed in a rootNgV2 card. The seven
+  initial page routes are dashboard, merchants, trees, rewards, scenes, budget
+  and AI; the later task-management request adds a separate tasks route.
+  Shared draft/publication state must survive navigation between these pages.
+- The user requested the CMS login screen as its own `/login` route. Unauthenticated
+  navigation redirects there with a safe internal return URL; successful
+  authorization returns to the requested CMS route. The existing Google sign-in,
+  admin-claim checks and login presentation remain in place.
+
+### Confirmed direction
+
+- On 2026-10-21 the user requested station, task and product CRUD, with Google
+  Maps for visual location selection on stations and tasks. Here "task" means
+  the existing daily/weekly/event feature; AI-selected extra supply stops are
+  explicitly outside this task-management scope. Preserve draft/publication,
+  rootNgV2 presentation and Demo/normal isolation. Google Maps API configuration
+  is a setup input; do not assume Firebase credentials enable Maps.
+- The user specified port 4200 for local CMS use instead of 4300. Live Google
+  Maps loading, point selection and marker dragging were verified at
+  `http://localhost:4200/`. The provided browser key is stored only in the
+  ignored local Maps configuration file. Geocoding currently fails because the
+  key is not authorized for that service/API; map selection and manual
+  coordinates remain usable. Do not describe address search as live-verified
+  until Geocoding API access is configured.
+- Task management uses the existing daily/weekly/event reward rules (water
+  drops for daily/weekly, fertilizer for events). Each record is one dated
+  occurrence; automatic recurring issuance is not implemented. Normal
+  publication synchronizes only CMS-managed `/tasks` records. Removal disables
+  the task for new enrollment/completion while retaining player history;
+  completion snapshots preserve the original reward and task content. Submission
+  checks the published version before issuing rewards. Demo publication feeds
+  the separate local demo task repository, never the normal task collection.
+  Existing normal tasks may be loaded into the draft explicitly for review.
+  These are implementation choices preserving the established task model,
+  rather than new definitions of AI-selected supply routes.
+- CRUD extension validation: Functions build and 45 tests, client
+  production+preview build and five Demo task tests passed. Browser fixture CRUD
+  checks passed for merchants, tasks and products; live Google Maps selection
+  was verified separately from the fixture SDK address-search test. Deployed
+  `cmsCommand`, `completeTask` and Firestore rules for this extension. The CLI
+  again timed out only after reporting successful updates and completion;
+  independent checks from the 4200 origin verified OPTIONS 204 and unauthenticated
+  POST 401 for all nine CMS callables plus `completeTask`. No task data was
+  automatically imported or published; authenticated cloud CRUD still needs
+  administrator acceptance. Hosting assets are prepared locally, not deployed.
+
+- The user reports that client development is nearing completion and requests
+  a simple administration interface in the same repository's `cms/` directory.
+  This is a new scope decision superseding the earlier exclusion of a
+  content-management UI; it does not imply production readiness.
+- The CMS will support collecting user data and analyzing business value,
+  together with station-location settings, exchange-ratio settings, redemption
+  reward management, and cost/budget controls. Detailed behavior and acceptance
+  criteria remain subject to the new grill-me discovery rounds.
+- Use the company's latest UI kit, referencing the existing CRD project at
+  `D:/Users/00594664/Desktop/CRD`. The exact package, approved current version,
+  and integration constraints must be verified rather than assumed.
+- Connect to Firebase for the initial data integration. Round 3 confirms real
+  Gemini integration for this delivery; other GCP additions remain candidates.
+- The management demonstration should show credible operational and commercial
+  value, alongside the potential of AI and cloud applications.
+- Existing Demo data separation, privacy constraints, trusted reward commands,
+  and the exclusion of real payments/production loyalty integration continue
+  to apply unless explicitly changed in subsequent confirmed decisions.
+
+### Discovery round 1 confirmed (2026-10-21)
+
+- Business objective: secure support for a small-scale pilot. Also demonstrate
+  how attracting merchants to become app stations could support the company's
+  current TWQR partner-merchant recruitment initiative. This is a pilot business
+  hypothesis, not an existing merchant partnership or proven conversion result.
+- CMS changes must be adopted by the client after publication, including newly
+  added stations and their latest merchant offers/plans. A draft-only CMS is
+  insufficient. Rounds 2 and 3 below settle publication and active-route behavior.
+- Analyze existing account, step, planting, and redemption data where available;
+  add only necessary funnel events. Default reporting is aggregated and
+  de-identified. Explicitly distinguish seeded demonstration data and missing
+  historical measurements. Existing private-anchor/track restrictions remain.
+- First-slice configurable reward economics: harvest point amounts and catalog
+  redemption prices. Defer changes to step/light/water/growth conversion formulas.
+- Track both reward costs and cloud/API expenditure, presented separately.
+  Provide budgets and alerts; do not stop reward issuance automatically when
+  budgets are exceeded. Cost definitions and data freshness must be explicit.
+- Limit CMS entry to designated Google accounts. Round 2 confirms administrator
+  access for all initial accounts; the account list is still a setup input.
+
+### Discovery round 2 confirmed (2026-10-21)
+
+- Merchants can appear as planting locations or supply stations. The intended
+  AI capability judges routes and decides which merchants take each role.
+  Round 3 below settles per-route roles and real AI in the current delivery.
+- Migrate existing mock data into Firebase so the CMS can manage it. This is a
+  demonstration scenario; there is no real merchant application/onboarding
+  workflow. Round 3 below defines migration coverage and player-state isolation.
+- Accept live map/offer updates after publication. Preserve an existing route
+  when a station is unpublished, but prevent newly adding unpublished stations.
+  Revalidate unclaimed rewards at submission; changed prices/rewards require
+  notice and renewed confirmation. Completed transactions retain their original
+  settings version. This does not silently reroute an active walk.
+- Offers simulate the effect of joining TWQR: a merchant becomes visible as an
+  app station and attracts potential visitors. Merchant coupon claiming and
+  verification are not required for this slice. Navigation is not evidence of
+  an actual visit or purchase. Persist mock catalog redemptions in Firebase for
+  demonstration transaction reporting.
+- Initial dashboard metrics: active users, route completion rate, merchant
+  offer-view-to-navigation funnel, reward redemption rate, and reward cost per
+  active user. Round 3 below defines denominators/windows. Show only recorded
+  periods and explicitly identify absent measurements and seeded data.
+- Reward budgets use NTD per month; cloud/API budgets use the existing USD 500
+  project total. Present them separately with 50%, 80%, and 100% alert levels.
+  Identify cloud-cost source and update time. Round 3 settles alert channels.
+- Retain completion by 2026-11-05 and presentation on 2026-11-09. Designated
+  Google accounts initially all have administrator access; defer read-only
+  roles. Round 3 promotes real route/station AI into this delivery; additional
+  enhancements remain deferred until this operational loop is complete.
+
+### Discovery round 3 confirmed (2026-10-21)
+
+- Real Gemini integration is required in this delivery because Google personnel
+  are among the judges and should see actual GCP/Gemini application. A simulated
+  AI-only showcase does not meet this requirement. Existing constraints continue:
+  select only server-validated configured candidates, retain map-service route
+  validation, and fall back to deterministic recommendations on AI failure.
+- The CMS sets each merchant's allowed roles. AI chooses a role per route from
+  those allowed roles. Existing planted trees keep their location/identity;
+  confirmed routes are not automatically reassigned by later AI decisions.
+- Migrate merchant, station, offer, species, catalog, and preset-scene mock data
+  to Firebase for CMS management. Player inventory, tree progress, and transactions
+  remain identity-scoped. Demo uses a separate data scope; resetting it must not
+  delete normal-account data.
+- Active users are distinct accounts performing at least one core action in the
+  selected period. Route completion rate is completed routes divided by departed
+  routes. Offer navigation rate is distinct offer viewers who subsequently start
+  navigation divided by distinct offer viewers; it measures intent, not visits.
+  Redemption rate is distinct redeeming users divided by distinct shop viewers.
+  Reward cost per active user is the period's redeemed items' configured costs
+  divided by active users. Show outstanding-point estimated cost separately.
+  Default to the last seven days with a current-month option; separate Demo and
+  normal-account metrics. Zero-denominator/unmeasured cases must not imply success.
+- New analytics events follow the existing deletion deadline: seven days after
+  the presentation. Preserve the existing test-account and privacy boundaries.
+- Alerts are dashboard-only; no email notifications in this slice. Cloud spend
+  is initially entered by an administrator from billing records, with source
+  and update time visible. Reward costs are derived from Firebase demonstration
+  transactions. Automated GCP billing ingestion is deferred.
+- Support save-draft, publish, and unpublish. Only publication changes the client;
+  online clients with the page open should see changes within a five-second
+  target. Show a change summary before publication and record operator, time,
+  and version. Previously confirmed active-route/transaction rules still apply.
+
+### Discovery closure and setup inputs
+
+- During implementation the user resolved the discovered double-award conflict:
+  harvest credits tree points directly; the shop spends those points on products.
+  Mature-tree-to-points exchanges are superseded, not a second reward stream.
+  CMS reward pricing therefore uses required tree points per product, not mature
+  tree counts. Retain lifetime mature-tree counts as non-spendable statistics.
+
+- On 2026-10-21 the user confirmed shared understanding (Q19), ended discovery,
+  and authorized implementation. The user initially requested Angular parity
+  with the client, then explicitly permitted CMS Angular 20 if rootNgV2 proves
+  difficult on Angular 22.1.4. Internal registry verification found the latest
+  rootNgV2 (`cub-lib-view-rootng` 2.2.1) still declares Angular ^20.3.0 peers.
+  Use supported Angular 20.3 for CMS under this authorized exception; preserve
+  CAT WALK client Angular 22.1.4. Reference CRD's rootNgV2 usage and layout.
+- The user designated `mariomario258@gmail.com` as the first CMS administrator
+  on 2026-10-21. Provisioning requires a verified Firebase Google identity;
+  after the user restored Firebase CLI authentication, `cmsAdmin: true` was
+  granted in `cathay-ai-hackathon-team-03` and verified by reading the account
+  back. The verified Google identity and existing claims were preserved.
+  Sign out and sign in to CMS again to refresh the ID token. This confirms the
+  account claim only; deployed CMS/Functions acceptance remains separate.
+  The initial monthly reward-budget amount remains a setup input, not a value
+  to invent.
+- Verify the latest accessible internal UI-kit release and compatible Angular
+  version during setup. CRD's adopted version alone does not prove latest.
+- Confirmed implementation direction: a separate Angular CMS application using
+  supported Angular 20.3 and rootNgV2 2.2.1 under the authorized exception; Firebase Hosting
+  delivery; trusted server-side CMS commands and Gemini calls, with secrets
+  outside the browser. Preserve the existing client framework version.
+
+## Earlier client decisions
+
+### CMS implementation handoff (2026-10-21)
+
+- CMS source now lives in `cms/`, using Angular 20.3.24, rootNgV2 2.2.1 and
+  matching utilities 3.3.0. The client remains on Angular 22.1.4. Setup,
+  administrator provisioning, seed import, Gemini IAM and acceptance steps
+  are documented in `cms/README.md`.
+- Public configuration is versioned separately from administrator drafts and
+  identity-scoped player state. Callable commands enforce administrator claims,
+  publication revisions, transactional point spending and idempotent retries.
+  Published updates are consumed through Firestore listeners. Gemini uses
+  Vertex AI with the Functions service identity and constrained candidate IDs.
+- The `/shop` route now spends points on products/charity. Harvest directly
+  credits points once; mature-tree counts are statistics, not spendable
+  entitlements. Legacy entitlement components remain for compatibility with
+  existing tests/history but are not the active shop route.
+- Mock migration creates a reviewable JSON import, not an automatic cloud
+  write. The first admin account is provisioned as recorded above. Monthly reward-budget value, Hosting deployment,
+  Vertex API/IAM/model access, and a real cloud happy-path verification remain
+  operational setup inputs. Do not describe mocked Vertex tests as live AI use.
+- On 2026-10-21 the user reported `cmsDashboard` OPTIONS 404. Cloud inventory
+  confirmed all CMS functions were absent. Deployed all ten CMS functions in
+  `asia-east1` and Firestore rules; Cloud Scheduler API and the daily cleanup
+  job were created. Explicit public model/location values in the project dotenv
+  file support non-interactive CLI deployment. Functions build and 29 tests
+  passed. Live checks verified OPTIONS 204 with the requested CORS origin and
+  unauthenticated POST 401 for all nine callable endpoints. This does not verify
+  an authenticated dashboard query, seed publication, or a live Vertex AI call.
+  CLI reported a timeout after deployment completion; logs show ten successful
+  function deployments, zero errors, and an enabled cleanup job. HTTP endpoints
+  were independently verified. Hosting was not deployed in this repair.
+- Firebase Hosting artifacts can include CMS at `/cms/` via
+  `scripts/prepare-cms-hosting.mjs`; building/preparing does not deploy.
+- Existing cultivation-modal tests have 14 failures reproduced with the
+  pre-change component/template as well. These are tracked as pre-existing
+  modal test-mounting failures, not evidence of a successful full-suite run.
+
 - 2026-10-20 collection grid card action: Enable Ionic card button behavior
   in the grid so clicking or keyboard-activating a card opens the same tree
   preview/navigation modal as map mode. Map popup cards remain non-button cards
@@ -150,7 +481,7 @@
   loading and saving were confirmed fixed by the user on 2026-10-20.
 
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 
 - 2026-10-19 Demo map error correction: The Standard basemap's optional
   mapbox.hd-road-v1-bounded source can return HTTP 403. Do not replace the
@@ -692,7 +1023,8 @@ The company group already offers a related feature called `健康吧` inside the
 - Real `小樹點`, real merchants, payment, and production reward liability.
 - Real friend invitation, search, relationship, or resource transfer.
 - Arbitrary-location task generation.
-- Weather API, Firebase Cloud Messaging, and a content-management UI.
+- Weather API and Firebase Cloud Messaging. The former exclusion of a
+  content-management UI is superseded by the CMS scope extension on 2026-10-21.
 - Production anti-cheat and comprehensive health-data handling.
 - iOS, Safari-specific acceptance, AR, 3D maps, and AI photo validation.
 - A separate production Firebase/GCP environment.
@@ -824,7 +1156,9 @@ iOS, Safari, and other Android models are not formal Demo acceptance targets.
 - Mock catalog prices are a 30-`小樹點` beverage discount, a 50-`小樹點` green-transport discount, and a 50-`小樹點` ESG tree donation. All are labelled as Demo data rather than real merchant offers.
 - Eight seeded leaderboard profiles.
 - One complete example memory tree with a photo.
-- No content-management UI is included. Tree types, curated tasks, mock catalog items, and leaderboard profiles are versioned seed data.
+- The original seed-only content-management baseline is superseded by the CMS
+  scope extension on 2026-10-21. Existing versioned seed data remains in use
+  until CMS publishing and client-consumption behavior is confirmed.
 
 ## Demo privacy baseline
 
@@ -1544,3 +1878,40 @@ The product design frontier is closed. Any later scope change must be recorded a
   harvested trees follow the existing recovery lifecycle, not a permanent
   harvest archive. Long-absence duration and historical harvest retention
   remain unresolved; show an explicit pending-definition message for absence.
+
+### Profile reference layout (2026-10-21)
+
+- Match the supplied profile reference with four compact white sections: player
+  level, 百樹夥伴 progress toward 100 trees, walking statistics, and recent
+  transactions. Use olive progress bars, orange highlights, pale statistic cards
+  and compact transaction rows. Ignore the blue dotted guides and green numbered
+  comment markers in the reference. Preserve the existing shared identity header.
+- Retain existing level/step preview values and the logout action. Reuse ShopStore
+  for Demo lifetime mature-tree counts and the latest three transactions, linking
+  查看全部 to /shop/history. Do not present seeded shop records as normal-account
+  profile data. Real profile XP/statistics and normal-account shop integration
+  remain unresolved; screenshot values do not define new reward rules.
+
+### CMS feedback presentation (2026-10-21)
+
+- User requires CMS informational feedback to use rootNgV2 toast notifications and errors to use dialogs, replacing the shell's inline alerts.
+
+### Catalog table ownership (2026-10-21)
+
+- The user requests the catalog table be implemented within the individual CMS
+  pages so each can be tuned independently. Merchants, rewards, scenes, tasks
+  and trees own their table markup and rootNgV2 imports; shared workspace state
+  continues to provide row data and CRUD operations.
+
+
+
+## Reward avatar images (2026-10-21)
+
+- User requires the CMS image preview to be 1:1. Use a 160px square with a centered icon; this specific sizing implements the requested preview geometry alongside existing rootNgV2 utilities.
+
+- User requests reward create/edit image settings using a simple icon and background color avatar, without arbitrary image uploads. Icon choices come from the supplied cub_icon_name.txt and render as span.cub-icon-{name}.
+- Implementation uses the supplied icon allowlist and six pastel background options, persisted through draft/publication and displayed in the CMS list and client catalog/details. Older records fall back to gift-money on mint green.
+
+### Catalog table ownership (2026-10-21)
+
+- The user requests the catalog table be implemented within individual CMS pages so each can be tuned independently. Merchants, rewards, scenes, tasks and trees own their table markup and rootNgV2 imports; shared workspace state continues to provide row data and CRUD operations.

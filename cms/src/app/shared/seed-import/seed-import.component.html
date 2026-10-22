@@ -1,0 +1,25 @@
+<cub-card class="mb-24"
+  ><cub-card-content>
+    <div class="d-flex flex-wrap mb-24">
+      <cub-upload
+        #seedUpload
+        appearance="button"
+        uploadLabel="匯入既有 mock 種子"
+        [acceptableMimeTypes]="['application/json']"
+        [maxFileSize]="350000"
+        [disabled]="vm.busy()"
+        (validationSuccess)="vm.importSeed($event); seedUpload.reset()"
+        (validationFailed)="vm.error.set('請選擇不超過 350 KB 的 JSON 種子檔')"></cub-upload>
+    </div>
+    <div class="d-flex flex-col">
+      <a
+        class="d-block"
+        cub-hyperlink
+        href="cms-demo.json"
+        download
+        >下載種子檔</a
+      >
+      <p>匯入後僅會修改草稿，不會覆寫玩家進度。</p>
+    </div>
+  </cub-card-content></cub-card
+>

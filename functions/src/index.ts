@@ -5,11 +5,13 @@ import { HttpsError, onCall } from 'firebase-functions/v2/https';
 initializeApp();
 
 export { initializeWalkProgress, saveWalkProgress } from './walk-progress.js';
+export { cmsCommand, cmsTrack, cmsDashboard, cmsWallet, cmsRedeem, cmsHarvest, cmsResetDemo, cmsRecommend, cmsCleanup, cmsValidateStation } from './cms.js';
 
 type CompleteTaskInput = {
   taskId?: unknown;
   idempotencyKey?: unknown;
   isDemo?: unknown;
+  expectedVersion?: unknown;
   location?: { latitude?: unknown; longitude?: unknown; accuracy?: unknown; observedAt?: unknown };
 };
 
@@ -38,6 +40,9 @@ export const completeTask = onCall({ region: 'asia-east1', enforceAppCheck: fals
     if (completionSnapshot.exists) throw new HttpsError('already-exists', '任務已完成');
 
     const task = taskSnapshot.data()!;
+    if (task['enabled'] === false) throw new HttpsError('failed-precondition', '任務已停用或下架');
+    if (task['cmsVersion'] !== undefined && task['cmsVersion'] !== input.expectedVersion)
+      throw new HttpsError('failed-precondition', '任務設定已更新，請重新查看任務內容後確認');
     const now = Timestamp.now();
     if (task['startsAt'].toMillis() > now.toMillis() || task['endsAt'].toMillis() <= now.toMillis()) throw new HttpsError('failed-precondition', '任務尚未開始或已過期');
     if (task['cadence'] === 'event' && !(await transaction.get(enrollmentRef)).exists) throw new HttpsError('failed-precondition', '請先參加活動');
@@ -53,7 +58,9 @@ export const completeTask = onCall({ region: 'asia-east1', enforceAppCheck: fals
     nextInventory[expectedType] += task['reward']['amount'];
     const result = { taskId: input.taskId, completedAt: now.toDate().toISOString(), reward: task['reward'], inventory: nextInventory };
 
-    transaction.set(completionRef, { taskId: input.taskId, destinationId: task['destination']['id'], completedAt: now, calculatedDistanceMeters: Math.round(distance * 10) / 10, reportedAccuracyMeters: input.location.accuracy, reward: task['reward'], isDemo: false });
+    transaction.set(completionRef, { taskId: input.taskId, destinationId: task['destination']['id'], completedAt: now, calculatedDistanceMeters: Math.round(distance * 10) / 10, reportedAccuracyMeters: input.location.accuracy, reward: task['reward'], isDemo: false,
+      taskSnapshot: {title: task['title'], description: task['description'] ?? '', areaId: task['areaId'], cadence: task['cadence'],
+        startsAt: task['startsAt'], endsAt: task['endsAt'], destination: task['destination'], reward: task['reward']} });
     transaction.set(inventoryRef, { ...nextInventory, updatedAt: now }, { merge: true });
     transaction.create(ledgerRef, { type: 'taskReward', resource: expectedType, amount: task['reward']['amount'], sourceId: input.taskId, isDemo: false, idempotencyKey: input.idempotencyKey, createdAt: now });
     transaction.create(commandRef, { command: 'completeTask', result, createdAt: now });
@@ -66,7 +73,7 @@ function validateInput(data: CompleteTaskInput) {
   const location = data.location;
   if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number' || typeof location.accuracy !== 'number' || typeof location.observedAt !== 'string') throw new HttpsError('invalid-argument', '定位資料格式錯誤');
   if (!Number.isFinite(location.latitude) || location.latitude < -90 || location.latitude > 90 || !Number.isFinite(location.longitude) || location.longitude < -180 || location.longitude > 180 || !Number.isFinite(location.accuracy) || location.accuracy < 0) throw new HttpsError('invalid-argument', '定位資料超出範圍');
-  return { taskId: data.taskId, idempotencyKey: data.idempotencyKey, isDemo: data.isDemo === true, location: { latitude: location.latitude, longitude: location.longitude, accuracy: location.accuracy, observedAt: location.observedAt } };
+  return { taskId: data.taskId, idempotencyKey: data.idempotencyKey, isDemo: data.isDemo === true, expectedVersion: data.expectedVersion, location: { latitude: location.latitude, longitude: location.longitude, accuracy: location.accuracy, observedAt: location.observedAt } };
 }
 
 function distanceMeters(a: { latitude: number; longitude: number }, b: { latitude: number; longitude: number }): number {

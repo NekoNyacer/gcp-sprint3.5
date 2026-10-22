@@ -1,0 +1,35 @@
+<main class="login-page">
+  <div class="login-shell">
+    <section class="brand-panel" aria-labelledby="login-heading">
+      <div class="brand-name"><span class="brand-symbol" aria-hidden="true">✳</span>CATHAY PLANET</div>
+      <div class="brand-copy">
+        <span class="eyebrow">讓改變，從每一步開始</span>
+        <h1 id="login-heading">讓每一步<br />連結更多可能。</h1>
+        <p>管理站點、連結商家，<br />從走路體驗看見試辦價值。</p>
+      </div>
+      <div class="brand-footer"><span>TWQR 商家</span><i aria-hidden="true">·</i><span>步行體驗</span><i aria-hidden="true">·</i><span>Gemini 推薦</span></div>
+      <div class="brand-orbit" aria-hidden="true"></div>
+    </section>
+
+    <section class="login-panel" aria-labelledby="sign-in-heading">
+      <div class="login-card">
+        <span class="panel-eyebrow">營運管理平台</span>
+        <h2 id="sign-in-heading">歡迎回來</h2>
+        <p class="login-description">使用已授權的 Google 帳號登入，<br />開始管理你的步行體驗。</p>
+        <button class="login-button" type="button" [disabled]="initializing()" (click)="signIn.emit()">
+          <span class="google-mark" aria-hidden="true">G</span>
+          {{ initializing() ? '確認登入狀態…' : '使用 Google 帳號登入' }}
+        </button>
+        @if (identity()) {
+          <p class="account-label">目前帳號：{{ identity() }}</p>
+          <button class="switch-account" type="button" (click)="signOut.emit()">登出並切換帳號</button>
+        }
+        @if (error()) {
+          <div class="login-error" role="alert">{{ error() }}</div>
+        }
+        <div class="access-note"><span aria-hidden="true">↳</span><p>僅限指定管理員帳號<br /><small>首次登入後，請聯絡專案管理員開通權限。</small></p></div>
+      </div>
+      <footer class="login-footer">內部展示環境 · CUB × GCP Cloud Hackathon</footer>
+    </section>
+  </div>
+</main>

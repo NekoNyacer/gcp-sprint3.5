@@ -1,0 +1,149 @@
+<div class="d-flex flex-wrap justify-content-between mb-16">
+  <div class="d-flex g-8">
+    <button
+      cub-button
+      [appearance]="vm.window() === 'week' ? 'filled' : 'outline'"
+      (click)="vm.window.set('week'); vm.refresh()">
+      近七日</button
+    ><button
+      cub-button
+      [appearance]="vm.window() === 'month' ? 'filled' : 'outline'"
+      (click)="vm.window.set('month'); vm.refresh()">
+      本月
+    </button>
+  </div>
+  <button
+    cub-button
+    appearance="outline"
+    (click)="vm.refresh()">
+    重新整理
+  </button>
+</div>
+
+@if (vm.dashboard(); as d) {
+  <div class="row">
+    <div class="col-12 col-md-6 col-xl mb-16">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="mb-8">活躍使用者</div>
+          <strong class="d-block cub-h2 my-8">{{ d.measured ? d.activeUsers : '—' }}</strong
+          ><span>期間內操作核心功能的去重帳號</span>
+        </cub-card-content></cub-card
+      >
+    </div>
+    <div class="col-12 col-md-6 col-xl mb-16">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="mb-8">路線完成率</div>
+          <strong class="d-block cub-h2 my-8">{{ vm.percent(d.routeCompletionRate) }}</strong
+          ><span>{{ d.routeCompleted }} 完成 / {{ d.routeStarted }} 出發</span>
+        </cub-card-content></cub-card
+      >
+    </div>
+    <div class="col-12 col-md-6 col-xl mb-16">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="mb-8">優惠導流率</div>
+          <strong class="d-block cub-h2 my-8">{{ vm.percent(d.offerNavigationRate) }}</strong
+          ><span>{{ d.navigators }} 人導航 / {{ d.offerViewers }} 人查看</span>
+        </cub-card-content></cub-card
+      >
+    </div>
+    <div class="col-12 col-md-6 col-xl mb-16">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="mb-8">獎勵兌換率</div>
+          <strong class="d-block cub-h2 my-8">{{ vm.percent(d.redemptionRate) }}</strong
+          ><span>{{ d.redeemers }} 人兌換 / {{ d.shopViewers }} 人查看商城</span>
+        </cub-card-content></cub-card
+      >
+    </div>
+    <div class="col-12 col-md-6 col-xl mb-16">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="mb-8">每位活躍使用者獎勵成本</div>
+          <strong class="d-block cub-h2 my-8">{{ vm.money(d.costPerActiveUser) }}</strong
+          ><span>期間已兌換商品成本 / 活躍使用者</span>
+        </cub-card-content></cub-card
+      >
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-lg-6 mb-24">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="d-flex flex-wrap justify-content-between mb-16">
+            <h2>商家優惠導流</h2>
+            <span>去重人數</span>
+          </div>
+          <div class="mb-16">
+            <span>查看優惠</span>
+            <cub-progress-bar [value]="d.offerViewers ? 100 : 0"></cub-progress-bar>
+            <b>{{ d.offerViewers }}</b>
+          </div>
+          <div class="mb-16">
+            <span>後續發起導航</span>
+            <cub-progress-bar
+              [value]="
+                d.offerNavigationRate == null ? 0 : d.offerNavigationRate * 100
+              "></cub-progress-bar>
+            <b>{{ d.navigators }}</b>
+          </div>
+          <p>以同一店家先查看、後導航的事件配對。尚未追蹤實際到店與消費。</p>
+        </cub-card-content></cub-card
+      >
+    </div>
+    <div class="col-12 col-lg-6 mb-24">
+      <cub-card class="h-100"
+        ><cub-card-content>
+          <div class="d-flex flex-wrap justify-content-between mb-16">
+            <h2>獎勵與成本</h2>
+            <button
+              cub-button
+              (click)="vm.switchPage('budget')">
+              查看預算
+            </button>
+          </div>
+          <div class="d-flex justify-content-between my-16">
+            <span>期間已兌換成本</span><b>{{ vm.money(d.rewardCostNtd) }}</b>
+          </div>
+          <div class="d-flex justify-content-between my-16">
+            <span>本月已兌換成本</span><b>{{ vm.money(d.rewardMonthlyCostNtd) }}</b>
+          </div>
+          <div class="d-flex justify-content-between my-16">
+            <span>未兌換點數估算</span><b>{{ vm.money(d.outstandingPointEstimateNtd) }}</b>
+          </div>
+          <p>1 小樹點 = NT$1，僅供 Demo 估算，非真實負債。</p>
+        </cub-card-content></cub-card
+      >
+    </div>
+  </div>
+  @if (!d.measured) {
+    <cub-card class="mb-24"
+      ><cub-card-content>
+        <div class="p-24 text-center">
+          <span>◫</span>
+          <h2>開始累積試辦紀錄</h2>
+          <p>目前期間尚無事件。發布站點後，在用戶端查看優惠、規劃路線與兌換即可累積資料。</p>
+        </div>
+      </cub-card-content></cub-card
+    >
+  }
+  <cub-card class="mb-24"
+    ><cub-card-content>
+      <p>
+        統計區間：{{ d.from | date: 'yyyy/MM/dd HH:mm' : '+0800' }} —
+        {{ d.to | date: 'yyyy/MM/dd HH:mm' : '+0800' }}（台北時間）。
+      </p>
+    </cub-card-content></cub-card
+  >
+} @else {
+  <cub-card class="mb-24"
+    ><cub-card-content>
+      <div class="p-24 text-center">
+        <h2>正在讀取 Firebase 統計</h2>
+        <p>首次使用請依 cms/README.md 完成 Functions 與管理員設定。</p>
+      </div>
+    </cub-card-content></cub-card
+  >
+}

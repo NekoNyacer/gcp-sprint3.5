@@ -10,6 +10,10 @@ export type RedemptionTransaction = ShopTransaction;
 
 export function transactionTitle(transaction: RedemptionTransaction): string {
   switch (transaction.type) {
+    case 'PRODUCT':
+      return transaction.productName ?? '商品兌換';
+    case 'HARVEST':
+      return '小樹收成';
     case 'TREE_POINTS':
       return '小樹點兌換';
     case 'CHARITY':
@@ -32,6 +36,10 @@ export function transactionStatusLabel(transaction: RedemptionTransaction): stri
 }
 
 export function transactionSummary(transaction: RedemptionTransaction): string {
+  if (transaction.type === 'HARVEST') return `獲得 ${transaction.treePointsAmount ?? 0} 小樹點`;
+  if (transaction.type === 'PRODUCT' || (transaction.treePointsAmount ?? 0) < 0) {
+    return `使用 ${Math.abs(transaction.treePointsAmount ?? 0)} 小樹點${transaction.productName ? '・' + transaction.productName : ''}`;
+  }
   if (transaction.type === 'TREE_POINTS') {
     const prefix = transaction.status === 'FAILED' ? '預計獲得' : '獲得';
     return `${prefix}${transaction.treePointsAmount ?? 0}點・${treeUsageText(transaction)}`;

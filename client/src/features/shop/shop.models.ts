@@ -11,6 +11,8 @@ export type EntitlementStatus =
   | 'EXPIRED';
 
 export type ShopTransactionType =
+  | 'PRODUCT'
+  | 'HARVEST'
   | 'TREE_POINTS'
   | 'CHARITY'
   | 'ENTITLEMENT_EXPIRED';
@@ -60,6 +62,7 @@ export interface TreeEntitlement {
 }
 
 export interface ShopTransaction {
+  readonly productName?: string;
   readonly id: string;
   readonly transactionNumber: string | null;
   readonly type: ShopTransactionType;

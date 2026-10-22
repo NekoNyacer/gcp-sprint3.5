@@ -1,4 +1,5 @@
-import { computed, inject } from '@angular/core';
+import { computed, effect, inject, untracked } from '@angular/core';
+import { cmsPublication, CMS_CONNECTION } from '../../shared/models/cms-publication';
 import {
   patchState,
   signalStore,
@@ -47,6 +48,8 @@ export const ShopStore = signalStore(
   withState(initialState),
   withProps(() => ({
     repository: inject(ShopRepository),
+    cms: inject(CMS_CONNECTION, { optional: true }),
+    generation: { value: 0 },
   })),
   withComputed((store) => ({
     availableEntitlements: computed(() =>
@@ -60,7 +63,9 @@ export const ShopStore = signalStore(
         (entitlement) => entitlement.status === 'AVAILABLE',
       ).length;
 
-      return SHOP_REDEMPTION_OPTIONS.map((option) => ({
+      const publication = cmsPublication();
+      const options = publication.managed ? [] : SHOP_REDEMPTION_OPTIONS;
+      return options.map((option) => ({
         ...option,
         canRedeem: availableTrees >= option.requiredTrees,
         missingTrees: Math.max(option.requiredTrees - availableTrees, 0),
@@ -71,10 +76,13 @@ export const ShopStore = signalStore(
         (entitlement) => entitlement.status === 'AVAILABLE',
       ).length;
 
+      const publication = cmsPublication();
+      const requiredTrees = publication.managed ? Number.MAX_SAFE_INTEGER : SHOP_CHARITY_CAMPAIGN.requiredTrees;
       return {
         ...SHOP_CHARITY_CAMPAIGN,
-        canDonate: availableTrees >= SHOP_CHARITY_CAMPAIGN.requiredTrees,
-        missingTrees: Math.max(SHOP_CHARITY_CAMPAIGN.requiredTrees - availableTrees, 0),
+        enabled: !publication.managed,
+        canDonate: availableTrees >= requiredTrees,
+        missingTrees: Math.max(requiredTrees - availableTrees, 0),
       };
     }),
     expirySummary: computed(() => createExpirySummary(store.entitlements())),
@@ -92,6 +100,7 @@ export const ShopStore = signalStore(
     ),
   })),
   withMethods((store) => ({
+    receiveSnapshot: (snapshot: ShopSnapshot) => { store.generation.value++; applySnapshot(store, snapshot); },
     load: () => load(store),
     reload: () => load(store, true),
     resetDemo: () => resetDemo(store),
@@ -111,7 +120,12 @@ export const ShopStore = signalStore(
   })),
   withHooks({
     onInit(store) {
-      void store.load();
+      if (!store.cms) { void store.load(); return; }
+      effect(() => {
+        store.cms!.identityKey(); store.cms!.walletRevision(); const managed = cmsPublication().managed;
+        const demo = store.cms!.scope() === 'demo';
+        untracked(() => { store.generation.value++; patchState(store, initialState); if (managed || demo) void store.load(); });
+      });
     },
   }),
 );
@@ -123,6 +137,7 @@ type ShopStoreSource = ShopStateSource & {
   loadStatus: () => ShopState['loadStatus'];
   pointsStatus: () => ShopState['pointsStatus'];
   isSubmitting: () => boolean;
+  generation: { value: number };
 };
 
 async function load(store: ShopStoreSource, force = false): Promise<void> {
@@ -130,6 +145,7 @@ async function load(store: ShopStoreSource, force = false): Promise<void> {
     return;
   }
 
+  const generation = ++store.generation.value;
   patchState(store, {
     loadStatus: 'loading',
     pointsStatus: 'loading',
@@ -142,6 +158,7 @@ async function load(store: ShopStoreSource, force = false): Promise<void> {
     store.repository.loadRedemptionData(),
     store.repository.loadTreePointsBalance(),
   ]);
+  if (generation !== store.generation.value) return;
 
   if (dataResult.status === 'rejected') {
     patchState(store, {
@@ -214,6 +231,7 @@ async function submit(
     return null;
   }
 
+  const generation = store.generation.value;
   patchState(store, {
     isSubmitting: true,
     submission,
@@ -225,15 +243,17 @@ async function submit(
       submission.type === 'TREE_POINTS'
         ? await store.repository.redeemTreePoints(submission.optionId, idempotencyKey)
         : await store.repository.donateToCharity(submission.campaignId, idempotencyKey);
+    if (generation !== store.generation.value) return null;
     applySnapshot(store, result.snapshot);
     return result;
   } catch (error: unknown) {
+    if (generation !== store.generation.value) return null;
     patchState(store, {
       commandError: mapCommandError(error),
     });
     return null;
   } finally {
-    patchState(store, {
+    if (generation === store.generation.value) patchState(store, {
       isSubmitting: false,
       submission: null,
     });

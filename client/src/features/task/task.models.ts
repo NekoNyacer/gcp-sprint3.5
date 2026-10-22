@@ -13,6 +13,7 @@ export interface TaskDestination {
 
 export interface TaskItem {
   taskId: string;
+  cmsVersion?: number;
   areaId: string;
   cadence: TaskCadence;
   title: string;

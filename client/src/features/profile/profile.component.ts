@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { ShopStore } from '../shop/shop-store';
 import { SessionStore } from '../../shared/stores/session-store';
 import { profileLevelPreview } from '../../shared/components/profile-identity/profile-level-preview';
+import { cmsPublication } from '../../shared/models/cms-publication';
+import { transactionSummary, transactionTitle, transactionStatusLabel } from '../shop/shop-view.models';
 
 type WalkingStats = {
   today: number;
@@ -28,15 +30,18 @@ type WalkingStats = {
   ],
 })
 export class ProfileComponent {
+  readonly transactionSummary = transactionSummary;
+  readonly transactionTitle = transactionTitle;
+  readonly transactionStatusLabel = transactionStatusLabel;
   readonly sessionStore = inject(SessionStore);
   readonly shopStore = inject(ShopStore);
   readonly matureTrees = computed(() =>
-    this.sessionStore.isDemoMode() ? this.shopStore.lifetimeMatureTrees() : 0,
+    this.sessionStore.isDemoMode() || cmsPublication().managed ? this.shopStore.lifetimeMatureTrees() : 0,
   );
   readonly treeProgress = computed(() => Math.min(this.matureTrees() / 100, 1));
   readonly remainingTrees = computed(() => Math.max(100 - this.matureTrees(), 0));
   readonly recentTransactions = computed(() =>
-    this.sessionStore.isDemoMode() ? this.shopStore.recentTransactions() : [],
+    this.sessionStore.isDemoMode() || cmsPublication().managed ? this.shopStore.recentTransactions() : [],
   );
   readonly dailyGoal = computed(() => this.sessionStore.dailyGoal());
 

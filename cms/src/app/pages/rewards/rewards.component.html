@@ -1,0 +1,15 @@
+<!-- <cub-card class="mb-24"
+  ><cub-card-content>
+    <cub-form-field
+      ><cub-label>每次收成小樹點</cub-label
+      ><input
+        cubInput
+        type="number"
+        min="0"
+        [ngModel]="vm.config().harvestPoints"
+        (ngModelChange)="vm.setHarvestPoints($event)"
+    /></cub-form-field>
+    <p>只影響發布後的新收成；已完成交易保留原版本。步數與成長公式維持不變。</p>
+  </cub-card-content></cub-card
+> -->
+<cub-card class="mb-24"><cub-card-header>兌換商品<div cubEnd class="d-flex g-8"><input cubInput [ngModel]="vm.search()" (ngModelChange)="vm.search.set($event)" placeholder="搜尋商品" /><button cub-button appearance="filled-outline" (click)="vm.edit('rewards')">新增商品</button></div></cub-card-header><cub-card-content><cub-table [value]="vm.rows()"><ng-template cubTemplate="header"><tr><th>商品</th><th>識別碼</th><th>點數與成本</th><th>狀態</th><th>操作</th></tr></ng-template><ng-template cubTemplate="body" let-item><tr><td><span class="p-12 mr-8 d-inline-block" [style.background-color]="item.backgroundColor || '#E4F2E7'"><span [class]="'cub-icon-' + (item.icon || 'gift-money')"></span></span><b>{{ item.name }}</b></td><td>{{ item.id }}</td><td>{{ item.requiredPoints }} 點 · {{ item.kind === 'CHARITY' ? '公益' : '兌換' }}<small class="d-block">成本 {{ vm.money(item.costNtd) }}</small></td><td>{{ item.enabled ? '上架' : '下架' }}</td><td><button cub-button (click)="vm.edit('rewards', item)">編輯</button><button cub-button (click)="vm.remove('rewards', item.id)">刪除</button></td></tr></ng-template></cub-table></cub-card-content></cub-card>

@@ -1,6 +1,7 @@
 import { Service } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { DemoLocationState, LocationEvidence, TaskCompletionResult, TaskItem } from './task.models';
+import type { CmsTask } from '../../../../functions/src/cms-domain';
 
 const destinations = {
   banqiaoStation: { id: 'banqiao-station-demo', name: '板橋車站站前廣場（暫定）', address: '新北市板橋區縣民大道二段', latitude: 25.0142, longitude: 121.4639 },
@@ -13,6 +14,22 @@ const destinations = {
 export class SeededDemoTaskRepository {
   private readonly tasksSubject = new BehaviorSubject<TaskItem[]>(createDemoTasks());
   private inventory = { waterDrops: 2, fertilizer: 1 };
+
+  setPublishedTasks(definitions: readonly CmsTask[]): void {
+    const prior = new Map(this.tasksSubject.value.map(task => [task.taskId, task]));
+    const active = definitions.filter(task => task.enabled).map(task => {
+      const old = prior.get(task.id);
+      if (old?.completedAt) return old;
+      const next = demoTask(task.id, task.areaId, task.cadence, task.name, task.description,
+        {id: task.id, name: task.destinationName, address: task.address, latitude: task.latitude, longitude: task.longitude},
+        task.rewardAmount, Date.parse(task.startsAt), Date.parse(task.endsAt));
+      if (old?.joinedAt) { next.joinedAt = old.joinedAt; next.status = 'active'; }
+      return next;
+    });
+    const ids = new Set(active.map(task => task.taskId));
+    const history = this.tasksSubject.value.filter(task => task.completedAt && !ids.has(task.taskId));
+    this.tasksSubject.next([...active, ...history]);
+  }
 
   watchTasks(areaId: string): Observable<TaskItem[]> {
     return this.tasksSubject.pipe(map((tasks) => tasks.filter((task) => task.areaId === areaId)));
@@ -27,6 +44,9 @@ export class SeededDemoTaskRepository {
   }
 
   joinEvent(taskId: string): Promise<void> {
+    const task = this.tasksSubject.value.find(task => task.taskId === taskId);
+    if (!task || task.cadence !== 'event' || task.startsAt.getTime() > Date.now() || task.endsAt.getTime() <= Date.now())
+      return Promise.reject(new Error('活動尚未開始或已下架'));
     this.updateTask(taskId, (task) => ({ ...task, status: 'active', joinedAt: new Date() }));
     return Promise.resolve();
   }
@@ -35,6 +55,7 @@ export class SeededDemoTaskRepository {
     const task = this.tasksSubject.value.find((candidate) => candidate.taskId === taskId);
     if (!task) throw new Error('找不到任務');
     if (task.status === 'completed') return Promise.resolve(this.resultFor(task));
+    if (task.startsAt.getTime() > Date.now()) throw new Error('任務尚未開始');
     if (task.endsAt.getTime() <= Date.now()) throw new Error('任務已過期');
     if (task.cadence === 'event' && task.status !== 'active') throw new Error('請先參加活動');
     if (location.accuracy > 10) throw new Error('定位精確度不足');

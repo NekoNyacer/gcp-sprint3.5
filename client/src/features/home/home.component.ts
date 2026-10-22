@@ -53,6 +53,7 @@ import { GeoPoint } from '../../shared/models/geo.models';
 import { DialogService } from '../../shared/services/dialog.service';
 import { HomeSupplyStationComponent } from './home-supply-station/home-supply-station.component';
 import { TreeNavigationService } from '../../shared/services/tree-navigation.service';
+import { CMS_CONNECTION, cmsRouteRoles } from '../../shared/models/cms-publication';
 
 @Component({
   selector: 'app-home',
@@ -72,6 +73,10 @@ import { TreeNavigationService } from '../../shared/services/tree-navigation.ser
   providers: [MapCameraController],
 })
 export class HomeComponent implements OnDestroy {
+  protected readonly cms = inject(CMS_CONNECTION, { optional: true });
+  private planningSequence = 0;
+  private analyticsRouteId = '';
+  protected readonly aiPlantingId = computed(() => this.cms?.ai()?.selections.find(s => s.role === 'planting')?.merchantId ?? null);
   private readonly treeNavigation = inject(TreeNavigationService);
   async ionViewDidEnter(): Promise<void> {
     const treeId = this.treeNavigation.take();
@@ -156,7 +161,10 @@ export class HomeComponent implements OnDestroy {
 
   openStationCheckIn(taskId: string): void {
     if (this.ws.isCultivating() || this.checkInStation() || this.modal.isOpen()) return;
-    const station = this.ws.taskPoints().find((point) => point.id === taskId);
+    let station = this.ws.taskPoints().find((point) => point.id === taskId);
+    const latest = this.cms?.config()?.merchants.find(m => m.id === taskId);
+    if (station && latest) station = { ...station, name: latest.name, supplyStation: { ...station.supplyStation,
+      offer: latest.offer, terms: latest.terms, validUntil: latest.validUntil } };
     if (!this.ws.hasActiveRoute() || !station) {
       this.cultivationMessage.set('本次散步沒有這個補給站，請重新選擇。');
       return;
@@ -164,11 +172,22 @@ export class HomeComponent implements OnDestroy {
     this.cultivationMessage.set(null);
     this.ws.setCheckInError(null);
     this.checkInStation.set(station);
+    this.cms?.track('offer_view', station.id);
   }
 
   openStationDetails(taskId: string): void {
     if (this.modal.isOpen()) return;
-    const task = this.ws.taskRoutes().find((point) => point.id === taskId);
+    const merchant = this.cms?.config()?.merchants.find(m => m.id === taskId);
+    if (merchant && !this.ws.isPlanning() && !this.ws.hasActiveRoute()) {
+      this.cms?.track('offer_view', merchant.id);
+      this.modal.open({ title: merchant.name, appearance: 'supply-station',
+        stationBadges: { category: merchant.category, isCathayTwqrMerchant: merchant.twqr },
+        subTitle: merchant.offer, description: merchant.terms,
+        otherBadges: [`有效期限 ${merchant.validUntil}`, 'Demo 模擬店家'], mainBtnText: '開始規劃', subBtnText: '返回',
+      }, 'auto').pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(action => { if (action === 'confirm') this.startPlanning(); });
+      return;
+    }
+    const task = this.ws.availableTaskPoints().find((point) => point.id === taskId);
     if (!this.ws.isPlanning() || !this.ws.destinationConfirmed() || !task) {
       this.ws.setPlanningError('請先確定此終點並等待補給站載入，再查看補給站。');
       return;
@@ -179,6 +198,7 @@ export class HomeComponent implements OnDestroy {
       ? `距離 ${(haversineDistanceMeters(position, task.position) / 1000).toFixed(1)} km`
       : '距離：尚無有效定位';
     const selected = this.ws.taskPoints().some((point) => point.id === taskId);
+    this.cms?.track('offer_view', task.id);
     this.modal
       .open(
         {
@@ -207,11 +227,28 @@ export class HomeComponent implements OnDestroy {
       });
   }
 
-  claimStationSupply(): void {
+  async claimStationSupply(): Promise<void> {
     const station = this.checkInStation();
-    if (!station || !this.ws.taskPoints().includes(station)) {
+    if (station && this.cms?.managed()) {
+      const current = this.cms.config()?.merchants.find(m => m.id === station.id);
+      if (!current || !this.cms.merchantAvailable(station.id)) { this.ws.setCheckInError('此店家已下架或優惠已到期，無法領取。'); return; }
+      if (current.resource !== station.supplyStation.supply.resource || current.amount !== station.supplyStation.supply.amount) {
+        this.ws.setCheckInError('補給獎勵已變更，請關閉後重新開啟並確認新獎勵。');
+        const updated = { ...station, supplyStation: { ...station.supplyStation, supply: { resource: current.resource, amount: current.amount } } };
+        this.ws.refreshSelectedStation(updated); this.checkInStation.set(updated); return;
+      }
+    }
+    if (!station || !this.ws.taskPoints().some(p => p.id === station.id)) {
       this.ws.setCheckInError('補給站已變更，請返回地圖重新選擇。');
       return;
+    }
+    if (this.cms?.managed()) {
+      const routeId = this.ws.routeId();
+      try {
+        await this.cms.call('cmsValidateStation', { merchantId: station.id, resource: station.supplyStation.supply.resource,
+          amount: station.supplyStation.supply.amount });
+      } catch { this.ws.setCheckInError('站點已變更或暫時無法驗證，請重新開啟站點再試一次。'); return; }
+      if (this.checkInStation()?.id !== station.id || !this.ws.hasActiveRoute() || this.ws.routeId() !== routeId) return;
     }
     if (
       this.ws.hasActiveRoute() &&
@@ -269,6 +306,7 @@ export class HomeComponent implements OnDestroy {
       return;
     }
     if (this.ws.checkInDestination(tree.id)) {
+      if (this.analyticsRouteId) this.cms?.track('route_completed', this.analyticsRouteId);
       this.cancelRouteRequest();
       this.routeCache.clear();
       this.ws.setCheckInError('已完成終點打卡，本次散步已結束。');
@@ -330,11 +368,18 @@ export class HomeComponent implements OnDestroy {
 
   /**閒置中：點選開始 */
   startPlanning() {
+    const sequence = ++this.planningSequence;
+    cmsRouteRoles.set(null);
     this.cancelRouteRequest();
     this.routeCache.clear();
     this.planningOverviewShown = false;
     this.showTreeRecommendations.set(true);
     this.ws.startPlanning();
+    this.cms?.track('core_action');
+    const origin = this.ls.current();
+    if (origin && this.cms?.managed()) void this.cms.recommend(origin).then(result => {
+      if (result && sequence === this.planningSequence && this.ws.isPlanning() && !this.ws.hasDestination()) cmsRouteRoles.set(result.selections.length ? result.selections : null);
+    });
   }
 
   toggleTreeRecommendations(): void {
@@ -345,6 +390,7 @@ export class HomeComponent implements OnDestroy {
 
   /**選擇目的地中：點選返回 */
   back() {
+    this.planningSequence++;
     this.cancelRouteRequest();
     this.routeCache.clear();
     this.ws.cancelWalk();
@@ -363,6 +409,9 @@ export class HomeComponent implements OnDestroy {
     if (this.ws.routeNeedsUpdate()) {
       this.ws.setPlanningError('沿途站點已變更，請先更新預覽路線。');
       return;
+    }
+    if (this.cms?.managed() && this.ws.taskPoints().some(p => !this.cms!.merchantAvailable(p.id))) {
+      this.ws.setPlanningError('路線含已下架或到期的補給站，請移除後更新路線。'); return;
     }
     this.modal
       .open(
@@ -386,6 +435,10 @@ export class HomeComponent implements OnDestroy {
             return;
           }
           if (this.ws.startWalk(`walking-${destination.id}`)) {
+            this.analyticsRouteId = crypto.randomUUID();
+            this.cms?.track('route_started', this.analyticsRouteId);
+            for (const task of this.ws.taskPoints()) this.cms?.track('navigation_started', task.id);
+            if (destination.id.startsWith('merchant-')) this.cms?.track('navigation_started', destination.id.slice(9));
             this.reCenter();
           }
         }
@@ -417,6 +470,9 @@ export class HomeComponent implements OnDestroy {
   }
 
   async selectDestination(treeId: string, retry = false): Promise<void> {
+    if (treeId.startsWith('merchant-') && this.cms?.managed() && !this.cms.merchantAvailable(treeId.slice(9))) {
+      this.ws.setPlanningError('此商家已下架或優惠已到期，請選擇其他站點。'); return;
+    }
     if (!this.ws.isPlanning() || (!retry && this.ws.destination()?.id === treeId)) return;
     if (this.ws.destinationConfirmed()) {
       this.ws.setPlanningError('終點已確定，請返回並重新規劃以更換終點。');
@@ -488,7 +544,7 @@ export class HomeComponent implements OnDestroy {
 
   toggleTaskPoint(taskId: string): void {
     if (this.modal.isOpen()) return;
-    const task = this.ws.taskRoutes().find((point) => point.id === taskId);
+    const task = this.ws.availableTaskPoints().find((point) => point.id === taskId);
     const destination = this.ws.destination();
     if (!this.ws.isPlanning() || !this.ws.destinationConfirmed() || !task || !destination) {
       this.ws.setPlanningError('請先確定此終點並等待補給站載入，再查看補給站。');
