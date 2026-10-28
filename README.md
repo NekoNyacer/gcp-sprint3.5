@@ -41,6 +41,17 @@ Android APK、Gemini、Health Connect、真實 GPS 與 Three.js 等功能，只�
 
 ## 開發協作與決策依據
 
+### 本機入口
+
+在 `client/` 執行 `npm start` 後，開啟終端機顯示的網址：
+
+- `/`：互動式 App 簡報，由 Angular 路由載入，無須另外啟動服務。
+- `/login`：直接開啟登入／Demo 入口。
+- `/home`：直接開啟健走 App。
+
+簡報沿用同一服務的 `/interactive-app-presentation.html?variant=b`，
+右側手機內的 App 也使用同源路由。
+
 當開發、設計或技術實作遇到疑慮時，請先請 AI agent 查看 [`CONTEXT.md`](./CONTEXT.md)，確認目前已決定的產品方向、範圍、技術架構與展示優先順序，讓開發過程不會偏離目前的共識。
 
 任何可能改變產品、技術、交付或專案管理方向的作法，都不應直接視為既定決策。請先提出疑慮與影響；確認後再更新 [`CONTEXT.md`](./CONTEXT.md)，並同步調整相關規格或規劃文件。

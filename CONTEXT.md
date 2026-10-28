@@ -2,6 +2,11 @@
 
 ## Local interactive app presentation (2026-10-28)
 
+- The user confirmed that the Angular client root `/` opens the presentation.
+  A lazy-loaded presentation component embeds the existing same-origin public
+  HTML, preserving its layout and interaction scripts. `/login` and `/home`
+  remain direct App entries. Everything runs on the same client server; no
+  separate presentation server is needed. The existing HTML URL remains valid.
 - Connect the supplied interactive-app-presentation.html layout to the running
   client at /interactive-app-presentation.html?variant=b. The user selected B as
   the final layout; remove the bottom variant switcher and its keyboard controls,
