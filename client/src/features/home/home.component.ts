@@ -503,8 +503,8 @@ export class HomeComponent implements OnDestroy {
     const routeId = this.ws.routeId();
     this.dialog
       .openDialog('即將取消本次目的地、補給站與路線，您確定嗎？', {
-        title: '終止本次路線',
-        mainBtnTxt: '確認終止',
+        title: '中止本次路線',
+        mainBtnTxt: '確認中止',
         subBtnTxt: '繼續',
       })
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))

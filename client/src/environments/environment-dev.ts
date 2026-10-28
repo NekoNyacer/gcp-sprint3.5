@@ -48,7 +48,7 @@ export const demoPlantingSpots = [
   },
 ] as const;
 
-// Demo 補給站；routeFraction 為主路線進度 (0~1)，步數為道路路線載入前的模擬值。
+// Demo 補給站沿主路線前、中、後段分散；步數待道路路線載入後驗證。
 export const demoSupplyStations: readonly DemoSupplyStation[] = [
   {
     id: 'route-water-1',
@@ -56,7 +56,7 @@ export const demoSupplyStations: readonly DemoSupplyStation[] = [
     name: '台北咖啡工坊',
     kind: 'water',
     routeFraction: 0.15,
-    estimatedExtraSteps: 850,
+    estimatedExtraSteps: 0,
     category: '美食',
     isCathayTwqrMerchant: true,
     offer: '買一送一 · 冰拿鐵 / 熱拿鐵',
@@ -69,8 +69,8 @@ export const demoSupplyStations: readonly DemoSupplyStation[] = [
     ...DEMO_POI_ENVIRONMENTS['route-water-2'],
     name: '小樹輕食廚房',
     kind: 'water',
-    routeFraction: 0.3,
-    estimatedExtraSteps: 875,
+    routeFraction: 0.325,
+    estimatedExtraSteps: 0,
     category: '美食',
     isCathayTwqrMerchant: true,
     offer: '健康餐盒享 9 折',
@@ -83,8 +83,8 @@ export const demoSupplyStations: readonly DemoSupplyStation[] = [
     ...DEMO_POI_ENVIRONMENTS['route-water-3'],
     name: '綠日生活選物',
     kind: 'water',
-    routeFraction: 0.45,
-    estimatedExtraSteps: 900,
+    routeFraction: 0.5,
+    estimatedExtraSteps: 0,
     category: '購物',
     isCathayTwqrMerchant: true,
     offer: '滿 NT$500 現折 NT$50',
@@ -98,8 +98,8 @@ export const demoSupplyStations: readonly DemoSupplyStation[] = [
     ...DEMO_POI_ENVIRONMENTS['route-water-4'],
     name: '果日鮮果茶',
     kind: 'water',
-    routeFraction: 0.6,
-    estimatedExtraSteps: 925,
+    routeFraction: 0.675,
+    estimatedExtraSteps: 0,
     category: '美食',
     isCathayTwqrMerchant: true,
     offer: '鮮果茶第二杯半價',
@@ -113,8 +113,8 @@ export const demoSupplyStations: readonly DemoSupplyStation[] = [
     ...DEMO_POI_ENVIRONMENTS['route-fertilizer'],
     name: '森活戶外用品',
     kind: 'fertilizer',
-    routeFraction: 0.5,
-    estimatedExtraSteps: 2500,
+    routeFraction: 0.85,
+    estimatedExtraSteps: 0,
     category: '購物',
     isCathayTwqrMerchant: true,
     offer: '滿 NT$1,000 現折 NT$100',

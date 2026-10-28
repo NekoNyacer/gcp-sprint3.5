@@ -51,6 +51,17 @@ describe('saveWalkProgress', () => {
     expect(set).toHaveBeenCalledWith('users/alice/dailyProgress/2026-10-19',
       { day: '2026-10-19', steps: 10, lightEnergy: 10, updatedAt: 'server-time' });
   });
+  it.each([-1,1.5,NaN])('rejects invalid Task route-step counters %s',async value=>{
+    const data={...input(),state:{...input().state,totalTaskWalkingSteps:value,taskWalkingDays:{}}};
+    await expect(save({auth:{uid:'alice'},data})).rejects.toMatchObject({code:'invalid-argument'});
+  });
+  it('refuses to roll back already-recorded eligible steps',async()=>{
+    const set=vi.fn();
+    mocks.transaction.mockImplementation(async callback=>callback({get:async(ref:string)=>({data:()=>ref.includes('/progress/')?{revision:0,state:{totalTaskWalkingSteps:100}}:inventory}),set}));
+    const data={...input(),state:{...input().state,totalTaskWalkingSteps:99,taskWalkingDays:{'2026-10-19':99}}};
+    await expect(save({auth:{uid:'alice'},data})).rejects.toMatchObject({code:'failed-precondition'});
+    expect(set).not.toHaveBeenCalled();
+  });
   it('saves hidden seed identities and inventory credit in the same revisioned transaction', async () => {
     const data=input();
     data.state.mysterySeeds=[{id:'seed-1',species:'銀杏',seedTypeId:'mystery',version:7,

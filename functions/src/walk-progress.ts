@@ -25,6 +25,10 @@ export const saveWalkProgress = onCall({ region: 'asia-east1', enforceAppCheck: 
       typeof state.todayStepsDay !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(state.todayStepsDay) ||
       state.todayStepsDay > day || !state.demoTrees || typeof state.demoTrees !== 'object' ||
       !state.demoSupplyStationClaimedOn || typeof state.demoSupplyStationClaimedOn !== 'object' ||
+      (state.totalTaskWalkingSteps !== undefined && !validCount(state.totalTaskWalkingSteps)) ||
+      (state.taskWalkingDays !== undefined && (!state.taskWalkingDays || Array.isArray(state.taskWalkingDays) ||
+        typeof state.taskWalkingDays !== 'object' || Object.entries(state.taskWalkingDays).some(([d, n]) =>
+          !/^\d{4}-\d{2}-\d{2}$/.test(d) || d > day || !validCount(n)))) ||
       resourceKeys.some((key) => !validCount(state.inventory?.[key]) || !validCount(previousInventory?.[key])) ||
       JSON.stringify(state).length > 200_000) {
     throw new HttpsError('invalid-argument', '散步紀錄格式錯誤');
@@ -38,6 +42,9 @@ export const saveWalkProgress = onCall({ region: 'asia-east1', enforceAppCheck: 
     const [progress, inventory] = await Promise.all([tx.get(progressRef), tx.get(inventoryRef)]);
     if ((progress.data()?.revision ?? 0) !== revision) {
       throw new HttpsError('aborted', '資料已在其他裝置更新，請重新載入。');
+    }
+    if ((state.totalTaskWalkingSteps ?? 0) < (progress.data()?.state?.totalTaskWalkingSteps ?? 0)) {
+      throw new HttpsError('failed-precondition', '路線步數不可倒退，請重新載入。');
     }
     const balances: Record<string, number> = {};
     for (const key of resourceKeys) {

@@ -55,11 +55,17 @@ describe("CMS public configuration and constrained AI output", () => {
     const old = seed(); delete old.tasks;
     expect(validateConfig(old).tasks).toEqual([]);
     expect(validateConfig({...old, tasks: [task()]}).tasks?.[0].startsAt).toBe('2026-10-20T16:00:00.000Z');
+    expect(validateConfig({...old,tasks:[task()]}).tasks?.[0]).toMatchObject({requiredSteps:1000,radiusMeters:100,rewardType:'waterDrops'});
+  });
+  it('round trips independent task rewards, steps and arrival radius',()=>{
+    expect(validateConfig({...seed(),tasks:[{...task(),requiredSteps:2500,radiusMeters:150,rewardType:'seeds',rewardAmount:1}]}).tasks?.[0])
+      .toMatchObject({requiredSteps:2500,radiusMeters:150,rewardType:'seeds',rewardAmount:1});
   });
   it.each([
     {latitude: 91}, {longitude: Infinity}, {rewardAmount: 0}, {rewardAmount: 1.5},
     {startsAt: '2026-10-23T00:00:00+08:00'}, {endsAt: 'invalid'},
     {startsAt: '2026-10-21T00:00'}, {cadence: 'supply'}, {areaId: 'unknown'},
+    {requiredSteps:0}, {requiredSteps:1.5}, {radiusMeters:0}, {radiusMeters:10001}, {rewardType:'lightEnergy'},
   ])('rejects invalid task definitions %j', patch => {
     expect(() => validateConfig({...seed(), tasks: [{...task(), ...patch}]})).toThrow();
   });

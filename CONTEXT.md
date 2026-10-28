@@ -1,17 +1,68 @@
 # CAT WALK project context
 
+## Walking HUD and simulation speed (2026-10-28)
+
+- During an active route, compress the upper resource cards into a single row
+  of icons and balances; retain today's steps beneath it. Idle cards keep their
+  existing presentation. Move the route-stop action lower toward the tab bar
+  and use 中止本次路線 / 確認中止 throughout its confirmation flow. Preserve
+  the existing one-second hold and explicit confirmation behavior.
+- Add very transparent minus/plus controls below the joystick with faint white
+  outlines and no visible current-speed value. The same speed multiplier must
+  scale both simulated translation and daily step increments. Calculate steps
+  from simulated distance at the existing 0.75 metres per step, replacing the
+  unrelated fixed two-steps-per-second credit. Turning in place and dead-zone
+  input still earn no steps; Task-eligible credit still requires an active route.
+- Reversible control tuning: start at 1× the configured Demo movement speed,
+  adjust by 0.25× per press, and bound speed to 0.25–3×. Turn speed remains
+  governed by the existing steering settings.
+- Verification: client development build and 67 joystick/Home-idle/location
+  tests passed. Actual compiled HUD layout checks passed at 320/390/430/1024 px:
+  resource row about 34 px, speed-to-stop gap 8 px, stop-to-tabs gap 14 px.
+  Rerun scripts/verify-walking-hud.mjs after a development build; its screenshot
+  is docs/walking-hud-preview.png and explicitly labels the offline map fixture.
+  This verifies local UI and simulation, not live Mapbox or cloud acceptance.
+
+## Route departure card and supply spacing (2026-10-28)
+
+- Follow-up: the user accepts the bottom card's functionality but requests a
+  smaller presentation, with no changes to content outside the bottom area.
+  Use compact padding, 13–15 px main text, a 12 px hint and a 44 px action with
+  a 20 px walking icon. Preserve the card's copy, orange action and behaviors.
+- Match the user's second reference with a white bottom card, a route status
+  sentence, the hint 點擊「出發」後即可開始導航。 and a wide orange walking-icon
+  出發 button. Remove the crossed-out merchant heading/list and the route action
+  from the upper destination card; retain its destination and compact metrics.
+  Map markers remain the entry to merchant details and optional joining.
+- Preserve explicit route updating before departure after stop changes. The
+  bottom action reads 更新路線 while the preview is stale, then 出發 after a
+  successful update. Loading/failure blocks departure; an empty merchant result
+  remains truthful and offers retry without blocking an otherwise valid walk.
+- Supply points should be distributed along the actual walking route instead
+  of grouped close together. Generated Demo stations use interpolated road
+  positions across the early/middle/late sections, superseding the old snapped
+  anchors and artificial off-route challenge distances. Published merchants
+  retain their real configured coordinates; never move or invent a merchant.
+- Apply route-progress and geographic spacing checks to AI recommendations and
+  the rules fallback. Keep Gemini's requested count when spaced candidates
+  exist; sparse candidate coverage may return fewer stations rather than fill
+  the count with adjacent shops. This supersedes unconditional preservation of
+  the model's selection count. Existing destination consent and explicit joining
+  remain in force. The new cloud recommendation behavior requires Functions
+  deployment; local source changes alone do not change the deployed service.
+
 ## Task location, walking qualification and manual rewards (2026-10-28)
 
 - The user requests completing the existing daily/weekly/event Task feature,
   following the supplied task-list, activity-detail map and pending-reward
-  dialog reference. Continue the repository-local grill-me/grilling discovery;
-  implementation awaits confirmation of shared understanding.
+  dialog reference. On 2026-10-28 the user confirmed shared understanding with
+  採建議，開始實作 and authorized implementation after grilling.
 - Task qualification must combine walking steps and arrival at the configured
   destination. Coordinate-only completion is insufficient because transport
   could satisfy it. Replace the reference's excessive 12,000-steps-in-30-minutes
-  example with reasonable tuning. Exact thresholds, accumulation windows and
-  whether elapsed time is a requirement remain unresolved; do not treat the
-  screenshot's example numbers as confirmed rules.
+  example with reasonable tuning. Confirmed defaults are daily 1,000, weekly
+  5,000 and event 2,000 steps, adjustable in CMS, with no timed walking quota.
+  The screenshot's example numbers do not define task rules.
 - The arrival radius defaults to 100 metres and is adjustable in CMS. This
   supersedes the Task specification's fixed 10-metre distance. Location-accuracy
   policy has not yet been changed by the user.
@@ -24,22 +75,65 @@
   Home walking state preserved, and asks about repeated Mapbox loading. Mapbox
   GL JS counts map loads per Map initialization (maximum session 12 hours),
   while updating an existing map does not itself add a map load:
-  https://docs.mapbox.com/mapbox-gl-js/guides/pricing/ . A reusable Task-map
-  instance and updates while visible are proposed implementation measures;
-  do not promise that routing caches or cached JS remove map initialization
-  charges. Confirm actual retained-view lifecycle during implementation.
-- Read-only discovery found that real device step acquisition is absent:
-  ProgressStore step increments currently come from the Home testing joystick.
-  Existing normal-account cloud progress is client-reported, not sensor proof.
-  Whether this increment also implements native step acquisition, its platform
-  and foreground/background behavior are unresolved.
-- Also unresolved: when task step counting starts, concurrent qualification,
-  whether ready rewards survive leaving the destination, and claim expiry.
-- Related defects to repair with the Task increment: Demo Task completion
-  overwrites shared inventory using a separate repository balance; normal
-  completion reload resets an active Home walk; old location snapshots lack
-  freshness validation. Preserve identity isolation and atomic/idempotent
-  issuance, and keep raw player coordinates and walking tracks unpersisted.
+  https://docs.mapbox.com/mapbox-gl-js/guides/pricing/ . Implementation retains
+  one Task-map host across detail visits, updates its markers and arrival circle,
+  and stops updates while hidden. A unit regression verifies switching tasks,
+  detaching/reattaching and cached-page ownership without creating another Map.
+  Do not promise that routing caches or cached JS remove initialization charges.
+- The user confirms this increment is a browser-only simulated demonstration;
+  do not add Android/device step acquisition. Existing normal-account cloud
+  progress remains client-reported, not sensor proof. The user describes the
+  future ordinary-walking flow as reading steps when the app opens and awarding
+  equivalent step light; demonstrate that with simulated data in this increment.
+- Only movement after a Home planting destination has been chosen, its route
+  planned and departure explicitly confirmed can contribute Task steps. Ordinary
+  movement outside an active confirmed route contributes only ordinary step/light
+  progress. Preserve the distinction between general and Task-eligible counters.
+  The existing light conversion and cap have not explicitly been changed.
+- The user accepts saving ready qualification: after satisfying both steps and
+  arrival, leaving the destination does not revoke it. Explicit manual claim is
+  allowed until the Task's existing end time; there is no additional grace period.
+- Daily/weekly Tasks automatically accumulate eligible steps in the current
+  Taipei day/Monday-based week. Event Tasks count only eligible steps after
+  explicit enrollment. One walk can advance several Tasks; each still requires
+  its own destination arrival. Steps accumulate across walks, and terminating
+  a walk preserves already-walked steps. Planning, idle movement and turning
+  in place never increase Task steps. Revalidate both steps and fresh proximity
+  together before recording ready qualification.
+- Related defects repaired: Demo Task rewards credit the shared inventory once;
+  normal-account reward synchronization preserves active Home routes and care
+  timers, rebases concurrent spending/movement and reads canonical balances
+  instead of restoring a stale retry receipt. Interrupted resource refresh can
+  retry the existing receipt. Identity changes discard pending UI/async results.
+- Task qualification uses a fresh observation (maximum age 30 seconds, maximum
+  future skew five seconds) and retains the earlier 10 m accuracy requirement.
+  Normal-account join, qualify and claim operations use completeTask; enrollment
+  baselines and ready qualifications are command-owned. Deploy the updated
+  completeTask, saveWalkProgress, cmsCommand and Firestore rules before normal
+  cloud acceptance; no deployment or cloud catalog write occurred here.
+- Task seed rewards draw hidden species from the first enabled published pool,
+  without the separate route-drop probability. Preserve the task destination and
+  acquisition time under a task-prefixed source ID. Seeds are capped at 100 per
+  reward transaction as an implementation size bound, separate from economics.
+- Local UI QA mounts the actual compiled task list, detail and reward dialogs
+  with actual Task/Progress stores and isolated auth/catalog/map fixtures. All
+  320/390/430/1024 px layouts pass, including cancel-without-credit and one-time
+  explicit claims. External HTTPS is blocked; this does not verify live Mapbox,
+  cloud functions or authenticated cloud acceptance. Screenshots are
+  docs/tasks-list-preview.png, docs/tasks-detail-preview.png and
+  docs/tasks-reward-preview.png; rerun scripts/verify-tasks.mjs after a development
+  client build. The detail screenshot explicitly labels the offline map stand-in.
+- Final local verification: client and CMS development builds and Functions
+  TypeScript build passed. The 12 related client test files report 171 passed
+  and four skipped: three existing skips and one explicit exclusion of the
+  previously recorded harvest-dialog test expecting an absent Demo badge.
+  Functions report 118 passed and one explicit exclusion: the existing Cathay
+  location-import test references missing
+  firebase/seed/cms-cathay-locations-2026-10-27.json in this checkout. Both existing
+  issues were observed before exclusion; no failing assertion was changed to
+  hide them. These are related-suite results, not a passing full-client claim.
+  Final compiled-UI QA and whitespace checks also passed. No cloud acceptance,
+  Security Rules emulator test, deployment or publication was performed.
 
 ## Destination selection feedback (2026-10-27)
 

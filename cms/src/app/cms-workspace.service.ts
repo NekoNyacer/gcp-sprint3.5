@@ -17,6 +17,14 @@ import {
 } from "cub-lib-view-rootng/component/dialog";
 import { CubDrawer, CubDrawerRef } from "cub-lib-view-rootng/component/drawer";
 import { CmsService, Dashboard } from "./cms.service";
+import { DEFAULT_TASK_STEPS, DEFAULT_TASK_RADIUS } from '../../../functions/src/task-domain';
+function taskConfigDefaults(config: CmsConfig): CmsConfig {
+  return { ...config, tasks: (config.tasks ?? []).map(task => ({ ...task,
+    requiredSteps: task.requiredSteps ?? DEFAULT_TASK_STEPS[task.cadence],
+    radiusMeters: task.radiusMeters ?? DEFAULT_TASK_RADIUS,
+    rewardType: task.rewardType ?? (task.cadence === 'event' ? 'fertilizer' : 'waterDrops'),
+  })) };
+}
 import {
   validateConfig,
   mergeCatalog,
@@ -70,7 +78,10 @@ const fields: Record<Editable, Field[]> = {
     {key: "address", label: "目的地地址／位置說明", type: "text"},
     {key: "latitude", label: "緯度", type: "number"},
     {key: "longitude", label: "經度", type: "number"},
-    {key: "rewardAmount", label: "獎勵數量（每日／每週：水滴；活動：肥料）", type: "number"},
+    {key: "requiredSteps", label: "所需路線步數", type: "number"},
+    {key: "radiusMeters", label: "抵達半徑（公尺）", type: "number"},
+    {key: "rewardType", label: "獎勵種類", type: "select", options: ["waterDrops", "fertilizer", "seeds"]},
+    {key: "rewardAmount", label: "獎勵數量", type: "number"},
   ],
   merchants: [
     { key: "name", label: "店家名稱", type: "text" },
@@ -279,7 +290,7 @@ export class CmsWorkspaceService {
         !this.editor() &&
         (draft?.revision ?? 0) >= this.revision()
       ) {
-        this.config.set(draft ? structuredClone(draft.config) : emptyConfig());
+        this.config.set(draft ? taskConfigDefaults(structuredClone(draft.config)) : emptyConfig());
         this.revision.set(draft?.revision ?? 0);
       }
     });
@@ -349,8 +360,18 @@ export class CmsWorkspaceService {
       return;
     this.dirty.set(false);
     const d = this.api.draft();
-    this.config.set(d ? structuredClone(d.config) : emptyConfig());
+    this.config.set(d ? taskConfigDefaults(structuredClone(d.config)) : emptyConfig());
     this.revision.set(d?.revision ?? 0);
+  }
+  setEditorChoice(key: string, value: string): void {
+    const editor = this.editor();
+    if (!editor) return;
+    if (editor.kind === 'tasks' && key === 'cadence') {
+      const defaults: Record<string, number> = DEFAULT_TASK_STEPS;
+      const old = editor.item['cadence'];
+      if (editor.item['requiredSteps'] === undefined || editor.item['requiredSteps'] === defaults[old]) editor.item['requiredSteps'] = defaults[value];
+    }
+    editor.item[key] = value;
   }
   edit(kind: Editable, item?: object) {
     const defaults: Record<Editable, Record<string, any>> = {
@@ -361,6 +382,7 @@ export class CmsWorkspaceService {
         cadence: "daily", enabled: true,
         startsAt: new Date().toISOString(), endsAt: new Date(Date.now() + 86400000).toISOString(),
         destinationName: "", address: "", latitude: 25.0134, longitude: 121.4628, rewardAmount: 1,
+        rewardType: "waterDrops", requiredSteps: DEFAULT_TASK_STEPS.daily, radiusMeters: DEFAULT_TASK_RADIUS,
       },
       merchants: {
         id: `merchant-${crypto.randomUUID()}`,
@@ -503,7 +525,7 @@ export class CmsWorkspaceService {
   }
   label(value: string) {
     return ({daily: "每日", weekly: "每週", event: "活動", banqiao: "板橋", xihu: "西湖",
-      PRODUCT: "商品", CHARITY: "公益捐贈", water: "水", fertilizer: "肥料", sunny: "晴天",
+      PRODUCT: "商品", CHARITY: "公益捐贈", water: "水", waterDrops: "水滴", fertilizer: "肥料", seeds: "種子", sunny: "晴天",
       rainy: "雨天", cloudy: "陰天", dawn: "清晨", day: "白天", dusk: "黃昏", night: "夜晚"} as Record<string, string>)[value] ?? value;
   }
   toggleChannel(id: string, checked: boolean) {

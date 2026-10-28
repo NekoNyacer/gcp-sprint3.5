@@ -39,21 +39,39 @@ export function supplyCandidates(merchants: Merchant[], route: Point[], walkingD
     .sort((a, b) => routePlacement(a, route).alongRouteMeters - routePlacement(b, route).alongRouteMeters);
 }
 
-/** Only used on model failure. Gemini retains control of its own selection count. */
-export function distributedSupplyFallback(candidates: Merchant[], route: readonly Point[], walkingDistance: number): Selection[] {
-  const count = Math.min(candidates.length, Math.max(1, Math.ceil(walkingDistance / 1500)));
+/** Keep the requested count where spaced candidates exist, without moving merchant coordinates. */
+export function spreadSupplySelections(selections: Selection[], candidates: Merchant[], route: readonly Point[]): Selection[] {
+  const count = Math.min(selections.length, candidates.length);
+  if (!count) return [];
+  const length = route.reduce((total, p, i) => total + (i ? distanceMeters(route[i - 1], p) : 0), 0);
+  if (!length) return [];
+  const minimumGap = Math.min(250, length / (count + 1) * 0.6);
+  const preferred = new Map(selections.map(s => [s.merchantId, s]));
   const remaining = candidates.map(merchant => ({merchant, ...routePlacement(merchant, route)}));
   const selected: typeof remaining = [];
   for (let i = 0; i < count; i++) {
-    const target = count === 1 ? 0.5 : i / (count - 1);
-    remaining.sort((a, b) =>
-      Math.abs(a.routeFraction - target) * walkingDistance + a.distanceMeters * 0.25 -
-      (Math.abs(b.routeFraction - target) * walkingDistance + b.distanceMeters * 0.25) ||
+    const target = length * (i + 1) / (count + 1);
+    const score = (p: typeof remaining[number]) => Math.abs(p.alongRouteMeters - target) + p.distanceMeters * 2;
+    const spaced = remaining.filter(candidate => selected.every(other =>
+      Math.abs(candidate.alongRouteMeters - other.alongRouteMeters) >= minimumGap &&
+      distanceMeters(candidate.merchant, other.merchant) >= minimumGap));
+    spaced.sort((a, b) => score(a) - score(b) ||
+      Number(preferred.has(b.merchant.id)) - Number(preferred.has(a.merchant.id)) ||
       a.merchant.id.localeCompare(b.merchant.id));
-    selected.push(remaining.shift()!);
+    if (!spaced.length) break;
+    const next = spaced[0];
+    selected.push(next);
+    remaining.splice(remaining.indexOf(next), 1);
   }
-  return selected.sort((a, b) => a.alongRouteMeters - b.alongRouteMeters).map(({merchant}) => ({
+  return selected.sort((a, b) => a.alongRouteMeters - b.alongRouteMeters).map(({merchant}) => preferred.get(merchant.id) ?? ({
     merchantId: merchant.id, role: 'supply',
     reason: '依整段路程分散安排沿途補給；實際步行與繞路仍由地圖服務驗證。',
   }));
+}
+
+/** Only used on model failure; successful Gemini output supplies its own requested count. */
+export function distributedSupplyFallback(candidates: Merchant[], route: readonly Point[], walkingDistance: number): Selection[] {
+  const count = Math.min(candidates.length, Math.max(1, Math.ceil(walkingDistance / 1500)));
+  return spreadSupplySelections(candidates.slice(0, count).map(m => ({merchantId: m.id, role: 'supply',
+    reason: '依整段路程分散安排沿途補給；實際步行與繞路仍由地圖服務驗證。'})), candidates, route);
 }

@@ -77,6 +77,7 @@ import {
 } from 'ionicons/icons';
 import { SessionStore } from '../../stores/session-store';
 import { TaskStore } from '../../../features/task/task-store';
+import { TaskRewardDialogComponent } from '../../../features/task/task-reward-dialog.component';
 import { DialogComponent } from '../dialog/dialog.component';
 import { WalkSessionStore } from '../../stores/walk-session-store';
 import { CubModalComponent } from '../modal/modal.component';
@@ -88,6 +89,7 @@ import { ProfileIdentityComponent } from '../profile-identity/profile-identity.c
   styleUrls: ['./app-shell.component.scss'],
   imports: [
     ProfileIdentityComponent,
+    TaskRewardDialogComponent,
     IonButton,
     IonButtons,
     IonTitle,
@@ -113,6 +115,7 @@ export class AppShellComponent {
   /**header文字設定，用route位置判斷該顯示的內容 */
   protected readonly headerTxt = computed(() => {
     const url = this.currentUrl();
+    if (url.startsWith('/task/')) return '活動內容';
     switch (url) {
       case '/collection':
         return '回憶林';

@@ -17,7 +17,7 @@ export class TaskRepository {
     const cms = inject(CMS_CONNECTION, {optional: true});
     if (cms) effect(() => {
       if (this.sessionStore.isDemoMode() && cms.managed())
-        this.demo.setPublishedTasks(cms.config()?.tasks ?? []);
+        this.demo.setPublishedTasks(cms.config()?.tasks ?? [], cms.release()?.version ?? 0);
     });
   }
 
@@ -33,9 +33,14 @@ export class TaskRepository {
     return this.sessionStore.isDemoMode() ? this.demo.joinEvent(taskId) : this.firebase.joinEvent(taskId);
   }
 
-  completeTask(task: TaskItem, location: LocationEvidence, idempotencyKey: string): Promise<TaskCompletionResult> {
+  async qualifyTask(task: TaskItem, location: LocationEvidence): Promise<void> {
+    if (this.sessionStore.isDemoMode()) await this.demo.qualifyTask(task.taskId, location);
+    else await this.firebase.qualifyTask(task, location);
+  }
+
+  completeTask(task: TaskItem, location: LocationEvidence | null, idempotencyKey: string): Promise<TaskCompletionResult> {
     return this.sessionStore.isDemoMode()
-      ? this.demo.completeTask(task.taskId, location)
+      ? this.demo.completeTask(task.taskId)
       : this.firebase.completeTask(task.taskId, location, idempotencyKey, false, task.cmsVersion);
   }
 

@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { WalkSessionStore } from '../../../shared/stores/walk-session-store';
 import { LocationStore } from '../../../shared/stores/location-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
 import { JoyStickComponent } from './joy-stick.component';
@@ -7,6 +9,7 @@ import {
   DEMO_JOYSTICK_DEAD_ZONE_RATIO,
   DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND,
   DEMO_WALKING_SPEED_METERS_PER_SECOND,
+  USER_MOVE_METER_PER_STEP,
 } from '../../../environments/environment-dev';
 
 describe('Joystick movement and continuous steering', () => {
@@ -18,6 +21,7 @@ describe('Joystick movement and continuous steering', () => {
 
   function setup(following = true) {
     const addSteps = vi.fn();
+    const routeId = signal<string | null>(null);
     let frame: FrameRequestCallback | undefined;
     vi.stubGlobal(
       'requestAnimationFrame',
@@ -30,10 +34,8 @@ describe('Joystick movement and continuous steering', () => {
     vi.spyOn(performance, 'now').mockReturnValue(0);
     TestBed.configureTestingModule({
       imports: [JoyStickComponent],
-      providers: [MapCameraController, { provide: ProgressStore, useValue: { addSteps } }],
-    });
-    TestBed.overrideComponent(JoyStickComponent, {
-      set: { template: '<div #joystick></div>', imports: [] },
+      providers: [MapCameraController, { provide: ProgressStore, useValue: { addSteps } },
+        {provide: WalkSessionStore, useValue: {routeId,hasActiveRoute:()=>!!routeId(),isWalking:()=>!!routeId(),isArrived:()=>false}}],
     });
     const fixture = TestBed.createComponent(JoyStickComponent);
     fixture.detectChanges();
@@ -52,6 +54,7 @@ describe('Joystick movement and continuous steering', () => {
       store,
       camera,
       addSteps,
+      routeId,
       event,
       atAngle: (degrees: number) =>
         event(
@@ -65,6 +68,52 @@ describe('Joystick movement and continuous steering', () => {
   function angularChange(previous: number, next: number): number {
     return ((next - previous + 540) % 360) - 180;
   }
+
+  it.each([true, false])('scales movement and distance-based steps together while following=%s', (following) => {
+    const { fixture, joystick, store, atAngle, tick, addSteps } = setup(following);
+    const position = store.current()!;
+    joystick.startJoystick(atAngle(0));
+    tick(100);
+    const baseDistance = (store.current()!.latitude - position.latitude) * 111_320;
+    const beforeSpeedChange = store.current()!;
+    fixture.nativeElement.querySelector('[aria-label="提高移動速度"]').click();
+    tick(200);
+    const fasterDistance = (store.current()!.latitude - beforeSpeedChange.latitude) * 111_320;
+    expect(fasterDistance / baseDistance).toBeCloseTo(1.25, 6);
+    const credited = addSteps.mock.calls.reduce((total, [steps]) => total + steps, 0);
+    expect(Math.abs(credited - (baseDistance + fasterDistance) / USER_MOVE_METER_PER_STEP)).toBeLessThan(1);
+    fixture.nativeElement.querySelector('[aria-label="降低移動速度"]').click();
+    const beforeSlowdown = store.current()!;
+    tick(300);
+    expect((store.current()!.latitude - beforeSlowdown.latitude) * 111_320).toBeCloseTo(baseDistance, 6);
+  });
+
+  it('bounds speed controls and disables the relevant button at each limit', () => {
+    const { fixture, joystick } = setup();
+    for (let i = 0; i < 20; i++) joystick.adjustSpeed(-0.25);
+    fixture.detectChanges();
+    expect(joystick.speedMultiplier()).toBe(0.25);
+    expect(fixture.nativeElement.querySelector('[aria-label="降低移動速度"]').disabled).toBe(true);
+    for (let i = 0; i < 20; i++) joystick.adjustSpeed(0.25);
+    fixture.detectChanges();
+    expect(joystick.speedMultiplier()).toBe(3);
+    expect(fixture.nativeElement.querySelector('[aria-label="提高移動速度"]').disabled).toBe(true);
+  });
+
+  it('counts Task steps only during a confirmed active route, retaining ordinary step credit outside it',()=>{
+    const {joystick,atAngle,tick,addSteps,routeId}=setup();
+    joystick.startJoystick(atAngle(0));
+    for(let t=100;t<=1100;t+=100) tick(t);
+    expect(addSteps.mock.calls.length).toBeGreaterThan(0);
+    expect(addSteps.mock.calls.every(([,eligible])=>eligible===false)).toBe(true);
+    addSteps.mockClear();routeId.set('confirmed-route');
+    for(let t=1200;t<=2300;t+=100) tick(t);
+    expect(addSteps.mock.calls.some(([,eligible])=>eligible===true)).toBe(true);
+    addSteps.mockClear();routeId.set(null);
+    for(let t=2400;t<=3500;t+=100) tick(t);
+    expect(addSteps.mock.calls.length).toBeGreaterThan(0);
+    expect(addSteps.mock.calls.every(([,eligible])=>eligible===false)).toBe(true);
+  });
 
   describe('screen-relative movement without camera following', () => {
     it.each([
@@ -125,7 +174,8 @@ describe('Joystick movement and continuous steering', () => {
       expect(north).toBeCloseTo(Math.SQRT1_2);
       expect(east).toBeCloseTo(Math.SQRT1_2);
       expect(Math.hypot(north, east)).toBeCloseTo(1);
-      expect(addSteps.mock.calls.reduce((total, [steps]) => total + steps, 0)).toBe(2);
+      expect(Math.abs(addSteps.mock.calls.reduce((total, [steps]) => total + steps, 0) -
+        1.2 * DEMO_WALKING_SPEED_METERS_PER_SECOND / USER_MOVE_METER_PER_STEP)).toBeLessThan(1);
     });
 
     it('applies radial dead zone and remaps lateral speed continuously', () => {
@@ -140,11 +190,12 @@ describe('Joystick movement and continuous steering', () => {
       joystick.moveJoystick(event(50 + 23 * radius, 50));
       tick(32);
       expect(move.mock.calls.at(-1)![1]).toBeCloseTo(0.5);
+      const creditedCalls = addSteps.mock.calls.length;
       const afterMove = store.current();
       joystick.moveJoystick(event(50, 50));
       for (let timestamp = 48; timestamp <= 2048; timestamp += 16) tick(timestamp);
       expect(store.current()).toBe(afterMove);
-      expect(addSteps).not.toHaveBeenCalled();
+      expect(addSteps.mock.calls.length).toBe(creditedCalls);
     });
 
     it('keeps screen mode and reference until release when recenter enables following', () => {
@@ -277,7 +328,8 @@ describe('Joystick movement and continuous steering', () => {
     expect(store.current()?.heading).toBe(40);
     expect(store.current()!.latitude).toBeLessThan(position.latitude);
     expect(store.current()!.longitude).toBeLessThan(position.longitude);
-    expect(addSteps.mock.calls.reduce((total, [steps]) => total + steps, 0)).toBe(2);
+    expect(Math.abs(addSteps.mock.calls.reduce((total, [steps]) => total + steps, 0) -
+      1.2 * DEMO_WALKING_SPEED_METERS_PER_SECOND / USER_MOVE_METER_PER_STEP)).toBeLessThan(1);
   });
 
   it('switches directly from forward to backward without a half-turn correction', () => {

@@ -27,7 +27,7 @@
           }
           @if (e.kind === 'tasks') {
             <p>
-              每日／每週任務獎勵為水滴，活動任務為肥料。設定的是本期起訖時間，不會自動建立下一期。
+              僅計入首頁確認出發後的路線步數；達標並抵達指定範圍後，玩家須於截止前手動領獎。設定的是本期起訖時間，不會自動建立下一期。
             </p>
           }
           @if (e.kind === 'merchants' || e.kind === 'trees') {
@@ -101,7 +101,8 @@
                     <cub-select
                       [id]="'field-' + f.key"
                       [name]="f.key"
-                      [(ngModel)]="e.item[f.key]">
+                      [ngModel]="e.item[f.key]"
+                      (ngModelChange)="vm.setEditorChoice(f.key, $event)">
                       @for (o of f.options; track o) {
                         <cub-option [value]="o">{{ vm.label(o) }}</cub-option>
                       }

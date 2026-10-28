@@ -1,5 +1,6 @@
 import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { getState, watchState } from '@ngrx/signals';
+import type { TaskCompletionResult } from '../../features/task/task.models';
 import { ProgressStore, ProgressState, createProgressState } from '../stores/progress-store';
 import { SessionStore } from '../stores/session-store';
 import { WalkSessionStore } from '../stores/walk-session-store';
@@ -24,6 +25,8 @@ export class ProgressSyncService {
   private activeSave: Promise<void> = Promise.resolve();
   private demo = createProgressState();
   private wasDemo = false;
+  private rewardLock = false;
+  private taskRebase: { before: ProgressState; result: TaskCompletionResult } | null = null;
 
   constructor() {
     effect(() => {
@@ -35,7 +38,7 @@ export class ProgressSyncService {
       const scope = this.session.dataScope();
       if (scope.mode !== 'normal' || scope.uid !== this.uid) return;
       this.pending = structuredClone(state);
-      if (!this.saving) this.activeSave = this.flush(this.generation);
+      if (!this.saving && !this.rewardLock && !this.taskRebase) this.activeSave = this.flush(this.generation);
     });
   }
 
@@ -50,6 +53,54 @@ export class ProgressSyncService {
     await this.switchScope(scope.mode === 'demo', scope.mode === 'normal' ? scope.uid : '');
   }
 
+  async flushPending(): Promise<void> {
+    if (this.taskRebase) throw new Error('獎勵已記錄，請重試領獎以同步資源');
+    await this.activeSave;
+    if (this.error()) throw new Error(this.error()!);
+  }
+
+  /** Rebase a server reward on concurrent local care/movement, preserving the walk. */
+  async claimTask(command: () => Promise<TaskCompletionResult>, taskId?: string): Promise<TaskCompletionResult> {
+    if (!this.taskRebase) await this.flushPending();
+    else if (taskId && this.taskRebase.result.taskId !== taskId) throw new Error('請先重試上一筆獎勵的資源同步');
+    if (!this.ready || this.rewardLock) throw new Error('散步資料尚未同步，請稍後重試');
+    const generation = this.generation;
+    const before = this.taskRebase?.before ?? structuredClone(getState(this.progress));
+    this.rewardLock = true;
+    try {
+      const result = this.taskRebase?.result ?? await command();
+      if (generation !== this.generation) return result;
+      this.taskRebase = { before, result };
+      // An idempotent retry may return an old receipt; read canonical balances
+      // before rebasing so intervening spending is never resurrected.
+      const canonical = await this.repository.load(this.uid);
+      if (generation !== this.generation) return result;
+      if (canonical.revision !== Math.max(this.revision, result.progressRevision ?? 0)) {
+        throw new Error('資料已在其他裝置更新，請重新載入。');
+      }
+      const current = getState(this.progress);
+      const serverInventory = canonical.state.inventory;
+      const inventory = { ...serverInventory };
+      for (const key of Object.keys(inventory) as (keyof typeof inventory)[]) {
+        inventory[key] += current.inventory[key] - before.inventory[key];
+      }
+      const removed = new Set(before.mysterySeeds.filter(s => !current.mysterySeeds.some(c => c.id === s.id)).map(s => s.id));
+      const serverSeeds = canonical.state.mysterySeeds;
+      const mysterySeeds = [...serverSeeds.filter(s => !removed.has(s.id)),
+        ...current.mysterySeeds.filter(s => !before.mysterySeeds.some(b => b.id === s.id) && !serverSeeds.some(b => b.id === s.id))];
+      this.saved = { ...this.saved, inventory: serverInventory, mysterySeeds: serverSeeds };
+      this.revision = canonical.revision;
+      this.taskRebase = null;
+      this.progress.mergeTaskProgress(inventory, mysterySeeds);
+      return { ...result, inventory: { ...inventory } };
+    } finally {
+      if (generation === this.generation) {
+        this.rewardLock = false;
+        if (this.pending && !this.saving && !this.taskRebase) this.activeSave = this.flush(generation);
+      }
+    }
+  }
+
   private async switchScope(demo: boolean, uid: string): Promise<void> {
     const generation = ++this.generation;
     if (this.wasDemo) this.demo = structuredClone(getState(this.progress));
@@ -58,6 +109,8 @@ export class ProgressSyncService {
     this.uid = uid;
     this.pending = null;
     this.saving = false;
+    this.rewardLock = false;
+    this.taskRebase = null;
     this.error.set(null);
     this.loading.set(!!uid && !demo);
     this.walk.reset();

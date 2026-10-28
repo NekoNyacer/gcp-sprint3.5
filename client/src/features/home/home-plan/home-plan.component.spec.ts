@@ -77,7 +77,7 @@ describe('Home unified route planning', () => {
     fixture.componentInstance.confirmRoute.subscribe(confirm);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('目前目的地');
+    expect(fixture.nativeElement.textContent).toContain('目的地');
     expect(fixture.nativeElement.textContent).not.toContain('0 個補給站');
     const button = fixture.debugElement.query(By.css('.plan-confirm'));
     expect(button.nativeElement.textContent).toContain('確認地點');
@@ -89,11 +89,13 @@ describe('Home unified route planning', () => {
     availableTaskPoints.set([station]);
     taskPoints.set([{ ...station, routeGeometry: [], routeDistanceMeters: 0 }]);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('目前目的地');
-    expect(fixture.nativeElement.textContent).toContain('1 間推薦');
-    expect(fixture.nativeElement.textContent).toContain('已加入 1 間');
-    expect(button.nativeElement.textContent).toContain('確認路線');
-    button.triggerEventHandler('click');
+    expect(fixture.nativeElement.textContent).toContain('目的地');
+    expect(fixture.nativeElement.textContent).toContain('已優化路線，沿途可補水並兌換商家優惠。');
+    expect(fixture.nativeElement.textContent).toContain('點擊「出發」後即可開始導航。');
+    expect(fixture.debugElement.query(By.css('.top .plan-confirm'))).toBeNull();
+    const depart = fixture.debugElement.query(By.css('.bottom .departure-card .plan-confirm'));
+    expect(depart.nativeElement.textContent).toContain('出發');
+    depart.triggerEventHandler('click');
     expect(confirm).toHaveBeenCalledOnce();
   });
 
@@ -120,21 +122,16 @@ describe('Home unified route planning', () => {
     expect(fixture.debugElement.query(By.css('.destination-reselect'))).toBeNull();
   });
 
-  it('distinguishes available recommendations from selected shops and opens details without adding them', () => {
+  it('removes the crossed-out merchant list while retaining the map supply count', () => {
     const {fixture, destination, destinationConfirmed, availableTaskPoints, taskPoints} = setup();
     destination.set({id: homeTrees[4].id, position: homeTrees[4].position});
     destinationConfirmed.set(true);
     const stations = createDemoWalkTasks([homeTrees[4].position, homeTrees[5].position]).slice(0, 3);
     availableTaskPoints.set([...stations].reverse());
-    const opened = vi.fn();
-    fixture.componentInstance.stationSelect.subscribe(opened);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('3 間推薦');
-    expect(fixture.nativeElement.textContent).toContain('已加入 0 間');
-    const buttons = fixture.debugElement.queryAll(By.css('.supply-option'));
-    expect(buttons).toHaveLength(3);
-    buttons[0].triggerEventHandler('click');
-    expect(opened).toHaveBeenCalledWith(fixture.componentInstance.availableStations()[0].id);
+    expect(fixture.nativeElement.textContent).toContain('3 補給');
+    expect(fixture.debugElement.query(By.css('.supply-summary'))).toBeNull();
+    expect(fixture.debugElement.query(By.css('.supply-options'))).toBeNull();
     expect(taskPoints()).toEqual([]);
   });
 
@@ -145,7 +142,8 @@ describe('Home unified route planning', () => {
     const retry = vi.fn();
     fixture.componentInstance.supplyRetry.subscribe(retry);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('暫無沿途補給推薦');
+    expect(fixture.nativeElement.textContent).toContain('目前沒有沿途補給推薦');
+    expect(fixture.nativeElement.textContent).not.toContain('沿途可補水並兌換商家優惠');
     expect(fixture.nativeElement.textContent).not.toContain('0 個補給站');
     fixture.debugElement.query(By.css('.supply-retry')).triggerEventHandler('click');
     expect(retry).toHaveBeenCalledOnce();
@@ -204,7 +202,7 @@ describe('Home unified route planning', () => {
     fixture.detectChanges();
     const button = fixture.debugElement.query(By.css('.plan-confirm'));
     expect(button.componentInstance.disabled).toBe(false);
-    expect(button.nativeElement.textContent).toContain('更新預覽路線');
+    expect(button.nativeElement.textContent).toContain('更新路線');
     button.triggerEventHandler('click');
     expect(update).toHaveBeenCalledOnce();
     expect(confirm).not.toHaveBeenCalled();
@@ -218,7 +216,7 @@ describe('Home unified route planning', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('2,133');
     expect(button.componentInstance.disabled).toBe(false);
-    expect(button.nativeElement.textContent).toContain('確認路線');
+    expect(button.nativeElement.textContent).toContain('出發');
     button.triggerEventHandler('click');
     expect(confirm).toHaveBeenCalledOnce();
   });

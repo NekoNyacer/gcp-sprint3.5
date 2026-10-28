@@ -1,0 +1,314 @@
+<!--
+  Three responsive layouts for the CAT WALK app walkthrough, switchable with ?variant=a|b|c.
+  This standalone wireframe uses representative app screens; it does not modify or embed production UI.
+-->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAT WALK｜互動式 App 簡報 Wireframe</title>
+  <style>
+    :root {
+      color-scheme: light; --paper:#f5f3ed; --ink:#272a27; --muted:#73776f; --line:#d8dbd2;
+      --line-dark:#9ba196; --soft:#ebece6; --accent:#e87538; --accent-soft:#fff0e6;
+      --green:#617b61; --green-soft:#e8eee5; --phone-bg:#f7f8f4;
+    }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; }
+    body { background:var(--paper); color:var(--ink); font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif; letter-spacing:.01em; }
+    button { font:inherit; color:inherit; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); min-height:100dvh; overflow:hidden; }
+    .guide-left {
+      min-width:0; min-height:100dvh; padding:clamp(34px,6vw,92px); padding-bottom:96px;
+      display:flex; flex-direction:column; justify-content:center; position:relative; border-right:1px solid var(--line);
+    }
+    .eyebrow { color:var(--green); font-size:12px; line-height:1.4; letter-spacing:.16em; font-weight:750; text-transform:uppercase; }
+    .brandline { display:flex; align-items:center; gap:10px; margin-bottom:48px; }
+    .brand-mark { width:28px; height:28px; border:1px solid var(--line-dark); border-radius:50%; display:grid; place-items:center; font-size:13px; color:var(--green); font-weight:800; }
+    .brand-name { font-size:12px; font-weight:800; letter-spacing:.13em; }
+    .page-kicker { margin:0 0 16px; color:var(--muted); font-size:13px; }
+    h1 { margin:0; max-width:580px; font-size:clamp(32px,4vw,58px); line-height:1.22; letter-spacing:-.04em; }
+    .intro-copy { max-width:490px; margin:22px 0 0; color:#666b63; font-size:16px; line-height:1.9; }
+    .chapter-summary { display:flex; gap:10px; align-items:center; margin-top:44px; }
+    .chapter-dot { width:28px; height:4px; border-radius:9px; background:#d4d7ce; }
+    .chapter-dot.active { width:46px; background:var(--accent); }
+    .chapter-caption { margin-left:8px; color:var(--muted); font-size:12px; }
+    .note-card { margin-top:36px; padding:23px 25px; max-width:500px; background:rgba(255,255,255,.64); border:1px solid var(--line); border-radius:14px; transition:border-color .18s,background .18s; }
+    .note-card .note-label { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:.13em; }
+    .note-card h2 { margin:9px 0 8px; font-size:20px; line-height:1.5; }
+    .note-card p { margin:0; color:var(--muted); font-size:14px; line-height:1.75; }
+    .left-footer { position:absolute; left:clamp(34px,6vw,92px); bottom:27px; color:#90958b; font-size:11px; }
+    .slide-rail,.feature-index { display:none; }
+    .variant-b .guide-left {
+      display:grid; grid-template-columns:minmax(130px,170px) minmax(0,1fr); align-items:center; gap:clamp(22px,3vw,48px);
+      padding-left:clamp(28px,4vw,64px); padding-right:clamp(28px,4vw,64px);
+    }
+    .variant-b .slide-rail { display:flex; flex-direction:column; gap:8px; }
+    .rail-step { border:0; border-left:2px solid var(--line); background:transparent; text-align:left; padding:12px 12px 12px 16px; color:#868a82; font-size:12px; line-height:1.55; cursor:pointer; border-radius:0 8px 8px 0; }
+    .rail-step.active { color:var(--ink); border-left-color:var(--accent); background:rgba(255,255,255,.55); font-weight:750; }
+    .variant-b .note-content { min-width:0; }
+    .variant-b .brandline { margin-bottom:33px; }
+    .variant-b h1 { font-size:clamp(30px,3.3vw,46px); }
+    .variant-c .guide-left { justify-content:flex-start; padding-top:clamp(32px,5vh,58px); padding-left:clamp(34px,5vw,78px); padding-right:clamp(34px,5vw,78px); }
+    .variant-c .brandline { margin-bottom:clamp(28px,4vh,48px); }
+    .variant-c h1 { max-width:520px; font-size:clamp(31px,3.7vw,52px); }
+    .variant-c .feature-index { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:26px; max-width:520px; }
+    .feature-chip { min-height:49px; padding:11px 13px; text-align:left; cursor:pointer; color:#62675f; background:rgba(255,255,255,.48); border:1px solid var(--line); border-radius:9px; font-size:12px; transition:.18s; }
+    .feature-chip:hover,.feature-chip.active { border-color:#acb49f; background:var(--green-soft); color:#344636; }
+    .variant-c .note-card { margin-top:auto; margin-bottom:40px; max-width:520px; border-radius:8px; }
+    .variant-c .chapter-summary { display:none; }
+    .app-right { min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 28px 68px; position:relative; background:#eeefe9; }
+    .app-caption { align-self:center; max-width:480px; width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; color:#777c73; font-size:11px; }
+    .caption-status { display:inline-flex; gap:6px; align-items:center; }
+    .caption-status::before { content:""; width:6px; height:6px; border-radius:50%; background:#9ca698; }
+    .phone-shell { width:min(430px,100%); height:min(780px,calc(100dvh - 132px)); min-height:550px; padding:9px; border:1px solid #aeb3a9; border-radius:39px; background:#d9dcd5; box-shadow:0 22px 70px rgba(38,43,37,.13),0 2px 5px rgba(38,43,37,.09); position:relative; }
+    .phone-screen { width:100%; height:100%; overflow:hidden; border-radius:30px; background:var(--phone-bg); display:flex; flex-direction:column; position:relative; border:1px solid #c9cdc4; }
+    .phone-island { position:absolute; z-index:10; top:8px; left:50%; transform:translateX(-50%); width:84px; height:18px; border-radius:20px; background:#343834; }
+    .statusbar { flex:0 0 35px; padding:8px 20px 0; display:flex; justify-content:space-between; color:#42473f; font-size:10px; font-weight:700; background:var(--phone-bg); }
+    .app-header { flex:0 0 48px; display:flex; align-items:center; justify-content:space-between; padding:0 17px; border-bottom:1px solid #e5e7e1; background:var(--phone-bg); }
+    .app-title { font-size:14px; font-weight:800; }
+    .app-avatar { width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:#e2e9de; color:var(--green); font-size:12px; }
+    .app-content { flex:1; min-height:0; overflow:auto; position:relative; background:var(--phone-bg); }
+    .app-tabbar { flex:0 0 62px; display:grid; grid-template-columns:repeat(5,1fr); border-top:1px solid #e1e4dc; background:rgba(255,255,255,.97); padding:5px 4px 3px; }
+    .app-tab { border:0; border-radius:9px; background:transparent; color:#858a81; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; font-size:9px; cursor:pointer; }
+    .app-tab .tab-icon { font-size:17px; line-height:1; }
+    .app-tab.active { color:var(--accent); background:#fff6ef; font-weight:750; }
+    [data-topic] { outline:0; }
+    .hotspot { cursor:pointer; transition:outline-color .15s,box-shadow .15s; }
+    .hotspot:hover,.hotspot:focus-visible,.hotspot.is-focused { outline:2px solid rgba(232,117,56,.75); outline-offset:2px; box-shadow:0 0 0 4px rgba(232,117,56,.10); }
+    .map-scene { height:100%; min-height:430px; position:relative; overflow:hidden; background:#e6e9e2; }
+    .map-ground { position:absolute; inset:0; background:linear-gradient(23deg,transparent 39%,#f7f7f2 39.4%,#f7f7f2 43%,transparent 43.4%),linear-gradient(118deg,transparent 27%,#f7f7f2 27.4%,#f7f7f2 30.6%,transparent 31%),linear-gradient(166deg,transparent 59%,#f7f7f2 59.4%,#f7f7f2 63%,transparent 63.4%),linear-gradient(83deg,transparent 70%,#f7f7f2 70.4%,#f7f7f2 73.5%,transparent 73.9%),#e6e9e2; }
+    .park { position:absolute; width:42%; height:22%; border-radius:50%; background:#d8e4d3; transform:rotate(-20deg); top:14%; left:9%; }
+    .map-label { position:absolute; color:#888e83; font-size:9px; letter-spacing:.04em; }
+    .map-label.one { top:20%; right:13%; } .map-label.two { top:48%; left:10%; } .map-label.three { bottom:34%; right:9%; }
+    .map-pin { position:absolute; border:0; border-radius:30px; padding:6px 9px; color:#536b52; background:#fff; box-shadow:0 2px 8px #43513b22; font-size:9px; font-weight:750; cursor:pointer; }
+    .map-pin.main { top:37%; left:45%; color:#fff; background:var(--green); } .map-pin.shop { top:24%; right:15%; } .map-pin.tree { bottom:39%; left:18%; }
+    .you-dot { position:absolute; top:55%; left:59%; width:15px; height:15px; border:3px solid white; border-radius:50%; background:#5c91c6; box-shadow:0 0 0 5px #5c91c633; }
+    .map-compass { position:absolute; top:16px; right:16px; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; background:#fff; color:#60665e; border:1px solid #e1e4dc; font-size:14px; }
+    .map-card { position:absolute; left:12px; right:12px; bottom:12px; padding:16px; border:1px solid #e0e3db; border-radius:15px; background:rgba(255,255,255,.96); box-shadow:0 4px 18px #303b2a12; }
+    .map-card-head { display:flex; justify-content:space-between; align-items:flex-start; }
+    .map-card small,.screen-label { display:block; color:#82877d; font-size:10px; line-height:1.5; }
+    .map-card h3 { font-size:16px; margin:3px 0 8px; }
+    .map-stats { display:flex; gap:7px; margin:8px 0 13px; }
+    .map-stat { flex:1; padding:7px 5px; text-align:center; border-radius:8px; background:#f2f3ef; color:#6a7067; font-size:9px; }
+    .map-stat b { display:block; color:#3f463e; font-size:11px; margin-bottom:2px; }
+    .primary-btn,.secondary-btn { min-height:39px; border-radius:10px; padding:0 14px; border:1px solid transparent; font-size:11px; font-weight:750; cursor:pointer; }
+    .primary-btn { background:var(--accent); color:white; }
+    .secondary-btn { background:#f4f5f1; border-color:#dfe2d9; color:#565c53; }
+    .wide { width:100%; }
+    .screen-page { min-height:100%; padding:18px 15px 20px; }
+    .screen-page h2 { margin:0 0 4px; font-size:20px; line-height:1.4; }
+    .screen-page .lead { margin:0 0 16px; color:#80857b; font-size:11px; line-height:1.6; }
+    .task-tabs { display:flex; gap:7px; margin:14px 0; }
+    .task-pill { border:1px solid #e0e3db; border-radius:20px; padding:6px 11px; background:#fff; color:#73796f; font-size:10px; }
+    .task-pill.active { color:#fff; border-color:var(--green); background:var(--green); }
+    .task-row { display:flex; align-items:center; gap:11px; padding:13px 10px; margin:9px 0; background:white; border:1px solid #e6e8e2; border-radius:12px; cursor:pointer; }
+    .task-icon { flex:0 0 34px; width:34px; height:34px; display:grid; place-items:center; border-radius:10px; color:var(--green); background:var(--green-soft); font-size:16px; }
+    .task-text { flex:1; min-width:0; } .task-text b { display:block; font-size:11px; margin-bottom:4px; } .task-text small { color:#858a81; font-size:9px; }
+    .task-progress { height:5px; margin-top:8px; border-radius:8px; background:#edf0e9; overflow:hidden; } .task-progress i { display:block; height:100%; background:#8da17e; border-radius:inherit; }
+    .task-reward { color:#9c7643; font-size:9px; white-space:nowrap; }
+    .detail-back { border:0; background:transparent; padding:0 0 14px; color:var(--green); font-size:11px; cursor:pointer; }
+    .detail-card { margin:13px 0; padding:16px; border-radius:13px; border:1px solid #e3e6de; background:#fff; }
+    .detail-card h3 { margin:0 0 7px; font-size:14px; } .detail-card p { margin:0; color:#73796f; font-size:10px; line-height:1.7; }
+    .forest-banner { min-height:115px; border-radius:14px; margin:14px 0; padding:17px; color:#3e5b42; background:linear-gradient(130deg,#dce8d8,#eef2e9); }
+    .forest-banner b { display:block; font-size:15px; } .forest-banner span { display:block; margin-top:7px; color:#6f7e6e; font-size:10px; }
+    .tree-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .tree-card { min-height:116px; padding:12px; border:1px solid #e3e6de; border-radius:12px; background:white; cursor:pointer; }
+    .tree-illustration { display:grid; place-items:center; height:48px; margin-bottom:7px; border-radius:9px; color:#64805d; background:#edf2e9; font-size:28px; }
+    .tree-card b { display:block; font-size:10px; } .tree-card small { display:block; margin-top:3px; color:#858a81; font-size:9px; }
+    .wallet { padding:18px; margin:12px 0 16px; border-radius:14px; color:#fff; background:#617b61; }
+    .wallet small { opacity:.8; font-size:10px; } .wallet strong { display:block; margin-top:7px; font-size:27px; }
+    .shop-row { display:grid; grid-template-columns:54px 1fr auto; align-items:center; gap:10px; margin:9px 0; padding:11px 9px; border:1px solid #e4e6e0; border-radius:12px; background:#fff; }
+    .shop-thumb { height:48px; display:grid; place-items:center; border-radius:9px; color:#6f815e; background:#eef1e9; font-size:23px; }
+    .shop-row b { display:block; font-size:10px; } .shop-row small { color:#888d84; font-size:9px; } .price { color:#aa7041; font-size:10px; font-weight:750; }
+    .profile-head { display:flex; align-items:center; gap:12px; margin:6px 0 15px; padding:15px; background:white; border:1px solid #e5e7e1; border-radius:13px; }
+    .profile-avatar { width:48px; height:48px; display:grid; place-items:center; border-radius:50%; background:#e7eee2; color:#5b785c; font-size:22px; }
+    .profile-head b { display:block; font-size:13px; } .profile-head small { color:#81867d; font-size:9px; }
+    .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:11px 0; }
+    .stat-card { padding:13px; background:white; border:1px solid #e5e7e1; border-radius:11px; }
+    .stat-card small { color:#898e84; font-size:9px; } .stat-card b { display:block; margin-top:5px; font-size:16px; }
+    .toast-note { position:absolute; z-index:9; left:14px; right:14px; top:58px; padding:11px 13px; border-radius:10px; background:#303832; color:white; font-size:10px; line-height:1.5; box-shadow:0 5px 18px #1113; }
+    .proto-bar { position:fixed; z-index:20; left:50%; bottom:17px; transform:translateX(-50%); display:flex; align-items:center; gap:12px; padding:7px 12px; border:1px solid #444b44; border-radius:30px; color:white; background:#303832; box-shadow:0 6px 22px #1d241d30; font-size:11px; }
+    .proto-bar button { width:28px; height:28px; border:0; border-radius:50%; color:white; background:#515b51; cursor:pointer; }
+    .proto-label { min-width:176px; text-align:center; } .proto-label b { color:#fff; }
+    .variant-b .phone-shell { width:min(420px,100%); } .variant-c .phone-shell { width:min(445px,100%); }
+    @media (max-width:900px) {
+      body { background:var(--phone-bg); }
+      .layout { display:block; min-height:100dvh; }
+      .guide-left,.app-caption,.proto-bar { display:none !important; }
+      .app-right { display:block; padding:0; min-height:100dvh; height:100dvh; background:var(--phone-bg); }
+      .phone-shell { width:100%; height:100dvh; min-height:0; padding:0; border:0; border-radius:0; box-shadow:none; background:var(--phone-bg); }
+      .phone-screen { border:0; border-radius:0; } .phone-island { top:8px; }
+    }
+    @media (max-height:680px) and (min-width:901px) {
+      .guide-left { padding-top:28px; padding-bottom:66px; } .brandline { margin-bottom:24px; }
+      .chapter-summary { margin-top:26px; } .note-card { margin-top:20px; padding:18px 20px; }
+      .variant-c .guide-left { padding-top:24px; } .variant-c .note-card { margin-bottom:16px; }
+      .phone-shell { height:calc(100dvh - 100px); min-height:500px; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition-duration:.01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="layout variant-a" id="layout" data-variant="a">
+    <section class="guide-left" aria-label="App 簡報說明">
+      <nav class="slide-rail" id="slideRail" aria-label="簡報章節"></nav>
+      <div class="note-content">
+        <div class="brandline"><span class="brand-mark">CW</span><span class="brand-name">CAT WALK / APP WALKTHROUGH</span></div>
+        <p class="page-kicker" id="pageKicker">一段散步，也能累積成自己的森林</p>
+        <h1 id="guideTitle">讓每一步，<br>都看得見累積。</h1>
+        <p class="intro-copy" id="guideIntro">從日常健走開始，沿途探索任務與樹木，慢慢打造專屬的回憶林。點選或移到右側 app 畫面，即可查看各功能的簡單說明。</p>
+        <div class="chapter-summary" id="chapterSummary" aria-label="簡報進度"><span class="chapter-dot active"></span><span class="chapter-dot"></span><span class="chapter-dot"></span><span class="chapter-dot"></span><span class="chapter-dot"></span><span class="chapter-caption" id="chapterCaption">01 / 05　健走首頁</span></div>
+        <div class="feature-index" id="featureIndex"></div>
+        <article class="note-card" id="noteCard" aria-live="polite"><span class="note-label" id="noteLabel">目前畫面</span><h2 id="noteTitle">健走地圖</h2><p id="noteBody">從地圖開始，查看目前位置、散步目的地與沿途探索點。</p></article>
+      </div>
+      <span class="left-footer">互動簡報 Wireframe · 文字內容為暫定示意</span>
+    </section>
+    <section class="app-right" aria-label="手機 App 示意">
+      <div class="app-caption"><span>手機 App 畫面示意</span><span class="caption-status">點擊或 hover 畫面區塊</span></div>
+      <div class="phone-shell">
+        <div class="phone-screen" id="phoneScreen">
+          <span class="phone-island" aria-hidden="true"></span>
+          <div class="statusbar"><span>9:41</span><span>●●●　▰</span></div>
+          <header class="app-header" data-topic data-title="CAT WALK 首頁" data-copy="這裡是 app 的主要入口。桌機簡報版會同步說明目前選中的畫面；手機版保留完整 app 檢視。"><span class="app-title" id="appHeaderTitle">CAT WALK</span><span class="app-avatar">CW</span></header>
+          <div class="app-content" id="appContent"></div>
+          <nav class="app-tabbar" aria-label="App 導覽">
+            <button class="app-tab active" data-tab="home"><span class="tab-icon">⌖</span><span>健走</span></button>
+            <button class="app-tab" data-tab="task"><span class="tab-icon">☷</span><span>任務</span></button>
+            <button class="app-tab" data-tab="shop"><span class="tab-icon">♧</span><span>兌換</span></button>
+            <button class="app-tab" data-tab="collection"><span class="tab-icon">♣</span><span>回憶林</span></button>
+            <button class="app-tab" data-tab="profile"><span class="tab-icon">◯</span><span>我的</span></button>
+          </nav>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="proto-bar" id="protoBar" aria-label="切換 wireframe 版型"><button id="prevVariant" aria-label="上一個版型">←</button><span class="proto-label" id="variantLabel"><b>A</b>　並排講解</span><button id="nextVariant" aria-label="下一個版型">→</button></div>
+  <script>
+    const variants = [{key:'a',name:'並排講解'},{key:'b',name:'章節導覽'},{key:'c',name:'重點索引'}];
+    const topics = {
+      home:{title:'健走地圖',body:'從地圖開始，查看目前位置、散步目的地與沿途探索點。',kicker:'一段散步，也能累積成自己的森林',headline:'讓每一步，<br>都看得見累積。',intro:'從日常健走開始，沿途探索任務與樹木，慢慢打造專屬的回憶林。點選或移到右側 app 畫面，即可查看各功能的簡單說明。'},
+      task:{title:'任務與目標',body:'日常、每週與活動任務，讓每段散步都有清楚的小目標。',kicker:'把散步拆成剛剛好的小目標',headline:'完成任務，<br>收下每段努力。',intro:'查看任務條件與進度，抵達指定地點並達成步數後，可領取對應的示範獎勵。'},
+      shop:{title:'獎勵兌換',body:'用累積的點數瀏覽兌換項目，了解獎勵如何連結日常步行。',kicker:'讓累積的努力，繼續走下去',headline:'每一步的累積，<br>都能帶來回饋。',intro:'在兌換頁查看點數與可兌換項目。這裡的品項與點數皆為展示用示意資料。'},
+      collection:{title:'專屬回憶林',body:'查看已種下的大樹與培育進度，回到熟悉的地點看看它們。',kicker:'把熟悉的地方，種成一座回憶林',headline:'一棵一棵，<br>長成自己的風景。',intro:'回顧已種植的大樹與目前成長狀態。選擇樹木可查看地點及培育資訊。'},
+      profile:{title:'個人步行紀錄',body:'整理步行統計、等級與近期紀錄，回顧自己的累積。',kicker:'看見每一次出門留下的足跡',headline:'日常走過的路，<br>都值得記下來。',intro:'在個人頁面查看步行統計與近期紀錄，簡報左側會依目前操作切換說明。'}
+    };
+    const layout=document.getElementById('layout'), guideTitle=document.getElementById('guideTitle'), guideIntro=document.getElementById('guideIntro');
+    const pageKicker=document.getElementById('pageKicker'), noteTitle=document.getElementById('noteTitle'), noteBody=document.getElementById('noteBody');
+    const noteLabel=document.getElementById('noteLabel'), chapterCaption=document.getElementById('chapterCaption');
+    const appContent=document.getElementById('appContent'), appHeaderTitle=document.getElementById('appHeaderTitle');
+    const featureIndex=document.getElementById('featureIndex'), slideRail=document.getElementById('slideRail');
+    let activeTab='home', homeMode=0, taskMode=0, treeMode=0, toastTimer;
+    function currentVariantIndex(){const key=new URLSearchParams(location.search).get('variant')||'a';const found=variants.findIndex(function(item){return item.key===key;});return found<0?0:found;}
+    function setVariant(index){
+      const selected=variants[(index+variants.length)%variants.length],url=new URL(location.href);
+      url.searchParams.set('variant',selected.key);history.replaceState({},'',url);
+      layout.className='layout variant-'+selected.key;layout.dataset.variant=selected.key;
+      document.getElementById('variantLabel').innerHTML='<b>'+selected.key.toUpperCase()+'</b>　'+selected.name;
+      updateChapterUI();renderNavigation();
+    }
+    function chapterIndex(tab){return ['home','task','collection','shop','profile'].indexOf(tab);}
+    function updateChapterUI(){
+      const idx=chapterIndex(activeTab);
+      document.querySelectorAll('.chapter-dot').forEach(function(dot,i){dot.classList.toggle('active',i===idx);});
+      chapterCaption.textContent=String(idx+1).padStart(2,'0')+' / 05　'+topics[activeTab].title;
+      document.querySelectorAll('.rail-step,.feature-chip').forEach(function(button){button.classList.toggle('active',button.dataset.tab===activeTab);});
+    }
+    function setNote(title,body,label){noteTitle.textContent=title;noteBody.textContent=body;noteLabel.textContent=label||'目前畫面';}
+    function setTopic(element){
+      if(!element)return;
+      document.querySelectorAll('.is-focused').forEach(function(item){item.classList.remove('is-focused');});
+      element.classList.add('is-focused');
+      setNote(element.dataset.title||topics[activeTab].title,element.dataset.copy||topics[activeTab].body,'畫面說明');
+    }
+    function showToast(text){
+      const old=document.querySelector('.toast-note');if(old)old.remove();
+      const toast=document.createElement('div');toast.className='toast-note';toast.textContent=text;
+      document.getElementById('phoneScreen').appendChild(toast);clearTimeout(toastTimer);
+      toastTimer=setTimeout(function(){toast.remove();},2200);
+    }
+    function mapPanel(){
+      const copy=homeMode===0?['今天想去哪裡走走？','先看看附近的地點與步行資訊。','開始散步']:homeMode===1?['選擇今天的散步目的地','確認地點後即可查看建議路線。','確認目的地']:['散步進行中','沿著路線走訪附近地點，累積今天的步行紀錄。','結束示範散步'];
+      const action=homeMode===0?'start':homeMode===1?'confirm':'finish';
+      return '<div class="map-card hotspot" data-topic data-title="'+copy[0]+'" data-copy="'+copy[1]+'"><div class="map-card-head"><div><small>健走地圖</small><h3>'+copy[0]+'</h3></div><small>今天　3,240 步</small></div><p class="screen-label">'+copy[1]+'</p><div class="map-stats hotspot" data-topic data-title="步行資訊" data-copy="顯示本次散步的距離、時間或步數摘要，方便使用者快速掌握進度。"><span class="map-stat"><b>1.2 km</b>距離</span><span class="map-stat"><b>18 分</b>時間</span><span class="map-stat"><b>1,800</b>預估步數</span></div><button class="primary-btn wide hotspot" data-action="'+action+'" data-topic data-title="'+copy[0]+'" data-copy="'+copy[1]+'">'+copy[2]+'</button></div>';
+    }
+    function renderHome(){
+      return '<div class="map-scene"><div class="map-ground"></div><div class="park"></div><span class="map-label one">市民大道</span><span class="map-label two">紀念公園</span><span class="map-label three">林森北路</span><button class="map-pin shop hotspot" data-topic data-title="沿途探索點" data-copy="地圖標示附近可探索的地點。點選圖釘可進一步查看相關資訊。">探索點</button><button class="map-pin tree hotspot" data-topic data-title="種樹地點" data-copy="選擇合適地點種下大樹，之後可以回到這裡持續照顧。">我的樹</button><button class="map-pin main hotspot" data-topic data-title="目的地" data-copy="以地圖確認想前往的地點，並檢視散步距離與預估時間。">目的地</button><span class="you-dot hotspot" data-topic data-title="目前位置" data-copy="地圖上的位置標記代表目前所在位置。此 wireframe 使用示意資料。"></span><button class="map-compass hotspot" data-topic data-title="地圖方向" data-copy="提供地圖方位或回到目前位置的控制入口。">⌖</button>'+mapPanel()+'</div>';
+    }
+    function renderTasks(){
+      if(taskMode===1||taskMode===2){
+        const claimed=taskMode===2;
+        return '<section class="screen-page"><button class="detail-back" data-action="task-back">‹ 返回任務</button><span class="screen-label">每日任務</span><h2 class="hotspot" data-topic data-title="任務條件" data-copy="任務詳細頁呈現完成條件、目前進度、目的地與獎勵內容。">完成一段日常散步</h2><p class="lead">累積步數並抵達指定地點</p><div class="detail-card hotspot" data-topic data-title="任務進度" data-copy="以進度條與簡短數字說明目前完成狀態，讓使用者知道下一步要做什麼。"><h3>完成條件</h3><p>今日步數　650 / 1,000 步<br>抵達指定任務地點</p><div class="task-progress"><i style="width:65%"></i></div></div><div class="detail-card hotspot" data-topic data-title="完成獎勵" data-copy="任務達成後會顯示可領取的展示獎勵，實際內容可由團隊後續補充。"><h3>任務獎勵</h3><p>種子 × 1　（示意）</p></div><button class="'+(claimed?'secondary-btn':'primary-btn')+' wide hotspot" data-action="claim-task" data-topic data-title="領取獎勵" data-copy="使用者主動點選後領取任務獎勵；此 wireframe 僅提供互動示意。">'+(claimed?'已領取（示意）':'完成任務並領取')+'</button></section>';
+      }
+      return '<section class="screen-page"><h2 class="hotspot" data-topic data-title="任務清單" data-copy="把每日、每週與活動目標集中呈現，並清楚標出各任務的條件與進度。">散步任務</h2><p class="lead">完成日常目標，累積更多收穫</p><div class="task-tabs hotspot" data-topic data-title="任務分類" data-copy="可依每日、每週或活動切換任務，方便快速找到目前可參與的目標。"><span class="task-pill active">每日</span><span class="task-pill">每週</span><span class="task-pill">活動</span></div><div class="task-row hotspot" data-action="open-task" data-topic data-title="任務進度" data-copy="任務卡片顯示完成條件、進度與獎勵，點擊可查看詳細說明。"><span class="task-icon">✓</span><span class="task-text"><b>完成一段日常散步</b><small>步數與地點條件</small><span class="task-progress"><i style="width:65%"></i></span></span><span class="task-reward">種子 × 1</span></div><div class="task-row hotspot" data-topic data-title="每週步行目標" data-copy="每週任務鼓勵持續累積步行，可展示週進度與目前完成狀態。"><span class="task-icon">↗</span><span class="task-text"><b>本週多走一點</b><small>本週累積步數</small><span class="task-progress"><i style="width:38%"></i></span></span><span class="task-reward">進行中</span></div><div class="task-row hotspot" data-topic data-title="活動任務" data-copy="活動任務可呈現限定時間內的目標與參加方式。"><span class="task-icon">✦</span><span class="task-text"><b>走訪城市綠地</b><small>活動示意任務</small><span class="task-progress"><i style="width:20%"></i></span></span><span class="task-reward">活動中</span></div></section>';
+    }
+    function renderCollection(){
+      if(treeMode===1)return '<section class="screen-page"><button class="detail-back" data-action="tree-back">‹ 返回回憶林</button><div class="forest-banner hotspot" data-topic data-title="大樹資訊" data-copy="呈現樹木名稱、成長狀態與種植地點，作為回憶林中的個別紀錄。"><b>台北大樹夥伴</b><span>成長中　·　中山區</span></div><div class="detail-card hotspot" data-topic data-title="培育進度" data-copy="用簡單的階段與進度資訊說明大樹目前狀態，細節由團隊後續補上。"><h3>目前成長</h3><p>已照顧 12 天<br>下一個成長階段：持續累積照顧紀錄</p><div class="task-progress"><i style="width:58%"></i></div></div><button class="primary-btn wide hotspot" data-topic data-title="回到種植地點" data-copy="後續可由此查看樹木所在位置或前往相關培育操作。">查看種植地點</button></section>';
+      return '<section class="screen-page"><h2 class="hotspot" data-topic data-title="回憶林" data-copy="集中查看已種植的大樹，回顧每個地點留下的步行與培育紀錄。">我的回憶林</h2><p class="lead">每一棵樹，都記錄一段日常</p><div class="forest-banner hotspot" data-topic data-title="回憶林摘要" data-copy="以精簡摘要呈現已種植的樹木數量與整體進度。"><b>一起種下 3 棵大樹</b><span>繼續照顧，累積屬於自己的森林</span></div><div class="tree-grid"><button class="tree-card hotspot" data-action="open-tree" data-topic data-title="樹木卡片" data-copy="點選樹木卡片可進入細節，查看成長階段與地點資訊。"><span class="tree-illustration">♣</span><b>台北大樹夥伴</b><small>成長中 · 12 天</small></button><button class="tree-card hotspot" data-topic data-title="樹木卡片" data-copy="展示其他已種植樹木與目前培育狀態。"><span class="tree-illustration">♣</span><b>河濱紀念樹</b><small>成長中 · 6 天</small></button><button class="tree-card hotspot" data-topic data-title="新種植位置" data-copy="尚未種植的位置或新增入口，可於正式版依產品流程補充。"><span class="tree-illustration">＋</span><b>探索更多地點</b><small>尋找下一段回憶</small></button></div></section>';
+    }
+    function renderShop(){
+      return '<section class="screen-page"><h2 class="hotspot" data-topic data-title="兌換目錄" data-copy="瀏覽可兌換的示意品項，讓步行累積與回饋形成清楚連結。">獎勵兌換</h2><p class="lead">用累積點數，看看可以換什麼</p><div class="wallet hotspot" data-topic data-title="點數餘額" data-copy="顯示目前可用點數，讓使用者在瀏覽品項時掌握兌換狀態。"><small>目前可用小樹點</small><strong>1,280 <small>點</small></strong></div><div class="shop-row hotspot" data-topic data-title="兌換品項" data-copy="品項卡片可呈現簡短介紹與所需點數，實際內容由團隊後續設定。"><span class="shop-thumb">♧</span><span><b>綠意生活小禮</b><small>展示品項</small></span><span class="price">600 點</span></div><div class="shop-row hotspot" data-topic data-title="兌換品項" data-copy="不同類型的示意品項可以協助說明兌換流程與回饋方向。"><span class="shop-thumb">✿</span><span><b>城市植栽體驗</b><small>展示品項</small></span><span class="price">900 點</span></div><div class="shop-row hotspot" data-topic data-title="兌換品項" data-copy="正式的獎勵內容及文字由團隊後續補充。"><span class="shop-thumb">♧</span><span><b>步行紀念小物</b><small>展示品項</small></span><span class="price">1,200 點</span></div></section>';
+    }
+    function renderProfile(){
+      return '<section class="screen-page"><h2 class="hotspot" data-topic data-title="個人頁面" data-copy="整理等級、步行統計與近期紀錄，讓使用者回顧自己的累積。">我的步行紀錄</h2><p class="lead">每一步都算數</p><div class="profile-head hotspot" data-topic data-title="個人資訊" data-copy="顯示使用者識別與目前等級；原型資料皆為示意。"><span class="profile-avatar">CW</span><span><b>散步旅人</b><small>等級 4　·　持續探索中</small></span></div><div class="stat-grid"><div class="stat-card hotspot" data-topic data-title="累積步數" data-copy="呈現一段期間內的步行總量，後續可由團隊選定統計區間。"><small>累積步數</small><b>28,460</b></div><div class="stat-card hotspot" data-topic data-title="散步次數" data-copy="整理已完成的散步紀錄，回顧參與頻率。"><small>散步次數</small><b>12 次</b></div><div class="stat-card hotspot" data-topic data-title="種植樹木" data-copy="連結回憶林，呈現已種下的大樹數量。"><small>我的大樹</small><b>3 棵</b></div><div class="stat-card hotspot" data-topic data-title="近期紀錄" data-copy="保留近期步行或獎勵紀錄的入口，細節稍後由團隊撰寫。"><small>本週步行</small><b>8,240</b></div></div></section>';
+    }
+    function renderApp(){
+      document.querySelectorAll('.app-tab').forEach(function(button){button.classList.toggle('active',button.dataset.tab===activeTab);});
+      appHeaderTitle.textContent=activeTab==='home'?'CAT WALK':topics[activeTab].title;
+      if(activeTab==='home')appContent.innerHTML=renderHome();
+      if(activeTab==='task')appContent.innerHTML=renderTasks();
+      if(activeTab==='collection')appContent.innerHTML=renderCollection();
+      if(activeTab==='shop')appContent.innerHTML=renderShop();
+      if(activeTab==='profile')appContent.innerHTML=renderProfile();
+      pageKicker.textContent=topics[activeTab].kicker;guideTitle.innerHTML=topics[activeTab].headline;guideIntro.textContent=topics[activeTab].intro;
+      document.querySelectorAll('.is-focused').forEach(function(item){item.classList.remove('is-focused');});
+      setNote(topics[activeTab].title,topics[activeTab].body);updateChapterUI();renderNavigation();
+    }
+    function renderNavigation(){
+      slideRail.innerHTML='';featureIndex.innerHTML='';
+      ['home','task','collection','shop','profile'].forEach(function(tab,index){
+        const railButton=document.createElement('button');railButton.className='rail-step'+(tab===activeTab?' active':'');railButton.dataset.tab=tab;
+        railButton.innerHTML='<span style="display:block;font-size:9px;opacity:.7">0'+(index+1)+'</span>'+topics[tab].title;slideRail.appendChild(railButton);
+        const chip=document.createElement('button');chip.className='feature-chip'+(tab===activeTab?' active':'');chip.dataset.tab=tab;chip.textContent=topics[tab].title;featureIndex.appendChild(chip);
+      });
+    }
+    function runAction(action){
+      if(action==='start'){homeMode=1;renderApp();setNote('選擇散步目的地','確認想前往的地點，接著查看建議路線。','操作示意');}
+      if(action==='confirm'){homeMode=2;renderApp();setNote('散步進行中','開始沿路探索，畫面可同步呈現散步進度與地點資訊。','操作示意');}
+      if(action==='finish'){homeMode=0;renderApp();showToast('示範散步已結束');setNote('完成散步','此操作僅用於展示流程，實際資料與獎勵內容由團隊後續補充。','操作示意');}
+      if(action==='open-task'){taskMode=1;renderApp();setNote('任務詳細說明','查看任務條件、目前進度與完成後的示意獎勵。','操作示意');}
+      if(action==='task-back'){taskMode=0;renderApp();}
+      if(action==='claim-task'){taskMode=2;renderApp();showToast('已領取示意獎勵');setNote('領取任務獎勵','完成條件後，使用者可主動領取獎勵。此處只呈現 wireframe 互動。','操作示意');}
+      if(action==='open-tree'){treeMode=1;renderApp();setNote('樹木成長資訊','查看樹木的成長階段、種植地點與培育紀錄。','操作示意');}
+      if(action==='tree-back'){treeMode=0;renderApp();}
+    }
+    function changeTab(tab){
+      if(!topics[tab])return;activeTab=tab;
+      if(tab==='task'&&taskMode===2)taskMode=0;if(tab==='collection'&&treeMode===1)treeMode=0;renderApp();
+    }
+    document.getElementById('phoneScreen').addEventListener('pointerover',function(event){
+      const element=event.target.closest('[data-topic]');if(element&&window.matchMedia('(min-width: 901px)').matches)setTopic(element);
+    });
+    document.getElementById('phoneScreen').addEventListener('focusin',function(event){
+      const element=event.target.closest('[data-topic]');if(element&&window.matchMedia('(min-width: 901px)').matches)setTopic(element);
+    });
+    document.getElementById('phoneScreen').addEventListener('click',function(event){
+      const tab=event.target.closest('[data-tab]');if(tab){changeTab(tab.dataset.tab);return;}
+      const action=event.target.closest('[data-action]');if(action){runAction(action.dataset.action);return;}
+      const topic=event.target.closest('[data-topic]');if(topic)setTopic(topic);
+    });
+    document.querySelector('.guide-left').addEventListener('click',function(event){
+      const tab=event.target.closest('[data-tab]');if(tab)changeTab(tab.dataset.tab);
+    });
+    document.getElementById('prevVariant').addEventListener('click',function(){setVariant(currentVariantIndex()-1);});
+    document.getElementById('nextVariant').addEventListener('click',function(){setVariant(currentVariantIndex()+1);});
+    document.addEventListener('keydown',function(event){
+      if(event.target.matches('input,textarea,[contenteditable="true"]'))return;
+      if(event.key==='ArrowLeft')setVariant(currentVariantIndex()-1);if(event.key==='ArrowRight')setVariant(currentVariantIndex()+1);
+    });
+    window.addEventListener('popstate',function(){setVariant(currentVariantIndex());});
+    renderNavigation();setVariant(currentVariantIndex());renderApp();
+  </script>
+</body>
+</html>

@@ -414,3 +414,12 @@ ion-modal {
     max-width: 100%;
   }
 }
+ion-modal.task-reward-modal {
+  --width: min(320px, calc(100vw - 40px));
+  --height: auto;
+  --border-radius: 7px;
+  --background: #fff;
+  --backdrop-opacity: 0.45;
+  --box-shadow: none;
+}
+ion-modal.task-reward-modal::part(content) { height: auto; max-height: 85dvh; }

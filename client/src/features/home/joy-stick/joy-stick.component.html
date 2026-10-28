@@ -11,6 +11,10 @@
     <span class="joystick__ring" aria-hidden="true"></span>
     <span class="joystick__knob" [style.transform]="joystickTransform()" aria-hidden="true"></span>
   </div>
+  <div class="speed-control" role="group" aria-label="移動速度調整">
+    <button type="button" aria-label="降低移動速度" [disabled]="speedMultiplier() <= 0.25" (click)="adjustSpeed(-0.25)">−</button>
+    <button type="button" aria-label="提高移動速度" [disabled]="speedMultiplier() >= 3" (click)="adjustSpeed(0.25)">+</button>
+  </div>
 </section>
 <div class="coordinate">
   <p>緯度:{{ ls.current()?.latitude | number: '1.0-6' }}</p>

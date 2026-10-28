@@ -67,7 +67,7 @@ service cloud.firestore {
         && (!('totalMatureTrees' in data)
           || (data.totalMatureTrees is int && data.totalMatureTrees >= 0))
         && data.updatedAt == request.time
-        && (!('taskAreaId' in data) || data.taskAreaId in ['banqiao', 'xihu']);
+        && (!('taskAreaId' in data) || data.taskAreaId in ['', 'banqiao', 'xihu']);
     }
 
     function hasValidInitialShopSummary() {
@@ -150,17 +150,13 @@ service cloud.firestore {
       match /taskEnrollments/{taskId} {
         allow read: if isOwner(uid);
 
-        allow create: if isOwner(uid)
-          && request.resource.data.keys().hasOnly(['taskId', 'joinedAt'])
-          && request.resource.data.taskId == taskId
-          && request.resource.data.joinedAt == request.time
-          && get(/databases/$(database)/documents/tasks/$(taskId)).data.cadence == 'event'
-          && (!('enabled' in get(/databases/$(database)/documents/tasks/$(taskId)).data)
-            || get(/databases/$(database)/documents/tasks/$(taskId)).data.enabled == true)
-          && get(/databases/$(database)/documents/tasks/$(taskId)).data.startsAt <= request.time
-          && get(/databases/$(database)/documents/tasks/$(taskId)).data.endsAt > request.time;
+        // The command snapshots the route-step baseline at enrollment.
+        allow write: if false;
+      }
 
-        allow update, delete: if false;
+      match /taskQualifications/{taskId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
       }
 
       match /taskCompletions/{taskId} {

@@ -1,6 +1,7 @@
 import { DEFAULT_SEED_TYPES, DEFAULT_WALK_SEED_DROP, type WalkSeedDrop, type SeedType, type CubeChannel } from "./planting-catalog.js";
 import { REWARD_ICONS, REWARD_BACKGROUNDS, DEFAULT_REWARD_ICON, DEFAULT_REWARD_BACKGROUND } from "./reward-avatar.js";
 import { legacyTreePostalCode } from './tree-region.js';
+import { DEFAULT_TASK_STEPS, DEFAULT_TASK_RADIUS } from './task-domain.js';
 /** Versioned public demo configuration. Player state never lives in this document. */
 export type Scope = "demo" | "normal";
 export type Role = "planting" | "supply";
@@ -63,6 +64,9 @@ export interface CmsTask {
   latitude: number;
   longitude: number;
   rewardAmount: number;
+  rewardType?: 'waterDrops' | 'fertilizer' | 'seeds';
+  requiredSteps?: number;
+  radiusMeters?: number;
 }
 export interface CmsConfig {
   walkSeedDrop?: WalkSeedDrop;
@@ -176,6 +180,10 @@ export function validateConfig(value: unknown): CmsConfig {
         typeof task.enabled !== "boolean" || !coordinate(task) ||
         !text(task.destinationName, 100) || !text(task.address, 200, false) ||
         !count(task.rewardAmount) || task.rewardAmount === 0 ||
+        (task.rewardType !== undefined && !['waterDrops', 'fertilizer', 'seeds'].includes(task.rewardType)) ||
+        (task.rewardType === 'seeds' && task.rewardAmount > 100) ||
+        (task.requiredSteps !== undefined && (!count(task.requiredSteps) || task.requiredSteps === 0)) ||
+        (task.radiusMeters !== undefined && (!count(task.radiusMeters) || task.radiusMeters === 0 || task.radiusMeters > 10000)) ||
         !text(task.startsAt, 40) || !text(task.endsAt, 40) ||
         !/Z$|[+-]\d{2}:\d{2}$/.test(task.startsAt) ||
         !/Z$|[+-]\d{2}:\d{2}$/.test(task.endsAt) ||
@@ -248,6 +256,9 @@ export function validateConfig(value: unknown): CmsConfig {
       startsAt: new Date(task.startsAt).toISOString(), endsAt: new Date(task.endsAt).toISOString(),
       destinationName: task.destinationName, address: task.address,
       latitude: task.latitude, longitude: task.longitude, rewardAmount: task.rewardAmount,
+      rewardType: task.rewardType ?? (task.cadence === 'event' ? 'fertilizer' : 'waterDrops'),
+      requiredSteps: task.requiredSteps ?? DEFAULT_TASK_STEPS[task.cadence],
+      radiusMeters: task.radiusMeters ?? DEFAULT_TASK_RADIUS,
     })),
     harvestPoints: v.harvestPoints,
     species: [...v.species],

@@ -1,6 +1,6 @@
 import { matchesCubePlan } from "./planting-catalog.js";
 import { currentWeather, taipeiTimeOfDay } from './live-weather.js';
-import { validPoint, distanceMeters, routePlacement, supplyCandidates, distributedSupplyFallback } from './supply-recommendations.js';
+import { validPoint, distanceMeters, routePlacement, supplyCandidates, distributedSupplyFallback, spreadSupplySelections } from './supply-recommendations.js';
 import { createHash, randomUUID } from "node:crypto";
 import { getApp } from "firebase-admin/app";
 import { Timestamp, getFirestore } from "firebase-admin/firestore";
@@ -97,7 +97,8 @@ export const cmsCommand = onCall(options, async (req) => {
           startsAt: task.startsAt.toDate().toISOString(), endsAt: task.endsAt.toDate().toISOString(),
           destinationName: task.destination?.name, address: task.destination?.address ?? "",
           latitude: task.destination?.latitude, longitude: task.destination?.longitude,
-          rewardAmount: task.reward?.amount};
+          rewardAmount: task.reward?.amount, rewardType: task.reward?.type,
+          requiredSteps: task.requiredSteps, radiusMeters: task.radiusMeters};
       });
       return {tasks: validateConfig({tasks, merchants: [], trees: [], rewards: [], species: [], scenes: [], harvestPoints: 0}).tasks};
     } catch {
@@ -194,7 +195,8 @@ export const cmsCommand = onCall(options, async (req) => {
             endsAt: Timestamp.fromDate(new Date(task.endsAt)),
             destination: { id: task.id, name: task.destinationName, address: task.address,
               latitude: task.latitude, longitude: task.longitude },
-            reward: { type: task.cadence === "event" ? "fertilizer" : "waterDrops", amount: task.rewardAmount },
+            reward: { type: task.rewardType ?? (task.cadence === "event" ? "fertilizer" : "waterDrops"), amount: task.rewardAmount },
+            requiredSteps: task.requiredSteps, radiusMeters: task.radiusMeters,
             enabled: true, cmsVersion: version,
           });
         }
@@ -803,7 +805,7 @@ export const cmsRecommend = onCall(
       return {
         source: "gemini",
         model,
-        selections: await recordSelections(selections, "gemini"),
+        selections: await recordSelections(spreadSupplySelections(selections, candidates, route), "gemini"),
         version: published.data()!.version,
         reason: "Gemini 依起終點距離、即時天氣與台北時間推薦額外補給站",
       };

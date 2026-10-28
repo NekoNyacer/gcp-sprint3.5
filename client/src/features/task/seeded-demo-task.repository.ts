@@ -1,4 +1,6 @@
-import { Service } from '@angular/core';
+import { inject, Service } from '@angular/core';
+import { ProgressStore } from '../../shared/stores/progress-store';
+import { DEFAULT_TASK_STEPS, DEFAULT_TASK_RADIUS, freshTaskLocation, taskSteps } from '../../../../functions/src/task-domain';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { DemoLocationState, LocationEvidence, TaskCompletionResult, TaskItem } from './task.models';
 import type { CmsTask } from '../../../../functions/src/cms-domain';
@@ -13,9 +15,9 @@ const destinations = {
 @Service()
 export class SeededDemoTaskRepository {
   private readonly tasksSubject = new BehaviorSubject<TaskItem[]>(createDemoTasks());
-  private inventory = { waterDrops: 2, fertilizer: 1 };
+  private readonly progress = inject(ProgressStore);
 
-  setPublishedTasks(definitions: readonly CmsTask[]): void {
+  setPublishedTasks(definitions: readonly CmsTask[], version = 0): void {
     const prior = new Map(this.tasksSubject.value.map(task => [task.taskId, task]));
     const active = definitions.filter(task => task.enabled).map(task => {
       const old = prior.get(task.id);
@@ -23,7 +25,12 @@ export class SeededDemoTaskRepository {
       const next = demoTask(task.id, task.areaId, task.cadence, task.name, task.description,
         {id: task.id, name: task.destinationName, address: task.address, latitude: task.latitude, longitude: task.longitude},
         task.rewardAmount, Date.parse(task.startsAt), Date.parse(task.endsAt));
-      if (old?.joinedAt) { next.joinedAt = old.joinedAt; next.status = 'active'; }
+      next.cmsVersion = version;
+      next.requiredSteps = task.requiredSteps ?? DEFAULT_TASK_STEPS[task.cadence];
+      next.radiusMeters = task.radiusMeters ?? DEFAULT_TASK_RADIUS;
+      next.reward.type = task.rewardType ?? (task.cadence === 'event' ? 'fertilizer' : 'waterDrops');
+      if (old?.joinedAt) { next.joinedAt = old.joinedAt; next.joinedBaseline = old.joinedBaseline; next.status = 'active'; }
+      if (old?.readyAt && old.cmsVersion === version) { next.readyAt = old.readyAt; next.status = 'ready'; }
       return next;
     });
     const ids = new Set(active.map(task => task.taskId));
@@ -32,14 +39,14 @@ export class SeededDemoTaskRepository {
   }
 
   watchTasks(areaId: string): Observable<TaskItem[]> {
-    return this.tasksSubject.pipe(map((tasks) => tasks.filter((task) => task.areaId === areaId)));
+    return this.tasksSubject.pipe(map((tasks) => tasks.filter((task) => !areaId || task.areaId === areaId)));
   }
 
   watchHistory(areaId: string): Observable<TaskItem[]> {
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
     return this.tasksSubject.pipe(map((tasks) => tasks.filter((task) =>
-      task.areaId === areaId && task.endsAt.getTime() >= cutoff &&
-      (task.status === 'completed' || task.status === 'expired'),
+      (!areaId || task.areaId === areaId) && task.endsAt.getTime() >= cutoff &&
+      (task.status === 'completed' || (task.endsAt.getTime() <= Date.now() && (task.cadence !== 'event' || task.joinedAt))),
     )));
   }
 
@@ -47,28 +54,36 @@ export class SeededDemoTaskRepository {
     const task = this.tasksSubject.value.find(task => task.taskId === taskId);
     if (!task || task.cadence !== 'event' || task.startsAt.getTime() > Date.now() || task.endsAt.getTime() <= Date.now())
       return Promise.reject(new Error('活動尚未開始或已下架'));
-    this.updateTask(taskId, (task) => ({ ...task, status: 'active', joinedAt: new Date() }));
+    if (task.joinedAt) return Promise.resolve();
+    this.updateTask(taskId, (task) => ({ ...task, status: 'active', joinedAt: new Date(), joinedBaseline: this.progress.totalTaskWalkingSteps() }));
     return Promise.resolve();
   }
 
-  async completeTask(taskId: string, location: LocationEvidence): Promise<TaskCompletionResult> {
+  async qualifyTask(taskId: string, location: LocationEvidence): Promise<void> {
     const task = this.tasksSubject.value.find((candidate) => candidate.taskId === taskId);
     if (!task) throw new Error('找不到任務');
-    if (task.status === 'completed') return Promise.resolve(this.resultFor(task));
+    if (task.readyAt || task.completedAt) return;
     if (task.startsAt.getTime() > Date.now()) throw new Error('任務尚未開始');
     if (task.endsAt.getTime() <= Date.now()) throw new Error('任務已過期');
     if (task.cadence === 'event' && task.status !== 'active') throw new Error('請先參加活動');
-    if (location.accuracy > 10) throw new Error('定位精確度不足');
+    if (!freshTaskLocation({ ...location, observedAt: location.observedAt.getTime() }, Date.now())) throw new Error('定位精確度不足或位置已過期');
+    const steps = taskSteps({ cadence: task.cadence, startsAt: task.startsAt.getTime(), joinedBaseline: task.joinedBaseline }, this.progress.taskWalkingDays(), this.progress.totalTaskWalkingSteps(), Date.now());
+    if (steps < (task.requiredSteps ?? DEFAULT_TASK_STEPS[task.cadence])) throw new Error('路線步數尚未達標');
     const distance = calculateDistanceMeters(location, task.destination);
-    if (distance > 10) throw new Error(`距目的地尚有 ${Math.ceil(distance)} 公尺`);
+    if (distance > (task.radiusMeters ?? DEFAULT_TASK_RADIUS)) throw new Error(`距目的地尚有 ${Math.ceil(distance)} 公尺`);
+    this.updateTask(taskId, current => ({ ...current, status: 'ready', readyAt: new Date(), calculatedDistanceMeters: distance }));
+  }
 
-    this.inventory = {
-      ...this.inventory,
-      [task.reward.type]: this.inventory[task.reward.type] + task.reward.amount,
-    };
+  async completeTask(taskId: string, _location?: LocationEvidence): Promise<TaskCompletionResult> {
+    const task = this.tasksSubject.value.find(candidate => candidate.taskId === taskId);
+    if (!task) throw new Error('找不到任務');
+    if (task.completedAt) return this.resultFor(task);
+    if (task.endsAt.getTime() <= Date.now()) throw new Error('任務已過期');
+    if (!task.readyAt) throw new Error('任務尚未達標');
+    this.progress.grantTaskReward(taskId, task.reward, task.destination.name);
     const completedAt = new Date();
-    this.updateTask(taskId, (current) => ({ ...current, status: 'completed', completedAt, calculatedDistanceMeters: distance }));
-    return Promise.resolve({ taskId, completedAt, reward: task.reward, inventory: { ...this.inventory } });
+    this.updateTask(taskId, (current) => ({ ...current, status: 'completed', completedAt }));
+    return this.resultFor({ ...task, completedAt });
   }
 
   locationFor(task: TaskItem, state: DemoLocationState): LocationEvidence {
@@ -82,7 +97,7 @@ export class SeededDemoTaskRepository {
   }
 
   private resultFor(task: TaskItem): TaskCompletionResult {
-    return { taskId: task.taskId, completedAt: task.completedAt ?? new Date(), reward: task.reward, inventory: { ...this.inventory } };
+    return { taskId: task.taskId, completedAt: task.completedAt ?? new Date(), reward: task.reward, inventory: { ...this.progress.inventory() } };
   }
 }
 
@@ -102,7 +117,7 @@ function createDemoTasks(): TaskItem[] {
 }
 
 function demoTask(taskId: string, areaId: string, cadence: TaskItem['cadence'], title: string, description: string, destination: TaskItem['destination'], amount: number, startsAt: number, endsAt: number): TaskItem {
-  return { taskId, areaId, cadence, title, description, destination, startsAt: new Date(startsAt), endsAt: new Date(endsAt), reward: { type: cadence === 'event' ? 'fertilizer' : 'waterDrops', amount }, status: cadence === 'event' ? 'available' : 'active' };
+  return { taskId, areaId, cadence, title, description, destination, requiredSteps: DEFAULT_TASK_STEPS[cadence], radiusMeters: DEFAULT_TASK_RADIUS, startsAt: new Date(startsAt), endsAt: new Date(endsAt), reward: { type: cadence === 'event' ? 'fertilizer' : 'waterDrops', amount }, status: cadence === 'event' ? 'available' : 'active' };
 }
 
 export function calculateDistanceMeters(a: Pick<LocationEvidence, 'latitude' | 'longitude'>, b: Pick<LocationEvidence, 'latitude' | 'longitude'>): number {

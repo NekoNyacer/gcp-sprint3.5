@@ -111,6 +111,9 @@ export const createProgressState = (demo = true): ProgressState => ({
   lightEarnedOn: null,
   lightEarnedToday: 0,
   totalRecordedSteps: 0,
+  totalTaskWalkingSteps: 0,
+  taskWalkingDays: {},
+  taskRewardClaims: {},
   totalRecordedLightEnergy: 0,
   inventory: {
     lightEnergy: demo ? 5946 : 0,
@@ -579,7 +582,7 @@ export const ProgressStore = signalStore(
         creditStepLight(store.todayStepsDay() === day ? store.todaySteps() : 0, day);
       },
       /**增加步數 */
-      addSteps: (steps: number) => {
+      addSteps: (steps: number, taskEligible = false) => {
         if (!Number.isSafeInteger(steps) || steps <= 0) {
           return;
         }
@@ -587,6 +590,35 @@ export const ProgressStore = signalStore(
         const day = taipeiDay();
         creditStepLight((store.todayStepsDay() === day ? store.todaySteps() : 0) + steps, day);
         patchState(store, { totalRecordedSteps: store.totalRecordedSteps() + steps });
+        if (taskEligible) {
+          patchState(store, {
+            totalTaskWalkingSteps: store.totalTaskWalkingSteps() + steps,
+            taskWalkingDays: { ...store.taskWalkingDays(), [day]: (store.taskWalkingDays()[day] ?? 0) + steps },
+          });
+        }
+      },
+      mergeTaskProgress(inventory: ProgressState['inventory'], mysterySeeds: MysterySeed[]): void {
+        patchState(store, { inventory, mysterySeeds });
+      },
+      grantTaskReward(taskId: string, reward: { type: 'waterDrops' | 'fertilizer' | 'seeds'; amount: number }, place: string): void {
+        if (store.taskRewardClaims()[taskId]) return;
+        if (!Number.isSafeInteger(reward.amount) || reward.amount <= 0) throw new Error('任務獎勵設定無效');
+        if (reward.type === 'seeds' && reward.amount > 100) throw new Error('種子獎勵數量過多');
+        const seeds: MysterySeed[] = [];
+        if (reward.type === 'seeds') {
+          const pool = (cmsPublication().config?.seedTypes ?? DEFAULT_SEED_TYPES).find(p => p.enabled);
+          if (!pool) throw new Error('尚未設定可用的種子機率池');
+          for (let i = 0; i < reward.amount; i++) seeds.push({
+            id: crypto.randomUUID(), species: drawSpecies(pool, crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296),
+            seedTypeId: pool.id, version: cmsPublication().version,
+            origin: { routeId: `task:${taskId}`, place, acquiredAt: Date.now() },
+          });
+        }
+        patchState(store, {
+          inventory: { ...store.inventory(), [reward.type]: store.inventory()[reward.type] + reward.amount },
+          mysterySeeds: [...store.mysterySeeds(), ...seeds],
+          taskRewardClaims: { ...store.taskRewardClaims(), [taskId]: true },
+        });
       },
     };
   }),
@@ -614,6 +646,9 @@ export type ProgressState = {
   lightEarnedOn: string | null;
   lightEarnedToday: number;
   totalRecordedSteps: number;
+  totalTaskWalkingSteps: number;
+  taskWalkingDays: Record<string, number>;
+  taskRewardClaims: Record<string, boolean>;
   totalRecordedLightEnergy: number;
   activeDemoTreeId: string;
   demoTrees: Record<string, DemoTreeCultivation>;

@@ -1,11 +1,14 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { LocationStore } from '../../../shared/stores/location-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
+import { WalkSessionStore } from '../../../shared/stores/walk-session-store';
 import { DecimalPipe } from '@angular/common';
 import { MapCameraController } from '../home-map/map-camera.controller';
 import {
   DEMO_JOYSTICK_DEAD_ZONE_RATIO,
   DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND,
+  DEMO_WALKING_SPEED_METERS_PER_SECOND,
+  USER_MOVE_METER_PER_STEP,
 } from '../../../environments/environment-dev';
 
 const TURN_DAMPING_SECONDS = 0.25;
@@ -19,11 +22,13 @@ const TURN_DAMPING_SECONDS = 0.25;
 export class JoyStickComponent {
   protected readonly ls = inject(LocationStore);
   protected readonly ps = inject(ProgressStore);
+  private readonly walkSession = inject(WalkSessionStore);
   private readonly camera = inject(MapCameraController);
   private joystickElement = viewChild.required<ElementRef<HTMLDivElement>>('joystick');
   readonly joystickTransform = signal('translate3d(0, 0, 0)');
   readonly isJoystickActive = signal(false);
   readonly mapBearing = signal(0);
+  readonly speedMultiplier = signal(1);
   private joystickPointerId: number | null = null;
   private joystickScreenDirection = { x: 0, y: 0 };
   private joystickHeading = 0;
@@ -85,6 +90,10 @@ export class JoyStickComponent {
     this.mapBearing.set(bearing);
   }
 
+  adjustSpeed(change: number): void {
+    this.speedMultiplier.update((speed) => Math.min(3, Math.max(0.25, speed + change)));
+  }
+
   private updateJoystick(event: PointerEvent): void {
     const joystick = this.joystickElement().nativeElement;
     const bounds = joystick.getBoundingClientRect();
@@ -121,6 +130,7 @@ export class JoyStickComponent {
   }
 
   private simulatedStepRemainder = 0;
+  private stepRouteId: string | null = null;
   private startJoystickLoop(): void {
     if (this.joystickFrame !== null) {
       return;
@@ -135,7 +145,11 @@ export class JoyStickComponent {
       const previousTimestamp = this.lastJoystickFrameAt ?? timestamp;
       const elapsedSeconds = Math.min(Math.max((timestamp - previousTimestamp) / 1000, 0), 0.1);
       this.lastJoystickFrameAt = timestamp;
+      const routeId = this.walkSession.routeId();
+      if (routeId !== this.stepRouteId) { this.simulatedStepRemainder = 0; this.stepRouteId = routeId; }
       const { x: steering, y: forward } = this.joystickScreenDirection;
+      const speed = this.speedMultiplier();
+      const stepsPerSecond = DEMO_WALKING_SPEED_METERS_PER_SECOND / USER_MOVE_METER_PER_STEP;
       if (this.joystickFollowsPlayer) {
         const targetRate = steering * DEMO_JOYSTICK_TURN_SPEED_DEGREES_PER_SECOND;
         const blend = -Math.expm1(-elapsedSeconds / TURN_DAMPING_SECONDS);
@@ -148,27 +162,28 @@ export class JoyStickComponent {
         if (this.ls.current() && (forward !== 0 || turn !== 0)) {
           const radians = (this.joystickHeading * Math.PI) / 180;
           this.ls.moveDemoBy(
-            forward * Math.cos(radians),
-            forward * Math.sin(radians),
+            forward * Math.cos(radians) * speed,
+            forward * Math.sin(radians) * speed,
             elapsedSeconds,
             this.joystickHeading,
           );
-          this.simulatedStepRemainder += Math.abs(forward) * elapsedSeconds * 2;
+          this.simulatedStepRemainder += Math.abs(forward) * speed * elapsedSeconds * stepsPerSecond;
         }
       } else if (this.ls.current() && (forward !== 0 || steering !== 0)) {
         // Keep the gesture's reference fixed even if recenter enables camera rotation mid-gesture.
         const radians = (this.joystickReferenceBearing * Math.PI) / 180;
         this.ls.moveDemoBy(
-          forward * Math.cos(radians) - steering * Math.sin(radians),
-          forward * Math.sin(radians) + steering * Math.cos(radians),
+          (forward * Math.cos(radians) - steering * Math.sin(radians)) * speed,
+          (forward * Math.sin(radians) + steering * Math.cos(radians)) * speed,
           elapsedSeconds,
         );
-        this.simulatedStepRemainder += Math.hypot(forward, steering) * elapsedSeconds * 2;
+        this.simulatedStepRemainder += Math.hypot(forward, steering) * speed * elapsedSeconds * stepsPerSecond;
       }
 
       const steps = Math.floor(this.simulatedStepRemainder);
       if (steps > 0) {
-        this.ps.addSteps(steps);
+        this.ps.addSteps(steps, this.walkSession.hasActiveRoute() &&
+          (this.walkSession.isWalking() || this.walkSession.isArrived()));
         this.simulatedStepRemainder -= steps;
       }
 

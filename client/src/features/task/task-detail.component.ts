@@ -1,20 +1,74 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  DestroyRef,
+  ElementRef,
+  inject,
+  OnDestroy,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonBadge, IonButton, IonCard, IonCardContent, IonContent, IonModal, IonSpinner } from '@ionic/angular';
-import { DemoLocationState, TaskItem } from './task.models';
+import { IonContent, IonSpinner } from '@ionic/angular';
+import { taskRewardLabel } from './task.models';
 import { TaskStore } from './task-store';
+import { TaskMapService } from './task-map.service';
 
-@Component({ selector: 'app-task-detail', templateUrl: './task-detail.component.html', styleUrls: ['./task-detail.component.scss'], imports: [DecimalPipe, IonContent, IonButton, IonBadge, IonSpinner, IonModal] })
-export class TaskDetailComponent implements OnInit {
+@Component({
+  selector: 'app-task-detail',
+  templateUrl: './task-detail.component.html',
+  styleUrls: ['./task-detail.component.scss'],
+  imports: [DecimalPipe, IonContent, IonSpinner],
+})
+export class TaskDetailComponent implements OnDestroy {
   readonly store = inject(TaskStore);
-  private readonly route = inject(ActivatedRoute);
+  readonly map = inject(TaskMapService);
   private readonly router = inject(Router);
-
-  ngOnInit(): void { this.store.initialize(); const id = this.route.snapshot.paramMap.get('taskId'); if (id) this.store.selectTask(id); }
-  back(): void { void this.router.navigateByUrl('/task'); }
-  rewardLabel(task: TaskItem): string { return `${task.reward.type === 'waterDrops' ? '水滴' : '肥料'} × ${task.reward.amount}`; }
-  remaining(task: TaskItem): string { const hours = Math.max(0, Math.ceil((task.endsAt.getTime() - this.store.now()) / 3_600_000)); return hours < 24 ? `${hours} 小時` : `${Math.ceil(hours / 24)} 天`; }
-  distance(task: TaskItem): string { const value = this.store.distanceTo(task); return value === null ? '尚未取得位置' : `${Math.ceil(value)} 公尺`; }
-  setDemoState(event: Event): void { this.store.setDemoLocationState((event.target as HTMLSelectElement).value as DemoLocationState); }
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly container = viewChild<ElementRef<HTMLDivElement>>('mapContainer');
+  private readonly active = signal(false);
+  private attached?: HTMLElement;
+  readonly rewardLabel = taskRewardLabel;
+  constructor() {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const id = params.get('taskId');
+      if (id) this.store.selectTask(id);
+    });
+    afterRenderEffect(() => {
+      const task = this.store.selectedTask();
+      const position = this.store.location();
+      const element = this.container()?.nativeElement;
+      if (!this.active() || !element) return;
+      if (this.attached !== element) {
+        this.map.attach(element);
+        this.attached = element;
+      }
+      this.map.update(task, position);
+    });
+  }
+  ionViewDidEnter(): void {
+    this.active.set(true);
+  }
+  ionViewWillLeave(): void {
+    this.active.set(false);
+    if (this.attached) this.map.detach(this.attached);
+    this.attached = undefined;
+  }
+  ngOnDestroy(): void {
+    if (this.attached) this.map.detach(this.attached);
+  }
+  retryMap(): void {
+    const el = this.container()?.nativeElement;
+    if (el) this.map.retry(el);
+  }
+  goHome(): void {
+    void this.router.navigateByUrl('/home');
+  }
+  remaining(end: Date): string {
+    const hours = Math.max(0, Math.ceil((end.getTime() - this.store.now()) / 3600_000));
+    return hours < 24 ? `剩 ${hours} 小時` : `剩 ${Math.ceil(hours / 24)} 天`;
+  }
 }

@@ -17,67 +17,20 @@
           <div class="route-info__supply"><dt>推薦補給</dt><dd><ion-icon name="storefront-outline" aria-hidden="true" />{{ availableStations().length }} 補給</dd></div>
         }
       </dl>
-      @if (destinationConfirmed() && !routeLoading() && !routingFailed()) {
-        <section class="supply-summary" aria-label="沿途補給推薦">
-          <div class="supply-heading">
-            <span><ion-icon name="storefront-outline" />沿途補給</span>
-            @if (availableStations().length > 0) {
-              <small>{{ availableStations().length }} 間推薦<span class="supply-selected">已加入 {{ selectedTaskPoints().length }} 間</span></small>
-            } @else {
-              <button class="supply-retry" type="button" (click)="supplyRetry.emit()">重新推薦<ion-icon name="reload-outline" /></button>
-            }
-          </div>
-          @if (availableStations().length > 0) {
-            <div class="supply-options" aria-label="查看推薦店家">
-              @for (station of availableStations(); track station.id) {
-                <button type="button" class="supply-option" [class.is-selected]="isStationSelected(station.id)"
-                  [attr.aria-label]="station.name + (isStationSelected(station.id) ? '，已加入，查看詳情' : '，查看詳情並選擇加入')"
-                  (click)="stationSelect.emit(station.id)">
-                  <span class="supply-option__icon" aria-hidden="true"><ion-icon [icon]="isStationSelected(station.id) ? selectedStationIcon : stationIcon" /></span>
-                  <span class="supply-option__name">{{ station.name }}</span>
-                  <ion-icon name="chevron-forward-outline" aria-hidden="true" />
-                </button>
-              }
-            </div>
-          } @else {
-            <p class="supply-empty">暫無沿途補給推薦，仍可直接確認路線。</p>
-          }
-        </section>
-      }
-      <div class="destination-actions" [class.destination-actions--candidate]="!destinationConfirmed()">
-        @if (!destinationConfirmed()) {
+      @if (!destinationConfirmed()) {
+        <div class="destination-actions destination-actions--candidate">
           <ion-button class="destination-reselect" (click)="reselectDestination.emit()">
             再看看其他地點
           </ion-button>
-        }
-        <ion-button
-          class="plan-confirm"
-          [fill]="destinationConfirmed() && routeNeedsUpdate() ? 'outline' : 'solid'"
-          [disabled]="!selectedTree() || routeLoading() || routingFailed()"
-          (click)="
-            !destinationConfirmed()
-              ? confirmDestination.emit()
-              : routeNeedsUpdate()
-                ? routeUpdate.emit()
-                : confirmRoute.emit()
-          "
-        >
-          @if (destinationConfirmed()) {
-            <ion-icon slot="start" [name]="routeNeedsUpdate() ? 'reload-outline' : 'walk'"></ion-icon>
-          }
-          <span>
-            @if (!destinationConfirmed()) {
-              確認地點
-            } @else if (routeLoading()) {
-              正在規劃步行路線中…
-            } @else if (routeNeedsUpdate()) {
-              更新預覽路線
-            } @else {
-              確認路線
-            }
-          </span>
-        </ion-button>
-      </div>
+          <ion-button
+            class="plan-confirm"
+            [disabled]="!selectedTree() || routeLoading() || routingFailed()"
+            (click)="confirmDestination.emit()"
+          >
+            確認地點
+          </ion-button>
+        </div>
+      }
       @if (planningError()) {
         <p role="alert">{{ planningError() }}</p>
         @if (routingFailed()) {
@@ -90,7 +43,39 @@
   }
 </div>
 <div #bottomPanel class="bottom">
-  @if (!hasDestination()) {
+  @if (selectedTree() && destinationConfirmed()) {
+    <section class="departure-card" aria-label="確認步行路線">
+      <p class="departure-title">
+        @if (routeLoading()) {
+          正在規劃步行路線…
+        } @else if (routingFailed()) {
+          路線規劃失敗，請重新取得路線。
+        } @else if (routeNeedsUpdate()) {
+          補給點已調整，請先更新路線。
+        } @else if (availableStations().length > 0) {
+          已優化路線，沿途可補水並兌換商家優惠。
+        } @else {
+          已規劃路線，目前沒有沿途補給推薦。
+        }
+      </p>
+      <p class="departure-hint">
+        @if (routeNeedsUpdate()) {
+          更新完成後，即可點擊「出發」開始導航。
+        } @else {
+          點擊「出發」後即可開始導航。
+        }
+      </p>
+      @if (!routeLoading() && !routingFailed() && availableStations().length === 0) {
+        <button class="supply-retry" type="button" (click)="supplyRetry.emit()">重新推薦<ion-icon name="reload-outline" /></button>
+      }
+      <ion-button class="plan-confirm departure-button"
+        [disabled]="routeLoading() || routingFailed()"
+        (click)="routeNeedsUpdate() ? routeUpdate.emit() : confirmRoute.emit()">
+        <ion-icon slot="start" [icon]="routeNeedsUpdate() ? updateIcon : walkingIcon" aria-hidden="true" />
+        {{ routeLoading() ? '規劃中…' : routeNeedsUpdate() ? '更新路線' : '出發' }}
+      </ion-button>
+    </section>
+  } @else if (!hasDestination()) {
     <ion-button
       class="recommendations-toggle"
       [color]="recommendationsVisible() ? 'light' : 'primary'"

@@ -653,7 +653,7 @@ describe('Home task-selection camera', () => {
     expect(idle).not.toBeNull();
     expect(idle.componentInstance.hasActiveRoute()).toBe(true);
     expect(idle.nativeElement.textContent).toContain('今日步數');
-    expect(idle.nativeElement.textContent).toContain('終止本次路線');
+    expect(idle.nativeElement.textContent).toContain('中止本次路線');
     expect(fixture.nativeElement.querySelector('home-walking')).toBeNull();
     expect(fixture.debugElement.query(By.directive(HomePlanComponent))).toBeNull();
     expect(store.route()).toBe(route);

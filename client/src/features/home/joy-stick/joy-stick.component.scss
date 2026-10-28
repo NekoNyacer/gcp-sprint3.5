@@ -1,11 +1,11 @@
 .joystick-control {
   position: fixed;
   z-index: 1000;
-  bottom: calc(10.5rem + env(safe-area-inset-bottom));
+  bottom: calc(9rem + env(safe-area-inset-bottom));
   left: max(1rem, env(safe-area-inset-left));
   display: grid;
   justify-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
   pointer-events: none;
 }
 
@@ -44,6 +44,41 @@
 
 .joystick--active .joystick__knob {
   box-shadow: 0 0.6rem 1.1rem rgb(0 0 0 / 34%);
+}
+
+.speed-control {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+
+  button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 45%);
+    border-radius: 50%;
+    background: rgb(255 255 255 / 3%);
+    color: rgb(255 255 255 / 75%);
+    font: 300 24px / 1 sans-serif;
+    cursor: pointer;
+    touch-action: manipulation;
+
+    &:active:not(:disabled) {
+      background: rgb(255 255 255 / 12%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgb(255 255 255 / 85%);
+      outline-offset: 3px;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+  }
 }
 
 .coordinate{

@@ -7,7 +7,7 @@ import { LocationEvidence, TaskCompletionResult, TaskItem } from './task.models'
 
 type DateLike = Date | { toDate(): Date };
 type TaskDocument = Omit<TaskItem, 'taskId' | 'startsAt' | 'endsAt' | 'status'> & { startsAt: DateLike; endsAt: DateLike; enabled?: boolean };
-type UserTaskDocument = { taskId: string; joinedAt?: DateLike; completedAt?: DateLike; calculatedDistanceMeters?: number; reward?: TaskItem['reward']; taskSnapshot?: TaskDocument };
+type UserTaskDocument = { taskId: string; joinedAt?: DateLike; joinedBaseline?: number; readyAt?: DateLike; cmsVersion?: number; completedAt?: DateLike; calculatedDistanceMeters?: number; reward?: TaskItem['reward']; taskSnapshot?: TaskDocument };
 
 @Service()
 export class FirebaseTaskRepository {
@@ -17,16 +17,18 @@ export class FirebaseTaskRepository {
 
   watchTasks(areaId: string): Observable<TaskItem[]> {
     const user = this.auth.currentUser;
-    const taskQuery = query(collection(this.firestore, 'tasks'), where('areaId', '==', areaId));
+    const taskQuery = areaId ? query(collection(this.firestore, 'tasks'), where('areaId', '==', areaId)) : collection(this.firestore, 'tasks');
     if (!user) return of([]);
     return combineLatest([
       collectionData(taskQuery, { idField: 'taskId' }),
       collectionData(collection(this.firestore, 'users', user.uid, 'taskEnrollments')),
       collectionData(collection(this.firestore, 'users', user.uid, 'taskCompletions')),
-    ]).pipe(map(([tasks, enrollments, completions]) => mergeUserState(
+      collectionData(collection(this.firestore, 'users', user.uid, 'taskQualifications')),
+    ]).pipe(map(([tasks, enrollments, completions, qualifications]) => mergeUserState(
       tasks as Array<TaskDocument & { taskId: string }>,
       enrollments as UserTaskDocument[],
       completions as UserTaskDocument[],
+      qualifications as UserTaskDocument[],
     )));
   }
 
@@ -40,21 +42,25 @@ export class FirebaseTaskRepository {
   }
 
   async joinEvent(taskId: string): Promise<void> {
-    const user = this.requireUser();
-    await setDoc(doc(this.firestore, 'users', user.uid, 'taskEnrollments', taskId), {
-      taskId,
-      joinedAt: serverTimestamp(),
-    });
+    this.requireUser();
+    await httpsCallable(this.functions, 'completeTask')({ taskId, action: 'join', idempotencyKey: crypto.randomUUID() });
   }
 
-  async completeTask(taskId: string, location: LocationEvidence, idempotencyKey: string, isDemo: boolean, expectedVersion?: number): Promise<TaskCompletionResult> {
+  async qualifyTask(task: TaskItem, location: LocationEvidence): Promise<void> {
+    await httpsCallable(this.functions, 'completeTask')({ taskId: task.taskId, expectedVersion: task.cmsVersion,
+      action: 'qualify', idempotencyKey: crypto.randomUUID(), location: { ...location, observedAt: location.observedAt.toISOString() } });
+  }
+
+  async completeTask(taskId: string, location: LocationEvidence | null, idempotencyKey: string, isDemo: boolean, expectedVersion?: number): Promise<TaskCompletionResult> {
     const callable = httpsCallable<unknown, {
       taskId: string;
       completedAt: string;
       reward: TaskCompletionResult['reward'];
       inventory: TaskCompletionResult['inventory'];
+      mysterySeeds?: TaskCompletionResult['mysterySeeds'];
+      progressRevision?: number;
     }>(this.functions, 'completeTask');
-    const response = await callable({ taskId, location: { ...location, observedAt: location.observedAt.toISOString() }, idempotencyKey, isDemo, ...(expectedVersion === undefined ? {} : {expectedVersion}) });
+    const response = await callable({ taskId, action: 'claim', idempotencyKey, isDemo, ...(expectedVersion === undefined ? {} : {expectedVersion}) });
     return { ...response.data, completedAt: new Date(response.data.completedAt) };
   }
 
@@ -75,17 +81,20 @@ export class FirebaseTaskRepository {
   }
 }
 
-function mergeUserState(tasks: Array<TaskDocument & { taskId: string }>, enrollments: UserTaskDocument[], completions: UserTaskDocument[]): TaskItem[] {
+function mergeUserState(tasks: Array<TaskDocument & { taskId: string }>, enrollments: UserTaskDocument[], completions: UserTaskDocument[], qualifications: UserTaskDocument[]): TaskItem[] {
   const enrollmentByTask = new Map(enrollments.map((item) => [item.taskId, item]));
   const completionByTask = new Map(completions.map((item) => [item.taskId, item]));
+  const qualificationByTask = new Map(qualifications.map(item => [item.taskId, item]));
   const now = Date.now();
   return tasks.filter(task => task.enabled !== false || completionByTask.has(task.taskId)).map((task) => {
     const enrollment = enrollmentByTask.get(task.taskId);
     const completion = completionByTask.get(task.taskId);
+    const qualification = qualificationByTask.get(task.taskId);
+    const ready = qualification?.cmsVersion === (task.cmsVersion ?? 0) ? qualification : undefined;
     const snapshot = completion?.taskSnapshot ? {...task, ...completion.taskSnapshot} : task;
     const startsAt = toDate(snapshot.startsAt);
     const endsAt = toDate(snapshot.endsAt);
-    const status = completion ? 'completed' : endsAt.getTime() <= now ? 'expired' : task.cadence === 'event' && !enrollment ? 'available' : 'active';
+    const status = completion ? 'completed' : endsAt.getTime() <= now ? 'expired' : ready ? 'ready' : task.cadence === 'event' && !enrollment ? 'available' : 'active';
     return {
       ...snapshot,
       reward: completion?.reward ?? snapshot.reward,
@@ -93,6 +102,8 @@ function mergeUserState(tasks: Array<TaskDocument & { taskId: string }>, enrollm
       endsAt,
       status,
       joinedAt: enrollment?.joinedAt ? toDate(enrollment.joinedAt) : undefined,
+      joinedBaseline: enrollment?.joinedBaseline,
+      readyAt: ready?.readyAt ? toDate(ready.readyAt) : undefined,
       completedAt: completion?.completedAt ? toDate(completion.completedAt) : undefined,
       calculatedDistanceMeters: completion?.calculatedDistanceMeters,
     };

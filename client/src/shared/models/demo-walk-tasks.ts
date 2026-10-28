@@ -1,6 +1,6 @@
 import { GeoPoint } from './geo.models';
 import { haversineDistanceMeters } from './geo-distance';
-import { distanceToRouteMeters, routeDistanceMeters, projectPointOnRoute } from './walk-route';
+import { routeDistanceMeters, projectPointOnRoute } from './walk-route';
 import { cmsPublication, cmsRouteRoles } from './cms-publication';
 import { METERS_PER_WALK_STEP, supplyRewardLabel, WalkTaskPoint } from './walk-task.models';
 import { demoSupplyStations } from '../../environments/environment-dev';
@@ -28,7 +28,7 @@ export function createDemoWalkTasks(route: readonly GeoPoint[]): readonly WalkTa
     });
   }
 
-  return demoSupplyStations.map((station, taskIndex): WalkTaskPoint => {
+  return demoSupplyStations.map((station): WalkTaskPoint => {
     const {
       id,
       name,
@@ -49,19 +49,11 @@ export function createDemoWalkTasks(route: readonly GeoPoint[]): readonly WalkTa
     const start = route[segmentIndex - 1];
     const end = route[segmentIndex];
     const segmentLength = haversineDistanceMeters(start, end);
-    const fraction = remaining / segmentLength < 0.5 ? 0 : 1;
-    const anchor = fraction === 0 ? start : end;
-    const distance = (estimatedExtraSteps * METERS_PER_WALK_STEP) / 2;
-    const positions = Array.from({ length: 16 }, (_, index) =>
-      offsetPoint(anchor, distance, (index * Math.PI) / 8 + taskIndex * Math.PI * 0.4),
-    );
-    const waterPosition = positions.find(
-      (point) => distanceToRouteMeters(point, route) >= distance * 0.85,
-    );
-    positions.sort(
-      (left, right) => distanceToRouteMeters(right, route) - distanceToRouteMeters(left, route),
-    );
-    const fertilizer = kind === 'fertilizer';
+    const fraction = segmentLength > 0 ? Math.max(0, Math.min(1, remaining / segmentLength)) : 0;
+    const anchor = {
+      longitude: start.longitude + (end.longitude - start.longitude) * fraction,
+      latitude: start.latitude + (end.latitude - start.latitude) * fraction,
+    };
     return {
       id,
       name,
@@ -69,28 +61,11 @@ export function createDemoWalkTasks(route: readonly GeoPoint[]): readonly WalkTa
       weather,
       timeOfDay,
       kind,
-      description: `Demo：${fertilizer ? '最遠挑戰，' : ''}約增加 ${estimatedExtraSteps} 步；靠近打卡可領取 ${supplyRewardLabel(supplyStation.supply)}，本次散步限領一次。`,
-      position: !fertilizer && waterPosition ? waterPosition : positions[0],
+      description: `Demo 沿途補給；靠近打卡可領取 ${supplyRewardLabel(supplyStation.supply)}，每站每日限領一次。`,
+      position: anchor,
       routeStop: { position: anchor, segmentIndex, fraction },
-      estimatedExtraSteps,
+      estimatedExtraSteps: 0,
       isDemo: true,
     };
   });
-}
-
-function offsetPoint(origin: GeoPoint, meters: number, bearing: number): GeoPoint {
-  const radians = Math.PI / 180;
-  const latitude = origin.latitude * radians;
-  const longitude = origin.longitude * radians;
-  const angle = meters / 6_371_000;
-  const targetLatitude = Math.asin(
-    Math.sin(latitude) * Math.cos(angle) + Math.cos(latitude) * Math.sin(angle) * Math.cos(bearing),
-  );
-  const targetLongitude =
-    longitude +
-    Math.atan2(
-      Math.sin(bearing) * Math.sin(angle) * Math.cos(latitude),
-      Math.cos(angle) - Math.sin(latitude) * Math.sin(targetLatitude),
-    );
-  return { latitude: targetLatitude / radians, longitude: targetLongitude / radians };
 }

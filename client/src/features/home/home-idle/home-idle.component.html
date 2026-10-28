@@ -1,20 +1,20 @@
-<div class="top">
+<div class="top" [class.top--compact]="hasActiveRoute()">
   <div class="resources">
-    <ion-card>
+    <ion-card aria-label="光能">
       <ion-icon name="sunny-outline"></ion-icon>
       <ion-card-title class="count">{{
         ps.inventory().lightEnergy | number: '1.0-0'
       }}</ion-card-title>
-      <ion-card-subtitle>陽光</ion-card-subtitle>
+      <ion-card-subtitle>光能</ion-card-subtitle>
     </ion-card>
-    <ion-card>
+    <ion-card aria-label="水">
       <ion-icon name="water-outline"></ion-icon>
       <ion-card-title class="count">{{
         ps.inventory().waterDrops | number: '1.0-0'
       }}</ion-card-title>
       <ion-card-subtitle>水</ion-card-subtitle>
     </ion-card>
-    <ion-card>
+    <ion-card aria-label="肥料">
       <ion-icon name="sparkles-outline"></ion-icon>
       <ion-card-title class="count">{{
         ps.inventory().fertilizer | number: '1.0-0'
@@ -35,7 +35,7 @@
     type="button"
     class="start-btn terminate-btn"
     [class.holding]="holding()"
-    aria-describedby="terminate-hint"
+    aria-label="中止本次路線，長按一秒"
     (pointerdown)="beginPointerHold($event)"
     (pointermove)="movePointer($event)"
     (pointerup)="endPointerHold($event)"
@@ -47,7 +47,7 @@
     (contextmenu)="$event.preventDefault()"
   >
     <ion-icon name="stop-circle-outline"></ion-icon>
-    <span>終止本次路線</span>
+    <span>中止本次路線</span>
   </button>
 } @else {
   <ion-button class="start-btn" color="primary" expand="block" (click)="start.emit()">

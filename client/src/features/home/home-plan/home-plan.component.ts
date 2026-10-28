@@ -10,7 +10,7 @@ import { LocationStore } from '../../../shared/stores/location-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
 import { WalkSessionStore } from '../../../shared/stores/walk-session-store';
 import { USER_MOVE_METER_PER_STEP } from '../../../environments/environment-dev';
-import { walkOutline, checkmark, storefrontOutline } from 'ionicons/icons';
+import { walkOutline, reloadOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'home-plan',
@@ -20,8 +20,7 @@ import { walkOutline, checkmark, storefrontOutline } from 'ionicons/icons';
 })
 export class HomePlanComponent {
   readonly walkingIcon = walkOutline;
-  readonly selectedStationIcon = checkmark;
-  readonly stationIcon = storefrontOutline;
+  readonly updateIcon = reloadOutline;
   readonly recommendationNow = input(Date.now());
   readonly recommendationsVisible = input(true);
   readonly toggleRecommendations = output<void>();
@@ -46,14 +45,9 @@ export class HomePlanComponent {
       this.recommendationNow(),
     ),
   );
-  readonly selectedTaskPoints = computed(() => this.ws.taskPoints());
   readonly availableStations = computed(() => [...this.ws.availableTaskPoints()].sort((a, b) =>
     a.routeStop.segmentIndex - b.routeStop.segmentIndex || a.routeStop.fraction - b.routeStop.fraction));
-  readonly stationSelect = output<string>();
   readonly supplyRetry = output<void>();
-  isStationSelected(id: string): boolean {
-    return this.selectedTaskPoints().some(point => point.id === id);
-  }
   readonly selectedTreeStops = computed(() => this.ws.treeStops());
   readonly distanceMeters = computed(() => this.ws.plannedDistanceMeters());
   readonly estimateSteps = computed(() => this.distanceMeters() / USER_MOVE_METER_PER_STEP);

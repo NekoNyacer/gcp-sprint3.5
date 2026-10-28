@@ -1,6 +1,6 @@
 import { haversineDistanceMeters } from './geo-distance';
 import { distanceToRouteMeters, projectPointOnRoute, walkingTaskWaypoints } from './walk-route';
-import { METERS_PER_WALK_STEP, WalkTaskPoint } from './walk-task.models';
+import { WalkTaskPoint } from './walk-task.models';
 import { createDemoWalkTasks } from './demo-walk-tasks';
 import { demoSupplyStations, routeCoordinatesByTree } from '../../environments/environment-dev';
 import { homeTrees } from '../../features/home/home-tree-recommendations';
@@ -41,9 +41,9 @@ describe('Demo task routes', () => {
       expect({ ...taskDetails, ...supplyStation }).toMatchObject(details);
       expect(routeFraction).toBeGreaterThanOrEqual(0);
       expect(routeFraction).toBeLessThanOrEqual(1);
-      const routeVertex = routeFraction < 0.5 ? start : destination;
-      expect(tasks[index].routeStop.position).toEqual(routeVertex);
-      expect(tasks[index].description).toContain(String(station.estimatedExtraSteps));
+      expect(tasks[index].routeStop.fraction).toBeCloseTo(routeFraction);
+      expect(tasks[index].position).toEqual(tasks[index].routeStop.position);
+      expect(distanceToRouteMeters(tasks[index].position, [start, destination])).toBeLessThan(0.01);
     });
   });
 
@@ -92,7 +92,7 @@ describe('Demo task routes', () => {
   for (const tree of homeTrees) {
     it(`generates the task counts and initial placement targets for ${tree.id}`, () => {
       const base = [
-        ...routeCoordinatesByTree[tree.id].map(([longitude, latitude]) => ({
+        ...(routeCoordinatesByTree[tree.id] ?? [[start.longitude, start.latitude]]).map(([longitude, latitude]) => ({
           longitude,
           latitude,
         })),
@@ -101,9 +101,9 @@ describe('Demo task routes', () => {
       const tasks = createDemoWalkTasks(base);
       const water = tasks.filter((point) => point.kind === 'water');
       const fertilizer = tasks.filter((point) => point.kind === 'fertilizer');
-      expect(water).toHaveLength(5);
-      expect(fertilizer).toHaveLength(1);
-      expect(new Set(tasks.map((point) => point.id)).size).toBe(6);
+      expect(water).toHaveLength(demoSupplyStations.filter(s => s.kind === 'water').length);
+      expect(fertilizer).toHaveLength(demoSupplyStations.filter(s => s.kind === 'fertilizer').length);
+      expect(new Set(tasks.map((point) => point.id)).size).toBe(demoSupplyStations.length);
       expect(tasks.every((point) => point.kind === 'water' || point.kind === 'fertilizer')).toBe(
         true,
       );
@@ -115,17 +115,9 @@ describe('Demo task routes', () => {
         expect(point.supplyStation.offer.length).toBeGreaterThan(0);
         expect(point.supplyStation.terms.length).toBeGreaterThan(0);
         expect(point.supplyStation.validUntil).toMatch(/^\d{4}\/\d{2}\/\d{2}$/);
-        const extraSteps =
-          (haversineDistanceMeters(point.routeStop.position, point.position) * 2) /
-          METERS_PER_WALK_STEP;
-        expect(extraSteps).toBeGreaterThanOrEqual(point.kind === 'water' ? 800 : 2000);
-        expect(extraSteps).toBeLessThanOrEqual(point.kind === 'water' ? 1000 : 3000);
-        expect(extraSteps).toBeCloseTo(point.estimatedExtraSteps, 0);
+        expect(distanceToRouteMeters(point.position, base)).toBeLessThan(0.01);
+        expect(point.estimatedExtraSteps).toBe(0);
       }
-      const fertilizerDistance = distanceToRouteMeters(fertilizer[0].position, base);
-      expect(fertilizerDistance).toBeGreaterThan(
-        Math.max(...water.map((point) => distanceToRouteMeters(point.position, base))),
-      );
       for (let subset = 0; subset < 64; subset++) {
         const selected = tasks.filter((_, index) => (subset & (1 << index)) !== 0);
         const waypoints = walkingTaskWaypoints(base[0], tree.position, selected);
@@ -159,5 +151,21 @@ describe('Demo task routes', () => {
     ];
     expect(distanceToRouteMeters({ longitude: 0, latitude: 0.015 }, route)).toBe(0);
     expect(distanceToRouteMeters({ longitude: 0.01, latitude: 0.01 }, route)).toBeGreaterThan(1000);
+    const tasks = createDemoWalkTasks(route);
+    expect(tasks.every(task => distanceToRouteMeters(task.position, route) < 0.01)).toBe(true);
+    expect(tasks[0].position.latitude).toBeLessThan(0.01);
+    expect(tasks.at(-1)!.position.longitude).toBeGreaterThan(0.01);
+    for (let i = 1; i < tasks.length; i++) {
+      expect(haversineDistanceMeters(tasks[i - 1].position, tasks[i].position)).toBeGreaterThan(500);
+    }
+  });
+
+  it('spreads stations inside a single long segment with duplicate endpoint vertices', () => {
+    const route = [start, start, destination, destination];
+    const tasks = createDemoWalkTasks(route);
+    const fractions = tasks.map(t => (t.position.latitude - start.latitude) / (destination.latitude - start.latitude));
+    expect(fractions[0]).toBeCloseTo(0.15);
+    expect(fractions.at(-1)).toBeCloseTo(0.85);
+    for (let i = 1; i < fractions.length; i++) expect(fractions[i] - fractions[i - 1]).toBeGreaterThan(0.15);
   });
 });
