@@ -14,10 +14,10 @@ export function createDemoWalkTasks(route: readonly GeoPoint[]): readonly WalkTa
     const roles = cmsRouteRoles();
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
     return (publication.config?.merchants ?? []).filter(m => m.enabled && m.roles.includes('supply') && m.validUntil >= today &&
-      (!roles || roles.some(s => s.merchantId === m.id && s.role === 'supply'))).flatMap(m => {
+      roles?.some(s => s.merchantId === m.id && s.role === 'supply')).flatMap(m => {
       const position = { latitude: m.latitude, longitude: m.longitude };
       const projection = projectPointOnRoute(position, route);
-      if (!projection || distanceToRouteMeters(position, route) > 6000) return [];
+      if (!projection) return [];
       return [{ id: m.id, name: m.name, kind: m.resource, position,
         weather: m.weather, timeOfDay: m.timeOfDay,
         supplyStation: { category: m.category, isCathayTwqrMerchant: m.twqr, offer: m.offer, terms: m.terms,
@@ -25,7 +25,7 @@ export function createDemoWalkTasks(route: readonly GeoPoint[]): readonly WalkTa
         routeStop: { position: projection.position, segmentIndex: projection.segmentIndex, fraction: projection.fraction },
         estimatedExtraSteps: Math.round(haversineDistanceMeters(projection.position, position) * 2 / METERS_PER_WALK_STEP),
         isDemo: true as const, description: 'Demo 固定商家站點；繞路步數待道路路線驗證。' }];
-    }).slice(0, 6);
+    });
   }
 
   return demoSupplyStations.map((station, taskIndex): WalkTaskPoint => {

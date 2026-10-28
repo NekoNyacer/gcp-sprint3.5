@@ -1,7 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, ElementRef, inject, input, output, viewChild } from '@angular/core';
-import { IonButton, IonCard, IonChip, IonIcon, IonLabel } from '@ionic/angular';
-import { CubBadgeComponent } from '../../../shared/components/badge/badge.component';
+import { IonButton, IonCard, IonIcon } from '@ionic/angular';
 import {
   getHomeTreeRecommendation,
   homeTreesWithProgress,
@@ -11,14 +10,18 @@ import { LocationStore } from '../../../shared/stores/location-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
 import { WalkSessionStore } from '../../../shared/stores/walk-session-store';
 import { USER_MOVE_METER_PER_STEP } from '../../../environments/environment-dev';
+import { walkOutline, checkmark, storefrontOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'home-plan',
   templateUrl: './home-plan.component.html',
   styleUrls: ['./home-plan.component.scss'],
-  imports: [IonLabel, IonChip, IonCard, IonIcon, IonButton, CubBadgeComponent, DecimalPipe],
+  imports: [IonCard, IonIcon, IonButton, DecimalPipe],
 })
 export class HomePlanComponent {
+  readonly walkingIcon = walkOutline;
+  readonly selectedStationIcon = checkmark;
+  readonly stationIcon = storefrontOutline;
   readonly recommendationNow = input(Date.now());
   readonly recommendationsVisible = input(true);
   readonly toggleRecommendations = output<void>();
@@ -44,9 +47,17 @@ export class HomePlanComponent {
     ),
   );
   readonly selectedTaskPoints = computed(() => this.ws.taskPoints());
+  readonly availableStations = computed(() => [...this.ws.availableTaskPoints()].sort((a, b) =>
+    a.routeStop.segmentIndex - b.routeStop.segmentIndex || a.routeStop.fraction - b.routeStop.fraction));
+  readonly stationSelect = output<string>();
+  readonly supplyRetry = output<void>();
+  isStationSelected(id: string): boolean {
+    return this.selectedTaskPoints().some(point => point.id === id);
+  }
   readonly selectedTreeStops = computed(() => this.ws.treeStops());
   readonly distanceMeters = computed(() => this.ws.plannedDistanceMeters());
   readonly estimateSteps = computed(() => this.distanceMeters() / USER_MOVE_METER_PER_STEP);
+  readonly walkingMinutes = computed(() => Math.ceil(this.ws.plannedDurationSeconds() / 60));
   readonly planningError = computed(() => this.ws.planningError());
   readonly routeLoading = computed(() => this.ws.routeLoading());
   readonly routingFailed = computed(() => this.ws.routingFailed());
@@ -54,6 +65,7 @@ export class HomePlanComponent {
   readonly routeRetry = output<void>();
   readonly routeUpdate = output<void>();
   readonly back = output<void>();
+  readonly reselectDestination = output<void>();
   readonly confirmRoute = output<void>();
   readonly confirmDestination = output<void>();
   readonly treeSelect = output<string>();

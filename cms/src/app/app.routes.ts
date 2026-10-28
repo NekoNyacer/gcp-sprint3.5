@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 export const routes: Routes = [
+  {path: 'seedTypes', loadComponent: () => import('./pages/seedTypes/seed-types.component').then(m => m.SeedTypesPageComponent)},
+  {path: 'cubeChannels', loadComponent: () => import('./pages/cubeChannels/cube-channels.component').then(m => m.CubeChannelsPageComponent)},
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   { path: 'login', loadComponent: () => import('./shared/login/login.component').then(m => m.LoginComponent) },
   { path: 'seed-import', loadComponent: () => import('./pages/seed-import/seed-import.component').then(m => m.SeedImportPageComponent) },

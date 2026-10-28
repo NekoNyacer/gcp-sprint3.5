@@ -126,6 +126,7 @@ export class TreeSceneController {
   private ornaments: Mesh | null = null;
   private ornamentRest: Float32Array | null = null;
   private popAmount = 1;
+  private currentSpecies = '';
   private currentStage: TreeStage | null = null;
   private resourceEffect: CareResource | null = null;
   private fertilizer: Group | null = null;
@@ -171,9 +172,10 @@ export class TreeSceneController {
     this.resizeCanvas();
   }
 
-  update(growth: number, celebrate = false, animate = true): void {
+  update(growth: number, celebrate = false, animate = true, species = '榕樹'): void {
     const stage = treeStage(growth);
-    const stageChanged = stage !== this.currentStage;
+    const stageChanged = stage !== this.currentStage || species !== this.currentSpecies;
+    this.currentSpecies = species;
     const previousStage = animate ? this.currentStage : null;
     const growthChanged = growth !== this.lastGrowth || !animate;
     const visualScale = treeVisualScale(growth);
@@ -195,7 +197,7 @@ export class TreeSceneController {
       } else if (stage === 'seedling' || stage === 'smallSapling' || stage === 'largeSapling') {
         this.tree.add(createSaplingModel(stage));
       } else {
-        const model = createTreeModel(stage === 'young');
+        const model = createTreeModel(stage === 'young', species);
         this.tree.add(model);
         const foliage = model.getObjectByName('tree-foliage') as Mesh;
         const vertices = foliage.geometry.getAttribute('position');
@@ -204,7 +206,7 @@ export class TreeSceneController {
         this.crownAngle = 0;
       }
       if (stage === 'flowering') {
-        this.ornaments = createTreeOrnaments();
+        this.ornaments = createTreeOrnaments(species);
         this.ornamentRest = new Float32Array(
           this.ornaments.geometry.getAttribute('position').array,
         );

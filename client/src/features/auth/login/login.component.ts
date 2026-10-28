@@ -1,5 +1,5 @@
 import { Component, effect, inject } from '@angular/core';
-import { IonButton, IonContent, IonHeader } from '@ionic/angular';
+import { IonButton, IonContent } from '@ionic/angular';
 import { SessionStore } from '../../../shared/stores/session-store';
 import { Router } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  imports: [IonHeader, IonButton, IonContent],
+  imports: [IonButton, IonContent],
 })
 export class LoginComponent {
   private readonly router = inject(Router);

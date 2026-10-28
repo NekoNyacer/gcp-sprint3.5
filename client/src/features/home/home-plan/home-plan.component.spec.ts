@@ -22,6 +22,7 @@ describe('Home unified route planning', () => {
     const destinationConfirmed = signal(false);
     const taskPoints = signal<RoutedWalkTaskPoint[]>([]);
     const plannedDistanceMeters = signal(0);
+    const plannedDurationSeconds = signal(0);
     const planningError = signal<string | null>(null);
     const routeLoading = signal(false);
     const routeNeedsUpdate = signal(false);
@@ -41,6 +42,7 @@ describe('Home unified route planning', () => {
             taskPoints,
             availableTaskPoints,
             plannedDistanceMeters,
+            plannedDurationSeconds,
             planningError,
             routeLoading,
             routingFailed: computed(() => planningError() !== null),
@@ -56,7 +58,9 @@ describe('Home unified route planning', () => {
       destination,
       destinationConfirmed,
       taskPoints,
+      availableTaskPoints,
       plannedDistanceMeters,
+      plannedDurationSeconds,
       planningError,
       routeLoading,
       routeNeedsUpdate,
@@ -64,7 +68,7 @@ describe('Home unified route planning', () => {
   }
 
   it('confirms a candidate destination before offering intermediate stop selection and departure', () => {
-    const { fixture, destination, destinationConfirmed, taskPoints } = setup();
+    const { fixture, destination, destinationConfirmed, taskPoints, availableTaskPoints } = setup();
     const tree = fixture.componentInstance.recommendedTrees()[0];
     destination.set({ id: tree.id, position: tree.position });
     const lock = vi.fn();
@@ -73,23 +77,93 @@ describe('Home unified route planning', () => {
     fixture.componentInstance.confirmRoute.subscribe(confirm);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('候選終點');
+    expect(fixture.nativeElement.textContent).toContain('目前目的地');
     expect(fixture.nativeElement.textContent).not.toContain('0 個補給站');
     const button = fixture.debugElement.query(By.css('.plan-confirm'));
-    expect(button.nativeElement.textContent).toContain('確定此終點');
+    expect(button.nativeElement.textContent).toContain('確認地點');
     button.triggerEventHandler('click');
     expect(lock).toHaveBeenCalledOnce();
     expect(confirm).not.toHaveBeenCalled();
     destinationConfirmed.set(true);
     const station = createDemoWalkTasks([homeTrees[4].position, homeTrees[5].position])[0];
+    availableTaskPoints.set([station]);
     taskPoints.set([{ ...station, routeGeometry: [], routeDistanceMeters: 0 }]);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('本次終點');
-    expect(fixture.nativeElement.textContent).toContain('1 個補給站');
-    expect(fixture.nativeElement.textContent).toContain('0 個沿途種植點');
+    expect(fixture.nativeElement.textContent).toContain('目前目的地');
+    expect(fixture.nativeElement.textContent).toContain('1 間推薦');
+    expect(fixture.nativeElement.textContent).toContain('已加入 1 間');
     expect(button.nativeElement.textContent).toContain('確認路線');
     button.triggerEventHandler('click');
     expect(confirm).toHaveBeenCalledOnce();
+  });
+
+  it('separates returning Home from browsing other destinations', () => {
+    const {fixture, destination, destinationConfirmed} = setup();
+    destination.set({id: homeTrees[4].id, position: homeTrees[4].position});
+    const back = vi.fn();
+    const reselect = vi.fn();
+    const confirm = vi.fn();
+    fixture.componentInstance.back.subscribe(back);
+    fixture.componentInstance.reselectDestination.subscribe(reselect);
+    fixture.componentInstance.confirmDestination.subscribe(confirm);
+    fixture.detectChanges();
+    const other = fixture.debugElement.query(By.css('.destination-reselect'));
+    expect(other.nativeElement.textContent).toContain('再看看其他地點');
+    other.triggerEventHandler('click');
+    expect(reselect).toHaveBeenCalledOnce();
+    expect(back).not.toHaveBeenCalled();
+    expect(confirm).not.toHaveBeenCalled();
+    fixture.debugElement.query(By.css('[aria-label="返回首頁"]')).triggerEventHandler('click');
+    expect(back).toHaveBeenCalledOnce();
+    destinationConfirmed.set(true);
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.destination-reselect'))).toBeNull();
+  });
+
+  it('distinguishes available recommendations from selected shops and opens details without adding them', () => {
+    const {fixture, destination, destinationConfirmed, availableTaskPoints, taskPoints} = setup();
+    destination.set({id: homeTrees[4].id, position: homeTrees[4].position});
+    destinationConfirmed.set(true);
+    const stations = createDemoWalkTasks([homeTrees[4].position, homeTrees[5].position]).slice(0, 3);
+    availableTaskPoints.set([...stations].reverse());
+    const opened = vi.fn();
+    fixture.componentInstance.stationSelect.subscribe(opened);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('3 間推薦');
+    expect(fixture.nativeElement.textContent).toContain('已加入 0 間');
+    const buttons = fixture.debugElement.queryAll(By.css('.supply-option'));
+    expect(buttons).toHaveLength(3);
+    buttons[0].triggerEventHandler('click');
+    expect(opened).toHaveBeenCalledWith(fixture.componentInstance.availableStations()[0].id);
+    expect(taskPoints()).toEqual([]);
+  });
+
+  it('offers a recommendation retry when no shops were returned and keeps route confirmation available', () => {
+    const {fixture, destination, destinationConfirmed, routeLoading} = setup();
+    destination.set({id: homeTrees[4].id, position: homeTrees[4].position});
+    destinationConfirmed.set(true);
+    const retry = vi.fn();
+    fixture.componentInstance.supplyRetry.subscribe(retry);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('暫無沿途補給推薦');
+    expect(fixture.nativeElement.textContent).not.toContain('0 個補給站');
+    fixture.debugElement.query(By.css('.supply-retry')).triggerEventHandler('click');
+    expect(retry).toHaveBeenCalledOnce();
+    expect(fixture.debugElement.query(By.css('.plan-confirm')).componentInstance.disabled).toBe(false);
+    routeLoading.set(true);
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.supply-retry'))).toBeNull();
+  });
+
+  it('displays the updated complete-route walking duration', () => {
+    const {fixture, destination, plannedDurationSeconds} = setup();
+    destination.set({id: homeTrees[4].id, position: homeTrees[4].position});
+    plannedDurationSeconds.set(18 * 60 + 1);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('約 19 分鐘');
+    plannedDurationSeconds.set(35 * 60);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('約 35 分鐘');
   });
 
   it('offers a recommendation visibility toggle before selection and hides it for any destination', () => {
@@ -159,7 +233,7 @@ describe('Home unified route planning', () => {
     fixture.detectChanges();
     const button = fixture.debugElement.query(By.css('.plan-confirm'));
     expect(button.componentInstance.disabled).toBe(true);
-    expect(button.nativeElement.textContent).toContain('確定此終點');
+    expect(button.nativeElement.textContent).toContain('確認地點');
     routeLoading.set(false);
     planningError.set('無法取得路線');
     fixture.detectChanges();

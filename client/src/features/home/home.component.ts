@@ -76,7 +76,22 @@ export class HomeComponent implements OnDestroy {
   protected readonly cms = inject(CMS_CONNECTION, { optional: true });
   private planningSequence = 0;
   private analyticsRouteId = '';
-  protected readonly aiPlantingId = computed(() => this.cms?.ai()?.selections.find(s => s.role === 'planting')?.merchantId ?? null);
+  private analyticsPlan = '';
+  private readonly arrivalAttempts = new Set<string>();
+  private readonly recordMerchantArrivals = effect(() => {
+    const routeId = this.ws.routeId();
+    const position = this.ls.current();
+    const stations = this.ws.taskPoints();
+    if (!routeId) { this.arrivalAttempts.clear(); return; }
+    if (!position) return;
+    const candidates = stations.map(s => ({id: s.id, position: s.position}));
+    for (const station of candidates) {
+      const key = `${routeId}:${station.id}`;
+      if (this.arrivalAttempts.has(key) || !isWithinGeoRadius(position, station.position, 50)) continue;
+      this.arrivalAttempts.add(key);
+      untracked(() => this.cms?.arrived?.(station.id, position, `arrival-${routeId}`.slice(0, 80), this.analyticsPlan));
+    }
+  });
   private readonly treeNavigation = inject(TreeNavigationService);
   async ionViewDidEnter(): Promise<void> {
     const treeId = this.treeNavigation.take();
@@ -94,6 +109,7 @@ export class HomeComponent implements OnDestroy {
   private readonly toast = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private routeRequest: AbortController | null = null;
+  private readonly recommendingSupplies = signal(false);
   private activeToast: HTMLIonToastElement | null = null;
   private toastRequest = 0;
   private previousCameraPhase: WalkPhase | null = null;
@@ -176,17 +192,7 @@ export class HomeComponent implements OnDestroy {
   }
 
   openStationDetails(taskId: string): void {
-    if (this.modal.isOpen()) return;
-    const merchant = this.cms?.config()?.merchants.find(m => m.id === taskId);
-    if (merchant && !this.ws.isPlanning() && !this.ws.hasActiveRoute()) {
-      this.cms?.track('offer_view', merchant.id);
-      this.modal.open({ title: merchant.name, appearance: 'supply-station',
-        stationBadges: { category: merchant.category, isCathayTwqrMerchant: merchant.twqr },
-        subTitle: merchant.offer, description: merchant.terms,
-        otherBadges: [`有效期限 ${merchant.validUntil}`, 'Demo 模擬店家'], mainBtnText: '開始規劃', subBtnText: '返回',
-      }, 'auto').pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(action => { if (action === 'confirm') this.startPlanning(); });
-      return;
-    }
+    if (this.modal.isOpen() || this.recommendingSupplies()) return;
     const task = this.ws.availableTaskPoints().find((point) => point.id === taskId);
     if (!this.ws.isPlanning() || !this.ws.destinationConfirmed() || !task) {
       this.ws.setPlanningError('請先確定此終點並等待補給站載入，再查看補給站。');
@@ -210,7 +216,7 @@ export class HomeComponent implements OnDestroy {
           },
           titleBadge: supplyRewardLabel(task.supplyStation.supply),
           subTitle: task.supplyStation.offer,
-          description: task.supplyStation.terms,
+          description: `${task.description}\n${task.supplyStation.terms}`,
           otherBadges: [
             `有效期限 ${task.supplyStation.validUntil}`,
             distance,
@@ -258,7 +264,11 @@ export class HomeComponent implements OnDestroy {
       void this.showInteractionWarning();
       return;
     }
+    const route = this.ws.routeId();
+    const already = this.ws.checkedInTaskIds().includes(station.id);
     this.ws.checkInTaskPoint(station.id);
+    if (!already && this.ws.checkedInTaskIds().includes(station.id))
+      this.cms?.arrived?.(station.id, this.ls.current(), `arrival-${route}`.slice(0, 80), this.analyticsPlan);
   }
 
   async showInteractionWarning(): Promise<void> {
@@ -368,7 +378,8 @@ export class HomeComponent implements OnDestroy {
 
   /**閒置中：點選開始 */
   startPlanning() {
-    const sequence = ++this.planningSequence;
+    ++this.planningSequence;
+    this.cms?.clearRecommendations();
     cmsRouteRoles.set(null);
     this.cancelRouteRequest();
     this.routeCache.clear();
@@ -376,10 +387,6 @@ export class HomeComponent implements OnDestroy {
     this.showTreeRecommendations.set(true);
     this.ws.startPlanning();
     this.cms?.track('core_action');
-    const origin = this.ls.current();
-    if (origin && this.cms?.managed()) void this.cms.recommend(origin).then(result => {
-      if (result && sequence === this.planningSequence && this.ws.isPlanning() && !this.ws.hasDestination()) cmsRouteRoles.set(result.selections.length ? result.selections : null);
-    });
   }
 
   toggleTreeRecommendations(): void {
@@ -391,13 +398,59 @@ export class HomeComponent implements OnDestroy {
   /**選擇目的地中：點選返回 */
   back() {
     this.planningSequence++;
+    this.cms?.clearRecommendations();
+    cmsRouteRoles.set(null);
     this.cancelRouteRequest();
     this.routeCache.clear();
     this.ws.cancelWalk();
   }
 
   confirmDestination(): void {
-    this.ws.confirmDestination();
+    if (this.dialog.isDialogOpen() || this.ws.destinationConfirmed() || this.ws.routeLoading()) return;
+    const destination = this.ws.destination();
+    if (!destination || this.ws.routingFailed() || this.ws.baseRoute().length < 2) {
+      this.ws.confirmDestination();
+      return;
+    }
+    const sequence = this.planningSequence;
+    const confirm = () => {
+      if (sequence !== this.planningSequence || this.ws.destination() !== destination || !this.ws.isPlanning()) return;
+      if (this.ws.confirmDestination() && this.cms?.managed()) void this.recommendSupplies(destination);
+    };
+    if (this.ws.baseDurationSeconds() > 60 * 60) {
+      const minutes = Math.ceil(this.ws.baseDurationSeconds() / 60);
+      const duration = minutes >= 60 ? `${Math.floor(minutes / 60)} 小時 ${minutes % 60} 分鐘` : `${minutes} 分鐘`;
+      this.dialog.openDialog(`此終點距離你太遠了，預計將走 ${duration}，您確定嗎？`, {
+        title: '遠距離終點提醒', mainBtnTxt: '確定', subBtnTxt: '重新選擇',
+      }).pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(action => {
+        if (action === 'confirm') confirm();
+      });
+    } else confirm();
+  }
+
+  private async recommendSupplies(destination: WalkDestination): Promise<void> {
+    this.cancelRouteRequest();
+    this.recommendingSupplies.set(true);
+    const request = new AbortController();
+    this.routeRequest = request;
+    this.ws.setRouteLoading(true);
+    try {
+      const baseRoute = this.ws.baseRoute();
+      const result = await this.cms!.recommend(baseRoute[0], destination.position, baseRoute,
+        this.ws.baseDistanceMeters(), this.ws.baseDurationSeconds());
+      if (!this.isCurrentRequest(request, destination.id)) return;
+      cmsRouteRoles.set(result?.selections ?? []);
+      await this.loadTaskRoutes(request, destination.id);
+    } catch (error) {
+      if (!this.isCurrentRequest(request, destination.id)) return;
+      this.ws.setRoutingError(error instanceof Error ? error.message : '補給站路線載入失敗，請重試。');
+    } finally {
+      if (this.routeRequest === request) {
+        this.recommendingSupplies.set(false);
+        this.ws.setRouteLoading(false);
+        this.routeRequest = null;
+      }
+    }
   }
 
   confirmRoute(): void {
@@ -436,9 +489,9 @@ export class HomeComponent implements OnDestroy {
           }
           if (this.ws.startWalk(`walking-${destination.id}`)) {
             this.analyticsRouteId = crypto.randomUUID();
+            this.analyticsPlan = this.cms?.cubePlan?.() ?? '';
             this.cms?.track('route_started', this.analyticsRouteId);
             for (const task of this.ws.taskPoints()) this.cms?.track('navigation_started', task.id);
-            if (destination.id.startsWith('merchant-')) this.cms?.track('navigation_started', destination.id.slice(9));
             this.reCenter();
           }
         }
@@ -463,6 +516,9 @@ export class HomeComponent implements OnDestroy {
   }
 
   private stop() {
+    this.planningSequence++;
+    this.cms?.clearRecommendations();
+    cmsRouteRoles.set(null);
     this.closeStationCheckIn();
     this.cancelRouteRequest();
     this.routeCache.clear();
@@ -488,6 +544,9 @@ export class HomeComponent implements OnDestroy {
       this.ws.setPlanningError('請先取得目前位置並選擇有效的目的地。');
       return;
     }
+    this.planningSequence++;
+    this.cms?.clearRecommendations();
+    cmsRouteRoles.set(null);
     this.cancelRouteRequest();
     this.routeCache.clear();
     const request = new AbortController();
@@ -498,27 +557,8 @@ export class HomeComponent implements OnDestroy {
     try {
       const base = await this.directions.walking([origin, destination.position], request.signal);
       if (!this.isCurrentRequest(request, treeId)) return;
-      this.ws.setBaseRoute(base.coordinates, base.distanceMeters);
-      const candidates = this.ws.availableTaskPoints();
-      const tasks = await Promise.all(
-        candidates.map(async (task): Promise<RoutedWalkTaskPoint> => {
-          const detour = await this.directions.walking(
-            [task.routeStop.position, task.position, task.routeStop.position],
-            request.signal,
-          );
-          const extraSteps = Math.round(detour.distanceMeters / METERS_PER_WALK_STEP);
-          return {
-            ...task,
-            position: detour.waypoints[1],
-            estimatedExtraSteps: extraSteps,
-            description: `虛擬${task.kind === 'water' ? '補水' : '肥料'}任務：Mapbox 預估繞路增加 ${extraSteps} 步。`,
-            routeGeometry: detour.coordinates,
-            routeDistanceMeters: detour.distanceMeters,
-          };
-        }),
-      );
-      if (!this.isCurrentRequest(request, treeId)) return;
-      this.ws.setTaskRoutes(tasks);
+      this.ws.setBaseRoute(base.coordinates, base.distanceMeters, base.durationSeconds);
+      if (!this.cms?.managed()) await this.loadTaskRoutes(request, treeId);
     } catch (error: unknown) {
       if (!this.isCurrentRequest(request, treeId)) return;
       this.ws.setRoutingError(
@@ -533,17 +573,52 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
+  private async loadTaskRoutes(request: AbortController, treeId: string): Promise<void> {
+    const candidates = this.ws.availableTaskPoints();
+    const tasks = await Promise.all(
+        candidates.map(async (task): Promise<RoutedWalkTaskPoint> => {
+          const detour = await this.directions.walking(
+            [task.routeStop.position, task.position, task.routeStop.position],
+            request.signal,
+          );
+          const extraSteps = Math.round(detour.distanceMeters / METERS_PER_WALK_STEP);
+          return {
+            ...task,
+            position: detour.waypoints[1],
+            estimatedExtraSteps: extraSteps,
+            description: this.cms?.ai()?.selections.find(s => s.merchantId === task.id)?.reason ??
+              `補給站：Mapbox 預估繞路增加 ${extraSteps} 步。`,
+            routeGeometry: detour.coordinates,
+            routeDistanceMeters: detour.distanceMeters,
+          };
+        }),
+      );
+      if (!this.isCurrentRequest(request, treeId)) return;
+      this.ws.setTaskRoutes(tasks);
+  }
+
   retryRoute(): void {
     if (this.ws.routeNeedsUpdate()) {
       void this.updateRoute();
       return;
     }
     const destination = this.ws.destination();
+    if (destination && this.ws.destinationConfirmed() && this.cms?.managed()) {
+      void this.recommendSupplies(destination);
+      return;
+    }
     if (destination) void this.selectDestination(destination.id, true);
   }
 
+  retrySupplies(): void {
+    const destination = this.ws.destination();
+    if (!this.ws.isPlanning() || !this.ws.destinationConfirmed() || this.ws.routeLoading() ||
+        this.ws.taskPoints().length || !destination || !this.cms?.managed()) return;
+    void this.recommendSupplies(destination);
+  }
+
   toggleTaskPoint(taskId: string): void {
-    if (this.modal.isOpen()) return;
+    if (this.modal.isOpen() || this.recommendingSupplies()) return;
     const task = this.ws.availableTaskPoints().find((point) => point.id === taskId);
     const destination = this.ws.destination();
     if (!this.ws.isPlanning() || !this.ws.destinationConfirmed() || !task || !destination) {
@@ -591,7 +666,7 @@ export class HomeComponent implements OnDestroy {
     const key = JSON.stringify(points);
     const cached = this.routeCache.get(key);
     if (cached) {
-      this.ws.setPlannedRoute(cached.coordinates, cached.distanceMeters, taskIds, treeIds);
+      this.ws.setPlannedRoute(cached.coordinates, cached.distanceMeters, taskIds, treeIds, cached.durationSeconds);
       return;
     }
     this.cancelRouteRequest();
@@ -603,7 +678,7 @@ export class HomeComponent implements OnDestroy {
       const route = await this.directions.walking(points, request.signal);
       if (!this.isCurrentRequest(request, destination.id)) return;
       this.routeCache.set(key, route);
-      this.ws.setPlannedRoute(route.coordinates, route.distanceMeters, taskIds, treeIds);
+      this.ws.setPlannedRoute(route.coordinates, route.distanceMeters, taskIds, treeIds, route.durationSeconds);
     } catch (error: unknown) {
       if (!this.isCurrentRequest(request, destination.id)) return;
       this.ws.setRoutingError(
@@ -629,6 +704,7 @@ export class HomeComponent implements OnDestroy {
   private cancelRouteRequest(): void {
     this.routeRequest?.abort();
     this.routeRequest = null;
+    this.recommendingSupplies.set(false);
   }
 
   ionViewWillLeave(): void {
@@ -637,6 +713,8 @@ export class HomeComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.planningSequence++;
+    if (this.ws.isPlanning()) this.cms?.clearRecommendations();
     this.closeStationCheckIn();
     this.ws.finishCultivating();
     if (this.routeRequest && this.ws.isPlanning()) {

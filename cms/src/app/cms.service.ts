@@ -38,6 +38,7 @@ export interface Budget {
   revision: number;
 }
 export interface Dashboard {
+  merchants?: {id: string; recommended: number; gemini: number; rules: number; views: number; navigations: number; arrivals: number; visitors: number; plans: {plan: string; count: number}[]}[];
   activeUsers: number;
   routeStarted: number;
   routeCompleted: number;

@@ -15,6 +15,9 @@ describe('Home walk check-ins', () => {
   });
 
   function setup(supply: SupplyReward = { resource: 'water', amount: 17 }) {
+    vi.spyOn(crypto, 'getRandomValues').mockImplementation((array: any) => {
+      array.fill(0xffffffff); return array;
+    });
     const current = signal<LocationPoint | null>(null);
     TestBed.configureTestingModule({
       providers: [{ provide: LocationStore, useValue: { current } }],
@@ -204,6 +207,8 @@ describe('Home walk check-ins', () => {
           lightEnergyBalance: inventory.lightEnergy,
           waterDropsBalance: inventory.waterDrops,
           fertilizerBalance: inventory.fertilizer,
+          earnedSeeds: 0,
+          seedsBalance: inventory.seeds,
         });
         expect(progress.inventory()).toBe(inventory);
         const result = store.completedWalkResult();
@@ -247,6 +252,8 @@ describe('Home walk check-ins', () => {
         lightEnergyBalance: inventory.lightEnergy,
         waterDropsBalance: inventory.waterDrops,
         fertilizerBalance: inventory.fertilizer,
+        earnedSeeds: 0,
+        seedsBalance: inventory.seeds,
       });
       expect(progress.inventory()).toBe(inventory);
     } finally {

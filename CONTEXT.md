@@ -1,5 +1,451 @@
 # CAT WALK project context
 
+## Task location, walking qualification and manual rewards (2026-10-28)
+
+- The user requests completing the existing daily/weekly/event Task feature,
+  following the supplied task-list, activity-detail map and pending-reward
+  dialog reference. Continue the repository-local grill-me/grilling discovery;
+  implementation awaits confirmation of shared understanding.
+- Task qualification must combine walking steps and arrival at the configured
+  destination. Coordinate-only completion is insufficient because transport
+  could satisfy it. Replace the reference's excessive 12,000-steps-in-30-minutes
+  example with reasonable tuning. Exact thresholds, accumulation windows and
+  whether elapsed time is a requirement remain unresolved; do not treat the
+  screenshot's example numbers as confirmed rules.
+- The arrival radius defaults to 100 metres and is adjustable in CMS. This
+  supersedes the Task specification's fixed 10-metre distance. Location-accuracy
+  policy has not yet been changed by the user.
+- Keep the name 光能, but Tasks never award it. Task rewards may be water drops,
+  fertilizer or items; implement seeds as the initial item reward. This
+  supersedes cadence-specific water/fertilizer restrictions and the earlier
+  deferral of Task-based seed acquisition. Reaching the conditions creates a
+  待領取 state; only explicit 完成任務 credits the reward, once.
+- The user accepts a separate Task detail map sharing current location, with
+  Home walking state preserved, and asks about repeated Mapbox loading. Mapbox
+  GL JS counts map loads per Map initialization (maximum session 12 hours),
+  while updating an existing map does not itself add a map load:
+  https://docs.mapbox.com/mapbox-gl-js/guides/pricing/ . A reusable Task-map
+  instance and updates while visible are proposed implementation measures;
+  do not promise that routing caches or cached JS remove map initialization
+  charges. Confirm actual retained-view lifecycle during implementation.
+- Read-only discovery found that real device step acquisition is absent:
+  ProgressStore step increments currently come from the Home testing joystick.
+  Existing normal-account cloud progress is client-reported, not sensor proof.
+  Whether this increment also implements native step acquisition, its platform
+  and foreground/background behavior are unresolved.
+- Also unresolved: when task step counting starts, concurrent qualification,
+  whether ready rewards survive leaving the destination, and claim expiry.
+- Related defects to repair with the Task increment: Demo Task completion
+  overwrites shared inventory using a separate repository balance; normal
+  completion reload resets an active Home walk; old location snapshots lack
+  freshness validation. Preserve identity isolation and atomic/idempotent
+  issuance, and keep raw player coordinates and walking tracks unpersisted.
+
+## Destination selection feedback (2026-10-27)
+
+- Presentation follow-up: match the supplied destination reference with a
+  `目前目的地` eyebrow, prominent place-only title and separate rounded gray
+  chips for walking duration, distance and estimated steps. Remove the heading
+  emblem and the three-column metric panel. Keep chips on one line; horizontal
+  scrolling accommodates narrow screens and added chips. A warm orange supply
+  count may use actual recommendations after confirmation; do not invent offers.
+  Retain the existing selection and confirmation actions.
+- The chip presentation follow-up passes the client development build and all
+  eight destination-card tests. No deployment performed.
+- The latest compact reference supersedes the oversized 60 px action treatment:
+  use a compact white card, `目的地` eyebrow, tighter title/chip spacing and
+  equal-width pale-gray/orange buttons. Size actions proportionally at 36–48 px
+  on mobile, with centered bold text and no candidate icon. Use explicit button
+  colors without Ionic color attributes overriding them. Chips remain one row.
+
+- Candidate destination cards offer `再看看其他地點` and `確認地點` side by
+  side. The former clears the candidate and returns to destination browsing
+  within planning. The upper-left back arrow cancels the plan and returns Home.
+- Home's `開始散步` remains the entry to destination planning; opening or
+  browsing a candidate does not request AI supply recommendations. Only
+  `確認地點`, after the existing over-60-minute consent where applicable,
+  requests those recommendations. Route preview and departure confirmation
+  remain separate actions.
+- Local verification: client development build passed. The two relevant test
+  files report 53 passing tests, including the new button and AI-entry checks;
+  15 Home integration tests fail with missing `Auth` injection in the test
+  setup. This is not a passing full-suite claim. No deployment performed.
+
+## Backpack seed drawer and planting confirmation (2026-10-27)
+
+- Presentation follow-up: match the supplied clean filter-sheet reference with
+  a pure white background and neutral text/controls. Remove decorative icons,
+  section slogans, repeated totals, item explanations and the instructional
+  footer. Retain seed artwork, names, acquisition places, segment quantities
+  and necessary actions; use a text close action. Naming follows the same
+  minimal treatment, retaining field validation and planting confirmation.
+- The user requests a bottom-opening backpack modal occupying 90% of the
+  viewport, with clear 種子 / 道具 segments. Seeds appear three per row;
+  display names are 小種子, 普通種子, 大種子 and 特別種子, with acquisition
+  location beneath each name.
+- Seed appearance may subtly hint at its hidden species through restrained
+  coloration and shell details. This supersedes the previous identical-backpack
+  appearance requirement. The actual species name is still revealed only at
+  小樹 (30%); the shared early planted-tree models remain applicable.
+- Selecting a seed opens a naming dialog, defaulting to `(用戶名)的樹`.
+  Only explicit 確定種植 consumes that selected seed and plants the named tree.
+  Cancelling naming or closing the backpack consumes nothing. Existing empty-site
+  and proximity restrictions continue to apply; preserve fertilizer effects.
+- Acquired seeds must belong to the route that awarded them. This increment
+  records the completed route's ID, its departure-time destination label and
+  acquisition time, without storing raw walking coordinates. Old seeds without
+  provenance show 取得地點未記錄; never assign them an invented locality.
+- Exact species-to-size/category assignments remain unconfirmed. Current visual
+  defaults group 桂花/櫻花 as small, 榕樹/樟樹 as ordinary, 柿子/楓香 as large
+  and 銀杏/國泰小樹 as special. These reversible presentation defaults do not
+  change drop probabilities, growth speed or resource costs.
+- Local verification: client development build and Functions TypeScript build
+  passed; 96 seed/route tests, three targeted cultivation integration tests and
+  10 Functions tests passed. The broader cultivation suite still has 11 modal
+  test-mounting failures; this is not a passing full-suite claim. Actual compiled
+  backpack fixture checks passed at 320/390/430/1024 px, including 90% height,
+  three columns, segment switching, naming cancellation/confirmation, empty
+  inventory and reopening. Preview screenshots under `docs/backpack-*-preview.png`
+  use fixture seeds, without adding inventory or writing cloud data. No deployment.
+
+## Cathay service-location planting seed (2026-10-27)
+
+- Import failure diagnosis: the first generated artifact left every tree `name`
+  empty, but shared `validateConfig` requires a nonblank name even for empty
+  planting sites. Fill `name` with the location label (`place`), retaining
+  `empty: true`, blank species and zero growth. The full corrected artifact
+  passes the actual shared validator; all 35 CMS domain tests pass, including
+  a regression that imports this exact artifact and checks the upload byte limit.
+- At the user's request, create a CMS import artifact that replaces the 51
+  mock planting-site presets from the current CMS seed snapshot with Cathay
+  service locations. The file is
+  `firebase/seed/cms-cathay-locations-2026-10-27.json`; all other catalog
+  categories are retained, and these new sites start empty with zero growth.
+- Use the attached location list's coverage: Taipei City and New Taipei City
+  ATM locations, plus Taipei, New Taipei and Keelung branch locations. The
+  current official Cathay location feed supplies coordinates and address data:
+  `https://www.cathaybk.com.tw/CathayBK/service/Locations/LocationsGetData.ashx`.
+  Exclude three non-branch operational departments from the branch list.
+- The 2026-10-27 feed yields 93 public branch/service locations and 1,944 ATM
+  records in the attached coverage. Exact-coordinate deduplication combines
+  co-located records into 1,716 physical planting points; each label keeps a
+  representative site name, co-located ATM count where relevant and address.
+  The official coordinates replace approximate/demo coordinates. These are
+  demo planting spots only and do not imply branch access, bank approval or a
+  Cathay partnership.
+- CMS seed validation and file upload limits now allow up to 2,500 tree
+  presets and 850,000 UTF-8 bytes; the corrected compact seed is 663,929 bytes. Import
+  only loads the seed into the draft; saving and publishing remain operator
+  actions. No cloud catalog write or publication was attempted.
+- The attached CMS export had seven species, while the current workspace seed
+  has eight, including `國泰小樹`. Keep this newer local species catalog in the
+  generated file; importing it remains a draft-only action.
+- The supplied list covers only the northern locations described above.
+  Whether to expand this demo seed to every Taiwan branch and ATM remains
+  unresolved.
+
+## Mystery seeds, species atlas and route rewards (2026-10-27)
+
+- The user confirms that all seed species share the same appearance. A player
+  names and plants a mystery seed; its species is revealed only at 小樹 (30%
+  growth), superseding the earlier provisional 幼苗 (10%) reveal. The first
+  four growth stages share their existing models. Preserve existing planted trees.
+- Implement random seed discovery only on successful walking-route completion
+  in this increment. Task-based seed acquisition is deferred. A failed check-in,
+  cancellation or intermediate supply stop does not roll or award a seed.
+- CMS must manage the route seed drop chance and weighted species distribution,
+  distinguish conditional species probability from per-completed-route probability,
+  and show species growth-stage images. Players cannot select a probability pool
+  when planting; their backpack shows one mystery-seed appearance.
+- Extend the existing botanical model from 小樹 onward with species-specific
+  leaf, bark and blossom colors and leaf proportions. Preserve the eight growth
+  milestones, care mechanics and 小樹點-icon fruiting/harvest behavior.
+- Initial tuning is a reversible demo default: 35% seed discovery per completed
+  route, at most one seed per route; species weights 榕樹 30, 樟樹 24, 桂花 18,
+  柿子 12, 楓香 8, 櫻花 5, 銀杏 2, 國泰小樹 1. Final economics and any further
+  per-day limits remain unresolved. CMS can change drop chance and weights.
+- Retain the hidden species drawn when a seed is acquired, even if later CMS
+  edits disable or remove its pool. Freeze route reward configuration at departure.
+  Legacy starter/generic seeds draw from the configured pool when planted.
+  Player progress retains existing Demo/normal identity separation and persistence.
+- Local verification: client/CMS development builds and Functions build passed;
+  258 related client tests passed, with three existing skips and one explicitly
+  excluded pre-existing harvest-dialog test (expects an absent `Demo` badge).
+  All 96 Functions tests passed, including revisioned hidden-seed persistence.
+  This is not a passing full-client-suite claim. The existing cultivation-modal
+  mounting failures described elsewhere remain outside this related test run.
+- Local visual QA mounted the actual built CMS species page with fixture data,
+  blocked external HTTPS, and verified no document overflow or broken images at
+  1440/1024/390/320 px. Both built frontends contain all 60 generated model images.
+  Preview artifacts are `docs/seed-species-cms-preview.png` and
+  `docs/tree-species-growth-preview.png`; usage is in `docs/seed-species-gameplay.md`.
+  The validated `firebase/seed/cms-gameplay-2026-10-27.json` preserves the prior
+  local expanded file's 51 sites, 92 merchants and unrelated categories while
+  adding the new gameplay defaults. No deployment or cloud write was attempted.
+
+## Along-route merchant choices and destination card (2026-10-27)
+
+- The user clarifies that a distant walking destination should offer optional
+  merchants along the whole route for the player to add and visit. Consider
+  travel order along the actual route, including intermediate sections; preserve
+  destination confirmation and the over-60-minute consent before recommendations.
+  Gemini still decides the number of recommendations. Never invent a merchant
+  when the published catalog has no candidate in a section.
+- Distinguish recommended merchants from merchants the player has chosen. A
+  zero selection count must not imply there are no recommendations. Display both
+  counts, with a horizontally scrollable set of merchant detail entry points.
+  Viewing details does not add a merchant; joining still requires confirmation
+  and the established updated route preview before departure.
+- The user requests improving the destination card's presentation. Use a soft
+  white rounded card, clear destination heading, one row of three labeled route
+  metrics, a separate supply section, and the orange primary action. Show a
+  compact empty message with retry when no recommendations were returned.
+- Rules fallback should also distribute its choices along the route. This only
+  changes model-failure behavior; it does not override Gemini's selection count.
+  Expanded cloud data/publication and deployment are still required; the prior
+  corporate Firestore write restriction remains in force.
+- Local layout QA uses the actual built Angular/Ionic card with fixture merchants,
+  with external HTTPS blocked. The 320/390/430 px layouts keep all three metrics
+  on one row without document or metric overflow. This is presentation validation,
+  not live cloud recommendation, authentication or map-provider acceptance.
+
+## Destination summary chips (2026-10-27)
+
+- Keep the destination card's walking duration, estimated steps and distance
+  chips on one row, including narrow mobile screens. Use compact spacing and
+  text; the confirmed destination's supply-count chip may occupy the next row.
+
+## Destination-first supply recommendations (2026-10-27)
+
+- Planting locations show cultivation information only. Merchant offers belong
+  exclusively to AI-recommended extra supply stops after the player confirms
+  a walking destination; opening a planting location must not count as an offer view.
+- Gemini decides the number of extra supply stops using origin-to-destination
+  distance, current Taipei time and current weather. There is no fixed six-stop
+  limit and no AI-selected replacement planting destination in this flow.
+- The user confirms a warning for estimated walking times strictly above
+  60 minutes. Display the estimated duration and require explicit acceptance
+  before confirming the destination and requesting Gemini; cancellation preserves
+  the candidate destination without requesting recommendations.
+- Demo starts at the existing Banqiao Google office position. Support a nearby
+  Banqiao destination and a distant Neihu destination, with station coverage in
+  Banqiao and all twelve Taipei districts. Existing content remains simulated;
+  new demo merchants must not imply real offers or partnerships.
+- Recommendation context uses live weather when available and explicitly unknown
+  weather on lookup failure; fixed scene weather is not current weather evidence.
+  Preserve the configured-candidate validation and rules fallback on AI failure.
+  Existing planting records and confirmed walking routes retain their identities.
+- Follow-up: planting scenes must also use live weather at each planting location
+  and the current Taipei time, replacing the earlier fixed per-POI scene assignment.
+  Preserve the existing twelve scene assets. Weather failure is visible to the
+  player and must not be described as a current sunny-weather observation.
+
+- Local delivery: the seed catalog now has 92 merchants and 51 planting sites,
+  including 65 new explicitly fictional supply merchants and 23 new planting
+  sites. The 2026-10-27 import file merges the prior local cloud export while
+  preserving its existing records; it is not a fresh cloud export. CMS's merge
+  action preserves current operator edits and still requires save/publication.
+- Local verification: client/CMS development builds and Functions build passed;
+  173 related client tests and all 90 Functions tests passed. The updated live
+  scene weather/time integration test also passed independently. The cultivation
+  suite still has 13 previously documented Ionic modal mounting failures and
+  one skip; do not describe the full client suite as passing. No deployment,
+  cloud catalog write retry or live Gemini/weather acceptance test occurred.
+  The previously recorded corporate Firestore write restriction remains in force.
+
+## Seed pools, merchant attribution and CUBE preferences (2026-10-22)
+
+- User confirms that a player names a tree when planting. The planted seed type
+  determines a weighted species pool; the resulting species is unknown at planting.
+  Operations can configure common/rare outcomes. Manage planting locations separately
+  from species and seed pools. Preserve existing player cultivation records.
+- Add planting locations and merchant candidates within Taipei Neihu and New Taipei
+  Banqiao. New planting locations should be separated; merchants have no minimum
+  separation and Gemini selects from the configured candidates.
+- Preserve recommendation selections, offer views, navigation intent and proximity
+  arrivals as separate business measurements. Record Gemini versus rules source,
+  configuration version and selected benefit plan. A navigation is not a visit;
+  a client-reported or simulated proximity arrival is not evidence of a purchase.
+  Existing identity separation and event-deletion deadline remain in force.
+- User explicitly places CUBE benefit-plan selection in Profile, not Home. It is an
+  app recommendation preference and does not switch the actual bank card's benefits.
+  A new preference applies to subsequent recommendations, preserving confirmed routes.
+- Only domestic CUBE channels may influence domestic recommendations. Official
+  references checked on 2026-10-22 list LOPIA Taiwan, FamilyMart, 7-ELEVEN,
+  PX Mart (excluding the separately branded hypermarket) and IKEA under 集精選.
+  Official 秋日遊 UNIQLO terms refer to Japan; do not assume Taiwan eligibility.
+  Sources: https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list
+  and https://www.cathaybk.com.tw/cathaybk/promo/event/credit-card/product/japanrewards/index.html
+- Unresolved: final species-reveal milestone, exact minimum location separation,
+  and acquisition/allocation of distinct seed types. Current demo defaults reveal at
+  the seedling stage (10% growth), generate new sites at least 450 m from catalog
+  locations, and allow the existing generic seed balance to choose a configured pool.
+  These are reversible implementation defaults, not user-confirmed product rules.
+- Merchant arrival currently means an active route entering a 50 m radius of a
+  configured merchant coordinate, checked again on the server. Deduplicate by
+  identity, route and merchant; keep the departure-time benefit preference.
+  The 50 m radius is a demo measurement default and does not change the existing
+  cultivation or supply-claim radius. Raw player coordinates are not persisted
+  in these analytics events.
+- Profile preference currently persists per identity on this device. Cross-device
+  preference synchronization and bank-account integration are not implemented.
+- Expanded catalog retains 13 legacy demo presets and adds 15 separated empty sites
+  plus 22 merchants with official names/addresses. New merchant coordinates are
+  approximate demo positions around those addresses; entrances remain unverified.
+  Existing five simulated merchants are retained. LOPIA channel metadata is included;
+  no unverified LOPIA branch is invented in either district.
+- Expanded content is prepared as local seed files and a CMS merge-into-draft action
+  that preserves existing operator edits. Cloud catalog import and publication are
+  pending the corporate proxy policy blocker described below; related Functions
+  deployment is complete. Hosting has not been redeployed.
+- The user explicitly authorized updating cloud data on 2026-10-22. The first
+  read-only migration preview failed because Firebase CLI credentials are no longer
+  valid; no cloud writes occurred. Reauthentication was initiated, but the CLI's
+  agent login flow requires the user to complete authentication. Resume with
+  `functions/scripts/merge-expanded-catalog.mjs` after login. It previews changes,
+  merges the draft and publication independently, checks live planting distances,
+  preserves operator edits and unrelated categories, atomically backs up prior
+  documents to the administrator audit collection, and verifies the readback.
+- Follow-up after the user reauthenticated on 2026-10-22: authentication and
+  read-only preview succeeded. Deployed `cmsCommand`, `cmsRecommend`, `cmsTrack`
+  and `cmsDashboard` successfully in `asia-east1` (CLI exit 0, all four successful
+  update operations). The first deployment attempt hit discovery timeout; retry
+  used the installed CLI's `FUNCTIONS_DISCOVERY_TIMEOUT=60` option and passed.
+- Catalog writes remain blocked by Forcepoint HTTP 403 with the explicit message
+  "The request was blocked because it violates corporate policy." An empty REST
+  commit succeeded but the actual content commit was blocked; SDK and REST write
+  attempts both failed. Stop write retries until IT resolves the policy restriction;
+  do not work around it using another host, encoding, transport, or network path.
+  The endpoint is `https://firestore.googleapis.com/v1/projects/cathay-ai-hackathon-team-03/databases/(default)/documents:commit`.
+- Final read-only verification confirmed draft revision 8 and publication version 5,
+  each still containing 5 merchants, 13 tree sites, zero seed types and zero CUBE
+  channels. No catalog migration was committed. The prepared merge would produce
+  27 merchants, 28 sites, 3 seed pools, 6 CUBE channel records and preserve all 8
+  cloud species. The migration now uses an atomic REST commit with exact update-time
+  preconditions, an audit backup, canonical comparisons and readback verification.
+- Local validation passed: 66 Functions tests, 214 client regression tests
+  (three existing skips), Functions TypeScript build, and client/CMS development
+  builds. Live bank integration, entrance field checks and cloud acceptance remain
+  outside these local verification results.
+- At the user's request, exported the latest cloud draft merged with all expanded
+  records to `firebase/seed/cms-expanded-2026-10-22.json` (46,338 UTF-8 bytes).
+  The read-only export observed draft revision 9 and publication version 6;
+  those versions had advanced since the prior verification, independently of this
+  export. The file preserves the latest draft's existing records and includes
+  28 sites, 27 merchants, 8 species, 3 seed pools, 6 CUBE channel records,
+  17 tasks, 3 rewards and 12 scenes. Schema validation and ID completeness passed.
+  Export writes only the local file; no cloud mutation was attempted. Standard
+  file import replaces the in-memory draft and still requires save and publication.
+
+
+## Recommended supply marker visibility (2026-10-22)
+
+- User requires Gemini-recommended supply stations to remain individual map
+  markers instead of disappearing into marker clusters. Exclude active
+  `cmsRouteRoles` supply selections from the cluster source and visibility
+  suppression. This also preserves visibility for deterministic fallback
+  selections that use the same recommendation seam. Other markers retain
+  existing clustering; clearing recommendations restores normal clustering.
+- All 56 home-map tests passed, including a regression covering a clustered
+  station becoming recommended, remaining visible while ordinary stations
+  stay clustered, and returning to clustering when recommendations clear.
+  This change has not been deployed to Hosting.
+
+## Gemini cloud diagnosis (2026-10-22)
+
+- The user requests relaxing the recommendation timeout and removing the
+  home-map recommendation status message. Use a 15-second Vertex fetch
+  timeout (superseding the earlier seven-second setting) and disable Flash
+  thinking for this bounded ranking task. Keep deterministic fallback and
+  the existing 30-second callable limit. Remove home loading/source/reason
+  text and render the recommendation action only when actionable; CMS still
+  shows the recommendation source. Distinguish timeout and invalid JSON in
+  safe server logs without logging model content or credentials.
+- Local validation for this change passed: Functions TypeScript build,
+  all 56 Functions tests, and client development build. No Functions or
+  Hosting deployment was performed; the cloud still requires deployment
+  before the revised timeout and request settings take effect.
+
+- Follow-up after the user enabled the API: Service Usage reports `ENABLED`.
+  A live `gemini-2.5-flash` request with the CLI user identity returned HTTP 200
+  in 1.5 seconds. Impersonating the Functions identity was denied
+  (`iam.serviceAccounts.getAccessToken`); no IAM changes were made.
+- Two authenticated Demo calls to the deployed `cmsRecommend` still returned
+  `source: rules` (8.9 and 7.5 seconds, publication version 5). The temporary
+  anonymous Auth account was deleted after testing. Its bounded rate-limit
+  document remains subject to the existing cleanup mechanism.
+  Latest fallback categories are `unavailable-or-invalid-output`, not 403.
+- Direct probes with the recommendation prompt and local seed candidates,
+  using the CLI identity, returned valid five-selection JSON: default thinking
+  took 6.5 seconds with 754 thinking tokens; `thinkingBudget: 0` took 2.0 seconds.
+  The deployed 7-second fetch timeout is a suspected remaining blocker, not
+  proven: existing logs conflate timeout and invalid output, and the probe
+  used local seed candidates rather than the live publication. No code or
+  deployment changes were made during this follow-up test.
+
+- Read-only cloud checks confirmed `aiplatform.googleapis.com` is `DISABLED`
+  in `cathay-ai-hackathon-team-03`. This is a confirmed blocker for the current
+  Vertex AI integration. Authenticated `cmsRecommend` logs repeatedly show
+  `cms_gemini_fallback` with `category: vertex-403`, including 12:02, 12:50
+  and 13:00 Asia/Taipei on 2026-10-22.
+- The deployed function uses `gemini-2.5-flash`, location `global`, and runtime
+  identity `1039933163857-compute@developer.gserviceaccount.com`. Project IAM
+  grants this identity `roles/editor`; no explicit `roles/aiplatform.user`
+  binding was found. Do not infer that missing explicit binding alone proves
+  an effective permission denial.
+- No API activation, IAM change or deployment was performed in this diagnosis.
+  After API activation, verify an authenticated recommendation returns
+  `source: gemini`; further permission, model-access or quota blockers have
+  not yet been ruled out. Existing fallback logging retains HTTP status only.
+
+## Collection Firestore filters (2026-10-22)
+
+- The user confirms tree records should have a three-digit string `postalCode`,
+  preserving `place`. Region selectors display 台北市內湖區 (114) and
+  新北市板橋區 (220), and match postal codes instead of species.
+- Species options use the shared Firestore publication's `config.species`;
+  exact species and region matches combine with the existing status filter
+  for both grid and map. Multiple choices within each selector use OR.
+- CMS tree editing and publication preserve postal codes. Known legacy demo
+  places can be backfilled; unknown places must not be assigned a guessed district.
+- Local verification passed: 12 collection tests, 5 CMS publication integration
+  tests, 56 Functions tests and client/CMS development builds. Both seed files now include
+  postal codes for all 13 existing demo tree presets.
+- After the user reauthenticated on 2026-10-22, cloud backfill succeeded and
+  all 13 tree postal codes were read back from both draft and publication
+  (draft revision 8, release version 5). Existing CMS content was preserved.
+  One CMS-edited place, 亞東紀念醫院, was verified as 220 against the hospital's
+  official address: https://www.femh.org.tw/mainpage/contact. The migration script
+  includes that exact-place mapping; unknown places still remain unassigned.
+- `cmsCommand` deployment completed successfully in `asia-east1`, including its
+  predeploy build, to preserve postal codes on later saves/publications.
+  Hosting was not redeployed during this follow-up. The existing client changes
+  read the shared publication and support legacy places in memory.
+
+## Collection filter sheet presentation (2026-10-22)
+
+- Match the user's screenshot with a content-height white bottom sheet, a drag
+  handle, stacked-label outlined selectors and equal-width gray/orange actions.
+- This is a presentation change only; the current placeholder options and
+  unimplemented region/species filter actions are not new filtering rules.
+- Reset the modal open signal on dismissal so the sheet can be reopened.
+
+## Global client modal styles (2026-10-22)
+
+- The user requests moving the service-backed modal's `ion-modal` styles into
+  `client/src/styles.scss` so directly declared modals share the same defaults.
+- Preserve the existing `auto-height-sheet` and `supply-station-sheet` class
+  modifiers. Component-specific modal styles can still override global defaults.
+
+## Collection long-time-no-visit threshold (2026-10-22)
+
+- The user confirms that "long time no visit" means 14 days or more, inclusive.
+- The collection filter uses the existing Asia/Taipei visit-day records.
+  Trees without a recorded visit are counted from their planting day; a
+  previous planting cycle's visit must not predate the current planting baseline.
+- Both grid and map use the same filtered collection. The empty-state message
+  states the 14-day threshold instead of describing it as unresolved.
+
 ## Repository tracking scope (2026-10-22)
 
 - Manage the complete CAT-WALK-APP repository from its root. The `cms` branch
@@ -1913,6 +2359,16 @@ The product design frontier is closed. Any later scope change must be recorded a
   pages so each can be tuned independently. Merchants, rewards, scenes, tasks
   and trees own their table markup and rootNgV2 imports; shared workspace state
   continues to provide row data and CRUD operations.
+
+### Cultivation tree location and weather row (2026-10-27)
+
+- Show the tree's place name and its weather/time/source details together in a
+  shared information row beneath the tree name. Allow wrapping when the card is
+  too narrow to fit both details on one line.
+- Give the cultivation status chips solid, opaque backgrounds while retaining
+  each status color and its matching contrast text color. Avoid Ionic's `color`
+  attribute here because its chip host style forces a translucent background;
+  use explicit status classes and the chip background/color variables instead.
 
 ## Reward avatar images (2026-10-21)
 

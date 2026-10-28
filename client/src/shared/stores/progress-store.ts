@@ -1,3 +1,4 @@
+import { DEFAULT_SEED_TYPES, drawSpecies, type MysterySeed, type SeedOrigin } from "../../../../functions/src/planting-catalog";
 import { computed, DestroyRef, inject } from '@angular/core';
 import { TREE_WEEDS_ENABLED } from '../../environments/environment-dev';
 import {
@@ -32,6 +33,10 @@ import { cmsPublication } from '../models/cms-publication';
 import type { HomeTree } from '../../features/home/home-tree-recommendations';
 
 type DemoTreeCultivation = {
+  nickName?: string;
+  species?: string;
+  seedTypeId?: string;
+  plantingVersion?: number;
   site?: HomeTree;
   harvestVersion?: number;
   harvestAwardPoints?: number;
@@ -113,6 +118,7 @@ export const createProgressState = (demo = true): ProgressState => ({
     fertilizer: demo ? 5 : 0,
     seeds: demo ? 1 : 0,
   },
+  mysterySeeds: [],
   demoDay: taipeiDay(),
   demoSupplyStationClaimedOn: {},
   activeDemoTreeId: 'demo-tree',
@@ -261,7 +267,29 @@ export const ProgressStore = signalStore(
         patchTree({ visitedOn: taipeiDay() }, { demoDay: taipeiDay() }, treeId);
         return true;
       },
-      plantDemoSeed(): boolean {
+      grantWalkSeed(species: string, seedTypeId: string, version: number, origin?: SeedOrigin): void {
+        patchState(store, {
+          mysterySeeds: [...store.mysterySeeds(), { id: crypto.randomUUID(), species, seedTypeId, version, ...(origin ? { origin } : {}) }],
+          inventory: { ...store.inventory(), seeds: store.inventory().seeds + 1 },
+        });
+      },
+      plantDemoSeed(nickName = '我的小樹', seedTypeId?: string, inventorySeedId?: string): boolean {
+        const name = nickName.trim();
+        if (!name || name.length > 40) {
+          patchState(store, { cultivationError: '請輸入 1 至 40 字的小樹名稱。' }); return false;
+        }
+        const pools = cmsPublication().config?.seedTypes ?? DEFAULT_SEED_TYPES;
+        const genericCount = Math.max(0, store.inventory().seeds - store.mysterySeeds().length);
+        const acquired = inventorySeedId
+          ? store.mysterySeeds().find(s => s.id === inventorySeedId)
+          : store.mysterySeeds()[0];
+        if (inventorySeedId && !acquired &&
+            !Array.from({ length: genericCount }, (_, i) => `legacy-seed-${i}`).includes(inventorySeedId)) {
+          patchState(store, { cultivationError: '這顆種子已不在背包中，請重新選擇。' }); return false;
+        }
+        const seed = pools.find(s => s.id === (seedTypeId ?? pools.find(p => p.enabled)?.id) && s.enabled);
+        if (!acquired && !seed) { patchState(store, { cultivationError: '此種子類型暫停種植。' }); return false; }
+
         if (store.demoTreePlanted()) {
           patchState(store, { cultivationError: '種子只能用在空的種植點。' });
           return false;
@@ -274,6 +302,10 @@ export const ProgressStore = signalStore(
         patchTree(
           {
             planted: true,
+            nickName: name,
+            species: acquired?.species ?? drawSpecies(seed!, crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296),
+            seedTypeId: acquired?.seedTypeId ?? seed!.id,
+            plantingVersion: acquired?.version ?? cmsPublication().version,
             harvestedOn: null,
             growth: 0,
             weedIds: [],
@@ -288,6 +320,7 @@ export const ProgressStore = signalStore(
             harvestedAt: null,
           },
           {
+            mysterySeeds: acquired ? store.mysterySeeds().filter(s => s.id !== acquired.id) : store.mysterySeeds(),
             inventory: { ...store.inventory(), seeds: store.inventory().seeds - 1 },
             cultivationError: null,
           },
@@ -574,6 +607,7 @@ export const ProgressStore = signalStore(
 );
 
 export type ProgressState = {
+  mysterySeeds: MysterySeed[];
   demoDay: string;
   todaySteps: number;
   todayStepsDay: string;

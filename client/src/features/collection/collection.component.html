@@ -3,24 +3,32 @@
     <ion-toolbar>
       <ion-segment
         [value]="segment()"
-        (ionChange)="segment.set($event.detail.value?.toString() ?? 'all')"
+        (ionChange)="segment.set($any($event.detail.value) ?? 'cultivating')"
       >
-        <ion-segment-button value="all">
+        <ion-segment-button value="cultivating">
           <ion-label>種植中</ion-label>
         </ion-segment-button>
-        <ion-segment-button value="favorites">
+        <ion-segment-button value="harvested">
           <ion-label>已收成</ion-label>
         </ion-segment-button>
         <ion-segment-button value="longTimeNoSee">
           <ion-label>長久無造訪</ion-label>
         </ion-segment-button>
       </ion-segment>
+      <ion-button slot="end" (click)="openFilterModal()">
+        <ion-icon color="primary" slot="icon-only" name="options"></ion-icon>
+      </ion-button>
     </ion-toolbar>
 
     <!-- 頂部資訊與模式切換 -->
     <div class="collection-body">
       <div class="top" [class.float]="!isGridMode()">
-        <p>共 {{ collectionList().length }} 棵樹木，{{ harvestableCount() }} 棵可收成</p>
+        <p>
+          共 {{ collectionList().length }} 棵樹木
+          @if (segment() === 'cultivating') {
+            ，{{ harvestableCount() }} 棵可收成
+          }
+        </p>
         <div class="mode-btns">
           <ion-button (click)="viewMode.set('grid')" [color]="isGridMode() ? 'primary' : 'light'">
             <ion-icon
@@ -44,8 +52,8 @@
           <p class="ion-padding" role="status">
             {{
               segment() === 'longTimeNoSee'
-                ? '長久無造訪的判定條件待確認'
-                : segment() === 'favorites'
+                ? '目前沒有 14 日以上未造訪的樹木'
+                : segment() === 'harvested'
                   ? '目前沒有已收成的樹木'
                   : '目前沒有種植中的樹木'
             }}
@@ -55,7 +63,11 @@
           <ion-row>
             @for (tree of collectionList(); track tree.id) {
               <ion-col size="6">
-                <app-tree-card [tree]="tree" [interactive]="true" (selected)="openCultivation($event)" />
+                <app-tree-card
+                  [tree]="tree"
+                  [interactive]="true"
+                  (selected)="openCultivation($event)"
+                />
               </ion-col>
             }
           </ion-row>
@@ -79,3 +91,52 @@
     (closed)="cultivationOpen.set(false)"
   />
 }
+
+<ion-modal
+  class="auto-height-sheet collection-filter-modal"
+  [isOpen]="filterModalOpen()"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [handle]="true"
+  (didDismiss)="filterModalOpen.set(false)"
+>
+  <ng-template>
+    <div class="modal-auto-content filter-content">
+      <h1>篩選條件</h1>
+      <div class="filter-list">
+        <ion-select
+          cancelText="取消"
+          okText="確定"
+          [(ngModel)]="draftRegion"
+          label="地區"
+          label-placement="stacked"
+          placeholder="請選擇"
+          toggleIcon="chevronDownOutline"
+          [multiple]="true"
+        >
+          @for (r of Regions; track r.code) {
+            <ion-select-option [value]="r.code">{{ r.name }}</ion-select-option>
+          }
+        </ion-select>
+        <ion-select
+          cancelText="取消"
+          okText="確定"
+          [(ngModel)]="draftCultivar"
+          label="品種"
+          label-placement="stacked"
+          placeholder="請選擇"
+          toggleIcon="chevronDownOutline"
+          [multiple]="true"
+        >
+          @for (species of cultivarOptions(); track species) {
+            <ion-select-option [value]="species">{{ species }}</ion-select-option>
+          }
+        </ion-select>
+      </div>
+      <div class="btn-row filter-actions">
+        <ion-button (click)="clearFilters()" class="filter-clear">清除全部</ion-button>
+        <ion-button (click)="applyFilters()" color="primary">確定</ion-button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

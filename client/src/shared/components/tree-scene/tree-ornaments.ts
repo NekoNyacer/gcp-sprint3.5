@@ -6,9 +6,11 @@ import {
   Mesh,
   MeshStandardMaterial,
 } from 'three';
+import { treeAppearance } from '../../../../../functions/src/tree-species';
 import { TREE_ORNAMENTS } from './tree-canopy-plan';
 
-export function createTreeOrnaments(): Mesh {
+export function createTreeOrnaments(species = '榕樹'): Mesh {
+  const appearance = treeAppearance(species);
   const positions: number[] = [],
     colors: number[] = [],
     centers: number[] = [];
@@ -24,7 +26,7 @@ export function createTreeOrnaments(): Mesh {
         const cx = petal === 5 ? 0 : Math.cos(angle) * 0.035;
         const cy = petal === 5 ? 0 : Math.sin(angle) * 0.035;
         const radius = petal === 5 ? 0.017 : 0.028;
-        const color = new Color(petal === 5 ? '#d8b85c' : index % 3 ? '#e9ead4' : '#cfddcb');
+        const color = new Color(petal === 5 ? appearance.flowerCenter : appearance.flower);
         for (let edge = 0; edge < 6; edge++) {
           const a = (edge * Math.PI) / 3,
             b = ((edge + 1) * Math.PI) / 3;

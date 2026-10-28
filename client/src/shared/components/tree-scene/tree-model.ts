@@ -12,6 +12,7 @@ import {
 } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
+import { treeAppearance } from '../../../../../functions/src/tree-species';
 import { TREE_CROWN } from './tree-canopy-plan';
 export { TREE_CROWN } from './tree-canopy-plan';
 
@@ -24,7 +25,8 @@ export function treeRandom(): () => number {
 }
 
 /** Two opaque meshes: merged tapered branches and two-triangle leaves. */
-export function createTreeModel(young: boolean): Group {
+export function createTreeModel(young: boolean, species = '榕樹'): Group {
+  const appearance = treeAppearance(species);
   const tree = new Group();
   tree.name = 'botanical-tree';
   const random = treeRandom();
@@ -53,8 +55,8 @@ export function createTreeModel(young: boolean): Group {
           .applyQuaternion(orientation)
           .add(center);
         vertices.push(vertex.x, vertex.y, vertex.z);
-        const tone = new Color('#72634d').lerp(
-          new Color('#b19a70'),
+        const tone = new Color(appearance.bark).lerp(
+          new Color(appearance.barkLight),
           0.35 + Math.cos(angle + 0.8) * 0.22 + Math.sin(angle * 4) * 0.09,
         );
         bark.push(tone.r, tone.g, tone.b);
@@ -103,9 +105,9 @@ export function createTreeModel(young: boolean): Group {
 
   const positions: number[] = [];
   const colors: number[] = [];
-  const shade = new Color('#245265');
-  const green = new Color('#659345');
-  const sun = new Color('#cadb74');
+  const shade = new Color(appearance.shade);
+  const green = new Color(appearance.leaf);
+  const sun = new Color(appearance.sun);
   const color = new Color();
   for (const [x, y, z, radius] of TREE_CROWN) {
     const tip = new Vector3(x, y, z);
@@ -135,7 +137,7 @@ export function createTreeModel(young: boolean): Group {
       const dx = Math.cos(azimuth) * ring * spread;
       const dy = vertical * spread;
       const center = new Vector3(
-        x + dx * radius,
+        x + dx * radius * appearance.crownWidth,
         y + dy * radius * 0.78,
         z + Math.sin(azimuth) * ring * spread * radius * 0.8,
       );
@@ -146,7 +148,7 @@ export function createTreeModel(young: boolean): Group {
         .multiplyScalar(size);
       const side = new Vector3(-Math.sin(angle), Math.cos(angle), random() - 0.5)
         .normalize()
-        .multiplyScalar(size * 0.48);
+        .multiplyScalar(size * appearance.leafWidth);
       const light = Math.max(0, Math.min(1, 0.42 + dy * 0.4 - dx * 0.18 + random() * 0.28));
       color.copy(shade).lerp(green, Math.min(1, light * 1.8));
       if (light > 0.5) color.lerp(sun, (light - 0.5) * 1.8);

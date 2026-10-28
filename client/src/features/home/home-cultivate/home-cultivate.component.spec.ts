@@ -2,6 +2,7 @@ import { TREE_WEEDS_ENABLED } from '../../../environments/environment-dev';
 import { computed, signal, type WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TreeDisplayService } from '../../../shared/services/tree-display.service';
+import { LiveEnvironmentService } from '../../../shared/services/live-environment.service';
 import { patchState } from '@ngrx/signals';
 import { By } from '@angular/platform-browser';
 import { IonModal } from '@ionic/angular';
@@ -11,6 +12,7 @@ import { treeSceneBackground } from '../../../shared/models/tree-scene-environme
 import { findHomeTree } from '../home-tree-recommendations';
 import { LocationStore, type LocationPoint } from '../../../shared/stores/location-store';
 import { ProgressStore } from '../../../shared/stores/progress-store';
+import { SessionStore } from '../../../shared/stores/session-store';
 import { WalkSessionStore, type WalkDestination } from '../../../shared/stores/walk-session-store';
 import { DialogService } from '../../../shared/services/dialog.service';
 import {
@@ -107,6 +109,9 @@ describe('HomeCultivateComponent direct feeding', () => {
     fixture.destroy();
   });
   beforeEach(() => {
+    TestBed.overrideProvider(SessionStore, { useValue: { displayName: () => '阿發' } });
+    vi.spyOn(LiveEnvironmentService.prototype, 'weatherAt').mockResolvedValue({source: 'open-meteo', condition: 'cloudy',
+      temperatureC: 25, precipitationMm: 0, observedAt: new Date().toISOString()});
     TestBed.overrideProvider(TreeDisplayService, { useValue: { mode: signal('2d') } });
     locationOverride = signal<LocationPoint | null | undefined>(undefined);
     walkSession = createWalkSessionStub();
@@ -200,74 +205,37 @@ describe('HomeCultivateComponent direct feeding', () => {
     };
   }
 
-  it('opens the backpack instead of dragging fertilizer and applies its original effect', () => {
-    TestBed.configureTestingModule({ imports: [HomeCultivateComponent] });
-    TestBed.overrideComponent(IonModal, {
-      set: { template: '<ng-container [ngTemplateOutlet]="template"></ng-container>' },
-    });
-    const fixture = createFixture();
-    fixture.detectChanges();
-    fixture.detectChanges();
-    const component = fixture.componentInstance;
-    const inventory = component.ps.inventory();
-    const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('.resource-dock .fertilizer')).toBeNull();
-    root.querySelector<HTMLButtonElement>('.backpack')!.click();
-    fixture.detectChanges();
-    const items = root.querySelectorAll<HTMLButtonElement>('.backpack-item');
-    expect(items).toHaveLength(2);
-    expect(items[0].textContent).toContain('肥料');
-    expect(items[0].disabled).toBe(false);
-    expect(items[1].disabled).toBe(true);
-    items[0].click();
-    fixture.detectChanges();
-    expect(component.ps.inventory()).toEqual({
-      ...inventory,
-      fertilizer: inventory.fertilizer - 1,
-    });
+  it('opens the backpack and applies the original fertilizer effect', () => {
+    const { component, store } = setup();
+    const before = store.inventory().fertilizer;
+    component.toggleBackpack();
+    expect(component.backpackOpen()).toBe(true);
+    component.useBackpackItem('fertilizer');
+    expect(store.inventory().fertilizer).toBe(before - 1);
     expect(component.fertilized()).toBe(true);
     expect(component.growthConversionRate()).toBe(120);
-    expect(items[0].disabled).toBe(true);
-    expect(root.querySelector('.backpack-panel [role="status"]')?.textContent).toContain(
-      '施肥成功',
-    );
+    component.useBackpackItem('fertilizer');
+    expect(store.inventory().fertilizer).toBe(before - 1);
     component.onWillDismiss();
     expect(component.backpackOpen()).toBe(false);
   });
 
-  it('plants a backpack seed at empty soil and immediately enables feeding without resetting the tree', () => {
-    TestBed.configureTestingModule({ imports: [HomeCultivateComponent] });
-    TestBed.overrideComponent(IonModal, {
-      set: { template: '<ng-container [ngTemplateOutlet]="template"></ng-container>' },
-    });
-    const fixture = createFixture();
-    const component = fixture.componentInstance;
-    component.ps.selectDemoTree(demoPlantingSpots[0].id);
+  it('plants only a confirmed backpack selection and ignores a repeated confirmation', () => {
+    const { component, store, fixture } = setup();
+    store.selectDemoTree(demoPlantingSpots[0].id);
+    component.toggleBackpack();
+    const seed = component.backpackSeeds()[0];
+    expect(store.demoTreePlanted()).toBe(false);
+    expect(store.inventory().seeds).toBe(1);
+    component.plantBackpackSeed({ id: seed.id, name: '阿發的樹' });
     fixture.detectChanges();
-    fixture.detectChanges();
-    const root: HTMLElement = fixture.nativeElement;
-    const scene: TreeSceneComponent = fixture.debugElement.query(
-      By.directive(TreeSceneComponent),
-    ).componentInstance;
-    expect(scene.empty()).toBe(true);
-    expect(component.canUse('water')).toBe(false);
-    expect(root.querySelector('.tree-title')?.textContent).toContain('空的種植點');
-    root.querySelector<HTMLButtonElement>('.backpack')!.click();
-    fixture.detectChanges();
-    const items = root.querySelectorAll<HTMLButtonElement>('.backpack-item');
-    expect(items[0].disabled).toBe(true);
-    expect(items[1].disabled).toBe(false);
-    items[1].click();
-    fixture.detectChanges();
-    expect(component.ps.demoTreePlanted()).toBe(true);
-    expect(component.ps.inventory().seeds).toBe(0);
-    expect(scene.empty()).toBe(false);
-    expect(scene.growth()).toBe(0);
+    expect(store.demoTreePlanted()).toBe(true);
+    expect(store.demoTrees()[store.activeDemoTreeId()].nickName).toBe('阿發的樹');
+    expect(store.inventory().seeds).toBe(0);
     expect(component.canUse('water')).toBe(true);
-    expect(items[1].disabled).toBe(true);
-    component.useBackpackItem('seed');
-    expect(component.ps.inventory().seeds).toBe(0);
-    expect(component.feedback()).toContain('空的種植點');
+    expect(component.backpackOpen()).toBe(false);
+    component.plantBackpackSeed({ id: seed.id, name: '再次種植' });
+    expect(store.inventory().seeds).toBe(0);
   });
 
   it('blocks backpack planting and fertilizer outside the care radius without spending inventory', () => {
@@ -277,52 +245,49 @@ describe('HomeCultivateComponent direct feeding', () => {
     const denied = vi.fn();
     component.interactionDenied.subscribe(denied);
     const inventory = store.inventory();
-    component.useBackpackItem('seed');
+    component.toggleBackpack();
+    component.plantBackpackSeed({ id: 'legacy-seed-0', name: '阿發的樹' });
     component.useBackpackItem('fertilizer');
     expect(denied).toHaveBeenCalledTimes(2);
     expect(store.inventory()).toBe(inventory);
     expect(store.demoTreePlanted()).toBe(false);
   });
 
-  it('uses each selected tree weather without changing care state and keeps it on reopening', () => {
+  it('uses live weather at the selected site and Taipei time without changing cultivation progress', async () => {
     TestBed.configureTestingModule({ imports: [HomeCultivateComponent] });
-    TestBed.overrideComponent(IonModal, {
-      set: { template: '<ng-container [ngTemplateOutlet]="template"></ng-container>' },
+    TestBed.overrideComponent(HomeCultivateComponent, {
+      set: {template: '<app-tree-scene [weather]="weather()" [timeOfDay]="timeOfDay()" />', imports: [TreeSceneComponent]},
     });
+    vi.setSystemTime(new Date('2026-10-27T18:59:00+08:00'));
+    const weatherAt = vi.mocked(LiveEnvironmentService.prototype.weatherAt);
+    weatherAt.mockResolvedValueOnce({source: 'open-meteo', condition: 'rainy', temperatureC: 22,
+      precipitationMm: 2, observedAt: new Date().toISOString()});
     const fixture = createFixture();
     fixture.detectChanges();
+    await Promise.resolve();
     fixture.detectChanges();
     const component = fixture.componentInstance;
     const scene: TreeSceneComponent = fixture.debugElement.query(
       By.directive(TreeSceneComponent),
     ).componentInstance;
     const inventory = component.ps.inventory();
-    for (const { properties } of destination.features) {
-      const { treeId, weather } = properties;
-      component.ps.selectDemoTree(treeId);
-      fixture.detectChanges();
-      const growth = component.ps.demoTreeGrowth();
-      expect(component.weather()).toBe(weather);
-      expect(scene.weather()).toBe(weather);
-      expect(fixture.nativeElement.querySelectorAll('.rain-drop')).toHaveLength(
-        weather === 'rainy' ? 48 : 0,
-      );
-      expect(scene.timeOfDay()).toBe(properties.timeOfDay);
-      expect(fixture.nativeElement.querySelector('.sky').style.backgroundImage).toContain(
-        treeSceneBackground(weather, properties.timeOfDay),
-      );
-      vi.advanceTimersByTime(2000);
-      expect(component.ps.demoTreeGrowth()).toBe(growth);
-      expect(component.ps.inventory()).toEqual(inventory);
-      expect(component.feeding()).toBe(false);
-    }
-    const weather = component.weather();
-    walkSession.finishCultivating();
+    const growth = component.ps.demoTreeGrowth();
+    expect(weatherAt).toHaveBeenCalledWith(findHomeTree(component.ps.activeDemoTreeId())!.position, expect.any(AbortSignal));
+    expect(component.weather()).toBe('rainy');
+    expect(scene.weather()).toBe('rainy');
+    expect(scene.timeOfDay()).toBe('dusk');
+    expect(fixture.nativeElement.querySelector('.sky').style.backgroundImage).toContain(treeSceneBackground('rainy', 'dusk'));
+    vi.advanceTimersByTime(60_000);
     fixture.detectChanges();
-    walkSession.isCultivating.set(true);
+    expect(scene.timeOfDay()).toBe('night');
+    expect(component.ps.demoTreeGrowth()).toBe(growth);
+    expect(component.ps.inventory()).toEqual(inventory);
+    component.ps.selectDemoTree('tree-5');
     fixture.detectChanges();
-    expect(component.weather()).toBe(weather);
-    expect(scene.weather()).toBe(weather);
+    await Promise.resolve();
+    fixture.detectChanges();
+    expect(weatherAt).toHaveBeenLastCalledWith(findHomeTree('tree-5')!.position, expect.any(AbortSignal));
+    expect(scene.weather()).toBe('cloudy');
   });
 
   it('keeps remote care controls clickable without a persistent proximity alert', () => {

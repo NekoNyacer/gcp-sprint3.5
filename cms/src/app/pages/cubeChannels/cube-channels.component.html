@@ -1,0 +1,5 @@
+<cub-card><cub-card-header>CUBE 回饋通路 <button cub-button cubEnd (click)="vm.edit('cubeChannels')">新增通路</button></cub-card-header><cub-card-content>
+<p>國內推薦僅採用已啟用、適用日期內的國內通路。回饋以官方條款及實際支付方式為準。</p>
+<cub-table [value]="vm.rows()"><ng-template cubTemplate="header"><tr><th>方案／品牌</th><th>適用期間</th><th>範圍與條件</th><th>操作</th></tr></ng-template>
+<ng-template cubTemplate="body" let-item><tr><td>{{item.plan}} · {{item.brand}}<small class="d-block">{{item.name}}</small></td><td>{{item.startsOn}} ～ {{item.endsOn}}</td><td>{{item.domestic ? '國內' : '海外（不列入推薦）'}} · {{item.enabled ? '啟用' : '停用'}}<small class="d-block">{{item.terms}}</small><a [href]="item.sourceUrl" target="_blank" rel="noopener">官方來源</a></td><td><button cub-button (click)="vm.edit('cubeChannels',item)">編輯</button><button cub-button (click)="vm.remove('cubeChannels',item.id)">刪除</button></td></tr></ng-template></cub-table>
+</cub-card-content></cub-card>

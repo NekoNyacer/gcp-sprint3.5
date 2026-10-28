@@ -261,14 +261,18 @@ describe('WalkSessionStore', () => {
     const store = configureStore();
     store.startPlanning();
     setDestination(store, destination, baseRoute);
-    store.setBaseRoute(baseRoute, 1234);
+    store.setBaseRoute(baseRoute, 1234, 900);
+    expect(store.plannedDurationSeconds()).toBe(900);
     const routed = store.taskRoutes()[0];
     store.setTaskRoutes([{ ...routed, routeDistanceMeters: 777 }]);
     store.toggleTaskPoint(routed.id);
     expect(store.plannedDistanceMeters()).toBe(1234);
-    store.setPlannedRoute([baseRoute[0], routed.position, destination.position], 1900, [routed.id]);
+    store.setPlannedRoute([baseRoute[0], routed.position, destination.position], 1900, [routed.id], [], 1500);
     expect(store.plannedDistanceMeters()).toBe(1900);
     expect(store.routeNeedsUpdate()).toBe(false);
+    expect(store.plannedDurationSeconds()).toBe(1500);
+    store.toggleTaskPoint(routed.id);
+    expect(store.plannedDurationSeconds()).toBe(900);
   });
 
   it('allows candidate replacement but blocks stops and departure until the destination is confirmed', () => {

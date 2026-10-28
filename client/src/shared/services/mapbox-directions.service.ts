@@ -5,6 +5,7 @@ import { GeoPoint } from '../models/geo.models';
 export type WalkingDirections = {
   coordinates: readonly GeoPoint[];
   distanceMeters: number;
+  durationSeconds?: number;
   waypoints: readonly GeoPoint[];
 };
 
@@ -20,8 +21,23 @@ export const MAPBOX_DIRECTIONS_TOKEN = new InjectionToken<string>(
 export class MapboxDirectionsService {
   private readonly token = inject(MAPBOX_DIRECTIONS_TOKEN);
   async walking(points: readonly GeoPoint[], signal: AbortSignal): Promise<WalkingDirections> {
-    if (points.length < 2 || points.length > 25 || !points.every(validPoint)) {
-      throw new Error('步行路線需要 2 至 25 個有效座標。');
+    if (points.length < 2 || !points.every(validPoint)) {
+      throw new Error('步行路線需要至少 2 個有效座標。');
+    }
+    // Directions accepts 25 coordinates per request. Overlap each batch at its
+    // final waypoint so any number of recommended stops forms one continuous walk.
+    if (points.length > 25) {
+      const parts: WalkingDirections[] = [];
+      for (let start = 0; start < points.length - 1; start += 24) {
+        signal.throwIfAborted();
+        parts.push(await this.walking(points.slice(start, start + 25), signal));
+      }
+      return {
+        coordinates: parts.flatMap((part, i) => i ? part.coordinates.slice(1) : part.coordinates),
+        waypoints: parts.flatMap((part, i) => i ? part.waypoints.slice(1) : part.waypoints),
+        distanceMeters: parts.reduce((sum, part) => sum + part.distanceMeters, 0),
+        durationSeconds: parts.reduce((sum, part) => sum + (part.durationSeconds ?? part.distanceMeters / 1.25), 0),
+      };
     }
     const token = this.token;
     if (!token) throw new Error('尚未設定 Mapbox public token，無法取得步行路線。');
@@ -84,6 +100,8 @@ export class MapboxDirectionsService {
     return {
       coordinates: geometry['coordinates'].map(readCoordinate),
       distanceMeters: route['distance'],
+      durationSeconds: typeof route['duration'] === 'number' && Number.isFinite(route['duration']) && route['duration'] >= 0
+        ? route['duration'] : route['distance'] / 1.25,
       waypoints: waypoints.map((waypoint: unknown) => {
         if (!isRecord(waypoint)) throw new Error('Mapbox 回傳的途經點格式不正確。');
         return readCoordinate(waypoint['location']);

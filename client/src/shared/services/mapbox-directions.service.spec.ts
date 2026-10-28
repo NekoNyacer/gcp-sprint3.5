@@ -13,7 +13,7 @@ describe('Mapbox walking Directions', () => {
   ];
   const responseData = {
     code: 'Ok',
-    routes: [{ distance: 1234, geometry: { type: 'LineString', coordinates: geometry } }],
+    routes: [{ distance: 1234, duration: 987, geometry: { type: 'LineString', coordinates: geometry } }],
     waypoints: points.map((point) => ({ location: [point.longitude, point.latitude] })),
   };
 
@@ -40,10 +40,27 @@ describe('Mapbox walking Directions', () => {
     expect(url.searchParams.get('geometries')).toBe('geojson');
     expect(url.searchParams.get('overview')).toBe('full');
     expect(route.distanceMeters).toBe(1234);
+    expect(route.durationSeconds).toBe(987);
     expect(route.coordinates).toEqual(
       geometry.map(([longitude, latitude]) => ({ longitude, latitude })),
     );
     expect(route.waypoints).toEqual(points);
+  });
+
+  it('routes more than twenty-three optional stops in overlapping batches without losing their order', async () => {
+    const many = Array.from({length: 52}, (_, i) => ({longitude: 121.46 + i * 0.0001, latitude: 25.01}));
+    const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(async input => {
+      const url = input as URL;
+      const coordinates = url.pathname.split('/').at(-1)!.split(';').map(pair => pair.split(',').map(Number));
+      return Response.json({code: 'Ok', routes: [{distance: 1000, duration: 800, geometry: {type: 'LineString', coordinates}}],
+        waypoints: coordinates.map(location => ({location}))});
+    });
+    const result = await TestBed.inject(MapboxDirectionsService).walking(many, new AbortController().signal);
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(result.waypoints).toEqual(many);
+    expect(result.coordinates).toEqual(many);
+    expect(result.distanceMeters).toBe(3000);
+    expect(result.durationSeconds).toBe(2400);
   });
 
   it.each([401, 403, 429, 500])(

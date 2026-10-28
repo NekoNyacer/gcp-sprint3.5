@@ -15,7 +15,7 @@
     "@angular/forms": "20.3.24",
     "@angular/platform-browser": "20.3.24",
     "@angular/router": "20.3.24",
-    "cub-lib-view-iconfont": "2.1.0",
+    "cub-lib-view-iconfont": "2.3.1",
     "cub-lib-view-rootng": "2.2.1",
     "cub-lib-view-utilities": "3.3.0",
     "firebase": "12.18.0",

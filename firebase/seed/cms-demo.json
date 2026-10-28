@@ -1,5 +1,89 @@
 {
   "harvestPoints": 50,
+  "seedTypes": [
+    {
+      "id": "mystery",
+      "name": "神秘種子",
+      "enabled": true,
+      "outcomes": [
+        {
+          "species": "榕樹",
+          "weight": 30
+        },
+        {
+          "species": "樟樹",
+          "weight": 24
+        },
+        {
+          "species": "桂花",
+          "weight": 18
+        },
+        {
+          "species": "柿子",
+          "weight": 12
+        },
+        {
+          "species": "楓香",
+          "weight": 8
+        },
+        {
+          "species": "櫻花",
+          "weight": 5
+        },
+        {
+          "species": "銀杏",
+          "weight": 2
+        },
+        {
+          "species": "國泰小樹",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "woodland",
+      "name": "森林種子",
+      "enabled": true,
+      "outcomes": [
+        {
+          "species": "樟樹",
+          "weight": 70
+        },
+        {
+          "species": "楓香",
+          "weight": 25
+        },
+        {
+          "species": "銀杏",
+          "weight": 5
+        }
+      ]
+    },
+    {
+      "id": "blossom",
+      "name": "花園種子",
+      "enabled": true,
+      "outcomes": [
+        {
+          "species": "桂花",
+          "weight": 75
+        },
+        {
+          "species": "柿子",
+          "weight": 20
+        },
+        {
+          "species": "櫻花",
+          "weight": 5
+        }
+      ]
+    }
+  ],
+  "walkSeedDrop": {
+    "enabled": true,
+    "chancePercent": 35,
+    "seedTypeId": "mystery"
+  },
   "species": [
     "櫻花",
     "柿子",
@@ -7,7 +91,8 @@
     "桂花",
     "銀杏",
     "楓香",
-    "樟樹"
+    "樟樹",
+    "國泰小樹"
   ],
   "trees": [
     {
@@ -15,6 +100,7 @@
       "name": "櫻櫻",
       "species": "櫻花",
       "place": "西湖",
+      "postalCode": "114",
       "latitude": 25.0850596110976,
       "longitude": 121.55563921922585,
       "empty": false,
@@ -27,6 +113,7 @@
       "name": "柿柿柿柿子樹",
       "species": "柿子",
       "place": "內湖",
+      "postalCode": "114",
       "latitude": 25.0800804465638,
       "longitude": 121.5751557682424,
       "empty": false,
@@ -39,6 +126,7 @@
       "name": "小榕樹",
       "species": "榕樹",
       "place": "西湖",
+      "postalCode": "114",
       "latitude": 25.08256899377965,
       "longitude": 121.56737274697623,
       "empty": false,
@@ -51,6 +139,7 @@
       "name": "小桂花",
       "species": "桂花",
       "place": "港墘",
+      "postalCode": "114",
       "latitude": 25.079253203623452,
       "longitude": 121.56756543034211,
       "empty": false,
@@ -63,6 +152,7 @@
       "name": "銀杏123",
       "species": "銀杏",
       "place": "板橋車站",
+      "postalCode": "220",
       "latitude": 25.014441981908295,
       "longitude": 121.46472052639257,
       "empty": false,
@@ -75,6 +165,7 @@
       "name": "不長櫻桃的櫻花",
       "species": "櫻花",
       "place": "萬坪公園",
+      "postalCode": "220",
       "latitude": 25.0124,
       "longitude": 121.4642,
       "empty": false,
@@ -87,6 +178,7 @@
       "name": "我的小榕樹",
       "species": "榕樹",
       "place": "府中",
+      "postalCode": "220",
       "latitude": 25.0084,
       "longitude": 121.4592,
       "empty": false,
@@ -99,6 +191,7 @@
       "name": "大大楓香",
       "species": "楓香",
       "place": "市民廣場",
+      "postalCode": "220",
       "latitude": 25.012,
       "longitude": 121.4653,
       "empty": false,
@@ -111,6 +204,7 @@
       "name": "啊桂花",
       "species": "桂花",
       "place": "新板",
+      "postalCode": "220",
       "latitude": 25.0062,
       "longitude": 121.458,
       "empty": false,
@@ -123,6 +217,7 @@
       "name": "文青樟樹",
       "species": "樟樹",
       "place": "435 藝文特區",
+      "postalCode": "220",
       "latitude": 25.0237,
       "longitude": 121.4496,
       "empty": false,
@@ -133,8 +228,9 @@
     {
       "id": "planting-banqiao-1",
       "name": "萬坪新芽",
-      "species": "榕樹",
+      "species": "",
       "place": "萬坪公園步道",
+      "postalCode": "220",
       "latitude": 25.0134,
       "longitude": 121.4628,
       "empty": true,
@@ -145,8 +241,9 @@
     {
       "id": "planting-banqiao-2",
       "name": "廣場小樹",
-      "species": "榕樹",
+      "species": "",
       "place": "新北市民廣場步道",
+      "postalCode": "220",
       "latitude": 25.0113,
       "longitude": 121.4663,
       "empty": true,
@@ -157,14 +254,509 @@
     {
       "id": "planting-banqiao-3",
       "name": "新板綠芽",
-      "species": "榕樹",
+      "species": "",
       "place": "新板公共步道",
+      "postalCode": "220",
       "latitude": 25.0096,
       "longitude": 121.4613,
       "empty": true,
       "growth": 0,
       "weather": "rainy",
       "timeOfDay": "dawn"
+    },
+    {
+      "id": "planting-neihu-bihu",
+      "name": "碧湖公園種樹點",
+      "place": "碧湖公園",
+      "postalCode": "114",
+      "latitude": 25.0846,
+      "longitude": 121.5825,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-dahu",
+      "name": "大湖公園種樹點",
+      "place": "大湖公園",
+      "postalCode": "114",
+      "latitude": 25.0836,
+      "longitude": 121.6025,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-lohas",
+      "name": "樂活公園種樹點",
+      "place": "樂活公園",
+      "postalCode": "114",
+      "latitude": 25.0739,
+      "longitude": 121.6157,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-dagou",
+      "name": "大溝溪生態治水園區種樹點",
+      "place": "大溝溪生態治水園區",
+      "postalCode": "114",
+      "latitude": 25.0937,
+      "longitude": 121.602,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-huzhou",
+      "name": "葫洲站周邊步行區種樹點",
+      "place": "葫洲站周邊步行區",
+      "postalCode": "114",
+      "latitude": 25.0726,
+      "longitude": 121.6071,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-ruiguang",
+      "name": "瑞光公園種樹點",
+      "place": "瑞光公園",
+      "postalCode": "114",
+      "latitude": 25.0735,
+      "longitude": 121.5737,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-xinhu",
+      "name": "新湖公園種樹點",
+      "place": "新湖公園",
+      "postalCode": "114",
+      "latitude": 25.0629,
+      "longitude": 121.5852,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-kangle",
+      "name": "康樂綠地種樹點",
+      "place": "康樂綠地",
+      "postalCode": "114",
+      "latitude": 25.08,
+      "longitude": 121.6195,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-lin",
+      "name": "林本源園邸外圍步行區種樹點",
+      "place": "林本源園邸外圍步行區",
+      "postalCode": "220",
+      "latitude": 25.0103,
+      "longitude": 121.4542,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-musical",
+      "name": "板橋音樂公園種樹點",
+      "place": "板橋音樂公園",
+      "postalCode": "220",
+      "latitude": 25.028,
+      "longitude": 121.4835,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-fuzhou",
+      "name": "浮洲運動公園種樹點",
+      "place": "浮洲運動公園",
+      "postalCode": "220",
+      "latitude": 24.999,
+      "longitude": 121.4438,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-xikun",
+      "name": "溪崑公園種樹點",
+      "place": "溪崑公園",
+      "postalCode": "220",
+      "latitude": 24.9869,
+      "longitude": 121.427,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-zhongshan",
+      "name": "中山公園種樹點",
+      "place": "中山公園",
+      "postalCode": "220",
+      "latitude": 25.0103,
+      "longitude": 121.4751,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-guangfu",
+      "name": "光復賞鳥綠地種樹點",
+      "place": "光復賞鳥綠地",
+      "postalCode": "220",
+      "latitude": 25.0261,
+      "longitude": 121.4932,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-houpu",
+      "name": "後埔步行區種樹點",
+      "place": "後埔步行區",
+      "postalCode": "220",
+      "latitude": 25.0016,
+      "longitude": 121.4637,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-banqiao-demo-west",
+      "name": "新北市板橋區西側展示種植區種樹點",
+      "place": "新北市板橋區西側展示種植區",
+      "postalCode": "220",
+      "latitude": 25.001,
+      "longitude": 121.4488,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-zhongzheng-demo-west",
+      "name": "臺北市中正區西側展示種植區種樹點",
+      "place": "臺北市中正區西側展示種植區",
+      "postalCode": "100",
+      "latitude": 25.0325,
+      "longitude": 121.5136,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-zhongzheng-demo-east",
+      "name": "臺北市中正區東側展示種植區種樹點",
+      "place": "臺北市中正區東側展示種植區",
+      "postalCode": "100",
+      "latitude": 25.0385,
+      "longitude": 121.5256,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-datong-demo-west",
+      "name": "臺北市大同區西側展示種植區種樹點",
+      "place": "臺北市大同區西側展示種植區",
+      "postalCode": "103",
+      "latitude": 25.062,
+      "longitude": 121.504,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-datong-demo-east",
+      "name": "臺北市大同區東側展示種植區種樹點",
+      "place": "臺北市大同區東側展示種植區",
+      "postalCode": "103",
+      "latitude": 25.068,
+      "longitude": 121.516,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-zhongshan-demo-west",
+      "name": "臺北市中山區西側展示種植區種樹點",
+      "place": "臺北市中山區西側展示種植區",
+      "postalCode": "104",
+      "latitude": 25.064,
+      "longitude": 121.52,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-zhongshan-demo-east",
+      "name": "臺北市中山區東側展示種植區種樹點",
+      "place": "臺北市中山區東側展示種植區",
+      "postalCode": "104",
+      "latitude": 25.07,
+      "longitude": 121.532,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-songshan-demo-west",
+      "name": "臺北市松山區西側展示種植區種樹點",
+      "place": "臺北市松山區西側展示種植區",
+      "postalCode": "105",
+      "latitude": 25.05,
+      "longitude": 121.551,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-songshan-demo-east",
+      "name": "臺北市松山區東側展示種植區種樹點",
+      "place": "臺北市松山區東側展示種植區",
+      "postalCode": "105",
+      "latitude": 25.056,
+      "longitude": 121.563,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-daan-demo-west",
+      "name": "臺北市大安區西側展示種植區種樹點",
+      "place": "臺北市大安區西側展示種植區",
+      "postalCode": "106",
+      "latitude": 25.026,
+      "longitude": 121.537,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-daan-demo-east",
+      "name": "臺北市大安區東側展示種植區種樹點",
+      "place": "臺北市大安區東側展示種植區",
+      "postalCode": "106",
+      "latitude": 25.032,
+      "longitude": 121.549,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-wanhua-demo-east",
+      "name": "臺北市萬華區東側展示種植區種樹點",
+      "place": "臺北市萬華區東側展示種植區",
+      "postalCode": "108",
+      "latitude": 25.0356,
+      "longitude": 121.5058,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-xinyi-demo-west",
+      "name": "臺北市信義區西側展示種植區種樹點",
+      "place": "臺北市信義區西側展示種植區",
+      "postalCode": "110",
+      "latitude": 25.0335,
+      "longitude": 121.559,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-xinyi-demo-east",
+      "name": "臺北市信義區東側展示種植區種樹點",
+      "place": "臺北市信義區東側展示種植區",
+      "postalCode": "110",
+      "latitude": 25.0395,
+      "longitude": 121.571,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-shilin-demo-west",
+      "name": "臺北市士林區西側展示種植區種樹點",
+      "place": "臺北市士林區西側展示種植區",
+      "postalCode": "111",
+      "latitude": 25.0937,
+      "longitude": 121.5209,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-shilin-demo-east",
+      "name": "臺北市士林區東側展示種植區種樹點",
+      "place": "臺北市士林區東側展示種植區",
+      "postalCode": "111",
+      "latitude": 25.0997,
+      "longitude": 121.5329,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-beitou-demo-west",
+      "name": "臺北市北投區西側展示種植區種樹點",
+      "place": "臺北市北投區西側展示種植區",
+      "postalCode": "112",
+      "latitude": 25.1321,
+      "longitude": 121.4926,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-beitou-demo-east",
+      "name": "臺北市北投區東側展示種植區種樹點",
+      "place": "臺北市北投區東側展示種植區",
+      "postalCode": "112",
+      "latitude": 25.1381,
+      "longitude": 121.5046,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-neihu-demo-east",
+      "name": "臺北市內湖區東側展示種植區種樹點",
+      "place": "臺北市內湖區東側展示種植區",
+      "postalCode": "114",
+      "latitude": 25.088,
+      "longitude": 121.578,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-nangang-demo-west",
+      "name": "臺北市南港區西側展示種植區種樹點",
+      "place": "臺北市南港區西側展示種植區",
+      "postalCode": "115",
+      "latitude": 25.052,
+      "longitude": 121.601,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-nangang-demo-east",
+      "name": "臺北市南港區東側展示種植區種樹點",
+      "place": "臺北市南港區東側展示種植區",
+      "postalCode": "115",
+      "latitude": 25.058,
+      "longitude": 121.613,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-wenshan-demo-west",
+      "name": "臺北市文山區西側展示種植區種樹點",
+      "place": "臺北市文山區西側展示種植區",
+      "postalCode": "116",
+      "latitude": 24.998,
+      "longitude": 121.548,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "planting-wenshan-demo-east",
+      "name": "臺北市文山區東側展示種植區種樹點",
+      "place": "臺北市文山區東側展示種植區",
+      "postalCode": "116",
+      "latitude": 25.004,
+      "longitude": 121.56,
+      "species": "",
+      "empty": true,
+      "growth": 0,
+      "weather": "sunny",
+      "timeOfDay": "day"
     }
   ],
   "merchants": [
@@ -272,6 +864,1984 @@
       "amount": 10,
       "weather": "sunny",
       "timeOfDay": "dawn"
+    },
+    {
+      "id": "family-lishui",
+      "name": "全家麗水店",
+      "address": "臺北市內湖區內湖路一段733號",
+      "latitude": 25.0798,
+      "longitude": 121.5786,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-yanghu",
+      "name": "全家陽湖店",
+      "address": "臺北市內湖區內湖路一段91巷4號",
+      "latitude": 25.086,
+      "longitude": 121.5593,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-wenhu",
+      "name": "全家文湖店",
+      "address": "臺北市內湖區文湖街59號",
+      "latitude": 25.0871,
+      "longitude": 121.5609,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-ziyang",
+      "name": "全家紫陽店",
+      "address": "臺北市內湖區文德路212號",
+      "latitude": 25.0788,
+      "longitude": 121.5878,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-minshan",
+      "name": "全家民善店",
+      "address": "臺北市內湖區民善街1號",
+      "latitude": 25.0614,
+      "longitude": 121.5749,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-dehu",
+      "name": "全家德湖店",
+      "address": "臺北市內湖區成功路四段62號",
+      "latitude": 25.0823,
+      "longitude": 121.5921,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-kangyun",
+      "name": "全家康雲店",
+      "address": "臺北市內湖區康寧路一段116號",
+      "latitude": 25.0794,
+      "longitude": 121.5933,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-dongmao",
+      "name": "全家東茂店",
+      "address": "臺北市內湖區康寧路三段189巷12號",
+      "latitude": 25.0684,
+      "longitude": 121.6118,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-kangfu",
+      "name": "全家康福店",
+      "address": "臺北市內湖區康樂街87號",
+      "latitude": 25.0693,
+      "longitude": 121.6188,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-ruihu",
+      "name": "全家瑞湖店",
+      "address": "臺北市內湖區瑞光路513巷39號",
+      "latitude": 25.0809,
+      "longitude": 121.5685,
+      "postalCode": "114",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-fushan",
+      "name": "全家板橋富山店",
+      "address": "新北市板橋區三民路一段94號",
+      "latitude": 25.0203,
+      "longitude": 121.4788,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-tianhe",
+      "name": "全家板橋天和店",
+      "address": "新北市板橋區三民路二段140號",
+      "latitude": 25.0131,
+      "longitude": 121.4792,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-daren",
+      "name": "全家板橋大仁店",
+      "address": "新北市板橋區大仁街108之1號",
+      "latitude": 25.0176,
+      "longitude": 121.4554,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-dayong",
+      "name": "全家板橋大勇店",
+      "address": "新北市板橋區大仁街36號",
+      "latitude": 25.0168,
+      "longitude": 121.4572,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-xinguang",
+      "name": "全家板橋新光店",
+      "address": "新北市板橋區中山路一段141之2號",
+      "latitude": 25.0102,
+      "longitude": 121.4627,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-dating",
+      "name": "全家板橋大庭店",
+      "address": "新北市板橋區中正路191號",
+      "latitude": 25.0168,
+      "longitude": 121.4551,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-wenhua",
+      "name": "全家板橋文化店",
+      "address": "新北市板橋區文化路一段280號",
+      "latitude": 25.0202,
+      "longitude": 121.4669,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-xinpu",
+      "name": "全家板橋新埔店",
+      "address": "新北市板橋區文化路一段421巷4號",
+      "latitude": 25.0231,
+      "longitude": 121.4687,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-hucui",
+      "name": "全家板橋宏翠店",
+      "address": "新北市板橋區四維路100號",
+      "latitude": 25.0263,
+      "longitude": 121.464,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "family-jincheng",
+      "name": "全家板橋金成店",
+      "address": "新北市板橋區金門街313號",
+      "latitude": 24.9837,
+      "longitude": 121.4295,
+      "postalCode": "220",
+      "locationSourceUrl": "https://nevent.family.com.tw/cloudprintSTORELIST/",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-1"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "ikea-neihu",
+      "name": "IKEA 內湖店",
+      "address": "臺北市內湖區舊宗路一段128號",
+      "latitude": 25.0601,
+      "longitude": 121.5775,
+      "postalCode": "114",
+      "locationSourceUrl": "https://www.ikea.com.tw/zh/store/nei-hu/info",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [
+        "cube-curated-4"
+      ],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "uniqlo-banqiao",
+      "name": "UNIQLO 板橋大遠百店",
+      "address": "新北市板橋區新站路28號3樓",
+      "latitude": 25.0143,
+      "longitude": 121.4673,
+      "postalCode": "220",
+      "locationSourceUrl": "https://www.uniqlo.com/tw/zh_TW/stores.html",
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "散步補給體驗",
+      "terms": "真實商家名稱與地址；座標為地址周邊展示定位，入口尚待現勘。遊戲補給為模擬，非真實商家活動或 TWQR 合作承諾。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "sunny",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-banqiao-cafe",
+      "name": "板橋區散步咖啡館（模擬）",
+      "address": "新北市板橋區展示區・模擬位置（非真實商家）",
+      "postalCode": "220",
+      "latitude": 25,
+      "longitude": 121.4538,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-banqiao-convenience",
+      "name": "板橋區日夜便利補給（模擬）",
+      "address": "新北市板橋區展示區・模擬位置（非真實商家）",
+      "postalCode": "220",
+      "latitude": 25.003,
+      "longitude": 121.4568,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-banqiao-meal",
+      "name": "板橋區暖心食堂（模擬）",
+      "address": "新北市板橋區展示區・模擬位置（非真實商家）",
+      "postalCode": "220",
+      "latitude": 24.998,
+      "longitude": 121.45880000000001,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-banqiao-bakery",
+      "name": "板橋區早晨烘焙坊（模擬）",
+      "address": "新北市板橋區展示區・模擬位置（非真實商家）",
+      "postalCode": "220",
+      "latitude": 25.005000000000003,
+      "longitude": 121.4518,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-banqiao-outdoor",
+      "name": "板橋區綠行補給屋（模擬）",
+      "address": "新北市板橋區展示區・模擬位置（非真實商家）",
+      "postalCode": "220",
+      "latitude": 25.007,
+      "longitude": 121.4598,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongzheng-cafe",
+      "name": "中正區散步咖啡館（模擬）",
+      "address": "臺北市中正區展示區・模擬位置（非真實商家）",
+      "postalCode": "100",
+      "latitude": 25.031499999999998,
+      "longitude": 121.51859999999999,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongzheng-convenience",
+      "name": "中正區日夜便利補給（模擬）",
+      "address": "臺北市中正區展示區・模擬位置（非真實商家）",
+      "postalCode": "100",
+      "latitude": 25.034499999999998,
+      "longitude": 121.52159999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongzheng-meal",
+      "name": "中正區暖心食堂（模擬）",
+      "address": "臺北市中正區展示區・模擬位置（非真實商家）",
+      "postalCode": "100",
+      "latitude": 25.0295,
+      "longitude": 121.5236,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongzheng-bakery",
+      "name": "中正區早晨烘焙坊（模擬）",
+      "address": "臺北市中正區展示區・模擬位置（非真實商家）",
+      "postalCode": "100",
+      "latitude": 25.0365,
+      "longitude": 121.5166,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongzheng-outdoor",
+      "name": "中正區綠行補給屋（模擬）",
+      "address": "臺北市中正區展示區・模擬位置（非真實商家）",
+      "postalCode": "100",
+      "latitude": 25.0385,
+      "longitude": 121.52459999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-datong-cafe",
+      "name": "大同區散步咖啡館（模擬）",
+      "address": "臺北市大同區展示區・模擬位置（非真實商家）",
+      "postalCode": "103",
+      "latitude": 25.061,
+      "longitude": 121.509,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-datong-convenience",
+      "name": "大同區日夜便利補給（模擬）",
+      "address": "臺北市大同區展示區・模擬位置（非真實商家）",
+      "postalCode": "103",
+      "latitude": 25.064,
+      "longitude": 121.512,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-datong-meal",
+      "name": "大同區暖心食堂（模擬）",
+      "address": "臺北市大同區展示區・模擬位置（非真實商家）",
+      "postalCode": "103",
+      "latitude": 25.059,
+      "longitude": 121.51400000000001,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-datong-bakery",
+      "name": "大同區早晨烘焙坊（模擬）",
+      "address": "臺北市大同區展示區・模擬位置（非真實商家）",
+      "postalCode": "103",
+      "latitude": 25.066000000000003,
+      "longitude": 121.507,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-datong-outdoor",
+      "name": "大同區綠行補給屋（模擬）",
+      "address": "臺北市大同區展示區・模擬位置（非真實商家）",
+      "postalCode": "103",
+      "latitude": 25.068,
+      "longitude": 121.515,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongshan-cafe",
+      "name": "中山區散步咖啡館（模擬）",
+      "address": "臺北市中山區展示區・模擬位置（非真實商家）",
+      "postalCode": "104",
+      "latitude": 25.063,
+      "longitude": 121.52499999999999,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongshan-convenience",
+      "name": "中山區日夜便利補給（模擬）",
+      "address": "臺北市中山區展示區・模擬位置（非真實商家）",
+      "postalCode": "104",
+      "latitude": 25.066,
+      "longitude": 121.52799999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongshan-meal",
+      "name": "中山區暖心食堂（模擬）",
+      "address": "臺北市中山區展示區・模擬位置（非真實商家）",
+      "postalCode": "104",
+      "latitude": 25.061,
+      "longitude": 121.53,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongshan-bakery",
+      "name": "中山區早晨烘焙坊（模擬）",
+      "address": "臺北市中山區展示區・模擬位置（非真實商家）",
+      "postalCode": "104",
+      "latitude": 25.068,
+      "longitude": 121.523,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-zhongshan-outdoor",
+      "name": "中山區綠行補給屋（模擬）",
+      "address": "臺北市中山區展示區・模擬位置（非真實商家）",
+      "postalCode": "104",
+      "latitude": 25.07,
+      "longitude": 121.53099999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-songshan-cafe",
+      "name": "松山區散步咖啡館（模擬）",
+      "address": "臺北市松山區展示區・模擬位置（非真實商家）",
+      "postalCode": "105",
+      "latitude": 25.049,
+      "longitude": 121.556,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-songshan-convenience",
+      "name": "松山區日夜便利補給（模擬）",
+      "address": "臺北市松山區展示區・模擬位置（非真實商家）",
+      "postalCode": "105",
+      "latitude": 25.052,
+      "longitude": 121.559,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-songshan-meal",
+      "name": "松山區暖心食堂（模擬）",
+      "address": "臺北市松山區展示區・模擬位置（非真實商家）",
+      "postalCode": "105",
+      "latitude": 25.047,
+      "longitude": 121.561,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-songshan-bakery",
+      "name": "松山區早晨烘焙坊（模擬）",
+      "address": "臺北市松山區展示區・模擬位置（非真實商家）",
+      "postalCode": "105",
+      "latitude": 25.054000000000002,
+      "longitude": 121.554,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-songshan-outdoor",
+      "name": "松山區綠行補給屋（模擬）",
+      "address": "臺北市松山區展示區・模擬位置（非真實商家）",
+      "postalCode": "105",
+      "latitude": 25.056,
+      "longitude": 121.562,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-daan-cafe",
+      "name": "大安區散步咖啡館（模擬）",
+      "address": "臺北市大安區展示區・模擬位置（非真實商家）",
+      "postalCode": "106",
+      "latitude": 25.025,
+      "longitude": 121.542,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-daan-convenience",
+      "name": "大安區日夜便利補給（模擬）",
+      "address": "臺北市大安區展示區・模擬位置（非真實商家）",
+      "postalCode": "106",
+      "latitude": 25.028,
+      "longitude": 121.545,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-daan-meal",
+      "name": "大安區暖心食堂（模擬）",
+      "address": "臺北市大安區展示區・模擬位置（非真實商家）",
+      "postalCode": "106",
+      "latitude": 25.023,
+      "longitude": 121.54700000000001,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-daan-bakery",
+      "name": "大安區早晨烘焙坊（模擬）",
+      "address": "臺北市大安區展示區・模擬位置（非真實商家）",
+      "postalCode": "106",
+      "latitude": 25.03,
+      "longitude": 121.54,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-daan-outdoor",
+      "name": "大安區綠行補給屋（模擬）",
+      "address": "臺北市大安區展示區・模擬位置（非真實商家）",
+      "postalCode": "106",
+      "latitude": 25.032,
+      "longitude": 121.548,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wanhua-cafe",
+      "name": "萬華區散步咖啡館（模擬）",
+      "address": "臺北市萬華區展示區・模擬位置（非真實商家）",
+      "postalCode": "108",
+      "latitude": 25.028599999999997,
+      "longitude": 121.49879999999999,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wanhua-convenience",
+      "name": "萬華區日夜便利補給（模擬）",
+      "address": "臺北市萬華區展示區・模擬位置（非真實商家）",
+      "postalCode": "108",
+      "latitude": 25.031599999999997,
+      "longitude": 121.50179999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wanhua-meal",
+      "name": "萬華區暖心食堂（模擬）",
+      "address": "臺北市萬華區展示區・模擬位置（非真實商家）",
+      "postalCode": "108",
+      "latitude": 25.0266,
+      "longitude": 121.5038,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wanhua-bakery",
+      "name": "萬華區早晨烘焙坊（模擬）",
+      "address": "臺北市萬華區展示區・模擬位置（非真實商家）",
+      "postalCode": "108",
+      "latitude": 25.0336,
+      "longitude": 121.4968,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wanhua-outdoor",
+      "name": "萬華區綠行補給屋（模擬）",
+      "address": "臺北市萬華區展示區・模擬位置（非真實商家）",
+      "postalCode": "108",
+      "latitude": 25.0356,
+      "longitude": 121.50479999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-xinyi-cafe",
+      "name": "信義區散步咖啡館（模擬）",
+      "address": "臺北市信義區展示區・模擬位置（非真實商家）",
+      "postalCode": "110",
+      "latitude": 25.0325,
+      "longitude": 121.564,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-xinyi-convenience",
+      "name": "信義區日夜便利補給（模擬）",
+      "address": "臺北市信義區展示區・模擬位置（非真實商家）",
+      "postalCode": "110",
+      "latitude": 25.0355,
+      "longitude": 121.567,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-xinyi-meal",
+      "name": "信義區暖心食堂（模擬）",
+      "address": "臺北市信義區展示區・模擬位置（非真實商家）",
+      "postalCode": "110",
+      "latitude": 25.0305,
+      "longitude": 121.569,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-xinyi-bakery",
+      "name": "信義區早晨烘焙坊（模擬）",
+      "address": "臺北市信義區展示區・模擬位置（非真實商家）",
+      "postalCode": "110",
+      "latitude": 25.0375,
+      "longitude": 121.562,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-xinyi-outdoor",
+      "name": "信義區綠行補給屋（模擬）",
+      "address": "臺北市信義區展示區・模擬位置（非真實商家）",
+      "postalCode": "110",
+      "latitude": 25.0395,
+      "longitude": 121.57,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-shilin-cafe",
+      "name": "士林區散步咖啡館（模擬）",
+      "address": "臺北市士林區展示區・模擬位置（非真實商家）",
+      "postalCode": "111",
+      "latitude": 25.092699999999997,
+      "longitude": 121.5259,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-shilin-convenience",
+      "name": "士林區日夜便利補給（模擬）",
+      "address": "臺北市士林區展示區・模擬位置（非真實商家）",
+      "postalCode": "111",
+      "latitude": 25.095699999999997,
+      "longitude": 121.5289,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-shilin-meal",
+      "name": "士林區暖心食堂（模擬）",
+      "address": "臺北市士林區展示區・模擬位置（非真實商家）",
+      "postalCode": "111",
+      "latitude": 25.0907,
+      "longitude": 121.5309,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-shilin-bakery",
+      "name": "士林區早晨烘焙坊（模擬）",
+      "address": "臺北市士林區展示區・模擬位置（非真實商家）",
+      "postalCode": "111",
+      "latitude": 25.0977,
+      "longitude": 121.5239,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-shilin-outdoor",
+      "name": "士林區綠行補給屋（模擬）",
+      "address": "臺北市士林區展示區・模擬位置（非真實商家）",
+      "postalCode": "111",
+      "latitude": 25.0997,
+      "longitude": 121.5319,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-beitou-cafe",
+      "name": "北投區散步咖啡館（模擬）",
+      "address": "臺北市北投區展示區・模擬位置（非真實商家）",
+      "postalCode": "112",
+      "latitude": 25.1311,
+      "longitude": 121.49759999999999,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-beitou-convenience",
+      "name": "北投區日夜便利補給（模擬）",
+      "address": "臺北市北投區展示區・模擬位置（非真實商家）",
+      "postalCode": "112",
+      "latitude": 25.1341,
+      "longitude": 121.50059999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-beitou-meal",
+      "name": "北投區暖心食堂（模擬）",
+      "address": "臺北市北投區展示區・模擬位置（非真實商家）",
+      "postalCode": "112",
+      "latitude": 25.1291,
+      "longitude": 121.5026,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-beitou-bakery",
+      "name": "北投區早晨烘焙坊（模擬）",
+      "address": "臺北市北投區展示區・模擬位置（非真實商家）",
+      "postalCode": "112",
+      "latitude": 25.136100000000003,
+      "longitude": 121.4956,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-beitou-outdoor",
+      "name": "北投區綠行補給屋（模擬）",
+      "address": "臺北市北投區展示區・模擬位置（非真實商家）",
+      "postalCode": "112",
+      "latitude": 25.1381,
+      "longitude": 121.50359999999999,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-neihu-cafe",
+      "name": "內湖區散步咖啡館（模擬）",
+      "address": "臺北市內湖區展示區・模擬位置（非真實商家）",
+      "postalCode": "114",
+      "latitude": 25.081,
+      "longitude": 121.571,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-neihu-convenience",
+      "name": "內湖區日夜便利補給（模擬）",
+      "address": "臺北市內湖區展示區・模擬位置（非真實商家）",
+      "postalCode": "114",
+      "latitude": 25.084,
+      "longitude": 121.574,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-neihu-meal",
+      "name": "內湖區暖心食堂（模擬）",
+      "address": "臺北市內湖區展示區・模擬位置（非真實商家）",
+      "postalCode": "114",
+      "latitude": 25.079,
+      "longitude": 121.57600000000001,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-neihu-bakery",
+      "name": "內湖區早晨烘焙坊（模擬）",
+      "address": "臺北市內湖區展示區・模擬位置（非真實商家）",
+      "postalCode": "114",
+      "latitude": 25.086000000000002,
+      "longitude": 121.569,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-neihu-outdoor",
+      "name": "內湖區綠行補給屋（模擬）",
+      "address": "臺北市內湖區展示區・模擬位置（非真實商家）",
+      "postalCode": "114",
+      "latitude": 25.088,
+      "longitude": 121.577,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-nangang-cafe",
+      "name": "南港區散步咖啡館（模擬）",
+      "address": "臺北市南港區展示區・模擬位置（非真實商家）",
+      "postalCode": "115",
+      "latitude": 25.051,
+      "longitude": 121.606,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-nangang-convenience",
+      "name": "南港區日夜便利補給（模擬）",
+      "address": "臺北市南港區展示區・模擬位置（非真實商家）",
+      "postalCode": "115",
+      "latitude": 25.054,
+      "longitude": 121.609,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-nangang-meal",
+      "name": "南港區暖心食堂（模擬）",
+      "address": "臺北市南港區展示區・模擬位置（非真實商家）",
+      "postalCode": "115",
+      "latitude": 25.049,
+      "longitude": 121.611,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-nangang-bakery",
+      "name": "南港區早晨烘焙坊（模擬）",
+      "address": "臺北市南港區展示區・模擬位置（非真實商家）",
+      "postalCode": "115",
+      "latitude": 25.056,
+      "longitude": 121.604,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-nangang-outdoor",
+      "name": "南港區綠行補給屋（模擬）",
+      "address": "臺北市南港區展示區・模擬位置（非真實商家）",
+      "postalCode": "115",
+      "latitude": 25.058,
+      "longitude": 121.612,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wenshan-cafe",
+      "name": "文山區散步咖啡館（模擬）",
+      "address": "臺北市文山區展示區・模擬位置（非真實商家）",
+      "postalCode": "116",
+      "latitude": 24.997,
+      "longitude": 121.553,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：室內休息、冷熱飲補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 08:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wenshan-convenience",
+      "name": "文山區日夜便利補給（模擬）",
+      "address": "臺北市文山區展示區・模擬位置（非真實商家）",
+      "postalCode": "116",
+      "latitude": 25,
+      "longitude": 121.556,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：飲水、雨具及隨行補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 24 小時（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wenshan-meal",
+      "name": "文山區暖心食堂（模擬）",
+      "address": "臺北市文山區展示區・模擬位置（非真實商家）",
+      "postalCode": "116",
+      "latitude": 24.995,
+      "longitude": 121.558,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：午餐與晚餐補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 11:00–14:00、17:00–21:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wenshan-bakery",
+      "name": "文山區早晨烘焙坊（模擬）",
+      "address": "臺北市文山區展示區・模擬位置（非真實商家）",
+      "postalCode": "116",
+      "latitude": 25.002000000000002,
+      "longitude": 121.551,
+      "category": "美食",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：早餐、點心與飲水補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 06:00–19:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
+    },
+    {
+      "id": "demo-wenshan-outdoor",
+      "name": "文山區綠行補給屋（模擬）",
+      "address": "臺北市文山區展示區・模擬位置（非真實商家）",
+      "postalCode": "116",
+      "latitude": 25.004,
+      "longitude": 121.559,
+      "category": "購物",
+      "twqr": false,
+      "enabled": true,
+      "roles": [
+        "supply"
+      ],
+      "cubeChannelIds": [],
+      "offer": "Demo 模擬優惠：步行裝備、遮陽及雨具補給",
+      "terms": "虛構展示商家與優惠，非真實商家活動或 TWQR 合作。展示營業時段 10:00–22:00（模擬）。入口與步行可達性未經現勘。",
+      "validUntil": "2026-12-31",
+      "resource": "water",
+      "amount": 10,
+      "weather": "cloudy",
+      "timeOfDay": "day"
     }
   ],
   "rewards": [
@@ -629,6 +3199,80 @@
       "latitude": 25.0142,
       "longitude": 121.4639,
       "rewardAmount": 1
+    }
+  ],
+  "cubeChannels": [
+    {
+      "id": "cube-curated-0",
+      "name": "7-ELEVEN 國內通路",
+      "brand": "7-ELEVEN",
+      "plan": "集精選",
+      "startsOn": "2026-01-01",
+      "endsOn": "2026-12-31",
+      "domestic": true,
+      "enabled": true,
+      "sourceUrl": "https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list",
+      "terms": "依官方指定通路及實際簽單、支付方式認定；不保證個別交易回饋。全聯不含大全聯，排除菸品、代收代售及禮券等。資料核對日：2026-10-22。"
+    },
+    {
+      "id": "cube-curated-1",
+      "name": "全家便利商店 國內通路",
+      "brand": "全家便利商店",
+      "plan": "集精選",
+      "startsOn": "2026-01-01",
+      "endsOn": "2026-12-31",
+      "domestic": true,
+      "enabled": true,
+      "sourceUrl": "https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list",
+      "terms": "依官方指定通路及實際簽單、支付方式認定；不保證個別交易回饋。全聯不含大全聯，排除菸品、代收代售及禮券等。資料核對日：2026-10-22。"
+    },
+    {
+      "id": "cube-curated-2",
+      "name": "全聯福利中心 國內通路",
+      "brand": "全聯福利中心",
+      "plan": "集精選",
+      "startsOn": "2026-01-01",
+      "endsOn": "2026-12-31",
+      "domestic": true,
+      "enabled": true,
+      "sourceUrl": "https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list",
+      "terms": "依官方指定通路及實際簽單、支付方式認定；不保證個別交易回饋。全聯不含大全聯，排除菸品、代收代售及禮券等。資料核對日：2026-10-22。"
+    },
+    {
+      "id": "cube-curated-3",
+      "name": "LOPIA台灣 國內通路",
+      "brand": "LOPIA台灣",
+      "plan": "集精選",
+      "startsOn": "2026-01-01",
+      "endsOn": "2026-12-31",
+      "domestic": true,
+      "enabled": true,
+      "sourceUrl": "https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list",
+      "terms": "依官方指定通路及實際簽單、支付方式認定；不保證個別交易回饋。全聯不含大全聯，排除菸品、代收代售及禮券等。資料核對日：2026-10-22。"
+    },
+    {
+      "id": "cube-curated-4",
+      "name": "IKEA宜家家居 國內通路",
+      "brand": "IKEA宜家家居",
+      "plan": "集精選",
+      "startsOn": "2026-01-01",
+      "endsOn": "2026-12-31",
+      "domestic": true,
+      "enabled": true,
+      "sourceUrl": "https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list",
+      "terms": "依官方指定通路及實際簽單、支付方式認定；不保證個別交易回饋。全聯不含大全聯，排除菸品、代收代售及禮券等。資料核對日：2026-10-22。"
+    },
+    {
+      "id": "cube-autumn-reference",
+      "name": "秋日遊（國內適用通路待確認）",
+      "brand": "待確認",
+      "plan": "秋日遊",
+      "startsOn": "2026-10-01",
+      "endsOn": "2026-11-30",
+      "domestic": true,
+      "enabled": true,
+      "sourceUrl": "https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list",
+      "terms": "官方 UNIQLO 指定為日本實體通路；目前沒有將台灣 UNIQLO 門市列入此方案。此參考設定未連結任何商家。"
     }
   ]
 }

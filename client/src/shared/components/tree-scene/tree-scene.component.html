@@ -222,7 +222,7 @@
             @for (current of [stage()]; track current) {
               <g class="fallback-tree-model">
                 <image
-                  href="/images/assets/botanical-tree-trunk.svg"
+                  [attr.href]="'/images/tree-species/' + appearance().id + '-trunk.png'"
                   x="0"
                   y="0"
                   width="320"
@@ -233,8 +233,8 @@
                     <image
                       [attr.href]="
                         stage() === 'young'
-                          ? '/images/assets/botanical-tree-young-crown.svg'
-                          : '/images/assets/botanical-tree-crown.svg'
+                          ? '/images/tree-species/' + appearance().id + '-young-crown.png'
+                          : '/images/tree-species/' + appearance().id + '-crown.png'
                       "
                       x="0"
                       y="0"
@@ -249,9 +249,9 @@
                         >
                           <path
                             d="M0 -1 C-5 -7 -7 0 -2 1 C-6 6 1 8 2 3 C7 5 8 -2 3 -2 C4 -7 -2 -7 0 -1"
-                            fill="#e8ead4"
+                            [attr.fill]="appearance().flower"
                           />
-                          <circle r="1.2" fill="#d5b35f" />
+                          <circle r="1.2" [attr.fill]="appearance().flowerCenter" />
                         </g>
                       }
                     }

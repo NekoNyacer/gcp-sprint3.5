@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CubCardModule } from 'cub-lib-view-rootng/component/card';
 import { CubButtonModule } from 'cub-lib-view-rootng/component/button';
 import { CubInputModule } from 'cub-lib-view-rootng/component/input';
-import { CubFormFieldModule, CubHint } from 'cub-lib-view-rootng/component/form-field';
+import { CubFormFieldModule } from 'cub-lib-view-rootng/component/form-field';
 import { CubChipModule } from 'cub-lib-view-rootng/component/chip';
 @Component({
   selector: 'cms-ai-page',
@@ -16,7 +16,6 @@ import { CubChipModule } from 'cub-lib-view-rootng/component/chip';
     CubButtonModule,
     CubInputModule,
     CubFormFieldModule,
-    CubHint,
     CubChipModule,
   ],
 })

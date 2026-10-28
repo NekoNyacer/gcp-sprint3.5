@@ -1,10 +1,10 @@
 <cub-card class="mb-24"
   ><cub-card-content>
     <cub-content-field>
-      <h2>Gemini 站點角色推薦</h2>
+      <h2>Gemini 額外補給站推薦</h2>
       <p>
-        從已發布、六公里內的有效商家中選擇種樹點與補給站，並說明推薦理由。不保存起點座標。AI
-        僅能選擇允許角色；實際道路需由用戶端地圖服務驗證。
+        模擬已確定終點，依起終點距離、台北時間與即時天氣推薦額外補給站，數量由 Gemini 決定。
+        不保存起終點座標。此管理預覽以直線走廊篩選候選；實際道路需由用戶端地圖服務驗證。
       </p>
     </cub-content-field>
     <div class="row">
@@ -21,6 +21,16 @@
           cubInput
           type="number"
           [(ngModel)]="vm.aiLongitude" />
+      </cub-form-field>
+    </div>
+    <div class="row">
+      <cub-form-field class="col-3">
+        <cub-label>模擬終點緯度</cub-label>
+        <input cubInput type="number" [(ngModel)]="vm.aiDestinationLatitude" />
+      </cub-form-field>
+      <cub-form-field class="col-3">
+        <cub-label>模擬終點經度</cub-label>
+        <input cubInput type="number" [(ngModel)]="vm.aiDestinationLongitude" />
       </cub-form-field>
       <button
         class="col-3 align-self-start mt-24"

@@ -8,7 +8,6 @@ import { CubBadgeComponent } from '../badge/badge.component';
 @Component({
   selector: 'cub-modal',
   templateUrl: './modal.component.html',
-  styleUrls: ['./modal.component.scss'],
   imports: [IonButton, IonToolbar, IonContent, IonModal, CubBadgeComponent, NgTemplateOutlet],
 })
 export class CubModalComponent {

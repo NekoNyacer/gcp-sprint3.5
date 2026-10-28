@@ -78,6 +78,26 @@ ion-chip{
     padding: 0 3px;
     font-size: 0.8rem;
 
+    &.status-warning {
+      --background: var(--ion-color-warning);
+      --color: var(--ion-color-warning-contrast);
+    }
+
+    &.status-medium {
+      --background: var(--ion-color-medium);
+      --color: var(--ion-color-medium-contrast);
+    }
+
+    &.status-success {
+      --background: var(--ion-color-success);
+      --color: var(--ion-color-success-contrast);
+    }
+
+    &.status-danger {
+      --background: var(--ion-color-danger);
+      --color: var(--ion-color-danger-contrast);
+    }
+
     ion-icon {
       flex-shrink: 0;
       margin: 0 2px 0 0;
@@ -178,10 +198,23 @@ progress {
     margin: 0;
     overflow-wrap: anywhere;
   }
+}
+.tree-location-weather {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 2px;
+
   p {
     margin: 0;
     color: var(--ion-color-medium-shade);
     font-size: 0.8rem;
+  }
+
+  small {
+    color: var(--ion-color-medium-shade);
+    font-size: 0.65rem;
   }
 }
 .tree-badges {
@@ -204,61 +237,6 @@ progress {
   flex-direction: column;
   gap: 6px;
   min-width: 0;
-}
-
-.backpack-panel {
-  position: absolute;
-  z-index: 6;
-  bottom: 100px;
-  left: 12px;
-  right: 12px;
-  width: min(420px, calc(100% - 24px));
-  max-height: 60%;
-  overflow-y: auto;
-  margin-inline: auto;
-  padding: 16px;
-  border-radius: 18px;
-  background: #fffffff5;
-  box-shadow: 0 5px 24px #29483930;
-  pointer-events: auto;
-
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  p {
-    font-size: 0.8rem;
-    margin-bottom: 0;
-  }
-}
-
-.backpack-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  border: 1px solid #d9e4d5;
-  border-radius: 12px;
-  background: #f6faf3;
-  text-align: left;
-
-  span:first-of-type {
-    flex: 1;
-  }
-
-  small {
-    display: block;
-    margin-top: 4px;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-  }
 }
 
 .resource {

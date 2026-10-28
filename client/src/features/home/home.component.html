@@ -1,13 +1,5 @@
 <ion-content>
   <section class="floating-panel">
-    @if (cms?.managed() && ws.isPlanning()) {
-      <div class="cms-recommendation" role="status">
-        @if (cms?.aiLoading()) { <span>Gemini 正在選擇商家站點…</span> }
-        @else if (cms?.ai(); as result) { <span>{{ result.source === 'gemini' ? 'Gemini 推薦' : '規則備援' }} · {{ result.reason }}</span>
-          @if (aiPlantingId() && !ws.hasDestination()) { <ion-button size="small" (click)="selectDestination('merchant-' + aiPlantingId())">採用推薦種樹點</ion-button> }
-        }
-      </div>
-    }
     @if (cms?.error()) { <p class="cms-recommendation" role="alert">{{ cms?.error() }}</p> }
     @for (claim of cms?.harvestConfirmations() ?? []; track claim.key) {
       <div class="cms-recommendation" role="alert">收成獎勵已更新為 {{ claim.amount }} 小樹點，尚未入帳。
@@ -22,11 +14,14 @@
         [recommendationsVisible]="showTreeRecommendations()"
         (toggleRecommendations)="toggleTreeRecommendations()"
         (back)="back()"
+        (reselectDestination)="startPlanning()"
         (confirmRoute)="confirmRoute()"
         (confirmDestination)="confirmDestination()"
         (treeSelect)="selectDestination($event)"
         (routeRetry)="retryRoute()"
         (routeUpdate)="updateRoute()"
+        (stationSelect)="openStationDetails($event)"
+        (supplyRetry)="retrySupplies()"
       />
     }
 

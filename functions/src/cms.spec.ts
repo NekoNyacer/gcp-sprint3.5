@@ -99,12 +99,14 @@ vi.mock("firebase-functions/params", () => ({
 vi.mock("firebase-functions", () => ({ logger: { warn: vi.fn() } }));
 import {
   cmsCommand,
+  cmsTrack,
   cmsRedeem,
   cmsWallet,
   cmsResetDemo,
   cmsHarvest,
   cmsRecommend,
 } from "./cms.js";
+const track = cmsTrack as unknown as (req: any) => Promise<any>;
 const command = cmsCommand as unknown as (req: any) => Promise<any>;
 const redeem = cmsRedeem as unknown as (req: any) => Promise<any>;
 const wallet = cmsWallet as unknown as (req: any) => Promise<any>;
@@ -134,6 +136,55 @@ beforeEach(async () => {
   vi.unstubAllGlobals();
 });
 describe("CMS authority, publishing, and atomic point economy", () => {
+  it('spreads rules fallback over the full route instead of filling it with origin shops', async () => {
+    const settings = config();
+    settings.merchants = [
+      ['start-a', 121.4501], ['start-b', 121.4502], ['start-c', 121.4503],
+      ['middle', 121.47], ['finish', 121.489],
+    ].map(([id, longitude]) => ({...settings.merchants[0], id, longitude, latitude: 25,
+      roles: ['supply'], validUntil: '2099-12-31'}));
+    memory.docs.set('cmsPublished/demo', {config: settings, version: 1});
+    vi.stubGlobal('fetch', vi.fn(async () => ({ok: false, status: 503})));
+    const result = await recommend({auth: user(), data: {scope: 'demo', origin: {latitude: 25, longitude: 121.45},
+      destination: {latitude: 25, longitude: 121.49}, distanceMeters: 4500, durationSeconds: 3600}});
+    expect(result.source).toBe('rules');
+    expect(result.selections.map((s: any) => s.merchantId)).toEqual(expect.arrayContaining(['middle', 'finish']));
+  });
+  it('rejects client-forged recommendation events and faraway arrivals, deduplicating valid arrivals per route and merchant', async () => {
+    const settings = config();
+    memory.docs.set('cmsPublished/demo', {config: settings, version: 7});
+    const m = settings.merchants[0];
+    const request = {auth: user(), data: {scope: 'demo', name: 'merchant_arrived', entityId: m.id, eventId: 'route-one', position: {latitude: m.latitude, longitude: m.longitude}}};
+    await expect(track({...request, data: {...request.data, name: 'merchant_recommended'}})).rejects.toMatchObject({code: 'invalid-argument'});
+    await expect(track({...request, data: {...request.data, position: {latitude: 0, longitude: 0}}})).rejects.toMatchObject({code: 'failed-precondition'});
+    await track(request); await track(request);
+    let events = [...memory.docs.entries()].filter(([path]) => path.startsWith('cmsEvents/'));
+    expect(events).toHaveLength(1);
+    expect(events[0][1]).toMatchObject({evidence: 'simulated-proximity', name: 'merchant_arrived'});
+    expect(events[0][1]).not.toHaveProperty('position');
+    const other = settings.merchants[1];
+    await track({...request, data: {...request.data, entityId: other.id, position: {latitude: other.latitude, longitude: other.longitude}}});
+    events = [...memory.docs.entries()].filter(([path]) => path.startsWith('cmsEvents/'));
+    expect(events).toHaveLength(2);
+  });
+  it('filters AI candidates by valid domestic CUBE channels and records actual returned selection source', async () => {
+    const settings = config();
+    const merchant = settings.merchants.find((m: any) => m.id === 'ikea-neihu');
+    const selection = [{merchantId: merchant.id, role: 'supply', reason: '國內指定通路'}];
+    memory.docs.set('cmsPublished/demo', {config: settings, version: 7});
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-22T04:00:00Z'));
+    try {
+      vi.stubGlobal('fetch', vi.fn(async () => ({ok: true, json: async () => ({candidates: [{content: {parts: [{text: JSON.stringify(selection)}]}}]})})));
+      const result = await recommend({auth: user(), data: {scope: 'demo', plan: '集精選', origin: {latitude: merchant.latitude, longitude: merchant.longitude}, destination: {latitude: merchant.latitude + 0.001, longitude: merchant.longitude}}});
+      expect(result.source).toBe('gemini');
+      const events = [...memory.docs.entries()].filter(([path]) => path.startsWith('cmsEvents/'));
+      expect(events).toHaveLength(1);
+      expect(events[0][1]).toMatchObject({name: 'merchant_recommended', entityId: merchant.id, plan: '集精選', source: 'gemini', version: 7});
+      const empty = await recommend({auth: user(), data: {scope: 'demo', plan: '秋日遊', origin: {latitude: merchant.latitude, longitude: merchant.longitude}, destination: {latitude: merchant.latitude + 0.001, longitude: merchant.longitude}}});
+      expect(empty.selections).toEqual([]);
+    } finally { vi.useRealTimers(); }
+  });
+
   it('imports existing normal tasks for review without changing live documents or leaking them into Demo', async () => {
     memory.docs.set('tasks/legacy-task', {title: '既有任務', description: '', areaId: 'banqiao', cadence: 'daily',
       startsAt: {toDate: () => new Date('2026-10-21T00:00:00+08:00')},
@@ -358,11 +409,13 @@ describe("CMS authority, publishing, and atomic point economy", () => {
     const selections = [
       {
         merchantId: settings.merchants[0].id,
-        role: "planting",
-        reason: "附近的模擬店家適合作為終點",
+        role: "supply",
+        reason: "短程炎熱天氣適合飲水補給",
       },
     ];
-    const fetch = vi.fn(async () => ({
+    const fetch = vi.fn(async (url: unknown) => String(url).includes('open-meteo') ? ({ok: true,
+      json: async () => ({current: {temperature_2m: 31, precipitation: 0, weather_code: 0, time: Math.floor(Date.now() / 1000)}}),
+    }) : ({
       ok: true,
       json: async () => ({
         candidates: [
@@ -376,16 +429,48 @@ describe("CMS authority, publishing, and atomic point economy", () => {
       data: {
         scope: "demo",
         origin: { latitude: 25.013456789, longitude: 121.462876543 },
+        destination: {latitude: 25.015, longitude: 121.465},
       },
     });
     expect(result).toMatchObject({ source: "gemini", selections, version: 1 });
-    const request = fetch.mock.calls[0] as unknown as [
+    const request = fetch.mock.calls.find(call => String(call[0]).includes('aiplatform')) as unknown as [
       string,
       { body: string },
     ];
     expect(request[0]).toContain("aiplatform.googleapis.com");
+    expect(JSON.parse(request[1].body).generationConfig).toMatchObject({
+      thinkingConfig: { thinkingBudget: 0 },
+    });
     expect(request[1].body).not.toContain("25.013456789");
     expect(request[1].body).not.toContain("121.462876543");
+    const prompt = JSON.parse(JSON.parse(request[1].body).contents[0].parts[0].text);
+    expect(prompt.context).toMatchObject({weather: {source: 'open-meteo', condition: 'sunny', temperatureC: 31}, timeZone: 'Asia/Taipei'});
+    expect(prompt.context.walkingDistanceMeters).toBeGreaterThan(0);
+    expect(prompt.candidates.every((m: any) => m.roles.length === 1 && m.roles[0] === 'supply')).toBe(true);
+  });
+  it('requires a valid destination before charging recommendation quota', async () => {
+    await expect(recommend({auth: user(), data: {scope: 'demo', origin: {latitude: 25, longitude: 121}}}))
+      .rejects.toMatchObject({code: 'invalid-argument'});
+    expect(memory.writes).toEqual([]);
+  });
+  it('preserves eight Gemini-selected stops, permits zero, and rejects planting output', async () => {
+    const settings = config();
+    settings.merchants = Array.from({length: 8}, (_, i) => ({...settings.merchants[0], id: `selected-${i}`,
+      latitude: 25.005 + i * 0.0001, longitude: 121.458, validUntil: '2099-12-31'}));
+    memory.docs.set('cmsPublished/demo', {config: settings, version: 2});
+    const input = {auth: user(), data: {scope: 'demo', origin: {latitude: 25.001, longitude: 121.4548}, destination: {latitude: 25.012, longitude: 121.46}}};
+    for (const selections of [settings.merchants.map((m: any) => ({merchantId: m.id, role: 'supply', reason: '依路程與時段補給'})), []]) {
+      vi.stubGlobal('fetch', vi.fn(async (url: unknown) => String(url).includes('open-meteo') ? {ok: false, status: 503}
+        : {ok: true, json: async () => ({candidates: [{content: {parts: [{text: JSON.stringify(selections)}]}}]})}));
+      expect(await recommend(input)).toMatchObject({source: 'gemini', selections});
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: unknown) => String(url).includes('open-meteo') ? {ok: false, status: 503}
+      : {ok: true, json: async () => ({candidates: [{content: {parts: [{text: JSON.stringify([{merchantId: 'selected-0', role: 'planting', reason: 'wrong'}])}]}}]})}));
+    const result = await recommend(input);
+    expect(result.source).toBe('rules');
+    expect(result.selections.every((s: any) => s.role === 'supply')).toBe(true);
+    const events = [...memory.docs.entries()].filter(([path]) => path.startsWith('cmsEvents/'));
+    expect(events.every(([, event]) => !('origin' in event) && !('destination' in event) && !('route' in event))).toBe(true);
   });
   it("requires renewed harvest consent when reward settings changed during the animation", async () => {
     memory.docs.set("cmsPublished/demo", { config: config(), version: 2 });
@@ -445,6 +530,7 @@ describe("CMS authority, publishing, and atomic point economy", () => {
         data: {
           scope: "demo",
           origin: { latitude: 25.0134, longitude: 121.4628 },
+          destination: {latitude: 25.015, longitude: 121.465},
         },
       });
       expect(result.source).toBe("rules");

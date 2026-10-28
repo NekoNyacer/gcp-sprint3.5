@@ -71,6 +71,15 @@
               ><strong>{{ result.waterDropsBalance | number: '1.0-0' }}</strong>
             </div>
           </div>
+          @if (result.earnedSeeds) {
+            <div class="resource-row">
+              <span aria-hidden="true">🌱</span>
+              <div class="resource-earned"><span>沿途發現</span><p>神秘種子 <strong>+{{ result.earnedSeeds }}</strong></p><small>長成小樹後揭曉品種</small></div>
+              <div class="resource-balance"><span>更新後餘額</span><strong>{{ result.seedsBalance | number:'1.0-0' }}</strong></div>
+            </div>
+          } @else {
+            <p>這次沒有發現種子，下次散步再找找吧！</p>
+          }
           @if (result.earnedFertilizer > 0) {
             <div class="resource-row">
               <ion-icon [icon]="icons.sparklesOutline" aria-hidden="true" />

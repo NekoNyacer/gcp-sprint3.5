@@ -19,11 +19,13 @@ import { CubDrawer, CubDrawerRef } from "cub-lib-view-rootng/component/drawer";
 import { CmsService, Dashboard } from "./cms.service";
 import {
   validateConfig,
+  mergeCatalog,
+  CMS_MAX_CONFIG_BYTES,
   type CmsConfig,
 } from "../../../functions/src/cms-domain";
 export type Page =
-  "dashboard" | "merchants" | "trees" | "tasks" | "rewards" | "scenes" | "budget" | "ai" | "seed-import";
-type Editable = "merchants" | "trees" | "tasks" | "rewards" | "scenes";
+  "dashboard" | "seedTypes" | "cubeChannels" | "merchants" | "trees" | "tasks" | "rewards" | "scenes" | "budget" | "ai" | "seed-import";
+type Editable = "seedTypes" | "cubeChannels" | "merchants" | "trees" | "tasks" | "rewards" | "scenes";
 interface Field {
   key: string;
   label: string;
@@ -45,6 +47,17 @@ const environment: Field[] = [
   },
 ];
 const fields: Record<Editable, Field[]> = {
+  seedTypes: [
+    {key: 'name', label: '機率池名稱（僅後臺顯示）', type: 'text'},
+    {key: 'enabled', label: '啟用機率池', type: 'checkbox'},
+  ],
+  cubeChannels: [
+    {key: 'name', label: '通路名稱', type: 'text'}, {key: 'plan', label: '權益方案', type: 'text'},
+    {key: 'brand', label: '品牌', type: 'text'}, {key: 'startsOn', label: '適用起日', type: 'date'},
+    {key: 'endsOn', label: '適用迄日', type: 'date'}, {key: 'domestic', label: '國內通路', type: 'checkbox'},
+    {key: 'enabled', label: '啟用', type: 'checkbox'}, {key: 'sourceUrl', label: '官方來源網址', type: 'text'},
+    {key: 'terms', label: '支付方式、排除條件與備註', type: 'textarea'},
+  ],
   tasks: [
     {key: "name", label: "任務名稱", type: "text"},
     {key: "description", label: "任務說明", type: "textarea"},
@@ -61,6 +74,8 @@ const fields: Record<Editable, Field[]> = {
   ],
   merchants: [
     { key: "name", label: "店家名稱", type: "text" },
+    {key: "postalCode", label: "三碼郵遞區號", type: "text"},
+    {key: "locationSourceUrl", label: "門市資料來源", type: "text"},
     { key: "address", label: "地址／位置說明", type: "text" },
     { key: "latitude", label: "緯度", type: "number" },
     { key: "longitude", label: "經度", type: "number" },
@@ -85,13 +100,12 @@ const fields: Record<Editable, Field[]> = {
     ...environment,
   ],
   trees: [
-    { key: "name", label: "小樹名稱", type: "text" },
-    { key: "species", label: "樹種", type: "text" },
+    { key: "name", label: "種樹點名稱（非玩家樹名）", type: "text" },
     { key: "place", label: "地點", type: "text" },
+    { key: "postalCode", label: "三碼郵遞區號", type: "text" },
     { key: "latitude", label: "緯度", type: "number" },
     { key: "longitude", label: "經度", type: "number" },
-    { key: "empty", label: "尚未種植", type: "checkbox" },
-    { key: "growth", label: "新 Demo 場景初始成長值", type: "number" },
+
     ...environment,
   ],
   rewards: [
@@ -180,7 +194,9 @@ export class CmsWorkspaceService {
     { id: "dashboard", label: "營運總覽", icon: "◫", group: "營運洞察" },
     { id: "merchants", label: "商家與站點", icon: "⌖", group: "內容管理" },
     { id: "tasks", label: "任務管理", icon: "⌖", group: "" },
-    { id: "trees", label: "種樹點與樹種", icon: "♧", group: "" },
+    { id: "seedTypes", label: "樹種與種子機率", icon: "♧", group: "" },
+    { id: "cubeChannels", label: "CUBE 回饋通路", icon: "◇", group: "" },
+    { id: "trees", label: "種樹點管理", icon: "♧", group: "" },
     { id: "rewards", label: "商品與兌換", icon: "◇", group: "" },
     { id: "scenes", label: "展示場景", icon: "▧", group: "" },
     { id: "budget", label: "成本與預算", icon: "▤", group: "管理工具" },
@@ -193,7 +209,7 @@ export class CmsWorkspaceService {
   readonly rows = computed(() => {
     const p = this.page();
     const c = this.config();
-    const items = ["merchants", "trees", "tasks", "rewards", "scenes"].includes(p)
+    const items = ["seedTypes", "cubeChannels", "merchants", "trees", "tasks", "rewards", "scenes"].includes(p)
       ? c[p as Editable] ?? []
       : [];
     const q = this.search().toLocaleLowerCase();
@@ -216,6 +232,9 @@ export class CmsWorkspaceService {
     const next = this.config();
     return (
       [
+        "seedTypes",
+        "walkSeedDrop",
+        "cubeChannels",
         "merchants",
         "tasks",
         "trees",
@@ -232,6 +251,8 @@ export class CmsWorkspaceService {
   billingSource = "";
   aiLatitude = 25.0134;
   aiLongitude = 121.4628;
+  aiDestinationLatitude = 25.082;
+  aiDestinationLongitude = 121.567;
   constructor() {
     const syncRoute = () => {
       const path = this.router.url
@@ -333,6 +354,8 @@ export class CmsWorkspaceService {
   }
   edit(kind: Editable, item?: object) {
     const defaults: Record<Editable, Record<string, any>> = {
+      seedTypes: {id: `seed-${crypto.randomUUID()}`, name: '', enabled: true, outcomes: [{species: this.config().species[0] ?? '', weight: 1}]},
+      cubeChannels: {id: `channel-${crypto.randomUUID()}`, name: '', plan: '', brand: '', startsOn: '2026-10-01', endsOn: '2026-12-31', domestic: true, enabled: true, sourceUrl: 'https://www.cathay-cube.com.tw/cathaybk/personal/product/credit-card/cards/cube-list', terms: ''},
       tasks: {
         id: `task-${crypto.randomUUID()}`, name: "", description: "", areaId: "banqiao",
         cadence: "daily", enabled: true,
@@ -348,7 +371,8 @@ export class CmsWorkspaceService {
         category: "美食",
         twqr: true,
         enabled: true,
-        roles: ["planting", "supply"],
+        roles: ["supply"],
+        cubeChannelIds: [],
         offer: "",
         terms: "Demo 模擬優惠，非真實商家活動",
         validUntil: "2026-11-09",
@@ -362,6 +386,7 @@ export class CmsWorkspaceService {
         name: "",
         species: this.config().species[0] ?? "榕樹",
         place: "",
+        postalCode: "220",
         latitude: 25.0134,
         longitude: 121.4628,
         empty: true,
@@ -425,6 +450,8 @@ export class CmsWorkspaceService {
     if (!e) return;
     const next = structuredClone(this.config());
     next.tasks ??= [];
+    next.seedTypes ??= [];
+    next.cubeChannels ??= [];
     const list = next[e.kind] as any[];
     const i = list.findIndex((x) => x.id === e.item["id"]);
     if (i >= 0) list[i] = e.item;
@@ -440,6 +467,9 @@ export class CmsWorkspaceService {
     }
   }
   async remove(kind: Editable, id: string) {
+    if (kind === 'seedTypes' && this.config().walkSeedDrop?.enabled && this.config().walkSeedDrop?.seedTypeId === id) {
+      this.error.set('此機率池正在用於路線掉落，請先停用掉落或更換機率池。'); return;
+    }
     if (
       !(await this.confirm(
         "從草稿移除此項目？發布後才會影響用戶端；既有玩家進度不會刪除。",
@@ -447,6 +477,7 @@ export class CmsWorkspaceService {
     )
       return;
     const next = structuredClone(this.config());
+    if (kind === 'cubeChannels' && next.merchants.some(m => m.cubeChannelIds?.includes(id))) { this.error.set('此通路仍被商家使用，請先取消關聯或停用通路。'); return; }
     (next[kind] as any[]) = (next[kind] ?? []).filter((x) => x.id !== id);
     this.config.set(next);
     this.dirty.set(true);
@@ -475,6 +506,25 @@ export class CmsWorkspaceService {
       PRODUCT: "商品", CHARITY: "公益捐贈", water: "水", fertilizer: "肥料", sunny: "晴天",
       rainy: "雨天", cloudy: "陰天", dawn: "清晨", day: "白天", dusk: "黃昏", night: "夜晚"} as Record<string, string>)[value] ?? value;
   }
+  toggleChannel(id: string, checked: boolean) {
+    const e = this.editor(); if (!e) return;
+    const ids: string[] = e.item['cubeChannelIds'] ?? [];
+    e.item['cubeChannelIds'] = checked ? [...new Set([...ids, id])] : ids.filter(i => i !== id);
+  }
+  addOutcome() {
+    const e = this.editor(); if (!e) return;
+    e.item['outcomes'].push({species: this.config().species[0] ?? '', weight: 1});
+  }
+  probability(item: Record<string, any>, weight: number) {
+    const total = item['outcomes'].reduce((sum: number, o: {weight: number}) => sum + Number(o.weight), 0);
+    return total > 0 ? weight / total * 100 : 0;
+  }
+  merchantMetric(id: string) { return this.dashboard()?.merchants?.find(m => m.id === id); }
+  readonly merchantAnalysisRows = computed(() => {
+    const current = this.config().merchants;
+    const removed = (this.dashboard()?.merchants ?? []).filter(m => !current.some(c => c.id === m.id));
+    return [...current, ...removed.map(m => ({id: m.id, name: `已移除商家 · ${m.id}`}))];
+  });
   addSpecies() {
     const s = this.newSpecies.trim();
     if (!s || this.config().species.includes(s)) return;
@@ -483,8 +533,8 @@ export class CmsWorkspaceService {
     this.dirty.set(true);
   }
   removeSpecies(s: string) {
-    if (this.config().trees.some((t) => t.species === s)) {
-      this.error.set("此樹種仍被種樹點使用。");
+    if (this.config().trees.some((t) => !t.empty && t.species === s) || this.config().seedTypes?.some(t => t.outcomes.some(o => o.species === s))) {
+      this.error.set("此樹種仍被既有展示樹木或種子機率池使用。");
       return;
     }
     this.config.update((c) => ({
@@ -497,11 +547,21 @@ export class CmsWorkspaceService {
     this.config.update((c) => ({ ...c, harvestPoints: value }));
     this.dirty.set(true);
   }
+  async loadExpandedSeed() {
+    await this.run(async () => {
+      const response = await fetch(new URL('cms-demo.json', document.baseURI));
+      if (!response.ok) throw new Error('無法載入擴充站點資料');
+      const incoming = validateConfig(await response.json());
+      this.config.set(mergeCatalog(this.config(), incoming));
+      this.dirty.set(true);
+      this.message.set('擴充資料已合併至草稿，既有內容保留；請檢閱、儲存並發布。');
+    });
+  }
   async importSeed(files: File[]) {
     const file = files[0];
     if (!file) return;
     await this.run(async () => {
-      if (file.size > 350000) throw new Error("種子檔案過大");
+      if (file.size > CMS_MAX_CONFIG_BYTES) throw new Error("種子檔案過大");
       const config = validateConfig(JSON.parse(await file.text()));
       this.config.set(config);
       this.dirty.set(true);
@@ -587,6 +647,7 @@ export class CmsWorkspaceService {
       this.ai.set(
         await this.api.call("cmsRecommend", {
           origin: { latitude: this.aiLatitude, longitude: this.aiLongitude },
+          destination: { latitude: this.aiDestinationLatitude, longitude: this.aiDestinationLongitude },
         }),
       );
     });

@@ -1,4 +1,12 @@
-import { Component, inject, signal, HostListener, effect, afterRenderEffect, untracked } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  HostListener,
+  effect,
+  afterRenderEffect,
+  untracked,
+} from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CubLayoutModule } from 'cub-lib-view-rootng/component/layout';
@@ -97,6 +105,8 @@ export class AppComponent {
     id: item.id,
     label: item.label,
     icon: {
+      seedTypes: 'cub-icon-leaf',
+      cubeChannels: 'cub-icon-credit-card',
       dashboard: 'cub-icon-chart-bar',
       merchants: 'cub-icon-map',
       tasks: 'cub-icon-map',
@@ -151,7 +161,11 @@ export class AppComponent {
         void this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
       } else if (this.vm.api.authorized() && isLoginRoute) {
         const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
-        void this.router.navigateByUrl(typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//') ? returnUrl : '/dashboard');
+        void this.router.navigateByUrl(
+          typeof returnUrl === 'string' && returnUrl.startsWith('/') && !returnUrl.startsWith('//')
+            ? returnUrl
+            : '/dashboard',
+        );
       }
     });
     effect(() =>

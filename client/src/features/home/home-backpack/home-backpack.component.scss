@@ -1,0 +1,234 @@
+:host {
+  color: #222;
+}
+.backpack-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: #fff;
+}
+.backpack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 24px 18px;
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+  }
+}
+.close-button {
+  min-height: 40px;
+  padding: 8px 0 8px 16px;
+  border: 0;
+  background: transparent;
+  color: #777;
+  font-size: 14px;
+  cursor: pointer;
+}
+.backpack-segment {
+  flex-shrink: 0;
+  width: calc(100% - 48px);
+  margin: 0 24px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #f5f5f5;
+  ion-segment-button {
+    min-height: 44px;
+    min-width: 0;
+    margin: 0;
+    --border-radius: 8px;
+    --indicator-color: #fff;
+    --color: #888;
+    --color-checked: #222;
+    --indicator-height: 100%;
+    --indicator-transform: none;
+    --background-checked: transparent;
+  }
+  ion-segment-button::part(indicator) {
+    padding: 0;
+  }
+  ion-segment-button::part(native) {
+    border: 0;
+  }
+  ion-segment-button.segment-button-checked::part(native) {
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 4px #0000000a;
+  }
+  ion-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    span {
+      color: #888;
+      font-size: 12px;
+      font-weight: 400;
+    }
+  }
+}
+.inventory-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 24px max(24px, env(safe-area-inset-bottom));
+}
+.seed-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px 4px;
+}
+.seed-card {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-width: 0;
+  padding: 4px 2px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #333;
+  cursor: pointer;
+  &:enabled:hover {
+    background: #fafafa;
+  }
+  &:disabled {
+    cursor: default;
+  }
+  strong {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+}
+.seed-art {
+  display: block;
+  width: 100%;
+  max-width: 132px;
+}
+.seed-place {
+  width: 100%;
+  margin-top: 5px;
+  color: #888;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.empty-inventory {
+  grid-column: 1 / -1;
+  padding: 70px 8px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+.fertilizer-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    span {
+      margin-left: 4px;
+      color: #888;
+      font-size: 13px;
+      font-weight: 400;
+    }
+  }
+}
+.item-details {
+  flex: 1;
+}
+.use-item {
+  flex-shrink: 0;
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: #f56b0b;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  &:disabled {
+    color: #999;
+    background: #f5f5f5;
+    cursor: default;
+  }
+}
+.name-form {
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 28px 24px 24px;
+  background: #fff;
+  h2 {
+    margin: 0 0 24px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #222;
+  }
+  label {
+    display: block;
+    margin: 0 0 8px;
+    color: #777;
+    font-size: 12px;
+  }
+  input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    outline-color: #f56b0b;
+    background: #fff;
+    color: #333;
+    font: inherit;
+    font-size: 16px;
+  }
+}
+.form-error {
+  min-height: 20px;
+  margin: 8px 0;
+  color: #aa4232;
+  text-align: left;
+  font-size: 12px;
+}
+.name-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  button {
+    min-height: 44px;
+    padding: 12px;
+    border: 0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .cancel {
+    color: #777;
+    background: #f5f5f5;
+  }
+  .confirm {
+    color: #fff;
+    background: #f56b0b;
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+}
+button:focus-visible {
+  outline: 2px solid #f56b0b;
+  outline-offset: 2px;
+}

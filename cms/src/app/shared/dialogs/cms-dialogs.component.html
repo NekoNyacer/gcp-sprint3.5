@@ -147,7 +147,27 @@
                 </cub-form-field>
               }
             }
+            @if (e.kind === 'seedTypes') {
+              <fieldset><legend>品種分布</legend>
+              <p>輸入正整數權重，自動換算為池內抽中機率。玩家獲得的種子外觀完全相同。</p>
+              @for (o of e.item['outcomes']; track $index; let i = $index) {
+                <div class="d-flex flex-wrap align-items-center g-12 mb-12">
+                <img [src]="'images/tree-species/'+appearance(o.species).id+'-mature.png'" width="56" height="42" alt="" />
+                <cub-select [aria-label]="'第 '+(i+1)+' 個品種'" [(ngModel)]="o.species" [name]="'species-'+i">
+                  @for (species of vm.config().species; track species) { <cub-option [value]="species">{{species}}</cub-option> }
+                </cub-select>
+                <input cubInput style="width:90px" type="number" min="1" step="1" [attr.aria-label]="o.species+'相對權重'" [(ngModel)]="o.weight" [name]="'weight-'+i" />
+                <strong>{{vm.probability(e.item, o.weight) | number:'1.0-2'}}%</strong>
+                <button cub-button type="button" (click)="e.item['outcomes'].splice(i,1)">移除</button>
+                </div>
+              }
+              <button cub-button type="button" (click)="vm.addOutcome()">新增樹種結果</button></fieldset>
+            }
             @if (e.kind === 'merchants') {
+              <fieldset><legend>CUBE 回饋通路</legend>
+              @for (c of vm.config().cubeChannels ?? []; track c.id) {
+                <cub-checkbox [checked]="(e.item['cubeChannelIds'] ?? []).includes(c.id)" (change)="vm.toggleChannel(c.id, $event.checked)">{{c.plan}} · {{c.brand}}（{{c.domestic ? '國內' : '海外'}}）</cub-checkbox>
+              }</fieldset>
               <fieldset>
                 <legend>AI 允許分配的角色（至少一種）</legend>
                 <cub-checkbox

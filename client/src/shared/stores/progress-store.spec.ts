@@ -1,3 +1,5 @@
+import { cmsPublication } from "../models/cms-publication";
+import { homeTreesWithProgress } from "../../features/home/home-tree-recommendations";
 import { TREE_WEEDS_ENABLED } from '../../environments/environment-dev';
 import { patchState } from '@ngrx/signals';
 import { TestBed } from '@angular/core/testing';
@@ -17,6 +19,26 @@ const nearTargetWater = (target - 1) * 15;
 const fertilizedWater = Math.ceil(target * 12.5);
 
 describe('ProgressStore cultivation Demo', () => {
+  it('requires a valid player name, snapshots one draw and hides its species while it is a seed', () => {
+    const store = setup(); const id = demoPlantingSpots[0].id;
+    store.selectDemoTree(id);
+    const inventory = store.inventory();
+    expect(store.plantDemoSeed('   ')).toBe(false);
+    expect(store.plantDemoSeed('x'.repeat(41))).toBe(false);
+    expect(store.plantDemoSeed('小樹', 'disabled-pool')).toBe(false);
+    expect(store.inventory()).toBe(inventory);
+    expect(store.plantDemoSeed('  我的旅行樹  ', 'mystery')).toBe(true);
+    const tree = store.demoTrees()[id];
+    expect(tree).toMatchObject({nickName: '我的旅行樹', seedTypeId: 'mystery', plantingVersion: 0});
+    const planted = homeTreesWithProgress(store.demoTrees()).find(t => t.id === id)!;
+    expect(planted.nickName).toBe('我的旅行樹'); expect(planted.species).toBe('神秘樹種');
+    patchState(store as never, {demoTrees: {...store.demoTrees(), [id]: {...tree, growth: target * 0.3}}});
+    expect(homeTreesWithProgress(store.demoTrees()).find(t => t.id === id)!.species).toBe(tree.species);
+    store.selectDemoTree('tree-1'); store.selectDemoTree(id);
+    expect(store.demoTrees()[id].species).toBe(tree.species);
+    expect(store.inventory().seeds).toBe(inventory.seeds - 1);
+  });
+
   it.skipIf(TREE_WEEDS_ENABLED)(
     'pauses weeds, pulling and the persisted debuff without reducing nutrient absorption',
     () => {
@@ -42,6 +64,7 @@ describe('ProgressStore cultivation Demo', () => {
     },
   );
   afterEach(() => {
+    cmsPublication.set({config: null, managed: false, version: 0});
     vi.useRealTimers();
     vi.restoreAllMocks();
     TestBed.resetTestingModule();

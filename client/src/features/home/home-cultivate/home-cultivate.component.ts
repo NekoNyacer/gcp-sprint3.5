@@ -55,13 +55,17 @@ import {
 import { DialogService } from '../../../shared/services/dialog.service';
 import { LocationStore } from '../../../shared/stores/location-store';
 import { WalkSessionStore } from '../../../shared/stores/walk-session-store';
-import { findHomeTree } from '../home-tree-recommendations';
+import { findHomeTree, homeTreesWithProgress } from '../home-tree-recommendations';
 import {
   haversineDistanceMeters,
   isValidGeoPoint,
   isWithinGeoRadius,
 } from '../../../shared/models/geo-distance';
 import { CMS_CONNECTION } from '../../../shared/models/cms-publication';
+import { LiveEnvironmentService } from '../../../shared/services/live-environment.service';
+import { CurrentWeather } from '../../../../../functions/src/live-weather';
+import { HomeBackpackComponent } from '../home-backpack/home-backpack.component';
+import { backpackSeeds } from '../../../shared/models/backpack-seed';
 
 @Component({
   selector: 'home-cultivate',
@@ -79,18 +83,11 @@ import { CMS_CONNECTION } from '../../../shared/models/cms-publication';
     CubBadgeComponent,
     DecimalPipe,
     TreeSceneComponent,
+    HomeBackpackComponent,
   ],
 })
 export class HomeCultivateComponent implements OnDestroy {
   private readonly cms = inject(CMS_CONNECTION, { optional: true });
-  readonly merchant = computed(() => {
-    const id = this.ps.activeDemoTreeId();
-    return id.startsWith('merchant-') ? this.cms?.config()?.merchants.find(m => m.id === id.slice(9)) : null;
-  });
-  private readonly merchantViewEffect = effect(() => {
-    const merchant = this.merchant();
-    if (merchant && this.isOpen()) untracked(() => this.cms?.track('offer_view', merchant.id));
-  });
   private readonly dialog = inject(DialogService);
   private readonly ws = inject(WalkSessionStore);
   private readonly ls = inject(LocationStore);
@@ -107,9 +104,17 @@ export class HomeCultivateComponent implements OnDestroy {
     rainy: '雨天',
     cloudy: '陰天',
   };
-  private readonly tree = computed(() => findHomeTree(this.ps.activeDemoTreeId()));
-  readonly weather = computed<CultivationWeather>(() => this.tree()?.weather ?? 'sunny');
-  readonly timeOfDay = computed<CultivationTimeOfDay>(() => this.tree()?.timeOfDay ?? 'day');
+  readonly timeLabels: Record<CultivationTimeOfDay, string> = {
+    dawn: '清晨', day: '白日', dusk: '黃昏', night: '夜晚',
+  };
+  private readonly tree = computed(() => homeTreesWithProgress(this.ps.demoTrees(), this.ps.demoDay()).find(t => t.id === this.ps.activeDemoTreeId()) ?? findHomeTree(this.ps.activeDemoTreeId()));
+  private readonly environment = inject(LiveEnvironmentService);
+  readonly liveWeather = signal<CurrentWeather | null>(null);
+  readonly weather = computed<CultivationWeather>(() => {
+    const condition = this.liveWeather()?.condition;
+    return condition && condition !== 'unknown' ? condition : 'cloudy';
+  });
+  readonly timeOfDay = computed<CultivationTimeOfDay>(() => this.environment.timeOfDay());
   readonly externalOpen = input<boolean | null>(null);
   readonly collectionPreview = input(false);
   readonly navigationRequested = output<string>();
@@ -125,6 +130,25 @@ export class HomeCultivateComponent implements OnDestroy {
     !this.ps.demoTreePlanted() ? '空的種植點' : (this.tree()?.nickName ?? '小樹'),
   );
   readonly treeLocation = computed(() => this.tree()?.poiName ?? '');
+  private readonly liveWeatherLocation = computed(() => {
+    const p = this.isOpen() ? this.tree()?.position : null;
+    return p ? `${p.latitude},${p.longitude}` : null;
+  });
+  private readonly syncLiveWeather = effect(onCleanup => {
+    const key = this.liveWeatherLocation();
+    if (!key) return;
+    const [latitude, longitude] = key.split(',').map(Number);
+    const position = {latitude, longitude};
+    const request = new AbortController();
+    this.liveWeather.set(null);
+    const refresh = async () => {
+      const value = await this.environment.weatherAt(position, request.signal);
+      if (!request.signal.aborted) this.liveWeather.set(value);
+    };
+    void refresh();
+    const timer = setInterval(() => void refresh(), 5 * 60_000);
+    onCleanup(() => { request.abort(); clearInterval(timer); });
+  });
   readonly treeSpecies = computed(() => this.tree()?.species ?? '榕樹');
   readonly canCultivate = computed(() => {
     if (this.collectionPreview()) return false;
@@ -155,6 +179,8 @@ export class HomeCultivateComponent implements OnDestroy {
   readonly closing = output<void>();
   readonly resources: readonly CareResource[] = ['light', 'water', 'fertilizer'];
   readonly backpackOpen = signal(false);
+  readonly backpackSeeds = computed(() => backpackSeeds(this.ps.mysterySeeds(), this.ps.inventory().seeds));
+  readonly backpackError = signal<string | null>(null);
   readonly backpackIcon = bagHandle;
   readonly seedIcon = leaf;
   readonly canPlant = computed(
@@ -531,23 +557,35 @@ export class HomeCultivateComponent implements OnDestroy {
   toggleBackpack(): void {
     this.tickFeeding();
     this.stopGesture();
+    this.backpackError.set(null);
     this.backpackOpen.update((open) => !open);
   }
 
-  useBackpackItem(item: 'fertilizer' | 'seed'): void {
+  useBackpackItem(item: 'fertilizer'): void {
     if (!this.isOpen()) return;
     if (!this.canCultivate()) {
       this.interactionDenied.emit();
       return;
     }
     this.stopGesture();
-    if (item === 'fertilizer') {
-      this.useFertilizer();
-    } else if (this.ps.plantDemoSeed()) {
+    this.useFertilizer();
+  }
+
+  plantBackpackSeed(selection: { id: string; name: string }): void {
+    if (this.isOpen() && this.backpackOpen() && !this.canCultivate()) {
+      this.interactionDenied.emit();
+      return;
+    }
+    if (!this.isOpen() || !this.backpackOpen() || !this.canPlant()) return;
+    this.stopGesture();
+    if (this.ps.plantDemoSeed(selection.name, undefined, selection.id)) {
+      this.backpackOpen.set(false);
+      this.backpackError.set(null);
+      this.cms?.track('core_action', this.ps.activeDemoTreeId());
       this.celebration.update((value) => value + 1);
       this.feedback.set('種植成功！現在可以使用光能、水滴與肥料培養小樹。');
     } else {
-      this.feedback.set(this.ps.cultivationError() ?? '種植失敗，請重新選擇。');
+      this.backpackError.set(this.ps.cultivationError() ?? '種植失敗，請重新選擇。');
     }
   }
 

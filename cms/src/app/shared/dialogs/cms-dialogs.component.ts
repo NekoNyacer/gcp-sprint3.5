@@ -1,3 +1,5 @@
+import { DecimalPipe } from "@angular/common";
+import { treeAppearance } from "../../../../../functions/src/tree-species";
 import { REWARD_ICONS, REWARD_BACKGROUNDS } from "../../../../../functions/src/reward-avatar";
 import {
   Component,
@@ -21,6 +23,7 @@ import { LocationPickerComponent } from "../location-picker/location-picker.comp
   standalone: true,
   templateUrl: "./cms-dialogs.component.html",
   imports: [
+    DecimalPipe,
     FormsModule,
     CubButtonModule,
     CubInputModule,
@@ -33,6 +36,7 @@ import { LocationPickerComponent } from "../location-picker/location-picker.comp
   ],
 })
 export class CmsDialogsComponent implements AfterViewInit {
+  readonly appearance = treeAppearance;
   readonly vm = inject(CmsWorkspaceService);
   readonly rewardIcons = REWARD_ICONS;
   readonly rewardBackgrounds = REWARD_BACKGROUNDS;

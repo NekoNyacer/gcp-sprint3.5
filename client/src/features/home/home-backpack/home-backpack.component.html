@@ -1,0 +1,113 @@
+<ion-modal
+  #sheet
+  class="backpack-sheet"
+  [isOpen]="open()"
+  [breakpoints]="[0, 1]"
+  [initialBreakpoint]="1"
+  [handle]="true"
+  handleBehavior="none"
+  [expandToScroll]="false"
+  (willDismiss)="onSheetDismiss()"
+  aria-label="背包"
+>
+  <ng-template>
+    <div class="backpack-layout">
+      <header class="backpack-header">
+        <h1>背包</h1>
+        <button class="close-button" type="button" (click)="close()">關閉</button>
+      </header>
+      <ion-segment
+        class="backpack-segment"
+        [value]="segment()"
+        (ionChange)="segment.set($event.detail.value === 'items' ? 'items' : 'seeds')"
+        aria-label="背包分類"
+      >
+        <ion-segment-button value="seeds"
+          ><ion-label
+            >種子 <span>{{ seeds().length | number }}</span></ion-label
+          ></ion-segment-button
+        >
+        <ion-segment-button value="items"
+          ><ion-label
+            >道具 <span>{{ fertilizer() | number }}</span></ion-label
+          ></ion-segment-button
+        >
+      </ion-segment>
+      <div
+        class="inventory-scroll ion-content-scroll-host"
+        (touchstart)="$event.stopPropagation()"
+        (mousedown)="$event.stopPropagation()"
+      >
+        @if (error()) {
+          <p class="form-error" role="alert">{{ error() }}</p>
+        }
+        @if (segment() === 'seeds') {
+          <section id="backpack-seeds" aria-label="種子" class="seed-grid">
+            @for (seed of seeds(); track seed.id) {
+              <button
+                type="button"
+                class="seed-card"
+                [disabled]="!canPlant()"
+                (click)="selectSeed(seed)"
+              >
+                <span class="seed-art"><app-seed-art [seed]="seed" /></span>
+                <strong>{{ seed.name }}</strong>
+                <span class="seed-place">{{ seed.place }}</span>
+              </button>
+            } @empty {
+              <div class="empty-inventory">尚無種子</div>
+            }
+          </section>
+        } @else {
+          <section id="backpack-items" aria-label="道具">
+            <article class="fertilizer-card">
+              <div class="item-details">
+                <h3>
+                  肥料 <span>× {{ fertilizer() | number }}</span>
+                </h3>
+              </div>
+              <button
+                type="button"
+                class="use-item"
+                [disabled]="!canFertilize()"
+                (click)="fertilize.emit()"
+              >
+                使用
+              </button>
+            </article>
+          </section>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  #nameDialog
+  class="seed-name-dialog"
+  [isOpen]="open() && selectedSeed() !== null"
+  (didDismiss)="selectedSeed.set(null)"
+  aria-label="幫這棵樹取個名字"
+>
+  <ng-template>
+    <form class="name-form" (ngSubmit)="confirmPlant()">
+      <h2>幫這棵樹取個名字</h2>
+      <label for="seed-tree-name">小樹名稱</label>
+      <input
+        id="seed-tree-name"
+        name="treeName"
+        autocomplete="off"
+        maxlength="40"
+        [(ngModel)]="seedName"
+        aria-describedby="seed-name-error"
+      />
+      <div id="seed-name-error" class="form-error" role="alert">{{ nameError() || error() }}</div>
+      <div class="name-actions">
+        <button type="button" class="cancel" (click)="cancelName()">再想想</button
+        ><button type="submit" class="confirm" [disabled]="submitting() || !canPlant()">
+          確定種植
+        </button>
+      </div>
+    </form>
+  </ng-template>
+</ion-modal>

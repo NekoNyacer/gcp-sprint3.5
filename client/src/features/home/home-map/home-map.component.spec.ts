@@ -9,6 +9,7 @@ import { MapCameraController } from './map-camera.controller';
 import { demoPlantingSpots, settings } from '../../../environments/environment-dev';
 import { WalkRoutePoint, WalkTaskPoint } from '../../../shared/models/walk-task.models';
 import { homeTrees, recommendHomeTrees } from '../home-tree-recommendations';
+import { cmsRouteRoles, cmsPublication } from '../../../shared/models/cms-publication';
 
 const mock = vi.hoisted(() => ({
   markers: [] as { element: HTMLButtonElement; anchor: string; remove: ReturnType<typeof vi.fn> }[],
@@ -145,6 +146,7 @@ describe('Home map player following', () => {
   let runtimeConfig: typeof window.__CAT_WALK_RUNTIME_CONFIG__;
 
   beforeEach(() => {
+    cmsRouteRoles.set(null);
     runtimeConfig = window.__CAT_WALK_RUNTIME_CONFIG__;
     settings.mockMap = false;
     settings.isDev = false;
@@ -185,6 +187,7 @@ describe('Home map player following', () => {
   });
 
   afterEach(() => {
+    cmsRouteRoles.set(null);
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -338,6 +341,57 @@ describe('Home map player following', () => {
     mock.handlers.get('render')!({});
     expect(trees[0].element.style.visibility).toBe('');
     expect(cluster.remove).toHaveBeenCalled();
+    fixture.destroy();
+  });
+
+  it('hides merchant supply offers while idle even when a published catalog exists', async () => {
+    const {fixture, planning, activeRoute} = await setup();
+    planning.set(false);
+    activeRoute.set(false);
+    cmsPublication.set({config: {merchants: [{id: 'published-supply', name: '展示補給', address: '模擬位置',
+      latitude: 25.01, longitude: 121.46, category: '美食', roles: ['supply'], enabled: true, twqr: false,
+      offer: '不應在閒置時出現的優惠', terms: 'Demo', validUntil: '2099-12-31', resource: 'water', amount: 10,
+      weather: 'sunny', timeOfDay: 'day'}], trees: [], species: [], rewards: [], scenes: [], harvestPoints: 0}, version: 1, managed: true});
+    try {
+      fixture.detectChanges();
+      expect(fixture.componentInstance.taskPoints()).toEqual([]);
+    } finally {
+      cmsPublication.set({config: null, version: 0, managed: false});
+      fixture.destroy();
+    }
+  });
+
+  it('keeps recommended supply stations outside clusters and restores clustering when recommendations clear', async () => {
+    const { fixture, planning, hasDestination, availableTaskPoints, activeRoute } = await setup();
+    const source = { setData: vi.fn() };
+    mock.map.getSource.mockImplementation((name) => name === 'home-marker-clusters' ? source : mock.source);
+    activeRoute.set(false);
+    planning.set(true);
+    hasDestination.set(true);
+    availableTaskPoints.set([waterStation, fertilizerStation]);
+    fixture.detectChanges();
+    mock.map.querySourceFeatures.mockReturnValue([{
+      geometry: { type: 'Point', coordinates: [121.455, 25.002] },
+      properties: { cluster_id: 7, point_count: 2 },
+    }] as never);
+    mock.handlers.get('render')!({});
+    const stations = () => mock.markers.filter(({ element }) => element.classList.contains('supply-station-marker')).slice(-2);
+    expect(stations()[0].element.style.visibility).toBe('hidden');
+
+    cmsRouteRoles.set([{ merchantId: waterStation.id, role: 'supply', reason: 'Nearby supply' }]);
+    fixture.detectChanges();
+    const ids = () => source.setData.mock.lastCall![0].features.map((feature: { properties: { id: string } }) => feature.properties.id);
+    expect(ids()).not.toContain(`station:${waterStation.id}`);
+    expect(ids()).toContain(`station:${fertilizerStation.id}`);
+    mock.handlers.get('render')!({});
+    expect(stations()[0].element.style.visibility).toBe('');
+    expect(stations()[1].element.style.visibility).toBe('hidden');
+
+    cmsRouteRoles.set(null);
+    fixture.detectChanges();
+    expect(ids()).toContain(`station:${waterStation.id}`);
+    mock.handlers.get('render')!({});
+    expect(stations()[0].element.style.visibility).toBe('hidden');
     fixture.destroy();
   });
 
@@ -681,7 +735,9 @@ describe('Home map player following', () => {
         focusAfterOpen: false,
       });
       expect(popup.coordinates).toEqual([tree.position.longitude, tree.position.latitude]);
-      expect(popup.content?.textContent).toContain(tree.nickName);
+      const action = popup.content?.matches('.tree-recommendation')
+        ? popup.content : popup.content?.querySelector('.tree-recommendation');
+      expect(action?.getAttribute('aria-label')).toContain(tree.nickName);
       expect(popup.content?.textContent).toContain(tree.species);
       expect(popup.content?.textContent).toContain(tree.poiName);
       if (tree.recommendedReason) {

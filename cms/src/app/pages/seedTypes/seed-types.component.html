@@ -1,0 +1,207 @@
+<div class="seed-intro">
+  <div>
+    <span class="eyebrow">散步 × 收集 × 培育</span>
+    <h2>每顆種子，都藏著一棵驚喜。</h2>
+    <p>完成路線有機會拾獲神秘種子。外觀相同，直到長成小樹才揭曉品種。</p>
+  </div>
+  <img src="images/tree-species/seed.png" alt="所有品種共用的神秘種子" />
+</div>
+<div class="rule-summary">
+  <span>① 完成散步挑戰</span><span>② 機率拾獲種子</span><span>③ 命名並種植</span
+  ><span>④ 小樹 30% 揭曉品種</span>
+</div>
+<cub-card class="mb-24"
+  ><cub-card-header>路線完成・種子掉落</cub-card-header
+  ><cub-card-content>
+    <div class="drop-controls">
+      <cub-checkbox
+        [checked]="rule().enabled"
+        (change)="setRule({ enabled: $event.checked })"
+        >啟用種子掉落</cub-checkbox
+      >
+      <label
+        >每次完成路線的掉落率（%）<input
+          cubInput
+          type="number"
+          min="0"
+          max="100"
+          step="0.1"
+          [ngModel]="rule().chancePercent"
+          (ngModelChange)="setRule({ chancePercent: $event })"
+      /></label>
+      <label
+        >掉落使用的品種機率池<cub-select
+          aria-label="掉落機率池"
+          [ngModel]="rule().seedTypeId"
+          (ngModelChange)="setRule({ seedTypeId: $event })"
+        >
+          @for (p of vm.config().seedTypes ?? []; track p.id) {
+            <cub-option [value]="p.id"
+              >{{ p.name }}{{ p.enabled ? "" : "（已停用）" }}</cub-option
+            >
+          }
+        </cub-select></label
+      >
+    </div>
+    <p class="help">
+      每條成功完成的路線最多獲得 1 顆種子。下表「每次完成路線」＝掉落率 ×
+      池內品種機率。設定儲存並發布後，套用至新出發的路線。
+    </p>
+  </cub-card-content></cub-card
+>
+<cub-card class="mb-24"
+  ><cub-card-header
+    >樹木品種圖鑑
+    <span cubEnd>{{ vm.config().species.length }} 個品種</span></cub-card-header
+  ><cub-card-content>
+    <div class="atlas-layout">
+      <div class="species-list" aria-label="選擇品種">
+        @for (s of species(); track s) {
+          <button
+            type="button"
+            [class.selected]="selected() === s"
+            [attr.aria-pressed]="selected() === s"
+            (click)="selectedSpecies.set(s)"
+          >
+            <img
+              [src]="'images/tree-species/' + appearance(s).id + '-mature.png'"
+              alt=""
+            /><span
+              ><strong>{{ s }}</strong
+              ><small
+                >種子中 {{ chance(s) | number: "1.0-2" }}% · 每次路線
+                {{ effectiveChance(s) | number: "1.0-2" }}%</small
+              ></span
+            ><i [style.background]="appearance(s).leaf"></i>
+          </button>
+        } @empty {
+          <p>沒有符合的品種。</p>
+        }
+      </div>
+      <div class="stage-detail">
+        @if (selected(); as s) {
+          <div class="detail-heading">
+            <div>
+              <span class="eyebrow">成長階段預覽</span>
+              <h3>{{ s }}</h3>
+              <p>{{ appearance(s).description }}</p>
+            </div>
+            <button
+              cub-button
+              appearance="outline"
+              (click)="vm.removeSpecies(s)"
+            >
+              移除品種
+            </button>
+          </div>
+          @if (!knownModel()) {
+            <p>此新增品種暫時使用榕樹模型。</p>
+          }
+          <div class="stage-grid">
+            @for (stage of stages; track stage.id) {
+              <figure>
+                <div>
+                  <img
+                    [src]="
+                      'images/tree-species/' +
+                      appearance(s).id +
+                      '-' +
+                      stage.id +
+                      '.png'
+                    "
+                    [alt]="s + '・' + stage.name"
+                  />
+                </div>
+                <figcaption>
+                  <strong>{{ stage.name }}</strong
+                  ><span>{{ stage.ratio }}</span>
+                </figcaption>
+              </figure>
+            }
+          </div>
+          <div class="concealed-stages">
+            <img src="images/tree-species/seed.png" alt="共用種子" /><img
+              src="images/tree-species/seedling.png"
+              alt="共用幼苗"
+            /><img
+              src="images/tree-species/smallSapling.png"
+              alt="共用小樹苗"
+            /><img
+              src="images/tree-species/largeSapling.png"
+              alt="共用大樹苗"
+            />
+            <p>
+              種子 → 幼苗 → 小樹苗 → 大樹苗<br /><strong
+                >前四階段共用外觀，品種保密。</strong
+              >
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="add-species">
+      <input
+        cubInput
+        aria-label="新增樹種"
+        [(ngModel)]="vm.newSpecies"
+        placeholder="新增品種名稱"
+      /><button cub-button appearance="outline" (click)="vm.addSpecies()">
+        新增品種
+      </button>
+    </div>
+  </cub-card-content></cub-card
+>
+<cub-card class="mb-24"
+  ><cub-card-header
+    >品種機率池
+    <button cub-button cubEnd (click)="vm.edit('seedTypes')">
+      新增機率池
+    </button></cub-card-header
+  ><cub-card-content>
+    <p class="help">
+      權重為正整數，機率會自動換算。機率池僅供營運配置，玩家背包中一律顯示「神秘種子」。任務獎勵不在本次設定範圍。
+    </p>
+    <cub-table [value]="vm.rows()"
+      ><ng-template cubTemplate="header"
+        ><tr>
+          <th>機率池</th>
+          <th>品種分布</th>
+          <th>狀態</th>
+          <th>操作</th>
+        </tr></ng-template
+      ><ng-template cubTemplate="body" let-item
+        ><tr>
+          <td>
+            <strong>{{ item.name }}</strong>
+            @if (item.id === rule().seedTypeId) {
+              <small class="active-pool">路線掉落使用中</small>
+            }
+          </td>
+          <td>
+            <div class="probability-chips">
+              @for (o of item.outcomes; track o.species) {
+                <span
+                  ><i [style.background]="appearance(o.species).leaf"></i
+                  >{{ o.species }}
+                  <strong
+                    >{{
+                      vm.probability(item, o.weight) | number: "1.0-2"
+                    }}%</strong
+                  ></span
+                >
+              }
+            </div>
+          </td>
+          <td>{{ item.enabled ? "啟用" : "停用" }}</td>
+          <td>
+            <button cub-button (click)="vm.edit('seedTypes', item)">
+              編輯權重</button
+            ><button cub-button (click)="vm.remove('seedTypes', item.id)">
+              刪除
+            </button>
+          </td>
+        </tr></ng-template
+      ></cub-table
+    >
+  </cub-card-content></cub-card
+>

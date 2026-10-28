@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { ShopStore } from '../shop/shop-store';
 import { SessionStore } from '../../shared/stores/session-store';
 import { profileLevelPreview } from '../../shared/components/profile-identity/profile-level-preview';
-import { cmsPublication } from '../../shared/models/cms-publication';
+import { CMS_CONNECTION, cmsPublication } from '../../shared/models/cms-publication';
 import { transactionSummary, transactionTitle, transactionStatusLabel } from '../shop/shop-view.models';
 
 type WalkingStats = {
@@ -30,6 +30,7 @@ type WalkingStats = {
   ],
 })
 export class ProfileComponent {
+  readonly cms = inject(CMS_CONNECTION, { optional: true });
   readonly transactionSummary = transactionSummary;
   readonly transactionTitle = transactionTitle;
   readonly transactionStatusLabel = transactionStatusLabel;

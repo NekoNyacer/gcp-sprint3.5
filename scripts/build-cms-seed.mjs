@@ -1,3 +1,4 @@
+import { expandCatalog } from "./expanded-catalog.mjs";
 import { createRequire } from "node:module";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -8,6 +9,7 @@ const { build } = require("esbuild");
 const output = await build({
   stdin: {
     contents: `
+  import { DEFAULT_SEED_TYPES, DEFAULT_WALK_SEED_DROP } from '../functions/src/planting-catalog';
   import { homeTrees } from './src/features/home/home-tree-recommendations';
   import { demoSupplyStations } from './src/environments/environment-dev';
   import { SHOP_REDEMPTION_OPTIONS, SHOP_CHARITY_CAMPAIGN } from './src/features/shop/shop.config';
@@ -15,8 +17,10 @@ const output = await build({
   import { DEMO_POI_ENVIRONMENTS } from './src/shared/models/tree-scene-environment';
   export const seed = {
     harvestPoints: DEMO_HARVEST_POINTS,
-    species: [...new Set(homeTrees.map(t => t.species))],
-    trees: homeTrees.map(t => ({ id: t.id, name: t.nickName, species: t.species, place: t.poiName,
+    seedTypes: DEFAULT_SEED_TYPES,
+    walkSeedDrop: DEFAULT_WALK_SEED_DROP,
+    species: [...new Set([...homeTrees.map(t => t.species), ...DEFAULT_SEED_TYPES[0].outcomes.map(o => o.species)])],
+    trees: homeTrees.map(t => ({ id: t.id, name: t.nickName, species: t.species, place: t.poiName, postalCode: t.postalCode,
       latitude: t.position.latitude, longitude: t.position.longitude, empty: !!t.empty, growth: t.growth,
       weather: t.weather, timeOfDay: t.timeOfDay ?? 'day' })),
     // Original supply fixtures have route-relative anchors, not real addresses.
@@ -60,7 +64,7 @@ module.exports.seed.tasks = taskSeed.tasks.map(task => ({
   destinationName: task.destination.name, address: task.destination.address,
   latitude: task.destination.latitude, longitude: task.destination.longitude, rewardAmount: task.reward.amount,
 }));
-const json = JSON.stringify(module.exports.seed, null, 2) + "\n";
+const json = JSON.stringify(expandCatalog(module.exports.seed), null, 2) + "\n";
 for (const destination of [
   "firebase/seed/cms-demo.json",
   "cms/public/cms-demo.json",

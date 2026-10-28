@@ -119,6 +119,21 @@ describe('DialogComponent', () => {
     expect(root.querySelector('.walk-badges')?.textContent).toContain('0 小時 0 分鐘');
   });
 
+  it('shows a discovered mystery seed and its balance without leaking its species', () => {
+    service.openWalkResultDialog({
+      durationMinutes: 5, stationCount: 0, steps: 100, distanceMeters: 75,
+      earnedLightEnergy: 100, earnedWaterDrops: 0, earnedFertilizer: 0,
+      lightEnergyBalance: 100, waterDropsBalance: 0, fertilizerBalance: 0,
+      earnedSeeds: 1, seedsBalance: 2,
+    });
+    fixture.detectChanges();
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('.walk-rewards')?.textContent).toContain('神秘種子');
+    expect(root.querySelector('.walk-rewards')?.textContent).toContain('長成小樹後揭曉品種');
+    expect(root.querySelector('.walk-rewards')?.textContent).not.toMatch(/榕樹|銀杏|櫻花/);
+    expect(Array.from(root.querySelectorAll('.resource-balance strong')).at(-1)?.textContent).toBe('2');
+  });
+
   it('renders a harvest summary with formatted points and only a confirmation button', () => {
     const results: string[] = [];
     service.openTreePointResultDialog({

@@ -1,0 +1,211 @@
+:host {
+  display: block;
+  color: #344437;
+}
+.seed-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #eef3e9;
+  padding: 24px 32px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+.seed-intro img {
+  width: 140px;
+  height: 100px;
+  object-fit: cover;
+}
+.eyebrow {
+  color: #677957;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+h2 {
+  font-size: 25px;
+  margin: 8px 0;
+}
+h3 {
+  font-size: 24px;
+  margin: 6px 0;
+}
+p {
+  line-height: 1.7;
+}
+.help,
+.detail-heading p {
+  color: #687269;
+  font-size: 13px;
+}
+.rule-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  margin: 20px 0 28px;
+  font-size: 13px;
+}
+.drop-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.drop-controls label {
+  display: grid;
+  gap: 8px;
+  min-width: 210px;
+  font-size: 13px;
+}
+.atlas-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 28px;
+}
+.species-list {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+.species-list button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  border: 1px solid transparent;
+  background: #f7f8f5;
+  border-radius: 10px;
+  padding: 6px 12px 6px 0;
+  color: inherit;
+  cursor: pointer;
+}
+.species-list button.selected {
+  border-color: #6b8557;
+  background: #edf2e8;
+}
+.species-list img {
+  width: 65px;
+  height: 58px;
+  object-fit: cover;
+}
+.species-list span {
+  flex: 1;
+}
+.species-list small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  color: #677265;
+  line-height: 1.5;
+}
+i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+figure {
+  margin: 0;
+  min-width: 0;
+}
+figure div {
+  background: linear-gradient(#f2f5ed, #e7eddc);
+  border-radius: 12px;
+  overflow: hidden;
+}
+figure img {
+  width: 100%;
+  display: block;
+}
+figcaption {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 12px 2px;
+  gap: 6px;
+}
+figcaption span {
+  color: #7c8879;
+}
+.concealed-stages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 12px;
+  margin-top: 20px;
+  background: #f7f7f4;
+  border-radius: 10px;
+}
+.concealed-stages img {
+  width: 55px;
+}
+.concealed-stages p {
+  font-size: 12px;
+  margin: 0 12px;
+  color: #747c70;
+}
+.add-species {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.add-species input {
+  max-width: 260px;
+}
+.probability-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 650px;
+}
+.probability-chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f2f4ed;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.active-pool {
+  display: block;
+  color: #6c8553;
+  margin-top: 6px;
+  font-size: 11px;
+}
+@media (max-width: 1100px) {
+  .atlas-layout {
+    grid-template-columns: 1fr;
+  }
+  .species-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .seed-intro {
+    padding: 18px;
+  }
+  .seed-intro img {
+    display: none;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  .stage-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .species-list {
+    grid-template-columns: 1fr;
+  }
+}

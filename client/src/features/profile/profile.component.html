@@ -6,6 +6,17 @@
       <output class="sync-status">暫時無法同步雲端資料，以下顯示本機資訊。</output>
     }
 
+    @if (cms?.managed()) {
+      <section class="profile-section" aria-labelledby="cube-heading">
+        <h2 id="cube-heading">CUBE 權益方案</h2>
+        <label class="cube-plan-label" for="cube-plan">目前用於站點推薦的方案</label>
+        <select id="cube-plan" class="cube-plan-select" [value]="cms?.cubePlan()" (change)="cms?.setCubePlan($any($event.target).value)">
+          <option value="">不限方案</option>
+          @for (plan of cms?.cubePlans() ?? []; track plan) { <option [value]="plan">{{plan}}</option> }
+        </select>
+        <p class="level-tip">設定將用於下一次 AI 站點推薦，保留已確認路線。此處僅設定推薦偏好；信用卡實際權益請至國泰 CUBE App 切換。</p>
+      </section>
+    }
     <section class="profile-section level-section" aria-labelledby="level-heading">
       <p class="eyebrow">玩家等級</p>
       <h2 id="level-heading">

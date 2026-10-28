@@ -58,6 +58,8 @@ describe('Published CMS configuration in the walking client', () => {
       { latitude: 25.012, longitude: 121.46 },
       { latitude: 25.015, longitude: 121.465 },
     ];
+    expect(createDemoWalkTasks(route)).toEqual([]);
+    cmsRouteRoles.set([{merchantId: 'test-shop', role: 'supply', reason: '已確認終點後的推薦'}]);
     expect(createDemoWalkTasks(route)[0].supplyStation.offer).toBe('模擬優惠');
     c.merchants[0].offer = '更新優惠';
     cmsPublication.set({ config: structuredClone(c), version: 2, managed: true });
@@ -83,7 +85,7 @@ describe('Published CMS configuration in the walking client', () => {
     ];
     expect(createDemoWalkTasks(route)).toHaveLength(0);
     cmsRouteRoles.set([{ merchantId: 'test-shop', role: 'supply', reason: 'demo' }]);
-    expect(currentHomeTrees()).toHaveLength(0);
+    expect(currentHomeTrees()).toHaveLength(1);
     expect(createDemoWalkTasks(route)).toHaveLength(1);
     const c = config();
     c.merchants[0].enabled = false;

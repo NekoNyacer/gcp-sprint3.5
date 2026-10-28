@@ -1,4 +1,6 @@
 export type WalkResult = {
+  earnedSeeds?: number;
+  seedsBalance?: number;
   durationMinutes: number;
   stationCount: number;
   steps: number;

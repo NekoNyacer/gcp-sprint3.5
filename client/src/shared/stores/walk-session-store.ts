@@ -1,3 +1,4 @@
+import { DEFAULT_SEED_TYPES, DEFAULT_WALK_SEED_DROP, drawWalkSeed, type WalkSeedDrop, type SeedType } from '../../../../functions/src/planting-catalog';
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { GeoPoint } from '../models/geo.models';
@@ -14,6 +15,7 @@ import { TREE_CULTIVATION_RADIUS_METERS } from '../../environments/environment-d
 import { LocationStore } from './location-store';
 import { ProgressStore } from './progress-store';
 import { cmsPublication } from '../models/cms-publication';
+import { findHomeTree } from '../../features/home/home-tree-recommendations';
 
 export type WalkDestination = {
   id: string;
@@ -23,6 +25,7 @@ export type WalkDestination = {
 export type WalkPhase = 'idle' | 'planning' | 'walking' | 'cultivating' | 'arrived';
 
 type WalkSessionState = {
+  seedDropSnapshot: { rule: WalkSeedDrop; pools: SeedType[]; version: number; destinationPlace: string } | null;
   phase: WalkPhase;
   cultivationReturnPhase: 'idle' | 'planning' | 'walking' | 'arrived' | null;
   routeId: string | null;
@@ -34,9 +37,11 @@ type WalkSessionState = {
   routedTreeIds: readonly string[];
   treeStops: readonly WalkRoutePoint[];
   plannedDistanceMeters: number;
+  plannedDurationSeconds: number;
   taskPoints: readonly RoutedWalkTaskPoint[];
   taskRoutes: readonly RoutedWalkTaskPoint[];
   baseDistanceMeters: number;
+  baseDurationSeconds: number;
   routeLoading: boolean;
   routingFailed: boolean;
   planningError: string | null;
@@ -52,6 +57,7 @@ type WalkSessionState = {
 };
 
 const initialState: WalkSessionState = {
+  seedDropSnapshot: null,
   phase: 'idle',
   cultivationReturnPhase: null,
   routeId: null,
@@ -63,9 +69,11 @@ const initialState: WalkSessionState = {
   routedTreeIds: [],
   treeStops: [],
   plannedDistanceMeters: 0,
+  plannedDurationSeconds: 0,
   taskPoints: [],
   taskRoutes: [],
   baseDistanceMeters: 0,
+  baseDurationSeconds: 0,
   routeLoading: false,
   routingFailed: false,
   planningError: null,
@@ -90,6 +98,7 @@ export const WalkSessionStore = signalStore(
         const routed = store.taskRoutes().find(old => old.id === task.id &&
           old.position.latitude === task.position.latitude && old.position.longitude === task.position.longitude);
         return { ...task, routeGeometry: routed?.routeGeometry ?? [], routeDistanceMeters: routed?.routeDistanceMeters ?? 0,
+          description: routed?.description ?? task.description,
           estimatedExtraSteps: routed?.estimatedExtraSteps ?? task.estimatedExtraSteps };
       });
     }),
@@ -171,8 +180,19 @@ export const WalkSessionStore = signalStore(
           .taskPoints()
           .filter((point) => store.checkedInTaskIds().includes(point.id))
           .map((point) => point.supplyStation.supply);
+        const seedTable = store.seedDropSnapshot();
+        const rolls = crypto.getRandomValues(new Uint32Array(2));
+        const species = seedTable ? drawWalkSeed(seedTable.rule, seedTable.pools,
+          rolls[0] / 4294967296, rolls[1] / 4294967296) : null;
+        if (species && seedTable) progress.grantWalkSeed(species, seedTable.rule.seedTypeId, seedTable.version, {
+          routeId: store.routeId()!,
+          place: seedTable.destinationPlace,
+          acquiredAt: Date.now(),
+        });
         const inventory = progress.inventory();
         const completedWalkResult: WalkResult = {
+          earnedSeeds: species ? 1 : 0,
+          seedsBalance: inventory.seeds,
           durationMinutes: Math.max(0, Math.floor((Date.now() - startedAt.getTime()) / 60_000)),
           stationCount: store.checkedInTaskIds().length,
           steps,
@@ -237,11 +257,13 @@ export const WalkSessionStore = signalStore(
           routedTreeIds: [],
           treeStops: [],
           plannedDistanceMeters: routeDistanceMeters(route),
+          plannedDurationSeconds: routeDistanceMeters(route) / 1.25,
           taskPoints: [],
           taskRoutes: [],
           checkedInTaskIds: [],
           checkInError: null,
           baseDistanceMeters: routeDistanceMeters(route),
+          baseDurationSeconds: routeDistanceMeters(route) / 1.25,
           planningError: null,
           routingFailed: false,
         });
@@ -263,12 +285,14 @@ export const WalkSessionStore = signalStore(
         patchState(store, { destinationConfirmed: true, planningError: null });
         return true;
       },
-      setBaseRoute: (route: readonly GeoPoint[], distanceMeters: number) => {
+      setBaseRoute: (route: readonly GeoPoint[], distanceMeters: number, durationSeconds = distanceMeters / 1.25) => {
         patchState(store, {
           baseRoute: route,
           baseDistanceMeters: distanceMeters,
+          baseDurationSeconds: durationSeconds,
           route,
           plannedDistanceMeters: distanceMeters,
+          plannedDurationSeconds: durationSeconds,
           routedTaskIds: [],
           routedTreeIds: [],
         });
@@ -278,10 +302,12 @@ export const WalkSessionStore = signalStore(
         distanceMeters: number,
         taskIds: readonly string[],
         treeIds: readonly string[] = [],
+        durationSeconds = distanceMeters / 1.25,
       ) => {
         patchState(store, {
           route,
           plannedDistanceMeters: distanceMeters,
+          plannedDurationSeconds: durationSeconds,
           routedTaskIds: taskIds,
           routedTreeIds: treeIds,
           planningError: null,
@@ -289,7 +315,7 @@ export const WalkSessionStore = signalStore(
         });
       },
       setTaskRoutes: (tasks: readonly RoutedWalkTaskPoint[]) => {
-        patchState(store, { taskRoutes: tasks });
+        patchState(store, { taskRoutes: tasks, routingFailed: false, planningError: null });
       },
       setRouteLoading: (routeLoading: boolean) => patchState(store, { routeLoading }),
       setPlanningError: (planningError: string | null) => patchState(store, { planningError }),
@@ -302,6 +328,7 @@ export const WalkSessionStore = signalStore(
           baseRoute: [],
           route: [],
           plannedDistanceMeters: 0,
+          plannedDurationSeconds: 0,
           routedTaskIds: [],
           routedTreeIds: [],
           treeStops: [],
@@ -310,6 +337,7 @@ export const WalkSessionStore = signalStore(
           checkedInTaskIds: [],
           checkInError: null,
           baseDistanceMeters: 0,
+          baseDurationSeconds: 0,
           routeLoading: false,
           routingFailed: false,
           planningError: null,
@@ -338,6 +366,7 @@ export const WalkSessionStore = signalStore(
             ? {
                 route: store.baseRoute(),
                 plannedDistanceMeters: store.baseDistanceMeters(),
+                plannedDurationSeconds: store.baseDurationSeconds(),
                 routedTaskIds: [],
                 routedTreeIds: [],
               }
@@ -385,6 +414,7 @@ export const WalkSessionStore = signalStore(
             ? {
                 route: store.baseRoute(),
                 plannedDistanceMeters: store.baseDistanceMeters(),
+                plannedDurationSeconds: store.baseDurationSeconds(),
                 routedTaskIds: [],
                 routedTreeIds: [],
               }
@@ -423,6 +453,12 @@ export const WalkSessionStore = signalStore(
 
         patchState(store, {
           phase: 'walking',
+          seedDropSnapshot: JSON.parse(JSON.stringify({
+            rule: cmsPublication().config?.walkSeedDrop ?? DEFAULT_WALK_SEED_DROP,
+            pools: cmsPublication().config?.seedTypes ?? DEFAULT_SEED_TYPES,
+            version: cmsPublication().version,
+            destinationPlace: progress.demoTrees()[destination!.id]?.site?.poiName ?? findHomeTree(destination!.id)?.poiName ?? '本次散步終點',
+          })),
           routeId,
           startedAt: new Date(),
           startingSteps: progress.totalRecordedSteps(),

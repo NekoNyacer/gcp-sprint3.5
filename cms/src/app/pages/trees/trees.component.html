@@ -1,37 +1,6 @@
-<cub-card class="mb-24">
-  <cub-card-header>已啟用樹種</cub-card-header>
-  <cub-card-content>
-    <div class="d-flex flex-wrap mb-16">
-      <cub-selectable-chip-group
-        [selectable]="false"
-        aria-label="樹種">
-        @for (s of vm.config().species; track s) {
-          <cub-selectable-chip
-            [value]="s"
-            (click)="vm.removeSpecies(s)"
-            [aria-label]="'移除樹種 ' + s">
-            {{ s }} ×
-          </cub-selectable-chip>
-        }
-      </cub-selectable-chip-group>
-    </div>
-    <div class="d-flex flex-wrap align-items-end">
-      <input
-        cubInput
-        aria-label="新增樹種"
-        [(ngModel)]="vm.newSpecies"
-        placeholder="新增樹種" /><button
-        cub-button
-        appearance="outline"
-        (click)="vm.addSpecies()">
-        新增樹種
-      </button>
-    </div>
-  </cub-card-content></cub-card
->
 <cub-card class="mb-24"
   ><cub-card-header
-    >樹木目錄
+    >種樹點目錄
     <div
       cubEnd
       class="d-flex g-8">
@@ -39,20 +8,24 @@
         cubInput
         [ngModel]="vm.search()"
         (ngModelChange)="vm.search.set($event)"
-        placeholder="搜尋樹木" /><button
+        placeholder="搜尋種樹點" /><button
         cub-button
         appearance="filled-outline"
         (click)="vm.edit('trees')">
-        新增樹木
+        新增種樹點
       </button>
     </div></cub-card-header
   ><cub-card-content
-    ><cub-table [value]="vm.rows()"
+    ><cub-table
+      [value]="vm.rows()"
+      [paginator]="true"
+      [pageIndex]="0"
+      [pageSize]="30"
       ><ng-template cubTemplate="header"
         ><tr>
           <th>名稱</th>
           <th>識別碼</th>
-          <th>品種與位置</th>
+          <th>位置</th>
           <th>狀態</th>
           <th>操作</th>
         </tr></ng-template
@@ -64,8 +37,8 @@
             <b>{{ item.name }}</b>
           </td>
           <td>{{ item.id }}</td>
-          <td>{{ item.species }} · {{ item.place }}</td>
-          <td>{{ item.empty ? '空植栽位' : '已有樹木' }}</td>
+          <td>{{ item.postalCode }} {{ item.place }}</td>
+          <td>{{ item.empty ? '可種植' : '既有展示樹木' }}</td>
           <td>
             <button
               cub-button

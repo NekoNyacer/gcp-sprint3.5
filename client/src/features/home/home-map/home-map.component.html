@@ -24,9 +24,9 @@
       [attr.aria-pressed]="selectedTreeId() === tree.id"
       (click)="clickIcon(tree.id)"
     >
-      <strong class="tree-recommendation__name" [title]="tree.nickName">{{
+      <!-- <strong class="tree-recommendation__name" [title]="tree.nickName">{{
         tree.empty ? '空地' : tree.nickName
-      }}</strong>
+      }}</strong> -->
       <span class="tree-recommendation__place" [title]="tree.species + ' · ' + tree.poiName">
         {{ tree.empty ? '待種植' : tree.species }} · {{ tree.poiName }}
       </span>

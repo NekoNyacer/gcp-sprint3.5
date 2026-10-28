@@ -101,7 +101,7 @@ https://cathay-ai-hackathon-team-03.web.app/*
 Vertex AI REST 介面依據 [Google 官方 quickstart](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/quickstart)。
 AI 僅取得商家名稱、優惠、允許角色及四捨五入距離，不接收或儲存玩家起點座標。
 它只能選擇六公里內最多 20 個已發布有效候選中的最多六站；輸出須通過 ID 與角色驗證。
-最多等待七秒模型回應，出錯明確回報規則備援；每個身分每小時最多 20 次推薦。
+  最多等待十五秒模型回應，關閉簡單推薦任務的思考模式；出錯時使用規則備援，CMS 可檢視來源，首頁不顯示模型狀態訊息。每個身分每小時最多 20 次推薦。
 用戶端仍須使用既有 Mapbox Directions 驗證實際步行道路，不能聲稱路線安全。
 
 ## 既有 mock 資料搬移
@@ -168,8 +168,8 @@ Firebase Auth 9099、Firestore 8080、Functions 5001。此開關僅接受 localh
 ## 現場驗收
 
 1. 匯入／發布 Demo，新增模擬 TWQR 商家、座標、優惠與允許角色，再發布。
-2. 保持用戶端開啟，確認地圖出現新種樹點與最新優惠。
-3. 開始規劃，看見實際 Gemini 標示與推薦理由，採用種樹點並加入推薦補給站。
+2. 保持用戶端開啟，確認地圖出現新種植點；種植畫面只呈現養成資訊與即時天氣／台北時段。
+3. 選擇並確定終點後，才呼叫 Gemini 推薦額外補給站並顯示優惠。超過 60 分鐘的步行路線先詢問，取消不得呼叫 Gemini；CMS 可查看實際來源與理由。
 4. 確認 Mapbox 道路成功後出發、模擬互動與收成，錢包只入帳一次。
 5. 以小樹點兌換商品；重送同一 request ID 不會再次扣點。
 6. 檢查 CMS 的導流、完成率、兌換成本，與不同帳號／Demo 資料隔離。
@@ -254,4 +254,25 @@ Manage merchants/stations/offers, tree presets/species, rewards, scenes and task
 in their CMS pages. Save the draft, then publish to update the client. Task
 publication also synchronizes CMS-owned `/tasks` entries for signed-in players.
 Removing tasks disables future completions and preserves existing history.
+
+## 2026-10-27 站點與即時天氣
+
+本機種子目前有 92 個商家及 51 個種植點，包含板橋與台北市全部 12 個行政區；
+其中新增的 65 個補給商家為明確標記的虛構展示資料。可在種子匯入頁按
+「合併台北市／板橋擴充站點與種子機率池」，保留目前草稿中相同 ID 的營運編輯，
+再儲存與發布。`firebase/seed/cms-expanded-2026-10-27.json` 保留 10/22 本機匯出中的
+編輯並合併新站點，並非本次即時雲端匯出；完整檔案匯入會替換草稿，已有新編輯時優先使用合併按鈕。
+
+Gemini 的候選走廊跟隨起終點與實際路線，推薦數量不再固定最多六站；回應仍須通過
+已發布、有效、允許 supply 角色及既有 CUBE 偏好的檢查。CMS 模擬可自行輸入起終點，
+管理預覽採直線走廊，實際玩家路線由 Mapbox 驗證。多於 25 個途經座標的路線分批銜接。
+
+推薦與種植場景共用 [Open-Meteo current API](https://open-meteo.com/en/docs) 的天氣解析：
+WMO code 及降水對應晴／陰／雨，包含氣溫和資料時間；過舊或查詢失敗時視為未知。
+查詢座標僅取小數兩位且不保存。場景五分鐘更新天氣，時段每分鐘按 Asia/Taipei 更新，
+05–07 清晨、07–17 白日、17–19 黃昏，其餘夜晚（素材切換的實作預設）。未知天氣使用中性陰天素材並顯示資料不可用。
+
+本次尚未部署 Functions／Hosting 或更新雲端站點。`CONTEXT.md` 已記錄企業代理阻擋
+Firestore 寫入的情況；限制解除前不可繞過政策重試寫入。新推薦協定需要同步部署
+`cmsRecommend` 與前端後再驗收；既有種植進度不在匯入範圍內。
 

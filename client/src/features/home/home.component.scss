@@ -62,3 +62,9 @@
   font-size: 11px;
   line-height: 1.5;
 }
+
+:host .cms-recommendation-action {
+  right: auto;
+  padding: 0;
+  background: transparent;
+}

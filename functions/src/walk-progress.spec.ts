@@ -15,11 +15,13 @@ vi.mock('firebase-functions/v2/https', () => ({
   },
 }));
 import { initializeWalkProgress, saveWalkProgress } from './walk-progress.js';
+import type { MysterySeed } from './planting-catalog.js';
 
 const initialize = initializeWalkProgress as unknown as (request: unknown) => Promise<unknown>;
 const save = saveWalkProgress as unknown as (request: unknown) => Promise<unknown>;
 const inventory = { lightEnergy: 0, waterDrops: 0, fertilizer: 0, seeds: 1 };
 const input = () => ({ uid: 'alice', revision: 0, previousInventory: inventory, state: {
+  mysterySeeds: [] as MysterySeed[],
   todaySteps: 10, todayStepsDay: '2026-10-19', lightEarnedToday: 10,
   totalRecordedSteps: 10, totalRecordedLightEnergy: 10, demoTreePoints: 0,
   demoTrees: {}, demoSupplyStationClaimedOn: {}, inventory: { ...inventory, lightEnergy: 10 },
@@ -48,6 +50,20 @@ describe('saveWalkProgress', () => {
       { lightEnergy: 10, waterDrops: 5, fertilizer: 0, seeds: 1, updatedAt: 'server-time' }, { merge: true });
     expect(set).toHaveBeenCalledWith('users/alice/dailyProgress/2026-10-19',
       { day: '2026-10-19', steps: 10, lightEnergy: 10, updatedAt: 'server-time' });
+  });
+  it('saves hidden seed identities and inventory credit in the same revisioned transaction', async () => {
+    const data=input();
+    data.state.mysterySeeds=[{id:'seed-1',species:'銀杏',seedTypeId:'mystery',version:7,
+      origin:{routeId:'route-banqiao',place:'板橋車站',acquiredAt:1}}];
+    data.state.inventory.seeds=2;
+    const set=vi.fn();
+    mocks.transaction.mockImplementation(async callback=>callback({
+      get:async(ref:string)=>({data:()=>ref.includes('/progress/')?{revision:0}:inventory}),set,
+    }));
+    await save({auth:{uid:'alice'},data});
+    expect(set).toHaveBeenCalledWith('users/alice/progress/current',expect.objectContaining({
+      revision:1,state:expect.objectContaining({mysterySeeds:data.state.mysterySeeds,inventory:expect.objectContaining({seeds:2})}),
+    }));
   });
   it('rejects stale revisions without overwriting another device', async () => {
     const set = vi.fn();

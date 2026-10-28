@@ -1,7 +1,8 @@
 import { GeoPoint } from '../../shared/models/geo.models';
 import { computed } from '@angular/core';
-import { cmsPublication, cmsRouteRoles, cmsRetainedTrees } from '../../shared/models/cms-publication';
+import { cmsPublication, cmsRetainedTrees } from '../../shared/models/cms-publication';
 import { haversineDistanceMeters } from '../../shared/models/geo-distance';
+import { legacyTreePostalCode } from '../../../../functions/src/tree-region';
 import {
   TREE_STAGE_GROWTH_RATIOS,
   TreeStage,
@@ -56,6 +57,7 @@ export type HomeTree = {
   plantedAt: number;
   lastWateredAt: number | null;
   poiName: string;
+  postalCode?: string;
   position: GeoPoint;
 };
 
@@ -147,6 +149,7 @@ const plantedHomeTrees: readonly HomeTree[] = [
   if (!marker) throw new Error(`Missing Demo tree marker: ${tree.id}`);
   return {
     ...tree,
+    postalCode: legacyTreePostalCode(tree.poiName),
     weather: marker.properties.weather,
     timeOfDay: marker.properties.timeOfDay,
     growth: marker.properties.growth,
@@ -165,6 +168,7 @@ export const homeTrees: readonly HomeTree[] = [
   ...plantedHomeTrees,
   ...demoPlantingSpots.map((spot) => ({
     ...spot,
+    postalCode: legacyTreePostalCode(spot.poiName),
     empty: true,
     growth: 0,
     nextHarvestAt: TREE_GROWTH_PER_HARVEST,
@@ -180,13 +184,11 @@ export const currentHomeTrees = computed<readonly HomeTree[]>(() => {
   if (!publication.managed) return homeTrees;
   const config = publication.config;
   if (!config) return cmsRetainedTrees();
-  const roles = cmsRouteRoles();
   const preset: HomeTree[] = config.trees.map(t => ({ id: t.id, nickName: t.name, species: t.species,
-    poiName: t.place, position: { latitude: t.latitude, longitude: t.longitude }, empty: t.empty,
+    poiName: t.place, postalCode: t.postalCode ?? legacyTreePostalCode(t.place), position: { latitude: t.latitude, longitude: t.longitude }, empty: t.empty,
     growth: t.growth, nextHarvestAt: TREE_GROWTH_PER_HARVEST, weedCount: 0, plantedAt: Date.now(),
     lastWateredAt: null, weather: t.weather, timeOfDay: t.timeOfDay }));
-  const merchants: HomeTree[] = config.merchants.filter(m => m.enabled && m.roles.includes('planting') &&
-    (!roles || roles.some(s => s.merchantId === m.id && s.role === 'planting'))).map(m => ({
+  const merchants: HomeTree[] = config.merchants.filter(m => m.enabled && m.roles.includes('planting')).map(m => ({
       id: `merchant-${m.id}`, nickName: m.name, species: config.species[0] ?? '榕樹', poiName: m.address || m.name,
       position: { latitude: m.latitude, longitude: m.longitude }, empty: true, growth: 0,
       nextHarvestAt: TREE_GROWTH_PER_HARVEST, weedCount: 0, plantedAt: Date.now(), lastWateredAt: null,
@@ -213,6 +215,9 @@ export function homeTreesWithProgress(
     Record<
       string,
       {
+        nickName?: string;
+        species?: string;
+        seedTypeId?: string;
         growth: number;
         harvestCount: number;
         weedIds: readonly number[];
@@ -228,6 +233,8 @@ export function homeTreesWithProgress(
 ): readonly HomeTree[] {
   return currentHomeTrees().filter(tree => !!progress[tree.id]).map((tree) => ({
     ...tree,
+    nickName: progress[tree.id].planted ? (progress[tree.id].nickName ?? tree.nickName) : tree.poiName,
+    species: progress[tree.id].planted === false ? '待種植' : progress[tree.id].seedTypeId && progress[tree.id].growth < tree.nextHarvestAt * TREE_STAGE_GROWTH_RATIOS.young ? '神秘樹種' : (progress[tree.id].species ?? tree.species),
     growth: progress[tree.id].growth,
     harvested: progress[tree.id].harvestCount > 0,
     empty: progress[tree.id].planted === undefined ? tree.empty : !progress[tree.id].planted,

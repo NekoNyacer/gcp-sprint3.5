@@ -45,7 +45,7 @@ import {
   MapCameraIntent,
 } from './map-camera.controller';
 import { IonButton } from '@ionic/angular';
-import { CMS_CONNECTION, cmsPublication } from '../../../shared/models/cms-publication';
+import { CMS_CONNECTION, cmsPublication, cmsRouteRoles } from '../../../shared/models/cms-publication';
 
 export const PLANNING_MARKER_LONG_PRESS_MS = 500;
 
@@ -76,15 +76,7 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   private readonly progress = inject(ProgressStore);
   readonly taskPoints = computed<readonly WalkTaskPoint[]>(() => {
     if (this.walkSession.isPlanning() && this.walkSession.destinationConfirmed()) return this.walkSession.availableTaskPoints();
-    if (!this.walkSession.isPlanning() && !this.walkSession.hasActiveRoute() && cmsPublication().managed) {
-      return (cmsPublication().config?.merchants ?? []).filter(m => m.enabled && m.roles.includes('supply') && !m.roles.includes('planting')).map(m => ({
-        id: m.id, name: m.name, position: { latitude: m.latitude, longitude: m.longitude }, kind: m.resource,
-        routeStop: { position: { latitude: m.latitude, longitude: m.longitude }, segmentIndex: 0, fraction: 0 },
-        estimatedExtraSteps: 0, isDemo: true, description: '模擬商家站點',
-        supplyStation: { category: m.category, isCathayTwqrMerchant: m.twqr, offer: m.offer, terms: m.terms,
-          validUntil: m.validUntil, supply: { resource: m.resource, amount: m.amount } },
-      }));
-    } return [];
+    return [];
   });
   private readonly camera = inject(MapCameraController);
   private readonly mapElement = viewChild<ElementRef<HTMLDivElement>>('map');
@@ -1023,6 +1015,10 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   }
 
   private clusterPoints() {
+    const recommendedSupplies = new Set(
+      (cmsRouteRoles() ?? []).filter((selection) => selection.role === 'supply')
+        .map((selection) => selection.merchantId),
+    );
     return [
       ...currentHomeTrees().flatMap((tree) => {
         const entry = this.treeMarkers.get(tree.id);
@@ -1030,7 +1026,9 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
           ? [{ id: `tree:${tree.id}`, button: entry.button, position: tree.position }]
           : [];
       }),
-      ...this.stationClusterPoints.map((point) => ({ ...point, id: `station:${point.id}` })),
+      ...this.stationClusterPoints
+        .filter((point) => !recommendedSupplies.has(point.id))
+        .map((point) => ({ ...point, id: `station:${point.id}` })),
     ];
   }
 

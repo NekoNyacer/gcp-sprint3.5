@@ -1,8 +1,13 @@
+import { DEFAULT_SEED_TYPES, DEFAULT_WALK_SEED_DROP, type WalkSeedDrop, type SeedType, type CubeChannel } from "./planting-catalog.js";
 import { REWARD_ICONS, REWARD_BACKGROUNDS, DEFAULT_REWARD_ICON, DEFAULT_REWARD_BACKGROUND } from "./reward-avatar.js";
+import { legacyTreePostalCode } from './tree-region.js';
 /** Versioned public demo configuration. Player state never lives in this document. */
 export type Scope = "demo" | "normal";
 export type Role = "planting" | "supply";
 export interface Merchant {
+  cubeChannelIds?: string[];
+  postalCode?: string;
+  locationSourceUrl?: string;
   id: string;
   name: string;
   address: string;
@@ -25,6 +30,7 @@ export interface TreePreset {
   name: string;
   species: string;
   place: string;
+  postalCode?: string;
   latitude: number;
   longitude: number;
   empty: boolean;
@@ -59,6 +65,9 @@ export interface CmsTask {
   rewardAmount: number;
 }
 export interface CmsConfig {
+  walkSeedDrop?: WalkSeedDrop;
+  seedTypes?: SeedType[];
+  cubeChannels?: CubeChannel[];
   tasks?: CmsTask[];
   merchants: Merchant[];
   trees: TreePreset[];
@@ -117,15 +126,20 @@ function uniqueIds(items: { id: string }[]) {
     new Set(items.map((x) => x.id)).size === items.length
   );
 }
+export const CMS_MAX_CONFIG_BYTES = 850_000;
+export const CMS_MAX_TREE_PRESETS = 2_500;
 export function validateConfig(value: unknown): CmsConfig {
   const v = value as CmsConfig;
   const tasks = v?.tasks === undefined ? [] : v.tasks;
+  const serializedBytes = v
+    ? new TextEncoder().encode(JSON.stringify(v)).byteLength
+    : 0;
   if (
     !v ||
-    JSON.stringify(v).length > 350_000 ||
+    serializedBytes > CMS_MAX_CONFIG_BYTES ||
     !count(v.harvestPoints) ||
     !list(v.merchants, 100) ||
-    !list(v.trees, 100) ||
+    !list(v.trees, CMS_MAX_TREE_PRESETS) ||
     !list(v.rewards, 40) ||
     !list(v.species, 30) ||
     !list(v.scenes, 30) ||
@@ -135,6 +149,26 @@ export function validateConfig(value: unknown): CmsConfig {
     ![v.merchants, v.trees, v.rewards, v.scenes, tasks].every(uniqueIds)
   )
     throw new Error("設定格式、數量或識別碼不正確");
+  const seeds = v.seedTypes ?? (v.species.length ? [{...DEFAULT_SEED_TYPES[0], outcomes: v.species.map(species => ({species, weight: DEFAULT_SEED_TYPES[0].outcomes.find(o => o.species === species)?.weight ?? 20}))}] : []);
+  const channels = v.cubeChannels ?? [];
+  if (!list(seeds, 30) || !list(channels, 100) || !uniqueIds(seeds) || !uniqueIds(channels)) throw new Error("種子或樹種權重設定不正確");
+  for (const seed of seeds) {
+    if (!text(seed.name, 60) || typeof seed.enabled !== "boolean" || !list(seed.outcomes, 30) || !seed.outcomes.length ||
+        new Set(seed.outcomes.map(o => o.species)).size !== seed.outcomes.length ||
+        seed.outcomes.some(o => !v.species.includes(o.species) || !count(o.weight) || o.weight === 0))
+      throw new Error("種子或樹種權重設定不正確");
+  }
+  const walkSeedDrop = v.walkSeedDrop ?? { ...DEFAULT_WALK_SEED_DROP, seedTypeId: seeds.find(s => s.enabled)?.id ?? '', enabled: seeds.some(s => s.enabled) };
+  if (typeof walkSeedDrop.enabled !== 'boolean' || typeof walkSeedDrop.seedTypeId !== 'string' ||
+      !Number.isFinite(walkSeedDrop.chancePercent) || walkSeedDrop.chancePercent < 0 || walkSeedDrop.chancePercent > 100 ||
+      (walkSeedDrop.enabled && !seeds.some(s => s.id === walkSeedDrop.seedTypeId && s.enabled)))
+    throw new Error('散步種子掉落設定不正確，請指定啟用的機率池與 0–100% 掉落率');
+  const date = (d: unknown) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d) && Number.isFinite(Date.parse(d)) && new Date(d).toISOString().slice(0,10) === d;
+  for (const c of channels) {
+    if (!text(c.name, 100) || !text(c.plan, 60) || !text(c.brand, 100) || !date(c.startsOn) || !date(c.endsOn) || c.startsOn > c.endsOn ||
+        typeof c.domestic !== 'boolean' || typeof c.enabled !== 'boolean' || !text(c.terms, 1000, false) ||
+        !text(c.sourceUrl, 500) || !/^https:\/\//.test(c.sourceUrl)) throw new Error("CUBE 通路、期間或來源不正確");
+  }
   for (const task of tasks) {
     if (!text(task.name, 100) || !text(task.description, 1000, false) ||
         !["banqiao", "xihu"].includes(task.areaId) ||
@@ -152,6 +186,9 @@ export function validateConfig(value: unknown): CmsConfig {
   }
   for (const m of v.merchants) {
     if (
+      (m.cubeChannelIds !== undefined && (!list(m.cubeChannelIds, 100) || new Set(m.cubeChannelIds).size !== m.cubeChannelIds.length || m.cubeChannelIds.some(id => !channels.some(c => c.id === id)))) ||
+      (m.postalCode !== undefined && !/^\d{3}$/.test(m.postalCode)) ||
+      (m.locationSourceUrl !== undefined && (!text(m.locationSourceUrl, 500) || !/^https:\/\//.test(m.locationSourceUrl))) ||
       !text(m.name, 100) ||
       !text(m.address, 200, false) ||
       !coordinate(m) ||
@@ -177,8 +214,8 @@ export function validateConfig(value: unknown): CmsConfig {
     if (
       !text(t.name, 100) ||
       !text(t.place, 100) ||
-      !text(t.species, 60) ||
-      !v.species.includes(t.species) ||
+      (t.postalCode !== undefined && (typeof t.postalCode !== 'string' || !/^\d{3}$/.test(t.postalCode))) ||
+      (!t.empty && (!text(t.species, 60) || !v.species.includes(t.species))) ||
       !coordinate(t) ||
       !environment(t) ||
       typeof t.empty !== "boolean" ||
@@ -202,6 +239,9 @@ export function validateConfig(value: unknown): CmsConfig {
       throw new Error("獎勵設定不正確");
   // Reject unexpected fields instead of publishing arbitrary caller-controlled data.
   return {
+    walkSeedDrop: { enabled: walkSeedDrop.enabled, chancePercent: walkSeedDrop.chancePercent, seedTypeId: walkSeedDrop.seedTypeId },
+    seedTypes: seeds.map(s => ({id: s.id, name: s.name, enabled: s.enabled, outcomes: s.outcomes.map(o => ({species: o.species, weight: o.weight}))})),
+    cubeChannels: channels.map(c => ({id: c.id, name: c.name, plan: c.plan, brand: c.brand, startsOn: c.startsOn, endsOn: c.endsOn, domestic: c.domestic, enabled: c.enabled, sourceUrl: c.sourceUrl, terms: c.terms})),
     tasks: tasks.map(task => ({
       id: task.id, name: task.name, description: task.description,
       areaId: task.areaId, cadence: task.cadence, enabled: task.enabled,
@@ -214,6 +254,9 @@ export function validateConfig(value: unknown): CmsConfig {
     merchants: v.merchants.map((m) => ({
       id: m.id,
       name: m.name,
+      ...(m.postalCode ? {postalCode: m.postalCode} : {}),
+      ...(m.locationSourceUrl ? {locationSourceUrl: m.locationSourceUrl} : {}),
+      cubeChannelIds: [...(m.cubeChannelIds ?? [])],
       address: m.address,
       latitude: m.latitude,
       longitude: m.longitude,
@@ -232,8 +275,9 @@ export function validateConfig(value: unknown): CmsConfig {
     trees: v.trees.map((t) => ({
       id: t.id,
       name: t.name,
-      species: t.species,
+      species: t.empty ? "" : t.species,
       place: t.place,
+      ...((t.postalCode ?? legacyTreePostalCode(t.place)) ? { postalCode: t.postalCode ?? legacyTreePostalCode(t.place) } : {}),
       latitude: t.latitude,
       longitude: t.longitude,
       empty: t.empty,
@@ -259,6 +303,17 @@ export function validateConfig(value: unknown): CmsConfig {
     })),
   };
 }
+/** Add curated records to a draft without replacing operator edits or personal data. */
+export function mergeCatalog(existing: CmsConfig, incoming: CmsConfig): CmsConfig {
+  const merge = <T extends {id: string}>(a: T[] = [], b: T[] = []): T[] =>
+    [...a, ...b.filter(item => !a.some(old => old.id === item.id))];
+  return validateConfig({...existing,
+    species: [...new Set([...existing.species, ...incoming.species])],
+    seedTypes: merge(existing.seedTypes, incoming.seedTypes), cubeChannels: merge(existing.cubeChannels, incoming.cubeChannels),
+    trees: merge(existing.trees, incoming.trees), merchants: merge(existing.merchants, incoming.merchants),
+    tasks: merge(existing.tasks, incoming.tasks), rewards: merge(existing.rewards, incoming.rewards), scenes: merge(existing.scenes, incoming.scenes),
+  });
+}
 export interface Selection {
   merchantId: string;
   role: Role;
@@ -268,7 +323,7 @@ export function validateSelections(
   value: unknown,
   merchants: Merchant[],
 ): Selection[] {
-  if (!Array.isArray(value) || value.length === 0 || value.length > 6)
+  if (!Array.isArray(value) || value.length > merchants.length)
     throw new Error("AI 選擇數量不正確");
   const seen = new Set<string>();
   return value.map((s) => {
@@ -285,6 +340,8 @@ export function validateSelections(
   });
 }
 export type EventName =
+  | "merchant_recommended"
+  | "merchant_arrived"
   | "core_action"
   | "route_started"
   | "route_completed"
@@ -296,13 +353,16 @@ export interface MetricEvent {
   name: EventName;
   entityId: string;
   at: number;
+  source?: string;
+  plan?: string;
+  version?: number;
 }
 /** Group route IDs by actor; count only completion of a departure in this window. */
 export function metrics(
   events: MetricEvent[],
   redemptions: { actor: string; costNtd: number }[],
 ) {
-  const active = new Set(events.map((e) => e.actor));
+  const active = new Set(events.filter(e => e.name !== "merchant_recommended").map((e) => e.actor));
   const started = new Set(
     events
       .filter((e) => e.name === "route_started")
@@ -345,6 +405,17 @@ export function metrics(
     Math.round(redemptions.reduce((sum, r) => sum + r.costNtd, 0) * 100) / 100;
   const ratio = (a: number, b: number) => (b ? a / b : null);
   return {
+    merchants: [...new Set(events.filter(e => ['merchant_recommended', 'merchant_arrived', 'offer_view', 'navigation_started'].includes(e.name)).map(e => e.entityId))].map(id => {
+      const rows = events.filter(e => e.entityId === id);
+      const selected = rows.filter(e => e.name === 'merchant_recommended');
+      const arrivals = rows.filter(e => e.name === 'merchant_arrived');
+      return {id, recommended: selected.length, gemini: selected.filter(e => e.source === 'gemini').length,
+        rules: selected.filter(e => e.source === 'rules').length,
+        views: rows.filter(e => e.name === 'offer_view').length, navigations: rows.filter(e => e.name === 'navigation_started').length,
+        arrivals: arrivals.length, visitors: new Set(arrivals.map(e => e.actor)).size,
+        // Counts are separate funnel stages, not a purchase or attribution claim.
+        plans: [...new Set(selected.map(e => e.plan || '未指定'))].map(plan => ({plan, count: selected.filter(e => (e.plan || '未指定') === plan).length}))};
+    }),
     activeUsers: active.size,
     routeStarted: started.size,
     routeCompleted: completed.size,

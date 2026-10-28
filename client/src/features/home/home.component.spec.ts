@@ -18,7 +18,9 @@ import {
   WalkingDirections,
 } from '../../shared/services/mapbox-directions.service';
 import { GeoPoint } from '../../shared/models/geo.models';
-import { findHomeTree } from './home-tree-recommendations';
+import { findHomeTree, homeTrees } from './home-tree-recommendations';
+import { CMS_CONNECTION, cmsPublication, cmsRouteRoles, cmsRetainedTrees } from '../../shared/models/cms-publication';
+import type { CmsConfig, Selection } from '../../../../functions/src/cms-domain';
 import {
   demoPlantingSpots,
   demoSupplyStations,
@@ -55,9 +57,12 @@ describe('Home task-selection camera', () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    cmsPublication.set({config: null, version: 0, managed: false});
+    cmsRouteRoles.set(null);
+    cmsRetainedTrees.set([]);
   });
 
-  function setup(withPanels = false, fullHome = false) {
+  function setup(withPanels = false, fullHome = false, cms: object | null = null) {
     const current = signal<LocationPoint | null>({
       longitude: 121.454754,
       latitude: 25.001002,
@@ -76,6 +81,7 @@ describe('Home task-selection camera', () => {
     TestBed.configureTestingModule({
       imports: [HomeComponent],
       providers: [
+        {provide: CMS_CONNECTION, useValue: cms},
         {
           provide: LocationStore,
           useValue: { current },
@@ -139,6 +145,135 @@ describe('Home task-selection camera', () => {
       dismissToast,
     };
   }
+
+  function managedSetup() {
+    const config: CmsConfig = {harvestPoints: 50, species: ['榕樹'], scenes: [], rewards: [],
+      trees: homeTrees.map(t => ({id: t.id, name: t.nickName, species: t.empty ? '' : t.species, place: t.poiName,
+        latitude: t.position.latitude, longitude: t.position.longitude, empty: !!t.empty, growth: t.growth,
+        weather: t.weather, timeOfDay: t.timeOfDay ?? 'day'})),
+      merchants: Array.from({length: 8}, (_, i) => ({id: `supply-${i}`, name: `補給${i}`, address: '展示區',
+        latitude: 25.005 + i * 0.0001, longitude: 121.458, roles: ['supply'], category: '美食', twqr: false,
+        enabled: true, offer: '模擬優惠', terms: 'Demo', validUntil: '2099-12-31', resource: 'water', amount: 10,
+        weather: 'sunny', timeOfDay: 'day'})),
+    };
+    const selections: Selection[] = config.merchants.map(m => ({merchantId: m.id, role: 'supply', reason: '依距離與天氣推薦'}));
+    const result = {source: 'gemini', selections, version: 1, reason: ''};
+    const ai = signal(result);
+    const cms = {managed: signal(true), config: signal(config), ai, track: vi.fn(),
+      clearRecommendations: vi.fn(() => cmsRouteRoles.set(null)), recommend: vi.fn(async () => result)};
+    const ctx = setup(false, false, cms);
+    cmsPublication.set({config, version: 1, managed: true});
+    TestBed.inject(ProgressStore).ensureCmsTrees(homeTrees, true);
+    ctx.fixture.detectChanges();
+    return {...ctx, cms};
+  }
+
+  it('requires starting planning and confirming a candidate before requesting AI, including after returning Home', async () => {
+    const {fixture, store, cms} = managedSetup();
+    await fixture.componentInstance.selectDestination('tree-5');
+    expect(store.isIdle()).toBe(true);
+    expect(store.destination()).toBeNull();
+    expect(cms.recommend).not.toHaveBeenCalled();
+    fixture.componentInstance.startPlanning();
+    await fixture.componentInstance.selectDestination('tree-5');
+    fixture.componentInstance.startPlanning();
+    expect(store.isPlanning()).toBe(true);
+    expect(store.destination()).toBeNull();
+    expect(store.destinationConfirmed()).toBe(false);
+    expect(store.taskRoutes()).toHaveLength(0);
+    expect(cms.recommend).not.toHaveBeenCalled();
+    await fixture.componentInstance.selectDestination('tree-1');
+    fixture.componentInstance.back();
+    expect(store.isIdle()).toBe(true);
+    expect(store.destination()).toBeNull();
+    await fixture.componentInstance.selectDestination('tree-1');
+    expect(store.isIdle()).toBe(true);
+    expect(cms.recommend).not.toHaveBeenCalled();
+    fixture.componentInstance.startPlanning();
+    await fixture.componentInstance.selectDestination('tree-5');
+    fixture.componentInstance.confirmDestination();
+    await fixture.whenStable();
+    expect(cms.recommend).toHaveBeenCalledOnce();
+  });
+
+  it('requests Gemini only after confirming the destination and preserves more than six extra supply stops', async () => {
+    const {fixture, store, cms, directions} = managedSetup();
+    fixture.componentInstance.startPlanning();
+    expect(cms.recommend).not.toHaveBeenCalled();
+    await fixture.componentInstance.selectDestination('tree-5');
+    expect(cms.recommend).not.toHaveBeenCalled();
+    expect(store.availableTaskPoints()).toHaveLength(0);
+    expect(directions.walking).toHaveBeenCalledTimes(1);
+    fixture.componentInstance.confirmDestination();
+    await fixture.whenStable();
+    expect(cms.recommend).toHaveBeenCalledTimes(1);
+    expect(cms.recommend.mock.calls[0]).toEqual([store.baseRoute()[0], store.destination()!.position,
+      store.baseRoute(), 1234, 1234 / 1.25]);
+    expect(store.availableTaskPoints()).toHaveLength(8);
+    expect(store.taskRoutes()).toHaveLength(8);
+    expect(store.routeLoading()).toBe(false);
+    for (const task of store.availableTaskPoints()) fixture.componentInstance.toggleTaskPoint(task.id);
+    expect(store.taskPoints()).toHaveLength(8);
+  });
+
+  it('warns above sixty walking minutes and only calls Gemini after explicit acceptance', async () => {
+    const {fixture, store, cms, directions} = managedSetup();
+    directions.walking.mockImplementation(async points => ({...responseFor(points), durationSeconds: 3 * 3600 + 120}));
+    fixture.componentInstance.startPlanning();
+    await fixture.componentInstance.selectDestination('tree-1');
+    fixture.componentInstance.confirmDestination();
+    const dialog = TestBed.inject(DialogService);
+    expect(dialog.content()).toContain('3 小時 2 分鐘');
+    expect(store.destinationConfirmed()).toBe(false);
+    expect(cms.recommend).not.toHaveBeenCalled();
+    dialog.closeDialog('cancel');
+    expect(store.destination()?.id).toBe('tree-1');
+    expect(cms.recommend).not.toHaveBeenCalled();
+    fixture.componentInstance.confirmDestination();
+    dialog.closeDialog('confirm');
+    await fixture.whenStable();
+    expect(store.destinationConfirmed()).toBe(true);
+    expect(cms.recommend).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not warn at exactly sixty minutes and discards cancelled recommendations', async () => {
+    const {fixture, store, cms, directions} = managedSetup();
+    directions.walking.mockImplementation(async points => ({...responseFor(points), durationSeconds: 3600}));
+    let resolve!: (value: Awaited<ReturnType<typeof cms.recommend>>) => void;
+    cms.recommend.mockImplementation(() => new Promise(done => {resolve = done;}));
+    fixture.componentInstance.startPlanning();
+    await fixture.componentInstance.selectDestination('tree-5');
+    fixture.componentInstance.confirmDestination();
+    expect(TestBed.inject(DialogService).isDialogOpen()).toBe(false);
+    expect(cms.recommend).toHaveBeenCalledTimes(1);
+    fixture.componentInstance.back();
+    resolve({source: 'gemini', selections: [{merchantId: 'supply-0', role: 'supply', reason: 'old'}], version: 1, reason: ''});
+    await fixture.whenStable();
+    expect(store.isIdle()).toBe(true);
+    expect(cmsRouteRoles()).toBe(null);
+    expect(store.taskRoutes()).toHaveLength(0);
+  });
+
+  it('retries empty recommendations without clearing the destination and preserves chosen shops on later retry attempts', async () => {
+    const {fixture, store, cms} = managedSetup();
+    cms.recommend.mockResolvedValueOnce({source: 'gemini', selections: [], version: 1, reason: ''});
+    fixture.componentInstance.startPlanning();
+    await fixture.componentInstance.selectDestination('tree-5');
+    fixture.componentInstance.confirmDestination();
+    await fixture.whenStable();
+    expect(store.availableTaskPoints()).toHaveLength(0);
+    fixture.componentInstance.retrySupplies();
+    await fixture.whenStable();
+    await vi.waitFor(() => expect(store.routeLoading()).toBe(false));
+    expect(cms.recommend).toHaveBeenCalledTimes(2);
+    expect(store.destination()?.id).toBe('tree-5');
+    expect(store.destinationConfirmed()).toBe(true);
+    expect(store.availableTaskPoints()).toHaveLength(8);
+    fixture.componentInstance.toggleTaskPoint(store.availableTaskPoints()[0].id);
+    fixture.componentInstance.retrySupplies();
+    expect(cms.recommend).toHaveBeenCalledTimes(2);
+    expect(store.taskPoints()).toHaveLength(1);
+  });
 
   it('loads a collection navigation destination once when Home enters', async () => {
     const { fixture, store, directions } = setup();
@@ -400,7 +535,7 @@ describe('Home task-selection camera', () => {
       },
       titleBadge: supplyRewardLabel(task.supplyStation.supply),
       subTitle: task.supplyStation.offer,
-      description: task.supplyStation.terms,
+      description: `${task.description}\n${task.supplyStation.terms}`,
       otherBadges: [
         `有效期限 ${task.supplyStation.validUntil}`,
         `距離 ${distance} km`,

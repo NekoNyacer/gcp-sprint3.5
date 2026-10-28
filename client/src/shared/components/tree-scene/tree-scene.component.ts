@@ -1,3 +1,4 @@
+import { treeAppearance } from '../../../../../functions/src/tree-species';
 import { treeSceneBackground, SceneTimeOfDay } from '../../models/tree-scene-environment';
 import { saplingPlan } from './tree-sapling-plan';
 import { TREE_GROUND_DETAILS, TREE_TURF_SEGMENTS, treeTurfPoint } from './tree-ground-plan';
@@ -65,6 +66,8 @@ export class TreeSceneComponent implements OnDestroy {
     () => !this.ready() && (this.display.mode() === '2d' || this.acceptedFallback()),
   );
   readonly sceneAvailable = computed(() => this.ready() || this.show2D());
+  readonly species = input('榕樹');
+  readonly appearance = computed(() => treeAppearance(this.species()));
   readonly growth = input(0);
   readonly empty = input(false);
   readonly weather = input<CultivationWeather>('sunny');
@@ -431,6 +434,7 @@ export class TreeSceneComponent implements OnDestroy {
     });
     effect(() => {
       const growth = this.growth();
+      const species = this.species();
       const stage = this.stage();
       const key = this.interactionKey();
       const sameTree = this.previousTreeKey === key;
@@ -452,7 +456,7 @@ export class TreeSceneComponent implements OnDestroy {
       this.controller?.setTreeVisible(!empty);
       this.controller?.setWaterState(soilWaterState);
       this.controller?.setFertilized(this.fertilized());
-      this.controller?.update(growth, celebration !== this.previousCelebration, sameTree);
+      this.controller?.update(growth, celebration !== this.previousCelebration, sameTree, species);
       const fruitState = this.fruitState();
       this.controller?.setFruitState(fruitState, this.harvestStartedAt());
       if (enteringStage || (fruitState === 'falling' && this.previousFruitState !== 'falling')) {
@@ -503,7 +507,7 @@ export class TreeSceneComponent implements OnDestroy {
       this.controller.setResourceEffect(this.resourceEffect());
       this.controller.setWaterState(this.soilWaterState());
       this.controller.setFertilized(this.fertilized());
-      this.controller.update(this.growth());
+      this.controller.update(this.growth(), false, true, this.species());
       this.controller.setTreeVisible(!this.empty());
       this.controller.setFruitState(this.fruitState(), this.harvestStartedAt());
     } catch (error) {
