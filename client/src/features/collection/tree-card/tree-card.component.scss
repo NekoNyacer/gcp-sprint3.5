@@ -15,16 +15,17 @@ ion-card {
     background: #d9d9d9;
   }
 
-  legend{
+  legend {
     padding: 10px;
 
-    div{
+    div {
       display: flex;
       gap: 4px;
       justify-content: space-between;
       align-items: center;
 
-      ion-label,ion-chip{
+      ion-label,
+      ion-chip {
         text-wrap: nowrap;
       }
 
@@ -34,6 +35,8 @@ ion-card {
         overflow: hidden;
         text-align: left;
         text-overflow: ellipsis;
+        font-size: 14px;
+        font-weight: 500;
       }
 
       ion-chip {
@@ -42,18 +45,23 @@ ion-card {
         min-height: 20px;
         height: 20px;
         padding: 0 6px;
-        font-size: 10px;
+        font-size: 12px;
         line-height: 1;
+        font-weight: 500;
+        font-family: var(--app-font-noto);
       }
     }
   }
 
-  p{
+  p {
     margin: 0;
     text-align: left;
+    font-size: 12px;
+    font-weight: 400;
   }
 }
 
-ion-label{
-  font-weight: bold;
+ion-label {
+  font-weight: 500;
+  font-size: 14px;
 }

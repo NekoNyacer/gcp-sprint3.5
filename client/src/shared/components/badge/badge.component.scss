@@ -1,19 +1,22 @@
-:host{
+:host {
   display: inline-flex;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--app-font-noto);
 }
 
-div{
+div {
   padding: 4px 8px;
   border-radius: 16px;
   display: flex;
   gap: 4px;
   align-items: center;
-  align-self:flex-start;
+  align-self: flex-start;
   background-color: rgb(242, 242, 242);
   color: black;
 
-  &.primary{
-    background-color:color-mix(var(--ion-color-primary) 10%, white);
-    color:var(--ion-color-primary);
+  &.primary {
+    background-color: color-mix(var(--ion-color-primary) 10%, white);
+    color: var(--ion-color-primary);
   }
 }

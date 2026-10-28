@@ -1,5 +1,71 @@
 # CAT WALK project context
 
+## Local interactive app presentation (2026-10-28)
+
+- Connect the supplied interactive-app-presentation.html layout to the running
+  client at /interactive-app-presentation.html?variant=b. The user selected B as
+  the final layout; remove the bottom variant switcher and its keyboard controls,
+  and always display B, including when an old variant URL is opened.
+- The phone frame embeds the actual same-origin client. Chapter buttons navigate
+  its existing tabs, app navigation updates the selected chapter, and supported
+  hover/focus interactions update the explanation. Keep the current app session
+  when changing chapters. Before login, queue a chosen
+  chapter until the user enters through the existing login or Demo controls.
+- Keep this integration in the standalone public HTML, without changing app
+  business flows.
+- Use the taller iPhone 11 Pro viewport (375 by 812 CSS pixels) for every
+  chapter, with a 395 by 832px outer shell. The
+  user requires the complete device to fit without scrolling the presentation
+  or scaling app text. This supersedes the short iPhone SE frame, the iPhone 16
+  viewport and the scrollable app panel. Remove the connection status and the
+  independent-app link entirely, superseding their former upper-right placement.
+  Center the device itself horizontally and vertically in the right panel.
+  Reduce surrounding space first;
+  in smaller windows, let the frame
+  and app viewport reflow to available space, without transforms, zoom or font
+  overrides. Normal scrolling inside app pages remains part of their UI.
+  On mobile, hide the explanatory sidebar.
+- Remove the horizontal chapter progress bars and their numeric caption from
+  every page. Chapter navigation uses orange circular markers on a fine vertical
+  connector, following the supplied UXD timeline reference. Active, hovered and
+  keyboard-focused markers receive a translucent orange halo. Chapter labels use
+  a single row such as `01 健走地圖`, with number and title at 12px; the selected
+  chapter uses 14px for both number and title, superseding the prior 16px.
+- Use `#EE6A17` for the active chapter label and each page kicker; kickers are
+  16px. Omit Chinese commas and full stops from all chapter headlines.
+- Match the supplied spacing annotations across every chapter and layout:
+  brand line bottom margin 40px, page kicker bottom margin 8px, intro top margin
+  16px, note card top margin 24px, and note-card padding `16px 24px 24px`.
+  The note-card heading uses margin `2px 0 4px`.
+- Verified in Edge: Demo entry, all five chapters, navigation in both directions,
+  hover explanations, variant changes retaining the session, and 390px layout.
+
+## App typography and cancelled palette update (2026-10-28)
+
+- The latest user request cancels the preceding App palette changes. Restore
+  the original Ionic theme and purple Demo button. In particular, retain the
+  original green secondary color used by map recommendation text. The earlier
+  light-orange water-outline clarification no longer calls for a palette change.
+  Presentation active navigation and kicker remain the confirmed `#EE6A17`.
+- Follow the supplied `typography.png` by semantic role across the five main
+  App tabs and their related dialogs, drawers, route cards and map popups:
+  12px/400 labels, navigation and metadata; 12px/500 badges and small actions;
+  14px/400 content and unselected segments; 14px/500 selected segments, tree
+  names and filter values; 14px/700 item prices and reward amounts;
+  16px/400 narrative/result content; 16px/500 actions and record/card titles;
+  18px/700 section titles; 20px/700 Roboto profile statistics;
+  24px/700 page/dialog titles, profile names and primary resource balances.
+  Reserve 32px/500 Roboto for Home's today's-step value only.
+- Use Noto Sans TC with Roboto for the supplied text/number roles. Remove
+  nonstandard text sizes such as 10px, 11px and fluid text-size clamps from
+  these screens. Keep decorative icon sizes separate from text typography.
+  Do not scale the iframe or shrink its fonts to fit the device.
+- Verified in the running Edge client: all five tabs have no visible text
+  outside the supplied size scale; Home resources are 24px/700, today's steps
+  are 32px/500, and map recommendation hints are 12px with their original
+  green text. Device centering and a non-scrolling presentation pass at
+  1918x908, 1280x720 and 390x844. The development client recompiles successfully.
+
 ## Walking HUD and simulation speed (2026-10-28)
 
 - During an active route, compress the upper resource cards into a single row

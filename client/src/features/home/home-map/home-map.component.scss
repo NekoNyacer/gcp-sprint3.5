@@ -51,7 +51,8 @@
 
 .map-fallback span {
   max-width: 24rem;
-  font-size: 0.9rem;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .tree-recommendation {
@@ -67,13 +68,13 @@
   color: var(--ion-color-dark);
   background: #fff;
   font-family: var(--ion-font-family);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
 
   &[aria-pressed='true'] {
-  color: var(--ion-color-secondary);
+    color: var(--ion-color-secondary);
     background: #f0faf3;
   }
 
@@ -87,14 +88,17 @@
   }
 
   &__name {
-  color: var(--ion-color-dark);
+    color: var(--ion-color-dark);
     font-size: 14px;
+    font-weight: 500;
   }
 
   b,
   &__status {
-  color: var(--ion-color-secondary);
+    color: var(--ion-color-secondary);
   }
+
+  font-weight: 400;
 }
 
 .station-card {
@@ -118,14 +122,14 @@
 
   h2 {
     margin: 0 24px 6px 0;
-    font-size: 15px;
+    font-size: 24px;
     font-weight: 700;
   }
 
   h3 {
     margin: 8px 0 4px;
-  color: var(--ion-color-secondary);
-    font-size: 14px;
+    color: var(--ion-color-secondary);
+    font-size: 18px;
     font-weight: 700;
   }
 
@@ -182,8 +186,10 @@
     font-size: 12px;
 
     strong {
-  color: var(--ion-color-secondary);
+      color: var(--ion-color-secondary);
     }
+
+    font-weight: 400;
   }
 
   &__actions {
@@ -198,4 +204,18 @@
       min-width: 0;
     }
   }
+
+  font-weight: 400;
+}
+
+.tree-recommendation b,
+.tree-recommendation .tree-recommendation__status {
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--app-font-noto);
+}
+
+.station-card__terms {
+  font-size: 16px;
+  font-weight: 400;
 }

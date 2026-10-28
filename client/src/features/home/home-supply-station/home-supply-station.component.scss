@@ -29,8 +29,8 @@ p {
   text-align: center;
 }
 h1 {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
@@ -108,8 +108,9 @@ h1 {
 .spin-help {
   margin: 9px 0 18px;
   color: #818777;
-  font-size: 11px;
+  font-size: 12px;
   text-align: center;
+  font-weight: 400;
 }
 .top {
   position: relative;
@@ -118,10 +119,19 @@ h1 {
   padding: 30px var(--station-inset-right) 28px var(--station-inset-left);
   background-color: #d6dfce;
   background-image:
-    linear-gradient(180deg, #f3f5ede8 0%, #f3f5edb8 28%, #f3f5ed24 58%, #f3f5edb3 82%, #f3f5ed 100%),
-    url("https://lh3.googleusercontent.com/grass-cs/AABkmLeLtaC8yBZWyRPXekYmfn4vHcyOa6mwpJ-y2c-_1F6YUQJIG5j_bJ_h-ifvXH0tuhsEhyiMG97AEIHtKjE9eoHONayYIsRT1WAsOEcL_e4s2sJjx6ElVWSkH27v-b1UEElpHq4=w408-h544-k-no");
+    linear-gradient(
+      180deg,
+      #f3f5ede8 0%,
+      #f3f5edb8 28%,
+      #f3f5ed24 58%,
+      #f3f5edb3 82%,
+      #f3f5ed 100%
+    ),
+    url('https://lh3.googleusercontent.com/grass-cs/AABkmLeLtaC8yBZWyRPXekYmfn4vHcyOa6mwpJ-y2c-_1F6YUQJIG5j_bJ_h-ifvXH0tuhsEhyiMG97AEIHtKjE9eoHONayYIsRT1WAsOEcL_e4s2sJjx6ElVWSkH27v-b1UEElpHq4=w408-h544-k-no');
   background-size: cover;
-  background-position: center, center 42%;
+  background-position:
+    center,
+    center 42%;
   background-repeat: no-repeat;
 
   .station-header {
@@ -136,14 +146,22 @@ h1 {
     margin: 10px 3px 0;
     border: 1px solid #ffffffb3;
     box-shadow: 0 3px 12px #263d2510;
-    font-size: 11px;
+    font-size: 12px;
 
-    .twqr-logo { margin: 0 5px 0 0; }
+    .twqr-logo {
+      margin: 0 5px 0 0;
+    }
+
+    font-weight: 500;
+
+    font-family: var(--app-font-noto);
   }
 
   .station-spinner {
     margin-top: 22px;
-    box-shadow: 0 0 0 7px #ffffff5c, 0 12px 30px #754c222e;
+    box-shadow:
+      0 0 0 7px #ffffff5c,
+      0 12px 30px #754c222e;
   }
 
   .spin-help {
@@ -178,12 +196,13 @@ h1 {
     display: block;
     margin-bottom: 4px;
     color: #858c7f;
-    font-size: 10px;
+    font-size: 12px;
+    font-weight: 400;
   }
   strong {
     display: block;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
   }
   .orange {
@@ -229,15 +248,17 @@ h1 {
   }
   h2 {
     margin-top: 5px;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1.35;
     overflow-wrap: anywhere;
+    font-weight: 500;
   }
   p {
     margin-top: 6px;
-    font-size: 10px;
+    font-size: 16px;
     line-height: 1.5;
     opacity: 0.8;
+    font-weight: 400;
   }
 }
 .reward-card {
@@ -249,8 +270,9 @@ h1 {
   color: #173d2a;
 }
 .card-label {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.04em;
+  font-weight: 400;
 }
 .card-symbol {
   margin-bottom: 12px;
@@ -261,12 +283,13 @@ h1 {
   margin-top: 24px;
   h2 {
     margin-bottom: 8px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
   }
   p {
-    font-size: 13px;
+    font-size: 16px;
     line-height: 1.65;
+    font-weight: 400;
   }
 }
 .station-badges {
@@ -289,7 +312,8 @@ h1 {
   display: block;
   margin-top: 8px;
   color: #8b9184;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 400;
 }
 .station-close:focus-visible {
   outline: 2px solid #ad6400;

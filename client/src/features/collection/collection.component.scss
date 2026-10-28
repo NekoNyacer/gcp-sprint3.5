@@ -7,7 +7,10 @@ ion-card {
   flex-direction: column;
   min-height: 100%;
 
-  > ion-toolbar { flex-shrink: 0;padding: 0 24px; }
+  > ion-toolbar {
+    flex-shrink: 0;
+    padding: 0 24px;
+  }
 
   &.map-mode {
     height: 100%;
@@ -25,13 +28,13 @@ ion-card {
   position: absolute;
   inset: 0;
 }
-.top{
+.top {
   padding: 10px 27px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  &.float{
+  &.float {
     position: absolute;
     top: 0;
     left: 0;
@@ -41,23 +44,25 @@ ion-card {
     background-color: color-mix(in srgb, var(--ion-color-light) 80%, transparent);
   }
 
-  p{
+  p {
     color: var(--ion-color-medium-shade);
+    font-size: 14px;
+    font-weight: 400;
   }
 }
-.mode-btns{
-  :first-child{
-    --border-radius:8px 0 0 8px;
+.mode-btns {
+  :first-child {
+    --border-radius: 8px 0 0 8px;
   }
-  
-  :last-child{
-    --border-radius:0 8px 8px 0;
+
+  :last-child {
+    --border-radius: 0 8px 8px 0;
   }
 }
 
-ion-col{
+ion-col {
   min-width: 0;
-  --ion-grid-column-padding:0;
+  --ion-grid-column-padding: 0;
 }
 
 .collection-filter-modal {
@@ -103,12 +108,14 @@ ion-col{
     border: 1px solid #efefef;
     border-radius: 8px;
     font-size: 14px;
+    font-weight: 500;
   }
 
   ion-select::part(label) {
     margin: 0 0 4px;
     color: var(--ion-color-medium-shade);
     font-size: 12px;
+    font-weight: 400;
   }
 
   ion-select::part(icon) {
@@ -129,7 +136,7 @@ ion-col{
     min-height: 44px;
     margin: 0;
     font-size: 16px;
-    font-weight: 400;
+    font-weight: 500;
   }
 
   .filter-clear {

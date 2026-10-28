@@ -2,7 +2,7 @@ ion-modal {
   --border-radius: 20px 20px 0 0;
   color: #214b37;
 }
-ion-chip{
+ion-chip {
   padding: 0;
   text-wrap: nowrap;
 }
@@ -20,37 +20,43 @@ ion-chip{
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 .demo-points {
   color: #876334;
-  font-size: 0.75rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 .fraction-progress {
   margin: 0;
   min-height: 1.2em;
   color: #66756c;
-  font-size: 0.75rem;
+  font-size: 12px;
   text-align: center;
   font-variant-numeric: tabular-nums;
+  font-weight: 400;
 }
 .conversion-note {
   color: #66756c;
-  font-size: 0.65rem;
+  font-size: 12px;
   text-align: center;
+  font-weight: 400;
 }
 .care-cost {
   margin: 0;
   color: #66756c;
-  font-size: 0.7rem;
+  font-size: 12px;
   text-align: center;
+  font-weight: 400;
 }
 .growth-heading strong {
-  font-size: 1.15rem;
+  font-size: 14px;
+  font-weight: 500;
 }
 .growth-heading small {
-  font-size: 0.75rem;
-  font-weight: normal;
+  font-size: 12px;
+  font-weight: 400;
   color: #66756c;
 }
 .panel {
@@ -60,8 +66,8 @@ ion-chip{
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 16px;
-  padding: 16px max(12px, env(safe-area-inset-right))
-    max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  padding: 16px max(12px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
   pointer-events: none;
 }
 .tree-status-row {
@@ -76,7 +82,7 @@ ion-chip{
     height: 26px;
     margin: 0;
     padding: 0 3px;
-    font-size: 0.8rem;
+    font-size: 12px;
 
     &.status-warning {
       --background: var(--ion-color-warning);
@@ -107,15 +113,21 @@ ion-chip{
     ion-label {
       white-space: nowrap;
     }
+
+    font-weight: 500;
+
+    font-family: var(--app-font-noto);
   }
 }
 .tree-status-info {
   text-align: center;
   border-radius: 12px;
   padding: 5px 8px;
-  background: color-mix(var(--ion-color-primary) 10%,white);
+  background: color-mix(var(--ion-color-primary) 10%, white);
   color: var(--ion-color-primary);
-  font-size: 0.75rem;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--app-font-noto);
 }
 .destination-check-in {
   pointer-events: auto;
@@ -146,7 +158,7 @@ progress {
   border-radius: 14px;
   background: #ffffffe6;
   color: #214b37;
-  font-size: 0.8rem;
+  font-size: 16px;
   text-align: center;
   button {
     border: 0;
@@ -155,9 +167,12 @@ progress {
     background: #008c50;
     color: #fff;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
   }
+  font-weight: 400;
 }
-.nav-to-this-tree{
+.nav-to-this-tree {
   margin: 0;
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
@@ -166,10 +181,11 @@ progress {
   pointer-events: auto;
 }
 .instructions {
-  font-size: 0.8rem;
+  font-size: 12px;
   text-align: center;
   color: #66756c;
   margin: 0;
+  font-weight: 400;
 }
 .top {
   display: grid;
@@ -193,8 +209,8 @@ progress {
   min-width: 0;
   flex: 1 1 140px;
   h1 {
-    font-size: 1.4rem;
-    font-weight: bold;
+    font-size: 24px;
+    font-weight: 700;
     margin: 0;
     overflow-wrap: anywhere;
   }
@@ -209,12 +225,14 @@ progress {
   p {
     margin: 0;
     color: var(--ion-color-medium-shade);
-    font-size: 0.8rem;
+    font-size: 12px;
+    font-weight: 400;
   }
 
   small {
     color: var(--ion-color-medium-shade);
-    font-size: 0.65rem;
+    font-size: 12px;
+    font-weight: 400;
   }
 }
 .tree-badges {
@@ -255,14 +273,18 @@ progress {
     font-size: 20px;
   }
   strong {
-    font-size: 0.85rem;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--app-font-noto);
   }
   strong span {
     display: block;
-    font-size: 0.95rem;
+    font-size: 14px;
+    font-weight: 500;
   }
   small {
-    font-size: 0.65rem;
+    font-size: 12px;
+    font-weight: 400;
   }
   &:focus-visible {
     outline: 3px solid #008c50;
@@ -322,7 +344,8 @@ progress {
     padding: 2px 5px;
     background: #fff4cd;
     color: #866400;
-    font-size: 0.75rem;
+    font-size: 12px;
+    font-weight: 400;
   }
   &.in-range {
     box-shadow: 0 0 24px #ffd95b90;
@@ -351,23 +374,28 @@ progress {
 .feedback {
   margin: 0;
   min-height: 1.4em;
-  font-size: 0.8rem;
+  font-size: 12px;
   text-align: center;
   color: #007b47;
+  font-weight: 400;
 }
 .error {
   color: #a12727;
-  font-size: 0.8rem;
+  font-size: 12px;
   margin: 0;
+  font-weight: 400;
 }
 .demo-note {
   color: #8a978b;
   text-align: center;
-  font-size: 0.65rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 @media (min-width: 768px) {
   .resource strong span {
     display: inline;
     margin-left: 6px;
+    font-size: 14px;
+    font-weight: 500;
   }
 }

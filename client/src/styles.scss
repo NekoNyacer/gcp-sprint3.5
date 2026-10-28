@@ -13,6 +13,8 @@ html {
 
 :root {
   --ion-font-family: 'Roboto', 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  --app-font-noto: 'Noto Sans TC', 'Roboto', 'Microsoft JhengHei', sans-serif;
+  --app-font-number: 'Roboto', 'Noto Sans TC', sans-serif;
 }
 
 body {
@@ -21,6 +23,8 @@ body {
   font-family: var(--ion-font-family);
   font-synthesis: none;
   background: #f7f8f3;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 ion-app,
@@ -45,6 +49,7 @@ ion-input,
 ion-textarea,
 ion-select {
   font-size: 16px;
+  font-weight: 400;
 }
 
 ion-content::part(scroll) {
@@ -55,6 +60,33 @@ ion-content::part(scroll) {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--ion-font-family);
+}
+
+button {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+ion-alert .alert-title {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+ion-alert .alert-message {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+ion-alert button.alert-button {
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .mapboxgl-ctrl-group button.mapboxgl-ctrl-compass {
@@ -177,6 +209,7 @@ a {
     color: var(--ion-color-medium-shade);
     font-size: 24px;
     pointer-events: none;
+    font-weight: 700;
   }
 
   &.tree-marker--unavailable {
@@ -242,6 +275,8 @@ ion-button {
   border-radius: 8px;
   align-self: center;
   margin: 0;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 ion-toast.interaction-warning-toast {
@@ -254,8 +289,9 @@ ion-toast.interaction-warning-toast {
 }
 
 ion-toast.interaction-warning-toast::part(message) {
-  font-size: 15px;
+  font-size: 16px;
   text-align: center;
+  font-weight: 400;
 }
 
 ion-modal {
@@ -270,7 +306,12 @@ ion-modal {
     --border-radius: 28px 28px 0 0;
     --background: #fff;
     --box-shadow: 0 -12px 60px #26331c24;
-    &::part(handle) { width: 40px; height: 4px; top: 10px; background: #eee; }
+    &::part(handle) {
+      width: 40px;
+      height: 4px;
+      top: 10px;
+      background: #eee;
+    }
   }
 
   &.seed-name-dialog {
@@ -286,10 +327,7 @@ ion-modal {
   &.auto-height-sheet {
     --height: auto;
     --min-height: 0;
-    --sheet-max-height: min(
-      80dvh,
-      calc(100dvh - var(--ion-modal-offset-top, 0px) - 16px)
-    );
+    --sheet-max-height: min(80dvh, calc(100dvh - var(--ion-modal-offset-top, 0px) - 16px));
     --max-height: var(--sheet-max-height);
 
     .modal-auto-content {
@@ -313,17 +351,19 @@ ion-modal {
     }
 
     h1 {
-      font-size: 20px;
+      font-size: 24px;
+      font-weight: 700;
     }
 
     h5 {
       margin: 6px 0;
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
     }
 
     p {
-      font-size: 12pt;
+      font-size: 16px;
+      font-weight: 400;
     }
 
     .modal-title {
@@ -343,6 +383,8 @@ ion-modal {
         flex-shrink: 0;
         white-space: nowrap;
       }
+
+      font-weight: 400;
     }
 
     .twqr-badge-content {
@@ -372,8 +414,8 @@ ion-modal {
 
   h1 {
     margin: 0;
-    font-size: 18pt;
-    font-weight: 800;
+    font-size: 24px;
+    font-weight: 700;
   }
 
   h5 {
@@ -422,4 +464,25 @@ ion-modal.task-reward-modal {
   --backdrop-opacity: 0.45;
   --box-shadow: none;
 }
-ion-modal.task-reward-modal::part(content) { height: auto; max-height: 85dvh; }
+ion-modal.task-reward-modal::part(content) {
+  height: auto;
+  max-height: 85dvh;
+}
+ion-title {
+  font-size: 24px;
+  font-weight: 700;
+}
+ion-segment-button {
+  font-size: 14px;
+  font-weight: 400;
+}
+ion-segment-button.segment-button-checked {
+  font-size: 14px;
+  font-weight: 500;
+}
+ion-chip,
+ion-badge {
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--app-font-noto);
+}

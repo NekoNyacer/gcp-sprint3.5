@@ -13,10 +13,6 @@
   gap: 5px;
 }
 
-
-
-
-
 .resources {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -28,14 +24,14 @@
 }
 
 ion-card-subtitle {
-  font-family: var(--bonus-game-font);
-  font-size: 0.7rem;
-  font-weight: lighter;
+  font-family: var(--ion-font-family);
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .count {
-  font-size: 16pt;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .today-steps {
@@ -43,16 +39,17 @@ ion-card-subtitle {
 }
 
 .today-steps-count {
-  font-size: 24pt;
+  font-size: 32px;
   font-weight: 500;
+  font-family: var(--app-font-number);
 }
 
-.start-btn{
+.start-btn {
   margin-bottom: 90px;
   align-self: auto;
 }
 
-.big-card{
+.big-card {
   margin: 8px 5px;
 }
 
@@ -76,13 +73,15 @@ ion-card-subtitle {
     }
 
     .count {
-      font-size: clamp(12px, 3.5vw, 16px);
-      font-weight: 600;
+      font-size: 24px;
+      font-weight: 700;
       white-space: nowrap;
     }
 
     ion-card-subtitle {
       display: none;
+      font-size: 12px;
+      font-weight: 400;
     }
   }
 
@@ -92,7 +91,9 @@ ion-card-subtitle {
   }
 
   .today-steps-count {
-    font-size: 28px;
+    font-size: 32px;
+    font-weight: 500;
+    font-family: var(--app-font-number);
   }
 }
 
@@ -120,7 +121,8 @@ ion-card-subtitle {
 
   small {
     flex-basis: 100%;
-    font-size: 0.7rem;
+    font-size: 12px;
+    font-weight: 400;
   }
 
   &::before {
@@ -137,4 +139,8 @@ ion-card-subtitle {
     transform: scaleX(1);
     transition: transform 1s linear;
   }
+
+  font-size: 16px;
+
+  font-weight: 500;
 }

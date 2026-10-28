@@ -17,13 +17,16 @@
   border-bottom: 2px solid transparent;
   background: #fff;
   color: #888;
-  font-size: 12px;
+  font-size: 14px;
   min-height: 42px;
   cursor: pointer;
+  font-weight: 400;
 }
 .task-tabs button.active {
   color: #f56a10;
   border-bottom-color: #f56a10;
+  font-size: 14px;
+  font-weight: 500;
 }
 .task-page {
   --background: #f5f4ed;
@@ -39,12 +42,13 @@
   gap: 8px;
 }
 .filters label {
-  font-size: 11px;
+  font-size: 12px;
   color: #999;
   background: white;
   border-radius: 7px;
   padding: 9px 10px 5px;
   min-width: 0;
+  font-weight: 400;
 }
 .filters select {
   display: block;
@@ -53,8 +57,9 @@
   border: 0;
   background: white;
   color: #333;
-  font-size: 12px;
+  font-size: 14px;
   padding: 0;
+  font-weight: 500;
 }
 .list-heading {
   display: flex;
@@ -63,13 +68,14 @@
   margin: 16px 0 8px;
 }
 .list-heading h2 {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   margin: 0;
 }
 .list-heading > span {
-  font-size: 11px;
+  font-size: 12px;
   color: #999;
+  font-weight: 400;
 }
 .task-list {
   display: grid;
@@ -89,8 +95,9 @@
   font: inherit;
 }
 .remaining {
-  font-size: 11px;
+  font-size: 12px;
   color: #f56a10;
+  font-weight: 400;
 }
 .title-row {
   display: flex;
@@ -100,7 +107,7 @@
   margin: 5px 0;
 }
 .title-row h3 {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 700;
   line-height: 1.4;
   margin: 0;
@@ -109,11 +116,13 @@
 }
 .status {
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: 12px;
   color: #768140;
   background: #f5f5ed;
   border-radius: 10px;
   padding: 3px 7px;
+  font-weight: 500;
+  font-family: var(--app-font-noto);
 }
 .status.ready {
   color: #f56a10;
@@ -124,21 +133,25 @@
   background: #f4f4f4;
 }
 .reward {
-  font-size: 11px;
+  font-size: 12px;
   color: #999;
   margin: 0 0 9px;
+  font-weight: 400;
 }
 .reward strong {
-  font-weight: 400;
+  font-weight: 700;
   color: #f56a10;
+  font-size: 14px;
+  font-family: var(--app-font-noto);
 }
 .description {
   border-top: 1px solid #f1f1f1;
   margin: 0;
   padding-top: 9px;
   color: #888;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
+  font-weight: 400;
 }
 .progress {
   display: flex;
@@ -146,8 +159,9 @@
   justify-content: space-between;
   gap: 4px 12px;
   color: #888;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 7px;
+  font-weight: 400;
 }
 .progress span {
   overflow-wrap: anywhere;
@@ -155,13 +169,15 @@
 .empty {
   text-align: center;
   padding: 30px 10px;
-  font-size: 13px;
+  font-size: 12px;
   color: #888;
+  font-weight: 400;
 }
 .hint {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.7;
   color: #999;
+  font-weight: 400;
 }
 .list-actions {
   display: flex;
@@ -176,6 +192,8 @@
   color: #777;
   min-height: 36px;
   cursor: pointer;
+  font-weight: 500;
+  font-family: var(--app-font-noto);
 }
 .error {
   font-size: 12px;
@@ -183,6 +201,7 @@
   padding: 10px;
   color: #a53c25;
   border-radius: 6px;
+  font-weight: 400;
 }
 button:focus-visible,
 select:focus-visible {

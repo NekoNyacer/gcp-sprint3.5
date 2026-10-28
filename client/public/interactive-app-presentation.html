@@ -1,0 +1,328 @@
+<!-- Interactive presentation connected to the same-origin CAT WALK app. -->
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAT WALK｜互動式 App 簡報</title>
+  <style>
+    :root {
+      color-scheme: light; --paper:#f5f3ed; --ink:#272a27; --muted:#73776f; --line:#d8dbd2;
+      --line-dark:#9ba196; --soft:#ebece6; --accent:#e87538; --accent-soft:#fff0e6;
+      --green:#617b61; --green-soft:#e8eee5; --phone-bg:#f7f8f4;
+    }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; }
+    body { background:var(--paper); color:var(--ink); font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif; letter-spacing:.01em; }
+    button { font:inherit; color:inherit; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); min-height:100dvh; overflow:hidden; }
+    .guide-left {
+      min-width:0; min-height:100dvh; padding:clamp(34px,6vw,92px); padding-bottom:96px;
+      display:flex; flex-direction:column; justify-content:center; position:relative; border-right:1px solid var(--line);
+    }
+    .eyebrow { color:var(--green); font-size:12px; line-height:1.4; letter-spacing:.16em; font-weight:750; text-transform:uppercase; }
+    .brandline { display:flex; align-items:center; gap:10px; margin-bottom:48px; }
+    .brand-mark { width:28px; height:28px; border:1px solid var(--line-dark); border-radius:50%; display:grid; place-items:center; font-size:13px; color:var(--green); font-weight:800; }
+    .brand-name { font-size:12px; font-weight:800; letter-spacing:.13em; }
+    .page-kicker { margin:0 0 16px; color:var(--muted); font-size:13px; }
+    h1 { margin:0; max-width:580px; font-size:clamp(32px,4vw,58px); line-height:1.22; letter-spacing:-.04em; }
+    .intro-copy { max-width:490px; margin:22px 0 0; color:#666b63; font-size:16px; line-height:1.9; }
+    .note-card { margin-top:36px; padding:23px 25px; max-width:500px; background:rgba(255,255,255,.64); border:1px solid var(--line); border-radius:14px; transition:border-color .18s,background .18s; }
+    .note-card .note-label { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:.13em; }
+    .note-card h2 { margin:9px 0 8px; font-size:20px; line-height:1.5; }
+    .note-card p { margin:0; color:var(--muted); font-size:14px; line-height:1.75; }
+    .left-footer { position:absolute; left:clamp(34px,6vw,92px); bottom:27px; color:#90958b; font-size:11px; }
+    .slide-rail,.feature-index { display:none; }
+    .variant-b .guide-left {
+      display:grid; grid-template-columns:minmax(130px,170px) minmax(0,1fr); align-items:center; gap:clamp(22px,3vw,48px);
+      padding-left:clamp(28px,4vw,64px); padding-right:clamp(28px,4vw,64px);
+    }
+    .variant-b .slide-rail { display:flex; flex-direction:column; gap:0; }
+    .variant-b .note-content { min-width:0; }
+    .variant-b .brandline { margin-bottom:33px; }
+    .variant-b h1 { font-size:clamp(30px,3.3vw,46px); }
+    .variant-c .guide-left { justify-content:flex-start; padding-top:clamp(32px,5vh,58px); padding-left:clamp(34px,5vw,78px); padding-right:clamp(34px,5vw,78px); }
+    .variant-c .brandline { margin-bottom:clamp(28px,4vh,48px); }
+    .variant-c h1 { max-width:520px; font-size:clamp(31px,3.7vw,52px); }
+    .variant-c .feature-index { display:flex; flex-direction:column; gap:0; margin-top:26px; max-width:520px; }
+    .variant-c .note-card { margin-top:auto; margin-bottom:40px; max-width:520px; border-radius:8px; }
+    .app-right { min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 28px 68px; position:relative; background:#eeefe9; }
+    .app-caption { align-self:center; max-width:480px; width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; color:#777c73; font-size:11px; }
+    .caption-status { display:inline-flex; gap:6px; align-items:center; }
+    .caption-status::before { content:""; width:6px; height:6px; border-radius:50%; background:#9ca698; }
+    .phone-island { position:absolute; z-index:10; top:8px; left:50%; transform:translateX(-50%); width:84px; height:18px; border-radius:20px; background:#343834; }
+    .statusbar { flex:0 0 35px; padding:8px 20px 0; display:flex; justify-content:space-between; color:#42473f; font-size:10px; font-weight:700; background:var(--phone-bg); }
+    .app-header { flex:0 0 48px; display:flex; align-items:center; justify-content:space-between; padding:0 17px; border-bottom:1px solid #e5e7e1; background:var(--phone-bg); }
+    .app-title { font-size:14px; font-weight:800; }
+    .app-avatar { width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:#e2e9de; color:var(--green); font-size:12px; }
+    .app-content { flex:1; min-height:0; overflow:auto; position:relative; background:var(--phone-bg); }
+    .app-tabbar { flex:0 0 62px; display:grid; grid-template-columns:repeat(5,1fr); border-top:1px solid #e1e4dc; background:rgba(255,255,255,.97); padding:5px 4px 3px; }
+    .app-tab { border:0; border-radius:9px; background:transparent; color:#858a81; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; font-size:9px; cursor:pointer; }
+    .app-tab .tab-icon { font-size:17px; line-height:1; }
+    .app-tab.active { color:var(--accent); background:#fff6ef; font-weight:750; }
+    [data-topic] { outline:0; }
+    .hotspot { cursor:pointer; transition:outline-color .15s,box-shadow .15s; }
+    .hotspot:hover,.hotspot:focus-visible,.hotspot.is-focused { outline:2px solid rgba(232,117,56,.75); outline-offset:2px; box-shadow:0 0 0 4px rgba(232,117,56,.10); }
+    .map-scene { height:100%; min-height:430px; position:relative; overflow:hidden; background:#e6e9e2; }
+    .map-ground { position:absolute; inset:0; background:linear-gradient(23deg,transparent 39%,#f7f7f2 39.4%,#f7f7f2 43%,transparent 43.4%),linear-gradient(118deg,transparent 27%,#f7f7f2 27.4%,#f7f7f2 30.6%,transparent 31%),linear-gradient(166deg,transparent 59%,#f7f7f2 59.4%,#f7f7f2 63%,transparent 63.4%),linear-gradient(83deg,transparent 70%,#f7f7f2 70.4%,#f7f7f2 73.5%,transparent 73.9%),#e6e9e2; }
+    .park { position:absolute; width:42%; height:22%; border-radius:50%; background:#d8e4d3; transform:rotate(-20deg); top:14%; left:9%; }
+    .map-label { position:absolute; color:#888e83; font-size:9px; letter-spacing:.04em; }
+    .map-label.one { top:20%; right:13%; } .map-label.two { top:48%; left:10%; } .map-label.three { bottom:34%; right:9%; }
+    .map-pin { position:absolute; border:0; border-radius:30px; padding:6px 9px; color:#536b52; background:#fff; box-shadow:0 2px 8px #43513b22; font-size:9px; font-weight:750; cursor:pointer; }
+    .map-pin.main { top:37%; left:45%; color:#fff; background:var(--green); } .map-pin.shop { top:24%; right:15%; } .map-pin.tree { bottom:39%; left:18%; }
+    .you-dot { position:absolute; top:55%; left:59%; width:15px; height:15px; border:3px solid white; border-radius:50%; background:#5c91c6; box-shadow:0 0 0 5px #5c91c633; }
+    .map-compass { position:absolute; top:16px; right:16px; width:34px; height:34px; display:grid; place-items:center; border-radius:50%; background:#fff; color:#60665e; border:1px solid #e1e4dc; font-size:14px; }
+    .map-card { position:absolute; left:12px; right:12px; bottom:12px; padding:16px; border:1px solid #e0e3db; border-radius:15px; background:rgba(255,255,255,.96); box-shadow:0 4px 18px #303b2a12; }
+    .map-card-head { display:flex; justify-content:space-between; align-items:flex-start; }
+    .map-card small,.screen-label { display:block; color:#82877d; font-size:10px; line-height:1.5; }
+    .map-card h3 { font-size:16px; margin:3px 0 8px; }
+    .map-stats { display:flex; gap:7px; margin:8px 0 13px; }
+    .map-stat { flex:1; padding:7px 5px; text-align:center; border-radius:8px; background:#f2f3ef; color:#6a7067; font-size:9px; }
+    .map-stat b { display:block; color:#3f463e; font-size:11px; margin-bottom:2px; }
+    .primary-btn,.secondary-btn { min-height:39px; border-radius:10px; padding:0 14px; border:1px solid transparent; font-size:11px; font-weight:750; cursor:pointer; }
+    .primary-btn { background:var(--accent); color:white; }
+    .secondary-btn { background:#f4f5f1; border-color:#dfe2d9; color:#565c53; }
+    .wide { width:100%; }
+    .screen-page { min-height:100%; padding:18px 15px 20px; }
+    .screen-page h2 { margin:0 0 4px; font-size:20px; line-height:1.4; }
+    .screen-page .lead { margin:0 0 16px; color:#80857b; font-size:11px; line-height:1.6; }
+    .task-tabs { display:flex; gap:7px; margin:14px 0; }
+    .task-pill { border:1px solid #e0e3db; border-radius:20px; padding:6px 11px; background:#fff; color:#73796f; font-size:10px; }
+    .task-pill.active { color:#fff; border-color:var(--green); background:var(--green); }
+    .task-row { display:flex; align-items:center; gap:11px; padding:13px 10px; margin:9px 0; background:white; border:1px solid #e6e8e2; border-radius:12px; cursor:pointer; }
+    .task-icon { flex:0 0 34px; width:34px; height:34px; display:grid; place-items:center; border-radius:10px; color:var(--green); background:var(--green-soft); font-size:16px; }
+    .task-text { flex:1; min-width:0; } .task-text b { display:block; font-size:11px; margin-bottom:4px; } .task-text small { color:#858a81; font-size:9px; }
+    .task-progress { height:5px; margin-top:8px; border-radius:8px; background:#edf0e9; overflow:hidden; } .task-progress i { display:block; height:100%; background:#8da17e; border-radius:inherit; }
+    .task-reward { color:#9c7643; font-size:9px; white-space:nowrap; }
+    .detail-back { border:0; background:transparent; padding:0 0 14px; color:var(--green); font-size:11px; cursor:pointer; }
+    .detail-card { margin:13px 0; padding:16px; border-radius:13px; border:1px solid #e3e6de; background:#fff; }
+    .detail-card h3 { margin:0 0 7px; font-size:14px; } .detail-card p { margin:0; color:#73796f; font-size:10px; line-height:1.7; }
+    .forest-banner { min-height:115px; border-radius:14px; margin:14px 0; padding:17px; color:#3e5b42; background:linear-gradient(130deg,#dce8d8,#eef2e9); }
+    .forest-banner b { display:block; font-size:15px; } .forest-banner span { display:block; margin-top:7px; color:#6f7e6e; font-size:10px; }
+    .tree-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+    .tree-card { min-height:116px; padding:12px; border:1px solid #e3e6de; border-radius:12px; background:white; cursor:pointer; }
+    .tree-illustration { display:grid; place-items:center; height:48px; margin-bottom:7px; border-radius:9px; color:#64805d; background:#edf2e9; font-size:28px; }
+    .tree-card b { display:block; font-size:10px; } .tree-card small { display:block; margin-top:3px; color:#858a81; font-size:9px; }
+    .wallet { padding:18px; margin:12px 0 16px; border-radius:14px; color:#fff; background:#617b61; }
+    .wallet small { opacity:.8; font-size:10px; } .wallet strong { display:block; margin-top:7px; font-size:27px; }
+    .shop-row { display:grid; grid-template-columns:54px 1fr auto; align-items:center; gap:10px; margin:9px 0; padding:11px 9px; border:1px solid #e4e6e0; border-radius:12px; background:#fff; }
+    .shop-thumb { height:48px; display:grid; place-items:center; border-radius:9px; color:#6f815e; background:#eef1e9; font-size:23px; }
+    .shop-row b { display:block; font-size:10px; } .shop-row small { color:#888d84; font-size:9px; } .price { color:#aa7041; font-size:10px; font-weight:750; }
+    .profile-head { display:flex; align-items:center; gap:12px; margin:6px 0 15px; padding:15px; background:white; border:1px solid #e5e7e1; border-radius:13px; }
+    .profile-avatar { width:48px; height:48px; display:grid; place-items:center; border-radius:50%; background:#e7eee2; color:#5b785c; font-size:22px; }
+    .profile-head b { display:block; font-size:13px; } .profile-head small { color:#81867d; font-size:9px; }
+    .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:11px 0; }
+    .stat-card { padding:13px; background:white; border:1px solid #e5e7e1; border-radius:11px; }
+    .stat-card small { color:#898e84; font-size:9px; } .stat-card b { display:block; margin-top:5px; font-size:16px; }
+    .toast-note { position:absolute; z-index:9; left:14px; right:14px; top:58px; padding:11px 13px; border-radius:10px; background:#303832; color:white; font-size:10px; line-height:1.5; box-shadow:0 5px 18px #1113; }
+    .proto-bar { position:fixed; z-index:20; left:50%; bottom:17px; transform:translateX(-50%); display:flex; align-items:center; gap:12px; padding:7px 12px; border:1px solid #444b44; border-radius:30px; color:white; background:#303832; box-shadow:0 6px 22px #1d241d30; font-size:11px; }
+    .proto-bar button { width:28px; height:28px; border:0; border-radius:50%; color:white; background:#515b51; cursor:pointer; }
+    .proto-label { min-width:176px; text-align:center; } .proto-label b { color:#fff; }
+    @media (max-width:900px) {
+      body { background:var(--phone-bg); }
+      .layout { display:block; min-height:100dvh; }
+      .guide-left,.app-caption,.proto-bar { display:none !important; }
+      .app-right { display:block; padding:0; min-height:100dvh; height:100dvh; background:var(--phone-bg); }
+    }
+    @media (max-height:680px) and (min-width:901px) {
+      .guide-left { padding-top:28px; padding-bottom:66px; } .brandline { margin-bottom:24px; }
+      .note-card { margin-top:20px; padding:18px 20px; }
+      .variant-c .guide-left { padding-top:24px; } .variant-c .note-card { margin-bottom:16px; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition-duration:.01ms !important; } }
+    /* iPhone 11 Pro viewport: 375 × 812 CSS px, with native-size app text. */
+    .app-right { height:100dvh; min-height:0; overflow:hidden; align-items:center; justify-content:center; padding:12px 24px; }
+    .device-presentation { display:flex; align-items:center; justify-content:center; width:100%; height:832px; max-height:100%; min-height:0; flex:0 1 832px; }
+    .device-stage { width:395px; height:100%; min-height:0; min-width:0; flex:0 1 395px; position:relative; }
+    .phone-shell { width:100%; height:100%; padding:9px; border:1px solid #aeb3a9; border-radius:39px; background:#d9dcd5; box-shadow:0 22px 70px rgba(38,43,37,.13),0 2px 5px rgba(38,43,37,.09); position:absolute; top:0; left:0; }
+    .phone-screen { width:100%; height:100%; overflow:hidden; border-radius:30px; background:var(--phone-bg); display:flex; flex-direction:column; position:relative; }
+    .live-app-frame { display:block; width:100%; height:100%; min-height:0; flex:1; border:0; background:white; }
+    .guide-left .brandline { margin-bottom:40px; }
+    .guide-left .page-kicker { margin:0 0 8px; }
+    .guide-left .intro-copy { margin:16px 0 0; }
+    .guide-left .note-card { margin:24px 0 0; padding:16px 24px 24px; }
+    .guide-left .note-card h2 { margin:2px 0 4px; }
+    @media (max-width:900px) {
+      .app-right { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px 12px; }
+    }
+    /* Shared chapter navigation: orange dots and a continuous fine connector. */
+    .rail-step,.feature-chip { position:relative; display:flex; align-items:center; gap:8px; width:100%; min-height:64px; padding:12px 0 12px 30px; border:0; border-radius:0; background:transparent; color:#868a82; font:inherit; font-size:12px; line-height:20px; font-weight:400; text-align:left; white-space:nowrap; cursor:pointer; transition:color .2s ease; }
+    .step-number,.step-label { position:relative; z-index:1; font-size:12px; line-height:20px; }
+    .step-number { font-variant-numeric:tabular-nums; }
+    .rail-step::before,.feature-chip::before { content:""; position:absolute; z-index:1; left:2px; top:calc(50% - 5px); width:10px; height:10px; border-radius:50%; background:#f2d6c5; box-shadow:0 0 0 0 rgba(232,117,56,0); transition:background-color .2s ease,box-shadow .2s ease; }
+    .rail-step:not(:last-child)::after,.feature-chip:not(:last-child)::after { content:""; position:absolute; left:6.5px; top:50%; width:1px; height:100%; background:#f2d6c5; pointer-events:none; }
+    .rail-step.active,.feature-chip.active { color:#EE6A17; font-size:14px; font-weight:650; }
+    .rail-step.active .step-number,.rail-step.active .step-label { font-size:14px; }
+    .page-kicker { color:#EE6A17; font-size:16px; }
+    .rail-step.active::before,.feature-chip.active::before { background:var(--accent); box-shadow:0 0 0 6px rgba(232,117,56,.13); }
+    .rail-step.active::after,.feature-chip.active::after { background:linear-gradient(to bottom,var(--accent),#f2d6c5); }
+    .rail-step:has(+.active)::after,.feature-chip:has(+.active)::after { background:linear-gradient(to bottom,#f2d6c5,var(--accent)); }
+    .rail-step:hover,.feature-chip:hover,.rail-step:focus-visible,.feature-chip:focus-visible { color:var(--accent); }
+    .rail-step.active:hover,.rail-step.active:focus-visible { color:#EE6A17; }
+    .rail-step:hover::before,.feature-chip:hover::before,.rail-step:focus-visible::before,.feature-chip:focus-visible::before { background:var(--accent); box-shadow:0 0 0 6px rgba(232,117,56,.13); }
+    .rail-step:hover::after,.feature-chip:hover::after { background:linear-gradient(to bottom,var(--accent),#f2d6c5); }
+    @media (prefers-reduced-motion:reduce) {
+      .rail-step,.feature-chip,.rail-step::before,.feature-chip::before { transition:none; }
+    }
+
+    .rail-step:focus-visible,.feature-chip:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  </style>
+</head>
+<body>
+  <main class="layout variant-b" id="layout" data-variant="b">
+    <section class="guide-left" aria-label="App 簡報說明">
+      <nav class="slide-rail" id="slideRail" aria-label="簡報章節"></nav>
+      <div class="note-content">
+        <div class="brandline"><span class="brand-mark">CW</span><span class="brand-name">CAT WALK / APP WALKTHROUGH</span></div>
+        <p class="page-kicker" id="pageKicker">一段散步，也能累積成自己的森林</p>
+        <h1 id="guideTitle">讓每一步，<br>都看得見累積。</h1>
+        <p class="intro-copy" id="guideIntro">從日常健走開始，沿途探索任務與樹木，慢慢打造專屬的回憶林。點選或移到右側 app 畫面，即可查看各功能的簡單說明。</p>
+        <article class="note-card" id="noteCard" aria-live="polite"><span class="note-label" id="noteLabel">目前畫面</span><h2 id="noteTitle">健走地圖</h2><p id="noteBody">從地圖開始，查看目前位置、散步目的地與沿途探索點。</p></article>
+      </div>
+      <span class="left-footer">互動簡報 · 本機 App 即時操作</span>
+    </section>
+    <section class="app-right" aria-label="本機 App 即時畫面">
+      <div class="device-presentation">
+        <div class="device-stage">
+          <div class="phone-shell">
+            <div class="phone-screen" id="phoneScreen">
+              <iframe class="live-app-frame" id="liveApp" title="CAT WALK 本機 App · iPhone 11 Pro" width="375" height="812" src="/login" allow="geolocation; camera; fullscreen"></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const topics = {
+      home:{title:'健走地圖',body:'從地圖開始，查看目前位置、散步目的地與沿途探索點。',kicker:'一段散步，也能累積成自己的森林',headline:'讓每一步，<br>都看得見累積。',intro:'從日常健走開始，沿途探索任務與樹木，慢慢打造專屬的回憶林。點選或移到右側 app 畫面，即可查看各功能的簡單說明。'},
+      task:{title:'任務與目標',body:'日常、每週與活動任務，讓每段散步都有清楚的小目標。',kicker:'把散步拆成剛剛好的小目標',headline:'完成任務，<br>收下每段努力。',intro:'查看任務條件與進度，抵達指定地點並達成步數後，可領取對應的示範獎勵。'},
+      shop:{title:'獎勵兌換',body:'用累積的點數瀏覽兌換項目，了解獎勵如何連結日常步行。',kicker:'讓累積的努力，繼續走下去',headline:'每一步的累積，<br>都能帶來回饋。',intro:'在兌換頁查看點數與可兌換項目。這裡的品項與點數皆為展示用示意資料。'},
+      collection:{title:'專屬回憶林',body:'查看已種下的大樹與培育進度，回到熟悉的地點看看它們。',kicker:'把熟悉的地方，種成一座回憶林',headline:'一棵一棵，<br>長成自己的風景。',intro:'回顧已種植的大樹與目前成長狀態。選擇樹木可查看地點及培育資訊。'},
+      profile:{title:'個人步行紀錄',body:'整理步行統計、等級與近期紀錄，回顧自己的累積。',kicker:'看見每一次出門留下的足跡',headline:'日常走過的路，<br>都值得記下來。',intro:'在個人頁面查看步行統計與近期紀錄，簡報左側會依目前操作切換說明。'}
+    };
+    const tabs = ['home','task','collection','shop','profile'];
+    const layout = document.getElementById('layout');
+    const frame = document.getElementById('liveApp');
+    let activeTab = 'home', lastPath = '', pendingTab = null;
+    let connectedDocument = null;
+
+    function setNote(title, body, label = '目前畫面') {
+      document.getElementById('noteTitle').textContent = title;
+      document.getElementById('noteBody').textContent = body;
+      document.getElementById('noteLabel').textContent = label;
+    }
+
+    function updateChapter() {
+      const topic = topics[activeTab];
+      document.getElementById('pageKicker').textContent = topic.kicker;
+      document.getElementById('guideTitle').innerHTML = topic.headline.replace(/[，。]/g,'');
+      document.getElementById('guideIntro').textContent = topic.intro;
+      document.querySelectorAll('.rail-step').forEach(button => {
+        const selected = button.dataset.tab === activeTab;
+        button.classList.toggle('active', selected);
+        if (selected) button.setAttribute('aria-current', 'step');
+        else button.removeAttribute('aria-current');
+      });
+      setNote(topic.title, topic.body);
+    }
+
+    function navigateApp(tab) {
+      if (!topics[tab]) return;
+      const win = frame.contentWindow, doc = frame.contentDocument;
+      if (!doc || win.location.pathname === '/login' || !doc.querySelector('app-shell')) {
+        pendingTab = tab;
+        setNote('先進入 App', '在右側選擇「免登入進入 Demo」或使用 Google 登入，接著會帶你前往' + topics[tab].title + '。', '開始體驗');
+        frame.focus();
+        return;
+      }
+      pendingTab = null;
+      const tabButton = doc.querySelector('ion-tab-button[tab="' + tab + '"]');
+      if (tabButton) tabButton.click();
+      else {
+        // Angular listens for browser history changes, preserving the current app session.
+        win.history.pushState({}, '', '/' + tab);
+        win.dispatchEvent(new win.PopStateEvent('popstate', {state:{}}));
+      }
+    }
+
+    function describeInteraction(event) {
+      if (!window.matchMedia('(min-width:901px)').matches) return;
+      const path = event.composedPath();
+      const element = path.find(item => item instanceof frame.contentWindow.Element && item.matches('ion-tab-button,ion-card,ion-button,button,[data-topic]'));
+      if (!element) return;
+      const tab = element.closest('ion-tab-button')?.getAttribute('tab');
+      if (topics[tab]) { setNote(topics[tab].title, topics[tab].body, '功能說明'); return; }
+      const label = (element.getAttribute('aria-label') || element.innerText || element.textContent || '').replace(/\s+/g,' ').trim();
+      const descriptions = [
+        [/^光能$|光能/, '光能', '查看步行累積的光能，並在培育時分配給自己的樹木。'],
+        [/^水$/, '水滴', '查看目前持有的水滴資源，供後續樹木培育使用。'],
+        [/^肥料$/, '肥料', '查看目前持有的肥料，培育時可依畫面規則使用。'],
+        [/今日步數/, '今日步數', '查看今天的步行累積；Demo 中的模擬步行會更新這裡的數字。'],
+        [/開始散步/, '選擇散步目的地', '從地圖選擇目的地，確認路線與沿途探索點後出發。'],
+        [/回到目前位置/, '目前位置', '將地圖視角帶回目前位置，方便繼續查看周邊地點。'],
+        [/^每日$|^每週$|^限時活動$/, '任務分類', '依每日、每週或限時活動切換任務，查看條件與目前進度。'],
+        [/免登入.*Demo/, '免登入體驗', '進入 Demo 模式，直接體驗目前版本的 App 功能。'],
+        [/Google 登入/, 'Google 登入', '使用 App 原有的 Google 登入流程進入帳號。'],
+        [/領取/, '領取獎勵', '先查看完成條件與目前狀態，再由使用者主動領取可用的示範獎勵。'],
+        [/培育/, '樹木培育', '查看目前樹木狀態，依畫面提供的預覽與確認流程分配資源。'],
+      ];
+      const match = descriptions.find(item => item[0].test(label));
+      if (match) setNote(match[1], match[2], '功能說明');
+      else if (label && label.length <= 45) setNote(label, topics[activeTab].body, '畫面說明');
+    }
+
+    function connectDocument() {
+      const doc = frame.contentDocument;
+      if (!doc || connectedDocument === doc) return;
+      connectedDocument = doc;
+      ['pointerover','focusin','click'].forEach(name => doc.addEventListener(name, describeInteraction, true));
+    }
+
+    function syncApp() {
+      try {
+        connectDocument();
+        const pathname = frame.contentWindow.location.pathname;
+        if (pathname === '/login') {
+          if (lastPath !== pathname) setNote('進入 App', '在右側選擇「免登入進入 Demo」即可開始體驗，或使用 Google 登入。', '開始體驗');
+        } else {
+          const tab = pathname.split('/').filter(Boolean)[0];
+          if (topics[tab]) {
+            if (lastPath !== pathname) { activeTab = tab; updateChapter(); }
+            if (pendingTab && frame.contentDocument.querySelector('app-shell')) navigateApp(pendingTab);
+          }
+        }
+        lastPath = pathname;
+      } catch {
+        return;
+      }
+    }
+
+    tabs.forEach((tab, index) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = 'rail-step'; button.dataset.tab = tab;
+      const number = document.createElement('span');
+      number.className = 'step-number';
+      number.textContent = String(index+1).padStart(2,'0');
+      const title = document.createElement('span');
+      title.className = 'step-label';
+      title.textContent = topics[tab].title;
+      button.append(number, title);
+      document.getElementById('slideRail').append(button);
+    });
+    document.querySelector('.guide-left').addEventListener('click', event => {
+      const button = event.target.closest('[data-tab]');
+      if (button) navigateApp(button.dataset.tab);
+    });
+    frame.addEventListener('load', syncApp);
+    const presentationUrl = new URL(location.href);
+    presentationUrl.searchParams.set('variant','b');
+    history.replaceState({},'',presentationUrl);
+    updateChapter();
+    setNote('進入 App', '在右側選擇「免登入進入 Demo」即可開始體驗，或使用 Google 登入。', '開始體驗');
+    setInterval(() => { if (!document.hidden) syncApp(); }, 250);
+
+  </script>
+</body>
+</html>

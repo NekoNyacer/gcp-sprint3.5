@@ -41,8 +41,8 @@ ion-button {
 .section-heading p,
 .milestone-card p {
   color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.11em;
   margin: 0 0 4px;
   text-transform: uppercase;
@@ -50,9 +50,10 @@ ion-button {
 
 h1 {
   color: var(--ink);
-  font-size: 1.75rem;
+  font-size: 24px;
   letter-spacing: -0.04em;
   margin: 0;
+  font-weight: 700;
 }
 
 .points-balance {
@@ -78,20 +79,23 @@ h1 {
 
 .points-balance strong {
   color: var(--ion-color-dark);
-  font-size: 0.95rem;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .points-balance > span:not(.tree-point-mark) {
   color: var(--green-dark);
-  font-size: 0.75rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .info-button {
   --padding-end: 0;
   --padding-start: 0;
-  font-size: 1rem;
+  font-size: 16px;
   height: 32px;
   width: 30px;
+  font-weight: 400;
 }
 
 ion-popover {
@@ -104,7 +108,8 @@ ion-popover {
 .points-hint {
   --background: var(--surface);
   --color: var(--ink);
-  font-size: 0.78rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .asset-card {
@@ -129,26 +134,30 @@ ion-popover {
 }
 
 .asset-main p {
-  font-size: 0.85rem;
+  font-size: 14px;
   margin: 0 0 2px;
   opacity: 0.82;
+  font-weight: 400;
 }
 
 .asset-main strong {
-  font-size: 2.65rem;
+  font-size: 24px;
   line-height: 1;
+  font-weight: 700;
 }
 
 .asset-main small {
-  font-size: 0.9rem;
+  font-size: 14px;
   margin-left: 4px;
+  font-weight: 400;
 }
 
 .forest-emblem {
-  font-size: 2rem;
+  font-size: 24px;
   letter-spacing: -0.9rem;
   padding-right: 0.8rem;
   transform: translateY(3px);
+  font-weight: 700;
 }
 
 .expiry-row {
@@ -176,12 +185,14 @@ ion-popover {
 }
 
 .expiry-row b {
-  font-size: 0.72rem;
+  font-size: 12px;
   letter-spacing: 0.04em;
+  font-weight: 400;
 }
 
 .expiry-row span {
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .empty-guidance {
@@ -195,8 +206,9 @@ ion-popover {
 
 .empty-guidance ion-label {
   display: grid;
-  font-size: 0.78rem;
+  font-size: 12px;
   gap: 2px;
+  font-weight: 400;
 }
 
 .content-section {
@@ -213,13 +225,15 @@ ion-popover {
 .section-heading h2,
 .milestone-card h2 {
   color: var(--ink);
-  font-size: 1.25rem;
+  font-size: 20px;
   margin: 0;
+  font-weight: 700;
 }
 
 .section-heading > span {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .reward-grid {
@@ -283,26 +297,28 @@ ion-popover {
 
 .reward-amount strong {
   color: var(--green-dark);
-  font-size: 1.65rem;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .reward-amount {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .reward-cost {
   color: var(--muted);
-  font-size: 0.73rem;
+  font-size: 12px;
   margin-top: 2px;
+  font-weight: 400;
 }
 
 .availability {
   background: var(--ion-color-light);
   border-radius: 999px;
   color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
   margin-top: 8px;
   padding: 4px 8px;
 }
@@ -319,9 +335,10 @@ ion-popover {
   --border-style: solid;
   --border-width: 1px;
   --color: var(--ion-color-warning-shade);
-  font-size: 0.78rem;
+  font-size: 12px;
   line-height: 1.55;
   margin-bottom: 12px;
+  font-weight: 400;
 }
 
 .charity-card {
@@ -351,8 +368,8 @@ ion-popover {
 }
 
 .demo-pill {
-  font-size: 0.66rem;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
   margin: 0;
   min-height: 24px;
 }
@@ -370,13 +387,15 @@ ion-popover {
 }
 
 .charity-title-row strong {
-  font-size: 1.02rem;
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .charity-title-row small {
   color: var(--muted);
-  font-size: 0.73rem;
+  font-size: 12px;
   line-height: 1.45;
+  font-weight: 400;
 }
 
 .charity-icon {
@@ -385,9 +404,10 @@ ion-popover {
   border-radius: 14px;
   display: flex;
   flex: 0 0 46px;
-  font-size: 1.3rem;
+  font-size: 20px;
   height: 46px;
   justify-content: center;
+  font-weight: 700;
 }
 
 .matching-row {
@@ -409,27 +429,31 @@ ion-popover {
 
 .matching-row small {
   color: var(--muted);
-  font-size: 0.61rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .matching-row strong {
   color: var(--green-dark);
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .matching-row b {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .charity-action-row {
   align-items: center;
   border-top: 1px solid var(--primary-soft);
   display: flex;
-  font-size: 0.75rem;
+  font-size: 12px;
   justify-content: space-between;
   margin-top: 13px;
   padding-top: 12px;
+  font-weight: 400;
 }
 
 .charity-action-row > span {
@@ -442,8 +466,9 @@ ion-popover {
 
 .demo-disclaimer {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: 12px;
   margin: 7px 3px 0;
+  font-weight: 400;
 }
 
 .milestone-card {
@@ -474,13 +499,15 @@ ion-popover {
 
 .lifetime-count strong {
   display: block;
-  font-size: 1.45rem;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .lifetime-count span,
 .progress-label {
   color: var(--ion-color-primary);
-  font-size: 0.68rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .progress-track {
@@ -499,8 +526,8 @@ ion-popover {
 }
 
 .section-heading--history ion-button {
-  font-size: 0.8rem;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .transaction-list {
@@ -547,18 +574,20 @@ ion-popover {
 }
 
 .transaction-copy strong {
-  font-size: 0.83rem;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .transaction-copy small,
 .transaction-copy time {
   color: var(--muted);
-  font-size: 0.67rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .transaction-status {
-  font-size: 0.68rem;
-  font-weight: 750;
+  font-size: 12px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
@@ -577,21 +606,24 @@ ion-popover {
 
 .empty-history span,
 .state-icon {
-  font-size: 2rem;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .empty-history strong,
 .state-card h2 {
-  font-size: 1rem;
+  font-size: 16px;
   margin: 8px 0 4px;
+  font-weight: 400;
 }
 
 .empty-history p,
 .state-card p {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 12px;
   line-height: 1.55;
   margin: 0;
+  font-weight: 400;
 }
 
 .state-card--loading ion-spinner {
@@ -628,15 +660,17 @@ ion-modal {
 
 .action-dialog h2 {
   color: var(--ink);
-  font-size: 1.35rem;
+  font-size: 20px;
   margin: 0 0 9px;
+  font-weight: 700;
 }
 
 .action-dialog > p:not(.collection-safe) {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 14px;
   line-height: 1.6;
   margin: 0 0 17px;
+  font-weight: 400;
 }
 
 .dialog-illustration {
@@ -644,11 +678,12 @@ ion-modal {
   background: var(--primary-soft);
   border-radius: 50%;
   display: flex;
-  font-size: 1.7rem;
+  font-size: 24px;
   height: 58px;
   justify-content: center;
   margin: 6px auto 13px;
   width: 58px;
+  font-weight: 700;
 }
 
 .dialog-illustration ion-img {
@@ -674,13 +709,14 @@ ion-modal {
 
 .confirmation-list ion-label {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .confirmation-list strong {
   color: var(--ink);
-  font-size: 0.82rem;
-  font-weight: 750;
+  font-size: 14px;
+  font-weight: 700;
   text-align: right;
 }
 
@@ -688,8 +724,9 @@ ion-modal {
   --background: rgba(var(--ion-color-warning-rgb), 0.14);
   --border-radius: 13px;
   --color: var(--ion-color-warning-shade);
-  font-size: 0.76rem;
+  font-size: 12px;
   text-align: left;
+  font-weight: 400;
 }
 
 .irreversible-notice strong,
@@ -712,8 +749,8 @@ ion-modal {
 .primary-button,
 .secondary-button {
   --border-radius: 14px;
-  font-size: 0.9rem;
-  font-weight: 750;
+  font-size: 14px;
+  font-weight: 700;
   min-height: 48px;
 }
 
@@ -751,8 +788,8 @@ ion-modal {
   border-radius: 50%;
   color: var(--green-dark);
   display: flex;
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: 700;
   height: 64px;
   justify-content: center;
   margin: 0 auto 13px;
@@ -779,18 +816,21 @@ ion-modal {
 
 .result-values ion-label {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .result-values strong {
   color: var(--ink);
-  font-size: 0.84rem;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .collection-safe {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 12px;
   margin: 12px 0 0;
+  font-weight: 400;
 }
 
 @media (max-width: 350px) {

@@ -26,25 +26,29 @@
   gap: 12px;
 }
 .title-row h1 {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   margin: 0;
   overflow-wrap: anywhere;
 }
 .title-row > span {
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
   color: #f56a10;
+  font-weight: 400;
 }
 .activity-summary p {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
   color: #999;
   margin: 3px 0 0;
+  font-weight: 400;
 }
 .activity-summary strong {
-  font-weight: 400;
+  font-weight: 700;
   color: #f56a10;
+  font-size: 14px;
+  font-family: var(--app-font-noto);
 }
 .map-panel {
   position: relative;
@@ -68,14 +72,16 @@
   pointer-events: none;
 }
 .destination-card strong {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
 }
 .destination-card p,
 .destination-card span {
-  font-size: 10px;
+  font-size: 12px;
   color: #888;
   margin: 4px 0 0;
   line-height: 1.5;
+  font-weight: 400;
 }
 .map-error {
   position: absolute;
@@ -86,6 +92,7 @@
   background: #fff;
   border-radius: 6px;
   color: #777;
+  font-weight: 400;
 }
 .map-error button {
   border: 0;
@@ -102,12 +109,13 @@
 .progress-row {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 12px;
   color: #888;
+  font-weight: 400;
 }
 .progress-row strong {
   color: #637332;
-  font-weight: 600;
+  font-weight: 400;
 }
 progress {
   width: 100%;
@@ -132,11 +140,12 @@ progress::-moz-progress-bar {
 }
 .hint,
 .distance {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   text-align: center;
   color: #999;
   margin: 8px 0;
+  font-weight: 400;
 }
 .activity-actions > .primary,
 .activity-actions > .secondary {
@@ -144,8 +153,8 @@ progress::-moz-progress-bar {
   min-height: 42px;
   border: 0;
   border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
 }
 .primary {
@@ -161,10 +170,13 @@ button:disabled {
   cursor: default;
 }
 .error {
-  font-size: 11px;
+  font-size: 12px;
   color: #a53c25;
+  font-weight: 400;
 }
 .text-action {
+  font-size: 12px;
+  font-weight: 500;
   border: 0;
   background: transparent;
   color: #a53c25;

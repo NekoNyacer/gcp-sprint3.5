@@ -103,7 +103,7 @@ import { taskRewardLabel } from './task.models';
         background: #f2f5e9;
       }
       h2 {
-        font-size: 19px;
+        font-size: 24px;
         margin: 0 0 6px;
         font-weight: 700;
       }
@@ -112,7 +112,8 @@ import { taskRewardLabel } from './task.models';
         background: #fff4e8;
         border-radius: 12px;
         padding: 3px 8px;
-        font-size: 11px;
+        font-size: 12px;
+        font-weight: 500;
       }
       p {
         color: #888;
@@ -120,6 +121,7 @@ import { taskRewardLabel } from './task.models';
         margin: 14px 0;
       }
       dl {
+        font-size: 14px;
         border: 1px solid #eee;
         border-radius: 6px;
         padding: 10px;
@@ -141,6 +143,7 @@ import { taskRewardLabel } from './task.models';
         overflow-wrap: anywhere;
       }
       .earned {
+        font-size: 14px;
         color: #627d26;
         font-weight: 700;
       }
@@ -155,7 +158,8 @@ import { taskRewardLabel } from './task.models';
         min-height: 40px;
         padding: 10px 12px;
         font: inherit;
-        font-weight: 600;
+        font-size: 16px;
+        font-weight: 500;
         cursor: pointer;
       }
       .primary {

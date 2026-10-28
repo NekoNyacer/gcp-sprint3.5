@@ -9,12 +9,12 @@
   color: gray;
 }
 
-.top{
-  .arrow-back{
+.top {
+  .arrow-back {
     color: gray;
   }
 
-  .destination-info{
+  .destination-info {
     text-align: left;
     margin: 2px;
     padding: 1rem;
@@ -22,14 +22,18 @@
     flex-direction: column;
     gap: 8px;
 
-    ion-card-title{
-      font-size: 18pt;
-      font-weight: 800;
+    ion-card-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    ion-card-subtitle {
+      font-size: 12px;
+      font-weight: 400;
     }
   }
 }
 
-.bottom{
+.bottom {
   margin-bottom: 5vh;
   display: flex;
   justify-content: end;

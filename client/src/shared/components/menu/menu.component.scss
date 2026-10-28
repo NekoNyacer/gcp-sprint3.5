@@ -51,27 +51,28 @@ ion-menu {
   gap: 0.4rem;
   color: var(--ion-color-light);
 
-  :first-child{
-    font-size: 1.5rem;
+  :first-child {
+    font-size: 24px;
     font-weight: 700;
   }
-
 }
 
 .welcome {
   color: rgba(255, 255, 255, 0.74);
-  font-size: 1rem;
+  font-size: 16px;
   letter-spacing: 0.08em;
   margin-bottom: 3px;
+  font-weight: 400;
 }
 
 .email {
   color: rgba(255, 255, 255, 0.78);
-  font-size: 1rem;
+  font-size: 16px;
   margin-top: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 400;
 }
 
 ion-content {
@@ -88,7 +89,7 @@ ion-content {
     --color: #23342e;
     --min-height: 54px;
     --padding-start: 16px;
-    font-weight: 600;
+    font-weight: 400;
     margin-bottom: 6px;
 
     ion-icon {
@@ -96,6 +97,8 @@ ion-content {
       font-size: 1.3rem;
       margin-right: 16px;
     }
+
+    font-size: 16px;
   }
 }
 
@@ -112,10 +115,12 @@ ion-content {
   --min-height: 52px;
   --padding-start: 16px;
   box-shadow: 0 6px 20px rgba(26, 56, 45, 0.07);
-  font-weight: 600;
+  font-weight: 500;
 
   ion-icon {
-    color:  var(--ion-color-danger);
+    color: var(--ion-color-danger);
     margin-right: 16px;
   }
+
+  font-size: 16px;
 }

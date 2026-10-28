@@ -54,14 +54,14 @@ ion-header {
   flex-shrink: 0;
 }
 
-.arrow-back{
-    color: gray;
+.arrow-back {
+  color: gray;
 }
 
 ion-toolbar {
   --min-height: 72px;
-  --border-color:var(--ion-color-medium);
-  --border-width:0 0 1px 0;
+  --border-color: var(--ion-color-medium);
+  --border-width: 0 0 1px 0;
 
   ion-title {
     position: absolute;
@@ -73,7 +73,7 @@ ion-toolbar {
     font-size: 24px;
     font-weight: 700;
   }
-  
+
   ion-buttons {
     min-height: 48px;
     position: relative;
@@ -102,12 +102,14 @@ ion-toolbar.profile-toolbar {
 }
 
 ion-tab-bar {
-  --background: #FFFFFF;
+  --background: #ffffff;
   padding: 5px 0;
 
-  ion-tab-button{
+  ion-tab-button {
     // --padding-start	:10px;
     // --padding-bottom:5px;
+    font-size: 12px;
+    font-weight: 400;
   }
 
   &.tab-bar-rise {
@@ -152,4 +154,9 @@ ion-tabs.home-map-screen ion-tab-bar {
   ion-tab-bar.tab-bar-descend {
     animation-duration: 1ms;
   }
+}
+
+ion-tab-bar ion-label {
+  font-size: 12px;
+  font-weight: 400;
 }
