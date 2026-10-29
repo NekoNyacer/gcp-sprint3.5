@@ -1,5 +1,21 @@
 # CAT WALK project context
 
+## Latest preview delivery (2026-10-29)
+
+- At the user's request, rebuilt the current checkout and deployed App,
+  Angular presentation and CMS to Firebase Hosting channel `cms-preview`.
+  The previous preview channels had expired; the recreated channel has a new URL:
+  https://cathay-ai-hackathon-team-03--cms-preview-qb9n7860.web.app
+  Expires 2026-11-05 17:01:23 Asia/Taipei. This supersedes earlier preview URLs
+  and notes that the latest client changes have not reached Hosting.
+- Client production,preview and CMS production builds passed with existing
+  bundle/style/CommonJS warnings. Existing local Mapbox runtime settings were
+  preserved. Hosting deployment completed successfully with 306 files.
+- Verified HTTP 200 and exact local-build SHA-256 matches for `/`, `/login`,
+  `/cms/`, `/cms/merchants`, runtime configuration and Mapbox CSP worker.
+  This verifies delivery, not a complete browser/device acceptance test.
+  Live Hosting, Functions and Firestore were not changed by this delivery.
+
 ## Chipmunk companion exploration (2026-10-29)
 
 - The user wants to explore a chipmunk companion inspired by the app's existing
