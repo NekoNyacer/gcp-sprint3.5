@@ -7,6 +7,7 @@ import { HomePlanComponent } from './home-plan/home-plan.component';
 import { LocationPoint, LocationStore } from '../../shared/stores/location-store';
 import { WalkSessionStore } from '../../shared/stores/walk-session-store';
 import { ProgressStore } from '../../shared/stores/progress-store';
+import { SessionStore } from '../../shared/stores/session-store';
 import { ModalService } from '../../shared/services/modal.service';
 import {
   MapCameraAdapter,
@@ -82,6 +83,8 @@ describe('Home task-selection camera', () => {
       imports: [HomeComponent],
       providers: [
         {provide: CMS_CONNECTION, useValue: cms},
+        // The full Home includes the backpack, which only needs a display name.
+        { provide: SessionStore, useValue: { displayName: () => '健走旅人' } },
         {
           provide: LocationStore,
           useValue: { current },
@@ -631,7 +634,7 @@ describe('Home task-selection camera', () => {
     const planningPanel = fixture.debugElement.query(By.directive(HomePlanComponent));
     expect(planningPanel.query(By.css('.plan-confirm')).componentInstance.disabled).toBe(false);
     expect(planningPanel.query(By.css('.plan-confirm')).nativeElement.textContent).toContain(
-      '更新預覽路線',
+      '更新路線',
     );
     planningPanel.query(By.css('.plan-confirm')).nativeElement.click();
     await vi.waitFor(() => expect(store.routeNeedsUpdate()).toBe(false));
@@ -1149,7 +1152,7 @@ describe('Home task-selection camera', () => {
     expect(progress.inventory()).toBe(inventory);
   });
 
-  it('completes endpoint check-in without closing care, grants no extra reward and clears all route data', async () => {
+  it('completes endpoint check-in without closing care, preserves care resources and awards at most one route seed', async () => {
     const { fixture, store, current, intents } = setup(false, true);
     fixture.componentInstance.startPlanning();
     await fixture.componentInstance.selectDestination('tree-5');
@@ -1177,9 +1180,12 @@ describe('Home task-selection camera', () => {
     expect(care.checkInMessage()).toContain('已完成');
     expect(TestBed.inject(DialogService).walkResult()).toEqual(store.completedWalkResult());
     expect(TestBed.inject(DialogService).config().mainBtnTxt).toBe('太棒了!');
-    expect(progress.inventory()).toBe(inventory);
+    const earnedSeeds = store.completedWalkResult()?.earnedSeeds ?? 0;
+    expect([0, 1]).toContain(earnedSeeds);
+    const afterCheckIn = progress.inventory();
+    expect(afterCheckIn).toEqual({ ...inventory, seeds: inventory.seeds + earnedSeeds });
     care.destinationCheckIn.emit();
-    expect(progress.inventory()).toBe(inventory);
+    expect(progress.inventory()).toBe(afterCheckIn);
     care.dismissed();
     fixture.detectChanges();
     expect(store.isIdle()).toBe(true);

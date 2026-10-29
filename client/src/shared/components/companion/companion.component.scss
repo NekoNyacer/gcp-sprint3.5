@@ -13,6 +13,8 @@
 button { font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 button:focus-visible { outline: 2px solid #ee6a17; outline-offset: 4px; }
 .pet-body {
+  touch-action: none;
+  user-select: none;
   position: absolute;
   left: 0;
   bottom: calc(var(--pet-floor) - 5px);
@@ -27,11 +29,11 @@ button:focus-visible { outline: 2px solid #ee6a17; outline-offset: 4px; }
 .pet-art { width: 100%; height: 100%; transform: scaleX(var(--pet-facing, 1)); }
 .pet-fabs {
   position: absolute;
-  bottom: calc(var(--pet-floor) + 110px);
+  bottom: var(--menu-floor, calc(var(--pet-floor) + 110px));
   display: flex;
   justify-content: center;
-  gap: 12px;
-  width: min(200px, calc(100vw - 24px));
+  gap: 10px;
+  width: min(264px, calc(100vw - 24px));
   pointer-events: none;
   animation: fabs-appear 180ms ease-out both;
 }
@@ -48,7 +50,7 @@ button:focus-visible { outline: 2px solid #ee6a17; outline-offset: 4px; }
   color: #425d22;
   pointer-events: auto;
 }
-.pet-fab:nth-child(2) { transform: translateY(-8px); }
+.pet-fab:nth-child(2), .pet-fab:nth-child(3) { transform: translateY(-8px); }
 .fab-icon {
   display: grid;
   place-items: center;
@@ -68,7 +70,7 @@ button:focus-visible { outline: 2px solid #ee6a17; outline-offset: 4px; }
 .fab-label { white-space: nowrap; font-size: 12px; font-weight: 500; line-height: 18px; text-shadow: 0 1px 3px #fff, 0 0 4px #fff; }
 .pet-feedback {
   position: absolute;
-  bottom: calc(var(--pet-floor) + 204px);
+  bottom: var(--feedback-floor, calc(var(--pet-floor) + 204px));
   box-sizing: border-box;
   width: min(256px, calc(100vw - 24px));
   pointer-events: none;
@@ -81,7 +83,7 @@ button:focus-visible { outline: 2px solid #ee6a17; outline-offset: 4px; }
   margin: 0;
   padding: 10px 14px;
   border-radius: 14px;
-  background: #fffdf6f5;
+  background: #fffdf6;
   box-shadow: 0 2px 8px #45391e1c;
   font-size: 14px;
   line-height: 1.6;
@@ -98,6 +100,18 @@ button:focus-visible { outline: 2px solid #ee6a17; outline-offset: 4px; }
   transform: translateX(-50%) rotate(45deg);
 }
 .pet-feedback--listening .pet-speech { color: #365c27; }
+.speech-message { margin: 0; }
+.walking-proposal { display: grid; gap: 6px; padding-top: 12px; margin-top: 12px; border-top: 1px solid #dce1d2; }
+.walking-proposal strong { color: #365c27; font-size: 16px; }
+.walking-proposal span, .walking-proposal small { overflow-wrap: anywhere; }
+.walking-proposal small { font-size: 12px; line-height: 1.5; color: #58604f; }
+.walking-metrics { font-weight: 600; font-variant-numeric: tabular-nums; }
+.apply-plan { min-height: 44px; margin-top: 4px; padding: 8px 12px; border: 0; border-radius: 10px; background: #425d22; color: #fff; }
+.apply-plan:hover { background: #344b1b; }
+.apply-plan:disabled { opacity: .65; cursor: progress; }
+.agent-steps { margin-top: 12px; font-size: 12px; color: #58604f; }
+.agent-steps summary { cursor: pointer; min-height: 32px; align-content: center; }
+.agent-steps ol { margin: 4px 0 0; padding-left: 18px; }
 .speech-hint { display: block; margin-top: 5px; text-align: center; font-size: 12px; color: #58604f; text-shadow: 0 1px 3px white; }
 .typing-caret { display: inline-block; height: 1em; margin-left: 2px; border-left: 2px solid #ee6a17; vertical-align: -.1em; }
 .pet-keyboard-input {

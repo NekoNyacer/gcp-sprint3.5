@@ -7,7 +7,7 @@
     }
 
     @if (cms?.managed()) {
-      <section class="profile-section" aria-labelledby="cube-heading">
+      <section class="profile-section" data-companion-ledge aria-labelledby="cube-heading">
         <h2 id="cube-heading">CUBE 權益方案</h2>
         <label class="cube-plan-label" for="cube-plan">目前用於站點推薦的方案</label>
         <div class="cube-plan-field">
@@ -19,7 +19,7 @@
         <p class="level-tip">設定將用於下一次 AI 站點推薦，保留已確認路線。此處僅設定推薦偏好；信用卡實際權益請至國泰 CUBE App 切換。</p>
       </section>
     }
-    <section class="profile-section level-section" aria-labelledby="level-heading">
+    <section class="profile-section level-section" data-companion-ledge aria-labelledby="level-heading">
       <p class="eyebrow">玩家等級</p>
       <h2 id="level-heading">
         <span class="accent">Lv. {{ levelPreview().level }}</span> {{ levelPreview().title }}
@@ -31,7 +31,7 @@
       <p class="level-tip">完成健走任務、達成每日步數目標，以及培育樹木，都能累積旅人經驗值。</p>
     </section>
 
-    <section class="profile-section" aria-labelledby="trees-heading">
+    <section class="profile-section" data-companion-ledge aria-labelledby="trees-heading">
       <div class="section-heading">
         <h2 id="trees-heading">百樹夥伴</h2>
         <span class="tree-count"
@@ -45,7 +45,7 @@
       </div>
     </section>
 
-    <section class="profile-section" aria-labelledby="stats-heading">
+    <section class="profile-section" data-companion-ledge aria-labelledby="stats-heading">
       <div class="section-heading">
         <h2 id="stats-heading">健走統計</h2>
         <span class="goal-chip">每日目標 {{ dailyGoal() | number }} 步</span>
@@ -76,7 +76,7 @@
       </div>
     </section>
 
-    <section class="profile-section" aria-labelledby="recent-heading">
+    <section class="profile-section" data-companion-ledge aria-labelledby="recent-heading">
       <div class="section-heading">
         <h2 id="recent-heading">近期紀錄</h2>
         <a routerLink="/shop/history">查看全部</a>
@@ -110,6 +110,16 @@
           <p class="empty-state">尚無近期紀錄</p>
         }
       }
+    </section>
+    <section class="profile-section" aria-label="寵物設定">
+      <ion-toggle
+        class="companion-toggle"
+        justify="space-between"
+        labelPlacement="start"
+        helperText="關閉後，花栗鼠將不再顯示。"
+        [checked]="companionPreferences.enabled()"
+        (ionChange)="companionPreferences.setEnabled($event.detail.checked)"
+      >啟用寵物</ion-toggle>
     </section>
   </main>
 </ion-content>

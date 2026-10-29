@@ -23,6 +23,7 @@ vi.mock('firebase-functions/v2/https', () => ({
 }));
 import { companionChat } from './companion-chat.js';
 import { parseCompanionChat } from './companion-chat-domain.js';
+import type { CompanionAgentContext } from './companion-agent-domain.js';
 
 const call = companionChat as unknown as (request: unknown) => Promise<{ text: string; source: string }>;
 const request = (data = {}) => ({ auth: { uid: 'test-user', token: { firebase: { sign_in_provider: 'google.com' } } }, data: { scope: 'normal', message: '我今天有點累', ...data } });
@@ -34,6 +35,36 @@ describe('companion Gemini conversation', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ candidates: [{ finishReason: 'STOP', content: { parts: [{ thought: true, text: 'private thought' }, { text: '那我們慢慢走，我陪你休息一下。' }] } }] }) }));
   });
   afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
+
+  it('executes a bounded tool loop, returns a proposal and never writes conversation or a plan', async () => {
+    const agentContext: CompanionAgentContext = { inventory: { lightEnergy: 10, waterDrops: 0, fertilizer: 0 }, phase: 'idle', locationSource: 'demo', options: [
+      { id: 'tree:water', treeId: 'tree', treeName: '小樹', place: '公園', care: '缺水', distanceMeters: 800, durationSeconds: 600,
+        station: { id: 'water', name: '補給站', resource: 'water' }, weather: { source: 'unavailable', condition: 'unknown', temperatureC: null, precipitationMm: null, observedAt: null } },
+    ] };
+    const answer = (parts: object[]) => ({ ok: true, json: async () => ({ candidates: [{ finishReason: 'STOP', content: { role: 'model', parts } }] }) }) as Response;
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(answer([{ functionCall: { name: 'getPlayerContext', args: {} } }, { functionCall: { name: 'getWalkingOptions', args: { maxMinutes: 20, needWater: true } } }]))
+      .mockResolvedValueOnce(answer([{ functionCall: { name: 'proposeWalkingPlan', args: { optionId: 'tree:water' } } }]))
+      .mockResolvedValueOnce(answer([{ text: '找到一條十分鐘的路線，請確認後套用。' }]));
+    const result = await call(request({ message: '20分鐘，順便補水', agentContext }));
+    expect(result).toMatchObject({ proposal: { optionId: 'tree:water' }, steps: ['已查詢樹木與資源', '已比較單程步行路線與天氣', '已提出方案，等待你確認'] });
+    expect(fetch).toHaveBeenCalledTimes(3);
+    const finalPayload = JSON.parse(vi.mocked(fetch).mock.calls[2][1]!.body as string);
+    expect(finalPayload.contents.at(-1).parts[0].functionResponse.response).toMatchObject({ applied: false });
+    expect(memory.docs.size).toBe(1);
+    expect(JSON.stringify([...memory.docs.values()])).not.toContain('tree:water');
+  });
+
+  it('rejects malformed snapshots before consuming quota or calling Vertex', async () => {
+    await expect(call(request({ agentContext: { options: [] } }))).rejects.toMatchObject({ code: 'invalid-argument' });
+    expect(fetch).not.toHaveBeenCalled(); expect(memory.docs.size).toBe(0);
+  });
+
+  it('bounds repeated model tool calls to four inference rounds', async () => {
+    vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => ({ candidates: [{ finishReason: 'STOP', content: { parts: [{ functionCall: { name: 'getPlayerContext', args: {} } }] } }] }) } as Response);
+    await expect(call(request({ agentContext: { inventory: { lightEnergy: 0, waterDrops: 0, fertilizer: 0 }, phase: 'idle', locationSource: 'demo', options: [] } }))).rejects.toMatchObject({ code: 'unavailable' });
+    expect(fetch).toHaveBeenCalledTimes(4);
+  });
 
   it('authenticates before using Gemini and rejects malformed or system-role history', async () => {
     await expect(call({ data: request().data })).rejects.toMatchObject({ code: 'unauthenticated' });

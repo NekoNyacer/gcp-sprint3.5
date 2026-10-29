@@ -54,6 +54,13 @@ ion-header {
   flex-shrink: 0;
 }
 
+// WAAPI supplies the visible frames; this also hides a newly created Home/tab
+// header while Ionic is changing pages between the outgoing/incoming phases.
+:host(.companion-tab-transition) > ion-header {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .arrow-back {
   color: gray;
 }

@@ -1,6 +1,6 @@
 import { inject, InjectionToken, OnDestroy, Service, signal } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
-import { getMapboxAccessToken } from '../../app/mapbox-runtime-config';
+import { getMapboxAccessToken } from '../../mapbox-runtime-config';
 import type { GeoPoint } from '../../shared/models/geo.models';
 import type { TaskItem } from './task.models';
 import { DEFAULT_TASK_RADIUS } from '../../../../functions/src/task-domain';

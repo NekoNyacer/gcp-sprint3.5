@@ -1,0 +1,112 @@
+{
+  "source": "launch-source.png",
+  "atlas": "launch-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 500,
+  "frameHeight": 480,
+  "baseline": 430,
+  "framesPerSecond": 8,
+  "loop": false,
+  "registration": "fixed scale, silhouette centered and lowest point aligned; no jump trajectory is baked in",
+  "caveat": "Generated poses require motion review; whiskers may be clipped and proportion drift remains.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "crouch",
+      "sourceBounds": {
+        "id": 4,
+        "left": 28,
+        "right": 411,
+        "top": 90,
+        "bottom": 384,
+        "area": 64259
+      }
+    },
+    {
+      "index": 1,
+      "pose": "prepare",
+      "sourceBounds": {
+        "id": 3,
+        "left": 477,
+        "right": 863,
+        "top": 85,
+        "bottom": 384,
+        "area": 64717
+      }
+    },
+    {
+      "index": 2,
+      "pose": "front-paws-lift",
+      "sourceBounds": {
+        "id": 2,
+        "left": 905,
+        "right": 1284,
+        "top": 83,
+        "bottom": 386,
+        "area": 62182
+      }
+    },
+    {
+      "index": 3,
+      "pose": "push",
+      "sourceBounds": {
+        "id": 1,
+        "left": 1361,
+        "right": 1730,
+        "top": 55,
+        "bottom": 386,
+        "area": 63439
+      }
+    },
+    {
+      "index": 4,
+      "pose": "rise-1",
+      "sourceBounds": {
+        "id": 7,
+        "left": 36,
+        "right": 420,
+        "top": 471,
+        "bottom": 822,
+        "area": 66613
+      }
+    },
+    {
+      "index": 5,
+      "pose": "rise-2",
+      "sourceBounds": {
+        "id": 8,
+        "left": 485,
+        "right": 873,
+        "top": 475,
+        "bottom": 784,
+        "area": 63069
+      }
+    },
+    {
+      "index": 6,
+      "pose": "rise-3",
+      "sourceBounds": {
+        "id": 6,
+        "left": 925,
+        "right": 1316,
+        "top": 465,
+        "bottom": 779,
+        "area": 63143
+      }
+    },
+    {
+      "index": 7,
+      "pose": "extended",
+      "sourceBounds": {
+        "id": 5,
+        "left": 1372,
+        "right": 1749,
+        "top": 445,
+        "bottom": 799,
+        "area": 65279
+      }
+    }
+  ]
+}

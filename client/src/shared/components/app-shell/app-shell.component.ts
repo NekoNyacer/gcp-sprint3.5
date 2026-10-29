@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, effect, inject, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, effect, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonLabel,
@@ -83,11 +83,14 @@ import { WalkSessionStore } from '../../stores/walk-session-store';
 import { CubModalComponent } from '../modal/modal.component';
 import { ProfileIdentityComponent } from '../profile-identity/profile-identity.component';
 import { CompanionComponent } from '../companion/companion.component';
+import { CompanionTabTransitionService } from '../companion/companion-tab-transition.service';
+import { CompanionPreferencesService } from '../companion/companion-preferences.service';
 
 @Component({
   selector: 'app-shell',
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
+  providers: [CompanionTabTransitionService],
   imports: [
     CompanionComponent,
     ProfileIdentityComponent,
@@ -107,13 +110,22 @@ import { CompanionComponent } from '../companion/companion.component';
     CubModalComponent,
   ],
 })
-export class AppShellComponent {
+export class AppShellComponent implements AfterViewInit {
   readonly petFloor = viewChild('petFloor', { read: ElementRef });
+  private readonly tabs = viewChild(IonTabs);
+  private readonly element = inject(ElementRef<HTMLElement>);
+  private readonly tabTransition = inject(CompanionTabTransitionService);
   private readonly router = inject(Router);
   private readonly navController = inject(NavController);
   private readonly sessionStore = inject(SessionStore);
   protected readonly walkSession = inject(WalkSessionStore);
   readonly taskStore = inject(TaskStore);
+  readonly companionPreferences = inject(CompanionPreferencesService);
+
+  ngAfterViewInit(): void {
+    const tabs = this.tabs();
+    if (tabs) this.tabTransition.attach(this.element.nativeElement, tabs.ionTabsDidChange);
+  }
 
   /**header文字設定，用route位置判斷該顯示的內容 */
   protected readonly headerTxt = computed(() => {

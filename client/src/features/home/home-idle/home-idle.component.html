@@ -34,6 +34,7 @@
   <button
     type="button"
     class="start-btn terminate-btn"
+    data-companion-ledge
     [class.holding]="holding()"
     aria-label="中止本次路線，長按一秒"
     (pointerdown)="beginPointerHold($event)"
@@ -50,7 +51,7 @@
     <span>中止本次路線</span>
   </button>
 } @else {
-  <ion-button class="start-btn" color="primary" expand="block" (click)="start.emit()">
+  <ion-button class="start-btn" data-companion-ledge color="primary" expand="block" (click)="start.emit()">
     <ion-icon name="walk"></ion-icon>
     <span>開始散步</span>
   </ion-button>

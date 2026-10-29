@@ -1,0 +1,55 @@
+{
+  "columns": 5,
+  "rows": 2,
+  "frameCount": 10,
+  "frameWidth": 460,
+  "frameHeight": 352,
+  "framesPerSecond": 12,
+  "sourceImages": [
+    "run-v2-aligned.png",
+    "run-contact-transitions.png"
+  ],
+  "sequence": [
+    [
+      "old",
+      0
+    ],
+    [
+      "old",
+      1
+    ],
+    [
+      "old",
+      2
+    ],
+    [
+      "old",
+      3
+    ],
+    [
+      "old",
+      4
+    ],
+    [
+      "new",
+      1
+    ],
+    [
+      "new",
+      2
+    ],
+    [
+      "new",
+      3
+    ],
+    [
+      "old",
+      6
+    ],
+    [
+      "old",
+      7
+    ]
+  ],
+  "notes": "Experimental review only. New recovery poses bridge the main change but registration and movement require human animation review."
+}

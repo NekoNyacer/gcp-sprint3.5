@@ -1,0 +1,44 @@
+{
+  "source": "../blink-study.png",
+  "atlas": "blink-study-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 503,
+  "frameHeight": 509,
+  "framesPerSecond": 12,
+  "loop": true,
+  "sequenceIndexBase": 0,
+  "sequence": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    3,
+    2,
+    1
+  ],
+  "frameDurationsMs": [
+    1200,
+    83,
+    83,
+    83,
+    125,
+    83,
+    83,
+    83
+  ],
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "blink-study-01.png",
+    "blink-study-02.png",
+    "blink-study-03.png",
+    "blink-study-04.png",
+    "blink-study-05.png",
+    "blink-study-06.png",
+    "blink-study-07.png",
+    "blink-study-08.png"
+  ],
+  "caveat": "Generated poses; some fur and facial features drift between frames. Registration does not track anatomical landmarks. Timing is a preview proposal, subject to motion review."
+}

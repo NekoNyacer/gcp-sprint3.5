@@ -1,12 +1,13 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { IonContent, IonIcon, IonProgressBar, IonSpinner } from '@ionic/angular';
+import { IonContent, IonIcon, IonProgressBar, IonSpinner, IonToggle } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { ShopStore } from '../shop/shop-store';
 import { SessionStore } from '../../shared/stores/session-store';
 import { profileLevelPreview } from '../../shared/components/profile-identity/profile-level-preview';
 import { CMS_CONNECTION, cmsPublication } from '../../shared/models/cms-publication';
 import { transactionSummary, transactionTitle, transactionStatusLabel } from '../shop/shop-view.models';
+import { CompanionPreferencesService } from '../../shared/components/companion/companion-preferences.service';
 
 type WalkingStats = {
   today: number;
@@ -26,9 +27,11 @@ type WalkingStats = {
     IonIcon,
     IonProgressBar,
     IonSpinner,
+    IonToggle,
   ],
 })
 export class ProfileComponent {
+  readonly companionPreferences = inject(CompanionPreferencesService);
   readonly cms = inject(CMS_CONNECTION, { optional: true });
   readonly transactionSummary = transactionSummary;
   readonly transactionTitle = transactionTitle;

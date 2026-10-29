@@ -1,0 +1,102 @@
+{
+  "source": "rise-v4-source.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 560,
+  "frameHeight": 500,
+  "baseline": 450,
+  "loop": false,
+  "registration": "same scale; centered opaque silhouette, lowest point on baseline; detached berries retained",
+  "note": "Frame 3 to 4 jumps noticeably from crouch to sitting; not yet a smooth transition.",
+  "frames": [
+    {
+      "index": 0,
+      "sourceBounds": {
+        "id": 1,
+        "left": 22,
+        "right": 486,
+        "top": 79,
+        "bottom": 451,
+        "area": 95346
+      }
+    },
+    {
+      "index": 1,
+      "sourceBounds": {
+        "id": 2,
+        "left": 467,
+        "right": 885,
+        "top": 86,
+        "bottom": 438,
+        "area": 86436
+      }
+    },
+    {
+      "index": 2,
+      "sourceBounds": {
+        "id": 3,
+        "left": 874,
+        "right": 1282,
+        "top": 88,
+        "bottom": 442,
+        "area": 88333
+      }
+    },
+    {
+      "index": 3,
+      "sourceBounds": {
+        "id": 4,
+        "left": 1296,
+        "right": 1663,
+        "top": 106,
+        "bottom": 452,
+        "area": 82528
+      }
+    },
+    {
+      "index": 4,
+      "sourceBounds": {
+        "id": 8,
+        "left": 28,
+        "right": 421,
+        "top": 500,
+        "bottom": 867,
+        "area": 96205
+      }
+    },
+    {
+      "index": 5,
+      "sourceBounds": {
+        "id": 6,
+        "left": 459,
+        "right": 837,
+        "top": 489,
+        "bottom": 867,
+        "area": 95077
+      }
+    },
+    {
+      "index": 6,
+      "sourceBounds": {
+        "id": 7,
+        "left": 874,
+        "right": 1245,
+        "top": 490,
+        "bottom": 869,
+        "area": 93669
+      }
+    },
+    {
+      "index": 7,
+      "sourceBounds": {
+        "id": 5,
+        "left": 1284,
+        "right": 1658,
+        "top": 481,
+        "bottom": 868,
+        "area": 96719
+      }
+    }
+  ]
+}

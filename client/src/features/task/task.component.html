@@ -21,7 +21,7 @@
 <ion-content class="task-page">
   <div class="task-shell">
     <div class="filters">
-      <label
+      <label data-companion-ledge
         >獎勵<select
           aria-label="獎勵類型"
           [value]="store.selectedReward()"
@@ -33,7 +33,7 @@
           <option value="seeds">種子</option>
         </select></label
       >
-      <label
+      <label data-companion-ledge
         >地區<select
           aria-label="任務地區"
           [value]="store.selectedAreaId()"
@@ -45,7 +45,7 @@
           }
         </select></label
       >
-      <label
+      <label data-companion-ledge
         >狀態<select
           aria-label="任務狀態"
           [value]="store.selectedStatus()"
@@ -86,7 +86,7 @@
     } @else {
       <section class="task-list" aria-label="任務列表">
         @for (task of showHistory() ? store.history() : store.visibleTasks(); track task.taskId) {
-          <button class="task-card" (click)="openTask(task)">
+          <button class="task-card" data-companion-ledge (click)="openTask(task)">
             <span class="remaining">{{ remaining(task) }}</span>
             <div class="title-row">
               <h3>{{ task.title }}</h3>

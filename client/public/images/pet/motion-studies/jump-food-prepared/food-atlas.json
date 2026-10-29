@@ -1,0 +1,102 @@
+{
+  "source": "../food.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 520,
+  "frameHeight": 480,
+  "baseline": 430,
+  "registration": "same scale, silhouette centered horizontally, foot baseline aligned; no in-between frames generated",
+  "loop": false,
+  "note": "Eight key poses, not a complete smooth eating animation. Transition from reaching on all fours to holding upright requires in-between drawings. The first berry is a separate component retained with its pose.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "notice-berry",
+      "sourceBounds": {
+        "left": 46,
+        "right": 451,
+        "top": 72,
+        "bottom": 411
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 1,
+      "pose": "sniff",
+      "sourceBounds": {
+        "left": 462,
+        "right": 846,
+        "top": 65,
+        "bottom": 416
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 2,
+      "pose": "reach",
+      "sourceBounds": {
+        "left": 867,
+        "right": 1257,
+        "top": 68,
+        "bottom": 412
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 3,
+      "pose": "hold",
+      "sourceBounds": {
+        "left": 1306,
+        "right": 1646,
+        "top": 80,
+        "bottom": 419
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 4,
+      "pose": "nibble",
+      "sourceBounds": {
+        "left": 42,
+        "right": 416,
+        "top": 505,
+        "bottom": 837
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 5,
+      "pose": "pouch",
+      "sourceBounds": {
+        "left": 461,
+        "right": 826,
+        "top": 508,
+        "bottom": 837
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 6,
+      "pose": "cheek-full",
+      "sourceBounds": {
+        "left": 872,
+        "right": 1248,
+        "top": 515,
+        "bottom": 839
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 7,
+      "pose": "content",
+      "sourceBounds": {
+        "left": 1290,
+        "right": 1652,
+        "top": 502,
+        "bottom": 840
+      },
+      "previewOffsetY": 0
+    }
+  ]
+}

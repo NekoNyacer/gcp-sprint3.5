@@ -17,6 +17,21 @@
   background: #fff;
   border-radius: 2px;
 }
+.companion-toggle {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  --track-background-checked: #4d6b17;
+  --handle-background-checked: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}
+.companion-toggle::part(helper-text) {
+  color: #71716a;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
 h2,
 h3,
 p {

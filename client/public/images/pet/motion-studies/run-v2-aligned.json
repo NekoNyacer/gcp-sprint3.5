@@ -1,0 +1,87 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "framesPerSecond": 12,
+  "frameWidth": 460,
+  "frameHeight": 352,
+  "sourcePath": "client/public/images/pet/motion-studies/run-v2.png",
+  "sourceWidth": 1774,
+  "sourceHeight": 887,
+  "registration": "shared scale; silhouette-centered X; shared baseline per generated row",
+  "status": "Review only: alignment does not repair discontinuous gait or create missing in-between poses.",
+  "frames": [
+    {
+      "id": 1,
+      "left": 39,
+      "top": 118,
+      "right": 407,
+      "bottom": 395,
+      "area": 52851,
+      "row": 0
+    },
+    {
+      "id": 2,
+      "left": 458,
+      "top": 118,
+      "right": 857,
+      "bottom": 399,
+      "area": 53638,
+      "row": 0
+    },
+    {
+      "id": 3,
+      "left": 891,
+      "top": 118,
+      "right": 1322,
+      "bottom": 383,
+      "area": 53530,
+      "row": 0
+    },
+    {
+      "id": 4,
+      "left": 1325,
+      "top": 118,
+      "right": 1756,
+      "bottom": 378,
+      "area": 53506,
+      "row": 0
+    },
+    {
+      "id": 5,
+      "left": 42,
+      "top": 500,
+      "right": 470,
+      "bottom": 795,
+      "area": 57943,
+      "row": 1
+    },
+    {
+      "id": 6,
+      "left": 495,
+      "top": 500,
+      "right": 893,
+      "bottom": 795,
+      "area": 55919,
+      "row": 1
+    },
+    {
+      "id": 7,
+      "left": 915,
+      "top": 500,
+      "right": 1325,
+      "bottom": 791,
+      "area": 54905,
+      "row": 1
+    },
+    {
+      "id": 8,
+      "left": 1376,
+      "top": 501,
+      "right": 1741,
+      "bottom": 790,
+      "area": 53868,
+      "row": 1
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "source": "landing-source.png",
+  "atlas": "landing-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 500,
+  "frameHeight": 480,
+  "baseline": 430,
+  "framesPerSecond": 8,
+  "loop": false,
+  "registration": "fixed scale, silhouette centered and lowest point aligned; no jump trajectory is baked in",
+  "caveat": "Generated poses require motion review; whiskers may be clipped and proportion drift remains.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "descending",
+      "sourceBounds": {
+        "id": 1,
+        "left": 29,
+        "right": 411,
+        "top": 70,
+        "bottom": 379,
+        "area": 61233
+      }
+    },
+    {
+      "index": 1,
+      "pose": "approach",
+      "sourceBounds": {
+        "id": 2,
+        "left": 477,
+        "right": 855,
+        "top": 108,
+        "bottom": 394,
+        "area": 58759
+      }
+    },
+    {
+      "index": 2,
+      "pose": "front-contact",
+      "sourceBounds": {
+        "id": 3,
+        "left": 910,
+        "right": 1296,
+        "top": 131,
+        "bottom": 433,
+        "area": 58573
+      }
+    },
+    {
+      "index": 3,
+      "pose": "compress",
+      "sourceBounds": {
+        "id": 4,
+        "left": 1348,
+        "right": 1729,
+        "top": 135,
+        "bottom": 436,
+        "area": 56467
+      }
+    },
+    {
+      "index": 4,
+      "pose": "hind-recovery",
+      "sourceBounds": {
+        "id": 5,
+        "left": 33,
+        "right": 420,
+        "top": 493,
+        "bottom": 806,
+        "area": 58331
+      }
+    },
+    {
+      "index": 5,
+      "pose": "hind-contact",
+      "sourceBounds": {
+        "id": 6,
+        "left": 474,
+        "right": 865,
+        "top": 505,
+        "bottom": 807,
+        "area": 61644
+      }
+    },
+    {
+      "index": 6,
+      "pose": "crouch",
+      "sourceBounds": {
+        "id": 8,
+        "left": 904,
+        "right": 1295,
+        "top": 513,
+        "bottom": 807,
+        "area": 60239
+      }
+    },
+    {
+      "index": 7,
+      "pose": "rest",
+      "sourceBounds": {
+        "id": 7,
+        "left": 1339,
+        "right": 1730,
+        "top": 512,
+        "bottom": 807,
+        "area": 63025
+      }
+    }
+  ]
+}

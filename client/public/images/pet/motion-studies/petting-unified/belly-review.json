@@ -1,0 +1,181 @@
+{
+  "source": "belly-unified-source.png",
+  "reference": "idle-common-neutral.png (derived from head-unified-source frame 1); old runtime reference used for approximate coordinate template only",
+  "atlas": "belly-review-atlas.png",
+  "columns": 5,
+  "rows": 2,
+  "frameCount": 10,
+  "frameWidth": 521,
+  "frameHeight": 549,
+  "scale": 1.126965,
+  "baseline": 508,
+  "anchor": [
+    359,
+    195
+  ],
+  "framesPerSecond": 8,
+  "loop": false,
+  "frames": [
+    {
+      "frame": 1,
+      "source": "idle-common-neutral.png (exact shared neutral)"
+    },
+    {
+      "frame": 2,
+      "sourceFrame": 1,
+      "nose": {
+        "x": 310,
+        "y": 172,
+        "score": 17271
+      },
+      "translation": [
+        9.64,
+        12.14
+      ],
+      "sourceBounds": {
+        "left": 23,
+        "top": 28,
+        "right": 428,
+        "bottom": 440
+      }
+    },
+    {
+      "frame": 3,
+      "sourceFrame": 2,
+      "nose": {
+        "x": 330,
+        "y": 173,
+        "score": 22981
+      },
+      "translation": [
+        -12.9,
+        12.14
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 29,
+        "right": 447,
+        "bottom": 440
+      }
+    },
+    {
+      "frame": 4,
+      "sourceFrame": 3,
+      "nose": {
+        "x": 330,
+        "y": 171,
+        "score": 18398
+      },
+      "translation": [
+        -12.9,
+        12.14
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 30,
+        "right": 446,
+        "bottom": 440
+      }
+    },
+    {
+      "frame": 5,
+      "sourceFrame": 4,
+      "nose": {
+        "x": 328,
+        "y": 163,
+        "score": 8185
+      },
+      "translation": [
+        -10.64,
+        12.14
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 30,
+        "right": 446,
+        "bottom": 440
+      }
+    },
+    {
+      "frame": 6,
+      "sourceFrame": 5,
+      "nose": {
+        "x": 319,
+        "y": 168,
+        "score": 21764
+      },
+      "translation": [
+        -0.5,
+        -7.02
+      ],
+      "sourceBounds": {
+        "left": 22,
+        "top": 42,
+        "right": 431,
+        "bottom": 457
+      }
+    },
+    {
+      "frame": 7,
+      "sourceFrame": 6,
+      "nose": {
+        "x": 330,
+        "y": 178,
+        "score": 7010
+      },
+      "translation": [
+        -12.9,
+        -5.9
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 42,
+        "right": 446,
+        "bottom": 456
+      }
+    },
+    {
+      "frame": 8,
+      "sourceFrame": 7,
+      "nose": {
+        "x": 331,
+        "y": 183,
+        "score": 10107
+      },
+      "translation": [
+        -14.03,
+        -7.02
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 42,
+        "right": 447,
+        "bottom": 457
+      }
+    },
+    {
+      "frame": 9,
+      "sourceFrame": 8,
+      "nose": {
+        "x": 326,
+        "y": 183,
+        "score": 9553
+      },
+      "translation": [
+        -8.39,
+        -4.77
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 42,
+        "right": 445,
+        "bottom": 455
+      }
+    },
+    {
+      "frame": 10,
+      "source": "idle-common-neutral.png (exact shared neutral)"
+    }
+  ],
+  "limitations": "The previous runtime idle first frame has a pre-existing cropped right side. These studies share a new complete neutral instead, which differs from the current app idle. Approximate nose template and lowest-paw alignment; same scale for all source frames, no per-frame resizing. Source poses may still shift or change proportions. Connections to the existing idle and transitions between frames require visual review; not animation-quality certification."
+}

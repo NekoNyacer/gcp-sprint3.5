@@ -1,0 +1,21 @@
+{
+  "source": "../groom.png",
+  "atlas": "groom-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 512,
+  "frameHeight": 523,
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "groom-01.png",
+    "groom-02.png",
+    "groom-03.png",
+    "groom-04.png",
+    "groom-05.png",
+    "groom-06.png",
+    "groom-07.png",
+    "groom-08.png"
+  ],
+  "caveat": "Pose studies, not a continuous animation cycle; review transition timing and add in-betweens. Registration does not track anatomical landmarks."
+}

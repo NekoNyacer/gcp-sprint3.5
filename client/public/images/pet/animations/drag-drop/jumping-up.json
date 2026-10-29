@@ -1,0 +1,212 @@
+{
+  "source": "../../motion-studies/drag-drop/jump-up-source.png",
+  "sourceSha256": "0cc3d0cd2e6c84e963159912b60afc1334f38c8a1fa207d059142a1b2ac19887",
+  "columns": 4,
+  "rows": 2,
+  "frames": 8,
+  "frameWidth": 460,
+  "frameHeight": 400,
+  "baseline": 376,
+  "footInset": 24,
+  "scale": 0.8131868131868132,
+  "durations": [
+    100,
+    90,
+    100,
+    110,
+    110,
+    100,
+    100,
+    90
+  ],
+  "durationMs": 800,
+  "loop": false,
+  "registration": "one uniform scale per source sheet; main silhouette horizontally centred and lowest opaque paw/body point aligned; antialiased padding retained",
+  "limitations": "Source anatomy, viewpoint and contacts may change between poses. Alignment cannot synthesize transitions or restore clipped source whiskers. Held sprites are not a skeletal rig.",
+  "frameDetails": [
+    {
+      "id": 3,
+      "main": {
+        "id": 3,
+        "left": 35,
+        "right": 423,
+        "top": 97,
+        "bottom": 413
+      },
+      "bounds": {
+        "left": 17,
+        "right": 441,
+        "top": 79,
+        "bottom": 431
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 57,
+        "top": 104,
+        "width": 346,
+        "height": 287
+      }
+    },
+    {
+      "id": 4,
+      "main": {
+        "id": 4,
+        "left": 472,
+        "right": 876,
+        "top": 119,
+        "bottom": 412
+      },
+      "bounds": {
+        "left": 454,
+        "right": 894,
+        "top": 101,
+        "bottom": 430
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 51,
+        "top": 122,
+        "width": 359,
+        "height": 268
+      }
+    },
+    {
+      "id": 2,
+      "main": {
+        "id": 2,
+        "left": 902,
+        "right": 1287,
+        "top": 92,
+        "bottom": 423
+      },
+      "bounds": {
+        "left": 884,
+        "right": 1305,
+        "top": 74,
+        "bottom": 441
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 59,
+        "top": 91,
+        "width": 343,
+        "height": 299
+      }
+    },
+    {
+      "id": 1,
+      "main": {
+        "id": 1,
+        "left": 1332,
+        "right": 1730,
+        "top": 54,
+        "bottom": 403
+      },
+      "bounds": {
+        "left": 1314,
+        "right": 1748,
+        "top": 36,
+        "bottom": 421
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 53,
+        "top": 77,
+        "width": 354,
+        "height": 314
+      }
+    },
+    {
+      "id": 6,
+      "main": {
+        "id": 6,
+        "left": 39,
+        "right": 433,
+        "top": 496,
+        "bottom": 812
+      },
+      "bounds": {
+        "left": 21,
+        "right": 451,
+        "top": 478,
+        "bottom": 830
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 55,
+        "top": 104,
+        "width": 350,
+        "height": 287
+      }
+    },
+    {
+      "id": 5,
+      "main": {
+        "id": 5,
+        "left": 495,
+        "right": 849,
+        "top": 491,
+        "bottom": 758
+      },
+      "bounds": {
+        "left": 477,
+        "right": 867,
+        "top": 473,
+        "bottom": 776
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 71,
+        "top": 143,
+        "width": 318,
+        "height": 247
+      }
+    },
+    {
+      "id": 7,
+      "main": {
+        "id": 7,
+        "left": 908,
+        "right": 1326,
+        "top": 501,
+        "bottom": 806
+      },
+      "bounds": {
+        "left": 890,
+        "right": 1344,
+        "top": 483,
+        "bottom": 824
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 45,
+        "top": 113,
+        "width": 370,
+        "height": 278
+      }
+    },
+    {
+      "id": 8,
+      "main": {
+        "id": 8,
+        "left": 1358,
+        "right": 1739,
+        "top": 535,
+        "bottom": 829
+      },
+      "bounds": {
+        "left": 1340,
+        "right": 1757,
+        "top": 517,
+        "bottom": 847
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 60,
+        "top": 121,
+        "width": 340,
+        "height": 269
+      }
+    }
+  ]
+}

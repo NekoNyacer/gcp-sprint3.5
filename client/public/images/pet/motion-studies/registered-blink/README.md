@@ -1,0 +1,9 @@
+# Blink study
+
+Generated with the built-in image generation tool, using `registered-closeups/idle-01.png` for character identity and placement and `idle-03.png` as the closed-eyelid reference. The original generated sheet is `../blink-study.png`. `scripts/prepare-companion-blink.mjs` extracts the cells while keeping a constant scale and foot baseline; it does not generate in-between frames.
+
+Prompt:
+
+> Use case: stylized-concept. Create a transparent 2D animation sprite sheet for this exact same chipmunk, using reference 1 as the identity, position and static body, and reference 2 only as a reference of its closed eyelids. Exactly 8 complete full-body character poses, 4 columns by 2 rows, transparent background, generous blank padding and identical exact scale and baseline. Every pose is the SAME exact image of the character, EXACT SAME ears, whiskers, head pose, paws, belly, feet, tail, fur, stripes, angle, proportions, shape and lighting, except for its two eyelids. These are sequential frames of ONE slow blink, not different poses. 1 eyes wide open; 2 eyes three-quarters open; 3 eyes half closed; 4 eyes barely open; 5 eyes completely closed; 6 eyes half open; 7 eyes three-quarters open; 8 eyes wide open matching frame 1. Eyelids gradually cover the SAME eyes; no winking, no head movement, no changes to the body. All characters fully separated, no overlaps, no clipping, no text, no background or shadows.
+
+The model did not keep the body perfectly identical: there is still variation in the eye shapes, fur, paws, and tail. The manifest proposes a zero-based sequence that reverses the first five frames and holds the open-eyed frame longer; frame durations take precedence over the nominal 12 fps. It avoids the larger pose jump into the generated sixth frame. Motion quality remains subject to visual review and no App integration is included.

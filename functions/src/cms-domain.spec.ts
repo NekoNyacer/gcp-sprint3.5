@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { metrics, validateConfig, validateSelections } from "./cms-domain.js";
+import { CMS_MAX_CONFIG_BYTES, CMS_MAX_TREE_PRESETS, metrics, validateConfig, validateSelections } from "./cms-domain.js";
 const seed = () =>
   JSON.parse(
     readFileSync(
@@ -10,11 +10,28 @@ const seed = () =>
   );
 describe("CMS public configuration and constrained AI output", () => {
   it('accepts the Cathay location import through the shared CMS validator', () => {
-    const raw = readFileSync(new URL('../../firebase/seed/cms-cathay-locations-2026-10-27.json', import.meta.url), 'utf8');
-    expect(Buffer.byteLength(raw, 'utf8')).toBeLessThanOrEqual(850_000);
+    const raw = readFileSync(new URL('../../firebase/seed/seed-data-gcp-hackathon-03-2026-10-27.json', import.meta.url), 'utf8');
+    expect(Buffer.byteLength(raw, 'utf8')).toBeLessThanOrEqual(CMS_MAX_CONFIG_BYTES);
     const data = validateConfig(JSON.parse(raw));
     expect(data.trees).toHaveLength(1716);
     expect(data.trees.every(t => t.name.trim().length > 0 && t.empty && t.growth === 0 && t.species === '')).toBe(true);
+  });
+  it('accepts the tree count boundary and rejects an additional unique site', () => {
+    const data = seed();
+    data.trees = Array.from({length: CMS_MAX_TREE_PRESETS}, (_, i) => ({...data.trees[0], id: `site-${i}`, name: '樹', place: '站'}));
+    expect(validateConfig(data).trees).toHaveLength(CMS_MAX_TREE_PRESETS);
+    data.trees.push({...data.trees[0], id: 'one-too-many'});
+    expect(() => validateConfig(data)).toThrow('設定格式、數量或識別碼不正確');
+  });
+  it('measures the configuration limit in UTF-8 bytes', () => {
+    const data = {...seed(), padding: ''};
+    const remaining = CMS_MAX_CONFIG_BYTES - Buffer.byteLength(JSON.stringify(data), 'utf8');
+    data.padding = '界'.repeat(Math.floor(remaining / 3)) + 'a'.repeat(remaining % 3);
+    expect(Buffer.byteLength(JSON.stringify(data), 'utf8')).toBe(CMS_MAX_CONFIG_BYTES);
+    expect(() => validateConfig(data)).not.toThrow();
+    data.padding += 'a';
+    expect(JSON.stringify(data).length).toBeLessThan(CMS_MAX_CONFIG_BYTES);
+    expect(() => validateConfig(data)).toThrow('設定格式、數量或識別碼不正確');
   });
   it('accepts any number of unique configured selections, including zero or more than six', () => {
     const merchants = seed().merchants;

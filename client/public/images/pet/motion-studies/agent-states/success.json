@@ -1,0 +1,89 @@
+{
+  "name": "success",
+  "source": "success-source.png",
+  "atlas": "success-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 520,
+  "frameHeight": 551,
+  "framesPerSecond": 6,
+  "loop": false,
+  "usableFrameRange": [
+    1,
+    8
+  ],
+  "usableFrameRangePurpose": "preview only; not a production-quality acceptance",
+  "sourceBoundaryClippedFrames": [
+    4,
+    8
+  ],
+  "registration": "constant scale; silhouette horizontally centered and bottom aligned",
+  "caveat": "Review poses only: body and facial proportions drift; alignment does not synthesize intermediate movement. Some whiskers touch the source edge; do not treat all frames as production-ready.",
+  "bounds": [
+    {
+      "id": 4,
+      "left": 21,
+      "right": 448,
+      "top": 31,
+      "bottom": 473,
+      "area": 123057
+    },
+    {
+      "id": 3,
+      "left": 466,
+      "right": 863,
+      "top": 27,
+      "bottom": 471,
+      "area": 114487
+    },
+    {
+      "id": 1,
+      "left": 888,
+      "right": 1284,
+      "top": 13,
+      "bottom": 471,
+      "area": 118949
+    },
+    {
+      "id": 2,
+      "left": 1300,
+      "right": 1686,
+      "top": 13,
+      "bottom": 470,
+      "area": 112241
+    },
+    {
+      "id": 5,
+      "left": 22,
+      "right": 425,
+      "top": 480,
+      "bottom": 911,
+      "area": 113636
+    },
+    {
+      "id": 6,
+      "left": 445,
+      "right": 842,
+      "top": 486,
+      "bottom": 910,
+      "area": 110042
+    },
+    {
+      "id": 7,
+      "left": 864,
+      "right": 1265,
+      "top": 486,
+      "bottom": 909,
+      "area": 111135
+    },
+    {
+      "id": 8,
+      "left": 1290,
+      "right": 1676,
+      "top": 492,
+      "bottom": 910,
+      "area": 107257
+    }
+  ]
+}

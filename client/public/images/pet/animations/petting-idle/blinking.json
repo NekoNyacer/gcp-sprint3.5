@@ -1,0 +1,9 @@
+{
+  "source": "../../motion-studies/petting-idle/blinking-4-source.png",
+  "columns": 2,
+  "rows": 2,
+  "frames": 4,
+  "frameWidth": 521,
+  "frameHeight": 549,
+  "registration": "constant scale per sheet, silhouette centre and foot baseline; no synthesized transitions"
+}

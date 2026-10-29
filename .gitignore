@@ -4,6 +4,7 @@ firebase-debug.log
 firebaserc-debug.log
 
 client/src/app/mapbox-config.ts
+client/mapbox-config.ts
 client/public/runtime-config.js
 functions/node_modules/
 functions/lib/

@@ -1,0 +1,123 @@
+{
+  "columns": 4,
+  "rows": 3,
+  "frameCount": 12,
+  "framesPerSecond": 12,
+  "frameWidth": 457,
+  "frameHeight": 318,
+  "sourcePath": "client/public/images/pet/motion-studies/run.png",
+  "sourceWidth": 1701,
+  "sourceHeight": 925,
+  "registration": "shared scale; silhouette-centered X; shared baseline per generated row",
+  "status": "Review only: alignment does not repair discontinuous gait or create missing in-between poses.",
+  "frames": [
+    {
+      "id": 1,
+      "left": 46,
+      "top": 51,
+      "right": 401,
+      "bottom": 296,
+      "area": 43980,
+      "row": 0
+    },
+    {
+      "id": 2,
+      "left": 451,
+      "top": 54,
+      "right": 830,
+      "bottom": 295,
+      "area": 43100,
+      "row": 0
+    },
+    {
+      "id": 3,
+      "left": 859,
+      "top": 54,
+      "right": 1287,
+      "bottom": 277,
+      "area": 46459,
+      "row": 0
+    },
+    {
+      "id": 4,
+      "left": 1302,
+      "top": 60,
+      "right": 1672,
+      "bottom": 318,
+      "area": 44398,
+      "row": 0
+    },
+    {
+      "id": 5,
+      "left": 34,
+      "top": 349,
+      "right": 428,
+      "bottom": 610,
+      "area": 43894,
+      "row": 1
+    },
+    {
+      "id": 6,
+      "left": 451,
+      "top": 351,
+      "right": 832,
+      "bottom": 604,
+      "area": 42135,
+      "row": 1
+    },
+    {
+      "id": 7,
+      "left": 873,
+      "top": 352,
+      "right": 1258,
+      "bottom": 611,
+      "area": 43139,
+      "row": 1
+    },
+    {
+      "id": 8,
+      "left": 1303,
+      "top": 359,
+      "right": 1666,
+      "bottom": 604,
+      "area": 42798,
+      "row": 1
+    },
+    {
+      "id": 9,
+      "left": 39,
+      "top": 634,
+      "right": 428,
+      "bottom": 869,
+      "area": 45434,
+      "row": 2
+    },
+    {
+      "id": 10,
+      "left": 447,
+      "top": 637,
+      "right": 868,
+      "bottom": 853,
+      "area": 43651,
+      "row": 2
+    },
+    {
+      "id": 11,
+      "left": 877,
+      "top": 638,
+      "right": 1267,
+      "bottom": 885,
+      "area": 42116,
+      "row": 2
+    },
+    {
+      "id": 12,
+      "left": 1300,
+      "top": 638,
+      "right": 1671,
+      "bottom": 879,
+      "area": 43662,
+      "row": 2
+    }
+  ]
+}

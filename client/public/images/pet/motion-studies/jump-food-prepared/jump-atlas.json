@@ -1,0 +1,102 @@
+{
+  "source": "../jump.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 520,
+  "frameHeight": 480,
+  "baseline": 430,
+  "registration": "same scale, silhouette centered horizontally, foot baseline aligned; no in-between frames generated",
+  "loop": false,
+  "note": "Eight key poses, not a complete smooth jump. In particular ascending to apex changes pose abruptly. Preview offsets describe a possible jump arc and are not baked into the atlas.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "stand",
+      "sourceBounds": {
+        "left": 30,
+        "right": 404,
+        "top": 91,
+        "bottom": 403
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 1,
+      "pose": "crouch",
+      "sourceBounds": {
+        "left": 456,
+        "right": 853,
+        "top": 118,
+        "bottom": 404
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 2,
+      "pose": "push-off",
+      "sourceBounds": {
+        "left": 901,
+        "right": 1298,
+        "top": 131,
+        "bottom": 406
+      },
+      "previewOffsetY": -22
+    },
+    {
+      "index": 3,
+      "pose": "ascending",
+      "sourceBounds": {
+        "left": 1342,
+        "right": 1733,
+        "top": 92,
+        "bottom": 351
+      },
+      "previewOffsetY": -55
+    },
+    {
+      "index": 4,
+      "pose": "tucked-apex",
+      "sourceBounds": {
+        "left": 33,
+        "right": 395,
+        "top": 495,
+        "bottom": 727
+      },
+      "previewOffsetY": -70
+    },
+    {
+      "index": 5,
+      "pose": "descending",
+      "sourceBounds": {
+        "left": 458,
+        "right": 875,
+        "top": 496,
+        "bottom": 786
+      },
+      "previewOffsetY": -42
+    },
+    {
+      "index": 6,
+      "pose": "forepaw-contact",
+      "sourceBounds": {
+        "left": 900,
+        "right": 1304,
+        "top": 494,
+        "bottom": 808
+      },
+      "previewOffsetY": -8
+    },
+    {
+      "index": 7,
+      "pose": "landing",
+      "sourceBounds": {
+        "left": 1344,
+        "right": 1733,
+        "top": 513,
+        "bottom": 805
+      },
+      "previewOffsetY": 0
+    }
+  ]
+}

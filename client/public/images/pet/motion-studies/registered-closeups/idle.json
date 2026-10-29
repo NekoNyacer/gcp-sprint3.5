@@ -1,0 +1,21 @@
+{
+  "source": "../idle.png",
+  "atlas": "idle-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 510,
+  "frameHeight": 531,
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "idle-01.png",
+    "idle-02.png",
+    "idle-03.png",
+    "idle-04.png",
+    "idle-05.png",
+    "idle-06.png",
+    "idle-07.png",
+    "idle-08.png"
+  ],
+  "caveat": "Pose studies, not a continuous animation cycle; review transition timing and add in-betweens. Registration does not track anatomical landmarks."
+}

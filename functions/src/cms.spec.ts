@@ -136,6 +136,17 @@ beforeEach(async () => {
   vi.unstubAllGlobals();
 });
 describe("CMS authority, publishing, and atomic point economy", () => {
+  it('saves and publishes the 1716-site import through the callable handler', async () => {
+    const imported = JSON.parse(readFileSync(new URL('../../firebase/seed/seed-data-gcp-hackathon-03-2026-10-27.json', import.meta.url), 'utf8'));
+    const request = (action: string, expectedRevision: number) => command({auth: administrator(), data: {
+      scope: 'demo', action, expectedRevision, ...(action === 'save' ? {config: imported} : {}),
+    }});
+    await expect(request('save', 0)).resolves.toMatchObject({revision: 1});
+    expect(memory.docs.get('cmsDrafts/demo').config.trees).toHaveLength(1716);
+    expect(memory.docs.has('cmsPublished/demo')).toBe(false);
+    await request('publish', 1);
+    expect(memory.docs.get('cmsPublished/demo').config.trees).toHaveLength(1716);
+  });
   it('spreads rules fallback over the full route instead of filling it with origin shops', async () => {
     const settings = config();
     settings.merchants = [

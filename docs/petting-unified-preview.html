@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>花栗鼠觸摸動作審閱</title>
+  <style>
+    :root { color-scheme: light; font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; color: #293923; background: #f1f3eb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(100% - 40px, 1000px); margin: auto; padding: 40px 0 64px; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.2; }
+    header p { max-width: 65ch; line-height: 1.7; margin: 12px 0 0; color: #4f6048; }
+    .note { padding: 14px 16px; margin: 24px 0; background: #fffdf5; border-radius: 12px; line-height: 1.6; color: #4d5a3d; }
+    .preview { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 320px); gap: 28px; align-items: center; }
+    .stage { aspect-ratio: 521 / 549; width: min(100%, 480px); margin: auto; overflow: hidden; border-radius: 16px; background: #6d8e43 url('../client/public/images/backgrounds/tree-scene/sunny-day.webp') center bottom / auto 260% no-repeat; }
+    .sprite { width: 100%; height: 100%; background-size: 500% 200%; background-repeat: no-repeat; background-position: 0 0; }
+    .controls { display: grid; gap: 18px; }
+    h2 { margin: 0; font-size: 20px; }
+    .modes, .transport { display: flex; flex-wrap: wrap; gap: 8px; }
+    button, select, input { font: inherit; }
+    button, select { min-height: 44px; border-radius: 10px; cursor: pointer; }
+    button { border: 1px solid #b9c9af; padding: 8px 14px; background: #fffefa; color: #344b29; }
+    button:hover { background: #edf4e6; }
+    button[aria-pressed="true"], .play { border-color: #47652b; background: #47652b; color: #fff; }
+    button[aria-pressed="true"]:hover, .play:hover { background: #354e20; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    :focus-visible { outline: 3px solid #d9661b; outline-offset: 3px; }
+    .scrub { display: grid; gap: 8px; }
+    .scrub label { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+    input[type="range"] { width: 100%; accent-color: #47652b; cursor: pointer; }
+    select { padding: 8px 30px 8px 10px; border: 1px solid #b9c9af; background: #fffefa; color: #293923; }
+    .speed { display: flex; gap: 12px; align-items: center; }
+    .status { min-height: 24px; margin: 0; font-size: 14px; line-height: 1.5; color: #506247; }
+    footer { margin-top: 38px; color: #4f6048; font-size: 14px; line-height: 1.7; }
+    footer a { color: #385b24; text-underline-offset: 3px; }
+    ::selection { background: #d5e4bd; color: #24391c; }
+    @media (max-width: 680px) {
+      main { width: min(100% - 32px, 480px); padding-top: 28px; }
+      .preview { grid-template-columns: 1fr; gap: 22px; }
+      .stage { width: min(100%, 390px); }
+      .controls { gap: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>花栗鼠觸摸動作審閱</h1>
+      <p>以同一個待機姿勢比較摸頭、摸肚子和回到待機的畫面。可播放、調速或逐格查看。</p>
+    </header>
+    <p class="note">審閱稿：中間格仍可能漂移，尚未接線。三組使用相同的首尾待機圖；這個新基準與目前 App 的待機圖仍有差異。</p>
+    <section class="preview" aria-label="花栗鼠動作比較">
+      <div class="stage"><div class="sprite" id="sprite" role="img" aria-label="花栗鼠逐格動作預覽"></div></div>
+      <div class="controls">
+        <h2>選擇動作</h2>
+        <div class="modes" role="group" aria-label="動作">
+          <button type="button" data-clip="idle" aria-pressed="true">待機</button>
+          <button type="button" data-clip="head" aria-pressed="false">摸頭</button>
+          <button type="button" data-clip="belly" aria-pressed="false">摸肚子</button>
+        </div>
+        <div class="scrub">
+          <label for="seek"><span>影格</span><span id="counter">第 1 / 10 格</span></label>
+          <input id="seek" type="range" min="1" max="10" value="1" aria-label="選擇影格">
+        </div>
+        <div class="transport">
+          <button id="play" class="play" type="button" disabled>播放</button>
+          <button id="previous" type="button" disabled>上一格</button>
+          <button id="next" type="button" disabled>下一格</button>
+        </div>
+        <label class="speed" for="speed">速度
+          <select id="speed">
+            <option value="3">3 格／秒</option><option value="6" selected>6 格／秒</option><option value="8">8 格／秒</option><option value="12">12 格／秒</option>
+          </select>
+        </label>
+        <p class="status" id="status" role="status">正在載入圖片…</p>
+      </div>
+    </section>
+    <footer>
+      <p>摸頭與摸肚子會播放一次，最後停在共同的待機姿勢；待機可循環。逐格可用來檢查眼睛、身體和腳的位置。</p>
+      <p><a href="../client/public/images/pet/motion-studies/petting-unified/idle-review-atlas.png">待機圖集</a> · <a href="../client/public/images/pet/motion-studies/petting-unified/head-review-atlas.png">摸頭圖集</a> · <a href="../client/public/images/pet/motion-studies/petting-unified/belly-review-atlas.png">摸肚子圖集</a></p>
+    </footer>
+  </main>
+  <script>
+    (() => {
+      const root = '../client/public/images/pet/motion-studies/petting-unified/';
+      const clips = {idle: 'idle-review-atlas.png', head: 'head-review-atlas.png', belly: 'belly-review-atlas.png'};
+      const sprite = document.getElementById('sprite'), status = document.getElementById('status');
+      const counter = document.getElementById('counter'), seek = document.getElementById('seek');
+      const play = document.getElementById('play'), previous = document.getElementById('previous'), next = document.getElementById('next');
+      const speed = document.getElementById('speed'), modes = [...document.querySelectorAll('[data-clip]')];
+      let selected = 'idle', frame = 0, running = false, last = 0, elapsed = 0, raf = 0, loadId = 0, ready = false;
+      const stop = () => { running = false; play.textContent = '播放'; cancelAnimationFrame(raf); last = 0; elapsed = 0; };
+      const enable = value => { ready = value; play.disabled = !value; previous.disabled = !value; next.disabled = !value; seek.disabled = !value; };
+      const draw = () => {
+        sprite.style.backgroundPosition = `${(frame % 5) * 25}% ${Math.floor(frame / 5) * 100}%`;
+        seek.value = String(frame + 1);
+        counter.textContent = `第 ${frame + 1} / 10 格`;
+      };
+      const tick = time => {
+        if (!running) return;
+        if (last) elapsed += Math.min(250, time - last);
+        last = time;
+        const duration = 1000 / Number(speed.value);
+        while (elapsed >= duration) {
+          elapsed -= duration;
+          if (frame === 9 && selected !== 'idle') { stop(); break; }
+          frame = (frame + 1) % 10;
+          draw();
+        }
+        if (running) raf = requestAnimationFrame(tick);
+      };
+      const load = name => {
+        stop(); enable(false); selected = name; frame = 0; draw();
+        modes.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.clip === name)));
+        status.textContent = '正在載入圖片…';
+        const request = ++loadId, image = new Image(), path = root + clips[name];
+        image.onload = () => {
+          if (request !== loadId) return;
+          sprite.style.backgroundImage = `url("${path}")`;
+          enable(true); status.textContent = '圖片已載入。';
+        };
+        image.onerror = () => {
+          if (request !== loadId) return;
+          sprite.style.backgroundImage = 'none';
+          status.textContent = '圖片無法載入，請確認圖集仍在 petting-unified 資料夾中。';
+        };
+        image.src = path;
+      };
+      modes.forEach(button => button.addEventListener('click', () => load(button.dataset.clip)));
+      play.addEventListener('click', () => {
+        if (!ready) return;
+        if (running) { stop(); return; }
+        if (selected !== 'idle' && frame === 9) { frame = 0; draw(); }
+        running = true; play.textContent = '暫停'; last = 0; raf = requestAnimationFrame(tick);
+      });
+      const step = delta => { if (!ready) return; stop(); frame = Math.max(0, Math.min(9, frame + delta)); draw(); };
+      previous.addEventListener('click', () => step(-1));
+      next.addEventListener('click', () => step(1));
+      seek.addEventListener('input', () => { stop(); frame = Number(seek.value) - 1; draw(); });
+      speed.addEventListener('change', () => { last = 0; elapsed = 0; });
+      document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); });
+      load('idle');
+    })();
+  </script>
+</body>
+</html>

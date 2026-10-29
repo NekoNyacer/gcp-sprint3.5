@@ -31,7 +31,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "ignore": ["images/pet/motion-studies/**"]
               },
               {
                 "glob": "mapbox-gl-csp-worker.js",
@@ -41,7 +42,8 @@
             ],
             "styles": [
               "src/styles.scss",
-              "../cms/node_modules/cub-lib-view-iconfont/css/cub-lib-view-iconfont.min.css",
+              // TEMP 2026-10-29: restore this line when the CMS iconfont dependency is available.
+              // "../cms/node_modules/cub-lib-view-iconfont/css/cub-lib-view-iconfont.min.css",
               "node_modules/mapbox-gl/dist/mapbox-gl.css",
               {
                 "input": "@ionic/angular/css/core.css"

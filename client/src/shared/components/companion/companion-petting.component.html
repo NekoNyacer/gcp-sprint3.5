@@ -1,0 +1,30 @@
+<div class="petting-backdrop" (pointerdown)="$event.stopPropagation()" (keydown)="handleKey($event)">
+  <dialog #dialog class="petting-dialog" [class.is-closing]="closing()" [class.reduced-motion]="reducedMotion"
+    aria-modal="true" aria-labelledby="petting-title" aria-describedby="petting-help" (cancel)="cancel($event)" (click)="backdropClick($event)">
+    <header class="petting-header">
+      <h2 id="petting-title" class="sr-only">摸摸花栗鼠</h2>
+      <button #closeButton class="petting-close" type="button" aria-label="結束撫摸" (click)="requestClose()"
+        (pointerdown)="dragStart($event)" (pointerup)="dragEnd($event)" (pointercancel)="dragCancel()">
+        <span class="petting-handle" aria-hidden="true"></span>
+      </button>
+    </header>
+
+    <p id="petting-help" class="sr-only">用手指輕輕摸摸牠的頭或肚子；下拉或點擊頂端把手可關閉，也可按 Escape。</p>
+    <div class="petting-scene">
+      <div class="petting-art" role="img" aria-label="坐著的花栗鼠，可以觸摸頭部和肚子"
+        [style.background-image]="spritePath" [style.background-position]="spritePosition" [style.background-size]="spriteSize"
+        (pointerdown)="pointerDown($event)" (pointermove)="pointerMove($event)"
+        (pointerup)="pointerEnd($event)" (pointercancel)="pointerEnd($event)" (lostpointercapture)="pointerEnd($event)">
+        @if (previousSprite(); as previous) {
+          <span class="petting-previous" aria-hidden="true" [style.background-image]="previous.path"
+            [style.background-position]="previous.position" [style.background-size]="previous.size"></span>
+        }
+      </div>
+    </div>
+    <p class="petting-reaction" [class.bubble-visible]="bubbleVisible()" [attr.aria-hidden]="!bubbleVisible()" role="status">{{ hint() }}</p>
+    <div class="petting-actions" aria-label="撫摸位置">
+      <button type="button" (click)="react('head')">摸摸頭</button>
+      <button type="button" (click)="react('belly')">摸摸肚子</button>
+    </div>
+  </dialog>
+</div>

@@ -1,0 +1,21 @@
+{
+  "source": "../attention.png",
+  "atlas": "attention-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 494,
+  "frameHeight": 504,
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "attention-01.png",
+    "attention-02.png",
+    "attention-03.png",
+    "attention-04.png",
+    "attention-05.png",
+    "attention-06.png",
+    "attention-07.png",
+    "attention-08.png"
+  ],
+  "caveat": "Pose studies, not a continuous animation cycle; review transition timing and add in-betweens. Registration does not track anatomical landmarks."
+}

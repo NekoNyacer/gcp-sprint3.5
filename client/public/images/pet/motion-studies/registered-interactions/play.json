@@ -1,0 +1,21 @@
+{
+  "source": "../play.png",
+  "atlas": "play-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 531,
+  "frameHeight": 468,
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "play-01.png",
+    "play-02.png",
+    "play-03.png",
+    "play-04.png",
+    "play-05.png",
+    "play-06.png",
+    "play-07.png",
+    "play-08.png"
+  ],
+  "caveat": "Pose studies, not a continuous animation cycle; review transition timing and add in-betweens. Registration does not track anatomical landmarks."
+}

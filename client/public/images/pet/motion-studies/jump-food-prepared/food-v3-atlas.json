@@ -1,0 +1,170 @@
+{
+  "source": "food-v3-source.png",
+  "columns": 4,
+  "rows": 3,
+  "frameCount": 12,
+  "frameWidth": 440,
+  "frameHeight": 400,
+  "baseline": 360,
+  "loop": false,
+  "registration": "fixed scale; opaque silhouette centered, common lowest-point baseline; jump arc offsets are suggestions and not baked in",
+  "note": "Generated key poses require visual review; alignment is not anatomical interpolation.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "hold",
+      "sourceBounds": {
+        "id": 4,
+        "left": 33,
+        "right": 339,
+        "top": 50,
+        "bottom": 351,
+        "area": 62856
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 1,
+      "pose": "lift",
+      "sourceBounds": {
+        "id": 2,
+        "left": 386,
+        "right": 694,
+        "top": 48,
+        "bottom": 352,
+        "area": 64856
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 2,
+      "pose": "mouth",
+      "sourceBounds": {
+        "id": 3,
+        "left": 741,
+        "right": 1059,
+        "top": 48,
+        "bottom": 351,
+        "area": 65123
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 3,
+      "pose": "bite-1",
+      "sourceBounds": {
+        "id": 1,
+        "left": 1110,
+        "right": 1414,
+        "top": 46,
+        "bottom": 351,
+        "area": 63474
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 4,
+      "pose": "bite-2",
+      "sourceBounds": {
+        "id": 6,
+        "left": 32,
+        "right": 353,
+        "top": 376,
+        "bottom": 686,
+        "area": 67904
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 5,
+      "pose": "bite-3",
+      "sourceBounds": {
+        "id": 7,
+        "left": 391,
+        "right": 712,
+        "top": 380,
+        "bottom": 686,
+        "area": 66540
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 6,
+      "pose": "chew",
+      "sourceBounds": {
+        "id": 8,
+        "left": 750,
+        "right": 1075,
+        "top": 380,
+        "bottom": 686,
+        "area": 67275
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 7,
+      "pose": "pouch-1",
+      "sourceBounds": {
+        "id": 5,
+        "left": 1107,
+        "right": 1421,
+        "top": 375,
+        "bottom": 687,
+        "area": 66860
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 8,
+      "pose": "pouch-2",
+      "sourceBounds": {
+        "id": 10,
+        "left": 34,
+        "right": 355,
+        "top": 717,
+        "bottom": 1026,
+        "area": 68732
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 9,
+      "pose": "cheeks-1",
+      "sourceBounds": {
+        "id": 9,
+        "left": 401,
+        "right": 724,
+        "top": 714,
+        "bottom": 1026,
+        "area": 69044
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 10,
+      "pose": "cheeks-2",
+      "sourceBounds": {
+        "id": 12,
+        "left": 751,
+        "right": 1077,
+        "top": 720,
+        "bottom": 1028,
+        "area": 68869
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 11,
+      "pose": "content",
+      "sourceBounds": {
+        "id": 11,
+        "left": 1103,
+        "right": 1425,
+        "top": 719,
+        "bottom": 1028,
+        "area": 67891
+      },
+      "previewOffsetY": 0
+    }
+  ]
+}

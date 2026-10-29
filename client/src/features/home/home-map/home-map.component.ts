@@ -37,7 +37,7 @@ import {
   TREE_POPUP_OFFSET,
   TREE_POPUP_WIDTH,
 } from './tree-popup-layout';
-import { getMapboxAccessToken } from '../../../app/mapbox-runtime-config';
+import { getMapboxAccessToken } from '../../../mapbox-runtime-config';
 import {
   getRouteCameraPadding,
   MapCameraAdapter,
@@ -45,7 +45,11 @@ import {
   MapCameraIntent,
 } from './map-camera.controller';
 import { IonButton } from '@ionic/angular';
-import { CMS_CONNECTION, cmsPublication, cmsRouteRoles } from '../../../shared/models/cms-publication';
+import {
+  CMS_CONNECTION,
+  cmsPublication,
+  cmsRouteRoles,
+} from '../../../shared/models/cms-publication';
 
 export const PLANNING_MARKER_LONG_PRESS_MS = 500;
 
@@ -75,7 +79,8 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   private readonly walkSession = inject(WalkSessionStore);
   private readonly progress = inject(ProgressStore);
   readonly taskPoints = computed<readonly WalkTaskPoint[]>(() => {
-    if (this.walkSession.isPlanning() && this.walkSession.destinationConfirmed()) return this.walkSession.availableTaskPoints();
+    if (this.walkSession.isPlanning() && this.walkSession.destinationConfirmed())
+      return this.walkSession.availableTaskPoints();
     return [];
   });
   private readonly camera = inject(MapCameraController);
@@ -107,13 +112,15 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
   private readonly mapReady = signal(false);
   private renderedTreeSignature = '';
   private readonly publishedTreesEffect = effect(() => {
-    const ready = this.mapReady(); const sites = currentHomeTrees();
+    const ready = this.mapReady();
+    const sites = currentHomeTrees();
     if (!ready || !this.map || this.renderedTreeSignature === JSON.stringify(sites)) return;
     untracked(() => {
       for (const cleanup of this.treeMarkerGestureCleanups) cleanup();
       this.treeMarkerGestureCleanups = [];
       for (const entry of this.treeMarkers.values()) entry.marker.remove();
-      this.treeMarkers.clear(); this.drawDestination();
+      this.treeMarkers.clear();
+      this.drawDestination();
     });
   });
   private taskMarkers: mapboxgl.Marker[] = [];
@@ -356,7 +363,17 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
       (task || tree) &&
       (!this.mapReady() ||
         !planning ||
-        (task && !(cmsPublication().managed ? this.walkSession.availableTaskPoints().some(point => point.id === task.id && point.supplyStation.offer === task.supplyStation.offer && point.supplyStation.supply.amount === task.supplyStation.supply.amount) : this.walkSession.taskRoutes().some((point) => point === task))) ||
+        (task &&
+          !(cmsPublication().managed
+            ? this.walkSession
+                .availableTaskPoints()
+                .some(
+                  (point) =>
+                    point.id === task.id &&
+                    point.supplyStation.offer === task.supplyStation.offer &&
+                    point.supplyStation.supply.amount === task.supplyStation.supply.amount,
+                )
+            : this.walkSession.taskRoutes().some((point) => point === task))) ||
         (tree &&
           (tree.id === this.selectedTreeId() ||
             (!this.popupTreeSelected() && !this.progress.canVisitDemoTree(tree.id)))))
@@ -432,7 +449,9 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
     if (
       !this.walkSession.isPlanning() ||
       !this.walkSession.destinationConfirmed() ||
-      !(cmsPublication().managed ? this.walkSession.availableTaskPoints().some(point => point.id === task.id) : this.walkSession.taskRoutes().some((point) => point === task))
+      !(cmsPublication().managed
+        ? this.walkSession.availableTaskPoints().some((point) => point.id === task.id)
+        : this.walkSession.taskRoutes().some((point) => point === task))
     ) {
       this.walkSession.setPlanningError('路線或補給站已變更，請重新選擇補給站。');
       this.closeStationPopup();
@@ -996,7 +1015,10 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
         .addTo(this.map);
       this.treeMarkers.set(tree.id, { marker, button });
     }
-    if (this.map.getSource('home-marker-clusters')) { this.syncClusterSource(); return; }
+    if (this.map.getSource('home-marker-clusters')) {
+      this.syncClusterSource();
+      return;
+    }
     this.map.addSource('home-marker-clusters', {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
@@ -1016,7 +1038,8 @@ export class HomeMapComponent implements OnDestroy, MapCameraAdapter {
 
   private clusterPoints() {
     const recommendedSupplies = new Set(
-      (cmsRouteRoles() ?? []).filter((selection) => selection.role === 'supply')
+      (cmsRouteRoles() ?? [])
+        .filter((selection) => selection.role === 'supply')
         .map((selection) => selection.merchantId),
     );
     return [

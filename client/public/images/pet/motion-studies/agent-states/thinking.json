@@ -1,0 +1,86 @@
+{
+  "name": "thinking",
+  "source": "thinking-source.png",
+  "atlas": "thinking-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 507,
+  "frameHeight": 532,
+  "framesPerSecond": 6,
+  "loop": true,
+  "usableFrameRange": [
+    1,
+    8
+  ],
+  "usableFrameRangePurpose": "preview only; not a production-quality acceptance",
+  "sourceBoundaryClippedFrames": [],
+  "registration": "constant scale; silhouette horizontally centered and bottom aligned",
+  "caveat": "Review poses only: body and facial proportions drift; alignment does not synthesize intermediate movement. Some whiskers touch the source edge; do not treat all frames as production-ready.",
+  "bounds": [
+    {
+      "id": 3,
+      "left": 25,
+      "right": 439,
+      "top": 31,
+      "bottom": 462,
+      "area": 120237
+    },
+    {
+      "id": 4,
+      "left": 459,
+      "right": 848,
+      "top": 78,
+      "bottom": 463,
+      "area": 107431
+    },
+    {
+      "id": 2,
+      "left": 883,
+      "right": 1283,
+      "top": 28,
+      "bottom": 462,
+      "area": 115357
+    },
+    {
+      "id": 1,
+      "left": 1296,
+      "right": 1685,
+      "top": 24,
+      "bottom": 463,
+      "area": 112259
+    },
+    {
+      "id": 5,
+      "left": 23,
+      "right": 424,
+      "top": 472,
+      "bottom": 904,
+      "area": 115531
+    },
+    {
+      "id": 6,
+      "left": 444,
+      "right": 844,
+      "top": 474,
+      "bottom": 902,
+      "area": 113504
+    },
+    {
+      "id": 7,
+      "left": 864,
+      "right": 1259,
+      "top": 480,
+      "bottom": 902,
+      "area": 111725
+    },
+    {
+      "id": 8,
+      "left": 1278,
+      "right": 1673,
+      "top": 480,
+      "bottom": 901,
+      "area": 112572
+    }
+  ]
+}

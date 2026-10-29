@@ -14,7 +14,7 @@
     </aside>
   }
   <main>
-    <section #walletCard class="wallet card">
+    <section #walletCard class="wallet card" data-companion-ledge>
       <div><span>我的小樹點</span><strong class="orange">{{ balance() === null ? '—' : (balance() | number) }}</strong></div>
       <a routerLink="/shop/history"><span>可用兌換券</span><strong>{{ availableVouchers() }} <small>張</small></strong></a>
     </section>
@@ -23,7 +23,7 @@
     @if (notice()) { <p role="status">{{ notice() }}</p> }
     <h2>投入生態公益</h2>
     @for (reward of charities(); track reward.id) {
-      <button class="charity card" (click)="select(reward)" [disabled]="loading() || balance() === null">
+      <button class="charity card" data-companion-ledge (click)="select(reward)" [disabled]="loading() || balance() === null">
         <div class="charity-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true">
           @if (rewardImage(reward); as image) {
             <img [src]="image" alt="" loading="lazy" />
@@ -37,7 +37,7 @@
     <h2>優惠來一點</h2>
     <section class="products" aria-label="可兌換商品">
       @for (reward of products(); track reward.id) {
-        <button class="product card" (click)="select(reward)" [disabled]="loading() || balance() === null">
+        <button class="product card" data-companion-ledge (click)="select(reward)" [disabled]="loading() || balance() === null">
           <div class="product-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true">
             @if (rewardImage(reward); as image) {
               <img [src]="image" alt="" loading="lazy" />

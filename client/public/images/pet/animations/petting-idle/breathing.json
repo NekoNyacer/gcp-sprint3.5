@@ -1,0 +1,9 @@
+{
+  "source": "../../motion-studies/petting-idle/breathing-source.png",
+  "columns": 4,
+  "rows": 2,
+  "frames": 8,
+  "frameWidth": 521,
+  "frameHeight": 549,
+  "registration": "constant scale per sheet, silhouette centre and foot baseline; no synthesized transitions"
+}

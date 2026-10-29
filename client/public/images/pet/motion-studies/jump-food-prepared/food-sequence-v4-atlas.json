@@ -1,0 +1,112 @@
+{
+  "columns": 4,
+  "rows": 5,
+  "frameCount": 20,
+  "frameWidth": 440,
+  "frameHeight": 400,
+  "baseline": 360,
+  "loop": false,
+  "frames": [
+    {
+      "index": 0,
+      "source": "pick",
+      "sourceFrame": 1
+    },
+    {
+      "index": 1,
+      "source": "pick",
+      "sourceFrame": 2
+    },
+    {
+      "index": 2,
+      "source": "pick",
+      "sourceFrame": 3
+    },
+    {
+      "index": 3,
+      "source": "pick",
+      "sourceFrame": 4
+    },
+    {
+      "index": 4,
+      "source": "pick",
+      "sourceFrame": 5
+    },
+    {
+      "index": 5,
+      "source": "rise",
+      "sourceFrame": 2
+    },
+    {
+      "index": 6,
+      "source": "rise",
+      "sourceFrame": 3
+    },
+    {
+      "index": 7,
+      "source": "rise",
+      "sourceFrame": 4
+    },
+    {
+      "index": 8,
+      "source": "eat",
+      "sourceFrame": 1
+    },
+    {
+      "index": 9,
+      "source": "eat",
+      "sourceFrame": 2
+    },
+    {
+      "index": 10,
+      "source": "eat",
+      "sourceFrame": 3
+    },
+    {
+      "index": 11,
+      "source": "eat",
+      "sourceFrame": 4
+    },
+    {
+      "index": 12,
+      "source": "eat",
+      "sourceFrame": 5
+    },
+    {
+      "index": 13,
+      "source": "eat",
+      "sourceFrame": 6
+    },
+    {
+      "index": 14,
+      "source": "eat",
+      "sourceFrame": 7
+    },
+    {
+      "index": 15,
+      "source": "eat",
+      "sourceFrame": 8
+    },
+    {
+      "index": 16,
+      "source": "eat",
+      "sourceFrame": 9
+    },
+    {
+      "index": 17,
+      "source": "eat",
+      "sourceFrame": 10
+    },
+    {
+      "index": 18,
+      "source": "eat",
+      "sourceFrame": 11
+    },
+    {
+      "index": 19,
+      "source": "eat",
+      "sourceFrame": 12
+    }
+  ],
+  "note": "Review sequence assembled from generated sheets. Crouch-to-sit still jumps, and transitions between differently generated sheets can drift in scale, character details and berry location. No loop; final pose has full cheeks."
+}

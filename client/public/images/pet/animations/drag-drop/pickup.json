@@ -1,0 +1,116 @@
+{
+  "source": "../../motion-studies/drag-drop/pickup-v2-source.png",
+  "sourceSha256": "314b9f5c38becb142fa306ae439f823ab25cabd769dccacda54d4ed461fd4ff0",
+  "columns": 2,
+  "rows": 2,
+  "frames": 4,
+  "frameWidth": 460,
+  "frameHeight": 400,
+  "baseline": 376,
+  "footInset": 24,
+  "scale": 0.6053097345132743,
+  "durations": [
+    80,
+    90,
+    110,
+    120
+  ],
+  "durationMs": 400,
+  "loop": false,
+  "registration": "one uniform scale per source sheet; main silhouette horizontally centred and lowest opaque paw/body point aligned; antialiased padding retained",
+  "limitations": "Source anatomy, viewpoint and contacts may change between poses. Alignment cannot synthesize transitions or restore clipped source whiskers. Held sprites are not a skeletal rig.",
+  "frameDetails": [
+    {
+      "id": 2,
+      "main": {
+        "id": 2,
+        "left": 96,
+        "right": 570,
+        "top": 73,
+        "bottom": 569
+      },
+      "bounds": {
+        "left": 78,
+        "right": 588,
+        "top": 55,
+        "bottom": 587
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 76,
+        "top": 64,
+        "width": 309,
+        "height": 323
+      }
+    },
+    {
+      "id": 1,
+      "main": {
+        "id": 1,
+        "left": 696,
+        "right": 1153,
+        "top": 52,
+        "bottom": 567
+      },
+      "bounds": {
+        "left": 678,
+        "right": 1171,
+        "top": 34,
+        "bottom": 585
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 81,
+        "top": 53,
+        "width": 299,
+        "height": 334
+      }
+    },
+    {
+      "id": 4,
+      "main": {
+        "id": 4,
+        "left": 105,
+        "right": 575,
+        "top": 625,
+        "bottom": 1092
+      },
+      "bounds": {
+        "left": 87,
+        "right": 593,
+        "top": 607,
+        "bottom": 1110
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 77,
+        "top": 82,
+        "width": 307,
+        "height": 305
+      }
+    },
+    {
+      "id": 3,
+      "main": {
+        "id": 3,
+        "left": 704,
+        "right": 1167,
+        "top": 608,
+        "bottom": 1136
+      },
+      "bounds": {
+        "left": 686,
+        "right": 1185,
+        "top": 590,
+        "bottom": 1154
+      },
+      "sourceCellTouches": false,
+      "outputBounds": {
+        "left": 79,
+        "top": 45,
+        "width": 303,
+        "height": 342
+      }
+    }
+  ]
+}

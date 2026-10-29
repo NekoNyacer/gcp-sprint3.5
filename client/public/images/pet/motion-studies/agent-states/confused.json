@@ -1,0 +1,89 @@
+{
+  "name": "confused",
+  "source": "confused-source.png",
+  "atlas": "confused-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 511,
+  "frameHeight": 549,
+  "framesPerSecond": 6,
+  "loop": true,
+  "usableFrameRange": [
+    1,
+    8
+  ],
+  "usableFrameRangePurpose": "preview only; not a production-quality acceptance",
+  "sourceBoundaryClippedFrames": [
+    4,
+    8
+  ],
+  "registration": "constant scale; silhouette horizontally centered and bottom aligned",
+  "caveat": "Review poses only: body and facial proportions drift; alignment does not synthesize intermediate movement. Some whiskers touch the source edge; do not treat all frames as production-ready.",
+  "bounds": [
+    {
+      "id": 4,
+      "left": 28,
+      "right": 446,
+      "top": 33,
+      "bottom": 475,
+      "area": 123367
+    },
+    {
+      "id": 1,
+      "left": 461,
+      "right": 861,
+      "top": 20,
+      "bottom": 476,
+      "area": 118761
+    },
+    {
+      "id": 2,
+      "left": 872,
+      "right": 1287,
+      "top": 20,
+      "bottom": 476,
+      "area": 122278
+    },
+    {
+      "id": 3,
+      "left": 1296,
+      "right": 1695,
+      "top": 24,
+      "bottom": 477,
+      "area": 116432
+    },
+    {
+      "id": 6,
+      "left": 25,
+      "right": 431,
+      "top": 479,
+      "bottom": 912,
+      "area": 113973
+    },
+    {
+      "id": 5,
+      "left": 449,
+      "right": 851,
+      "top": 477,
+      "bottom": 911,
+      "area": 113362
+    },
+    {
+      "id": 7,
+      "left": 862,
+      "right": 1263,
+      "top": 485,
+      "bottom": 912,
+      "area": 111112
+    },
+    {
+      "id": 8,
+      "left": 1279,
+      "right": 1670,
+      "top": 489,
+      "bottom": 910,
+      "area": 109342
+    }
+  ]
+}

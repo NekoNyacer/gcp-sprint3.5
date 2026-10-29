@@ -1,5 +1,5 @@
 import { inject, InjectionToken, Service } from '@angular/core';
-import { getMapboxAccessToken } from '../../app/mapbox-runtime-config';
+import { getMapboxAccessToken } from '../../mapbox-runtime-config';
 import { GeoPoint } from '../models/geo.models';
 
 export type WalkingDirections = {
@@ -33,10 +33,13 @@ export class MapboxDirectionsService {
         parts.push(await this.walking(points.slice(start, start + 25), signal));
       }
       return {
-        coordinates: parts.flatMap((part, i) => i ? part.coordinates.slice(1) : part.coordinates),
-        waypoints: parts.flatMap((part, i) => i ? part.waypoints.slice(1) : part.waypoints),
+        coordinates: parts.flatMap((part, i) => (i ? part.coordinates.slice(1) : part.coordinates)),
+        waypoints: parts.flatMap((part, i) => (i ? part.waypoints.slice(1) : part.waypoints)),
         distanceMeters: parts.reduce((sum, part) => sum + part.distanceMeters, 0),
-        durationSeconds: parts.reduce((sum, part) => sum + (part.durationSeconds ?? part.distanceMeters / 1.25), 0),
+        durationSeconds: parts.reduce(
+          (sum, part) => sum + (part.durationSeconds ?? part.distanceMeters / 1.25),
+          0,
+        ),
       };
     }
     const token = this.token;
@@ -100,8 +103,12 @@ export class MapboxDirectionsService {
     return {
       coordinates: geometry['coordinates'].map(readCoordinate),
       distanceMeters: route['distance'],
-      durationSeconds: typeof route['duration'] === 'number' && Number.isFinite(route['duration']) && route['duration'] >= 0
-        ? route['duration'] : route['distance'] / 1.25,
+      durationSeconds:
+        typeof route['duration'] === 'number' &&
+        Number.isFinite(route['duration']) &&
+        route['duration'] >= 0
+          ? route['duration']
+          : route['distance'] / 1.25,
       waypoints: waypoints.map((waypoint: unknown) => {
         if (!isRecord(waypoint)) throw new Error('Mapbox 回傳的途經點格式不正確。');
         return readCoordinate(waypoint['location']);

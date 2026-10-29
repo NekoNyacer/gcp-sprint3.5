@@ -1,0 +1,21 @@
+{
+  "source": "../petting.png",
+  "atlas": "petting-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 503,
+  "frameHeight": 528,
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "petting-01.png",
+    "petting-02.png",
+    "petting-03.png",
+    "petting-04.png",
+    "petting-05.png",
+    "petting-06.png",
+    "petting-07.png",
+    "petting-08.png"
+  ],
+  "caveat": "Pose studies, not a continuous animation cycle; review transition timing and add in-betweens. Registration does not track anatomical landmarks."
+}

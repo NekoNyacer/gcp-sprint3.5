@@ -1,0 +1,170 @@
+{
+  "source": "jump-v3-source.png",
+  "columns": 4,
+  "rows": 3,
+  "frameCount": 12,
+  "frameWidth": 440,
+  "frameHeight": 400,
+  "baseline": 360,
+  "loop": false,
+  "registration": "fixed scale; opaque silhouette centered, common lowest-point baseline; jump arc offsets are suggestions and not baked in",
+  "note": "Generated key poses require visual review; alignment is not anatomical interpolation.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "stand",
+      "sourceBounds": {
+        "id": 1,
+        "left": 23,
+        "right": 366,
+        "top": 89,
+        "bottom": 380,
+        "area": 54117
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 1,
+      "pose": "prepare",
+      "sourceBounds": {
+        "id": 3,
+        "left": 402,
+        "right": 712,
+        "top": 124,
+        "bottom": 378,
+        "area": 45524
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 2,
+      "pose": "crouch",
+      "sourceBounds": {
+        "id": 4,
+        "left": 747,
+        "right": 1100,
+        "top": 142,
+        "bottom": 377,
+        "area": 45120
+      },
+      "previewOffsetY": 0
+    },
+    {
+      "index": 3,
+      "pose": "push-off",
+      "sourceBounds": {
+        "id": 2,
+        "left": 1104,
+        "right": 1418,
+        "top": 93,
+        "bottom": 377,
+        "area": 45285
+      },
+      "previewOffsetY": -10
+    },
+    {
+      "index": 4,
+      "pose": "rising-1",
+      "sourceBounds": {
+        "id": 7,
+        "left": 25,
+        "right": 363,
+        "top": 429,
+        "bottom": 708,
+        "area": 46599
+      },
+      "previewOffsetY": -32
+    },
+    {
+      "index": 5,
+      "pose": "rising-2",
+      "sourceBounds": {
+        "id": 8,
+        "left": 401,
+        "right": 715,
+        "top": 429,
+        "bottom": 694,
+        "area": 43612
+      },
+      "previewOffsetY": -52
+    },
+    {
+      "index": 6,
+      "pose": "tuck-1",
+      "sourceBounds": {
+        "id": 5,
+        "left": 740,
+        "right": 1091,
+        "top": 428,
+        "bottom": 670,
+        "area": 42880
+      },
+      "previewOffsetY": -68
+    },
+    {
+      "index": 7,
+      "pose": "tuck-2",
+      "sourceBounds": {
+        "id": 6,
+        "left": 1114,
+        "right": 1417,
+        "top": 428,
+        "bottom": 667,
+        "area": 40421
+      },
+      "previewOffsetY": -80
+    },
+    {
+      "index": 8,
+      "pose": "apex",
+      "sourceBounds": {
+        "id": 10,
+        "left": 28,
+        "right": 333,
+        "top": 736,
+        "bottom": 977,
+        "area": 39931
+      },
+      "previewOffsetY": -80
+    },
+    {
+      "index": 9,
+      "pose": "extend-down",
+      "sourceBounds": {
+        "id": 12,
+        "left": 374,
+        "right": 722,
+        "top": 738,
+        "bottom": 1001,
+        "area": 45910
+      },
+      "previewOffsetY": -55
+    },
+    {
+      "index": 10,
+      "pose": "touch-down",
+      "sourceBounds": {
+        "id": 9,
+        "left": 742,
+        "right": 1097,
+        "top": 729,
+        "bottom": 1007,
+        "area": 47621
+      },
+      "previewOffsetY": -15
+    },
+    {
+      "index": 11,
+      "pose": "land",
+      "sourceBounds": {
+        "id": 11,
+        "left": 1103,
+        "right": 1425,
+        "top": 737,
+        "bottom": 1005,
+        "area": 47331
+      },
+      "previewOffsetY": 0
+    }
+  ]
+}

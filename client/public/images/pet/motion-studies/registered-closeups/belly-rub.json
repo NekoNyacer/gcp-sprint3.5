@@ -1,0 +1,21 @@
+{
+  "source": "../belly-rub.png",
+  "atlas": "belly-rub-atlas.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 524,
+  "frameHeight": 540,
+  "registration": "constant scale; each silhouette horizontally centered; lowest opaque point aligned to shared baseline",
+  "frames": [
+    "belly-rub-01.png",
+    "belly-rub-02.png",
+    "belly-rub-03.png",
+    "belly-rub-04.png",
+    "belly-rub-05.png",
+    "belly-rub-06.png",
+    "belly-rub-07.png",
+    "belly-rub-08.png"
+  ],
+  "caveat": "Pose studies, not a continuous animation cycle; review transition timing and add in-betweens. Registration does not track anatomical landmarks."
+}

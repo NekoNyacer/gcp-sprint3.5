@@ -85,7 +85,9 @@
   }
 </ion-tabs>
 
-<app-companion [floor]="petFloor()?.nativeElement ?? null" />
+@if (companionPreferences.enabled()) {
+  <app-companion [floor]="petFloor()?.nativeElement ?? null" />
+}
 
 <!-- 底部彈窗 -->
 <cub-modal />

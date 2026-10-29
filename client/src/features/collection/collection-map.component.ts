@@ -12,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
-import { getMapboxAccessToken } from '../../app/mapbox-runtime-config';
+import { getMapboxAccessToken } from '../../mapbox-runtime-config';
 import { IonButton } from '@ionic/angular';
 import { Tree, TreeCardComponent } from './tree-card/tree-card.component';
 import { GeoPoint } from '../../shared/models/geo.models';
@@ -266,7 +266,12 @@ export class CollectionMapComponent implements OnDestroy {
     });
     this.selectedId.set(tree.id);
     this.popup?.remove();
-    this.popup = new mapboxgl.Popup({ anchor: 'bottom', offset: 26, maxWidth: '280px', closeButton: false })
+    this.popup = new mapboxgl.Popup({
+      anchor: 'bottom',
+      offset: 26,
+      maxWidth: '280px',
+      closeButton: false,
+    })
       .setLngLat([tree.position.longitude, tree.position.latitude])
       .setDOMContent(this.cardContent().nativeElement)
       .addTo(this.map);

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>花栗鼠動作圖鑑｜CAT WALK</title>
+  <style>
+    :root { color-scheme: light; font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif; color: #29351c; background: #f4f5ee; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(1180px, calc(100% - 40px)); margin: auto; padding: 56px 0 80px; }
+    header { max-width: 760px; margin-bottom: 46px; }
+    h1 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.15; letter-spacing: -.03em; margin: 0 0 20px; }
+    header p { font-size: 1.05rem; line-height: 1.8; margin: 0; color: #4b593f; }
+    .note { margin-top: 20px; padding-top: 18px; border-top: 1px solid #c7d2bd; font-size: .92rem; }
+    .preview { margin-bottom: 54px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .8fr); gap: 28px; align-items: center; }
+    .preview-stage { display: grid; place-items: center; min-height: 250px; padding: 20px; border-radius: 12px; background: #fffefa; }
+    .preview-stage canvas { display: block; max-width: 100%; max-height: 360px; width: min(100%, 380px); height: auto; }
+    .preview-copy h2 { font-size: 1.5rem; }
+    .preview-copy p { color: #526149; line-height: 1.75; }
+    .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 20px; }
+    button, select { font: inherit; min-height: 44px; border-radius: 8px; }
+    button { border: 0; padding: 0 20px; color: white; background: #42651d; cursor: pointer; font-weight: 700; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+    .step { background: #edf1e7; color: #29351c; }
+    select { border: 1px solid #9bab8e; padding: 0 32px 0 10px; background: #fffefa; color: #29351c; }
+    button:focus-visible, select:focus-visible { outline: 3px solid #df6c1a; outline-offset: 4px; }
+    .controls label { display: flex; gap: 8px; align-items: center; }
+    .preview-status { min-height: 1.5em; font-size: .9rem; }
+    .gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 26px; }
+    figure { margin: 0; min-width: 0; }
+    .image { background: #fffefa; border-radius: 12px; overflow: hidden; }
+    img { display: block; width: 100%; height: auto; }
+    figcaption { padding: 16px 2px 0; }
+    .heading { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; }
+    h2 { font-size: 1.25rem; margin: 0; }
+    a { flex: none; color: #42651d; font-size: .9rem; font-weight: 700; text-underline-offset: 4px; }
+    a:focus-visible { outline: 3px solid #df6c1a; outline-offset: 4px; }
+    figcaption p { color: #526149; font-size: .95rem; line-height: 1.7; margin: 8px 0 0; }
+    footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid #c7d2bd; color: #526149; font-size: .9rem; line-height: 1.7; }
+    ::selection { background: #d4e4be; color: #29351c; }
+    @media (max-width: 680px) { main { width: min(100% - 32px, 560px); padding-top: 36px; } header { margin-bottom: 34px; } .preview { grid-template-columns: 1fr; gap: 18px; margin-bottom: 42px; } .gallery { grid-template-columns: 1fr; gap: 34px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>花栗鼠動作圖鑑</h1>
+      <p>保留原有自然、活潑的畫風，探索牠在畫面裡奔跑、覓食，以及與玩家互動的樣子。請點開原圖，仔細查看每組姿勢。</p>
+      <p class="note">這些是供確認畫風與動作的關鍵影格，仍有動作跳變，並非已完成的流暢動畫；本次沒有修改 App 的互動邏輯。</p>
+    </header>
+    <section class="preview" aria-labelledby="preview-title">
+      <div class="preview-stage"><canvas id="run-preview" width="384" height="341" role="img" aria-label="花栗鼠動作逐格試播"></canvas></div>
+      <div class="preview-copy">
+        <h2 id="preview-title">動作試播</h2>
+        <p>選擇動作後，可以播放或逐格查看。蹬地、起跳、落地和拾果片段播放一次，可再按播放重看；其他素材的循環僅供檢視。影格已作基本對位，但動作間仍可能跳變。</p>
+        <div class="controls"><label for="motion-choice">動作 <select id="motion-choice"><option value="run-contact">奔跑（補足落地 10 格）</option><option value="run-push">奔跑：蹬地段（8 格）</option><option value="run-v2">奔跑（前版 8 格）</option><option value="run">奔跑（前版 12 格）</option><option value="launch">跳躍：起跳段（8 格）</option><option value="landing">跳躍：落地段（8 格）</option><option value="jump-v3">跳躍（補格 12 格）</option><option value="jump">跳躍（前版）</option><option value="food-v4">拾果到塞臉頰（20 格）</option><option value="food-v3">吃果子與塞臉頰（補格 12 格）</option><option value="food">吃果子（前版）</option><option value="blink">眨眼</option><option value="thinking">思考</option><option value="success">雀躍</option><option value="confused">困惑</option><option value="attention">望向你</option><option value="petting">撫摸姿勢</option><option value="play">玩耍</option><option value="idle">待機</option><option value="head-rub">摸頭</option><option value="belly-rub">摸肚子</option><option value="groom">梳理毛髮</option></select></label></div>
+        <div class="controls"><button id="run-toggle" type="button" disabled>播放</button><button id="previous-frame" class="step" type="button" disabled>上一格</button><button id="next-frame" class="step" type="button" disabled>下一格</button><label for="run-speed">速度 <select id="run-speed"><option value="2">2 格／秒</option><option value="6" selected>6 格／秒</option><option value="12">12 格／秒</option><option value="18">18 格／秒</option><option value="24">24 格／秒</option></select></label></div>
+        <p class="preview-status" id="frame-counter" aria-live="off"></p>
+        <p class="preview-status" id="run-status" role="status">正在載入素材…</p>
+      </div>
+    </section>
+    <div class="gallery">
+      <figure><div class="image"><img src="../client/public/images/pet/motion-studies/run.png" alt="花栗鼠奔跑姿勢研究圖" loading="lazy"></div><figcaption><div class="heading"><h2>奔跑與移動</h2><a href="../client/public/images/pet/motion-studies/run.png">開啟原圖</a></div><p>觀察身體伸展、腳掌落地與騰空時的不同姿勢。</p></figcaption></figure>
+      <figure><div class="image"><img src="../client/public/images/pet/motion-studies/jump.png" alt="花栗鼠跳躍姿勢研究圖" loading="lazy"></div><figcaption><div class="heading"><h2>起跳與落地</h2><a href="../client/public/images/pet/motion-studies/jump.png">開啟原圖</a></div><p>探索牠在底部導覽列與卡片頂端之間跳躍的姿態。</p></figcaption></figure>
+      <figure><div class="image"><img src="../client/public/images/pet/motion-studies/food.png" alt="花栗鼠吃果子和塞滿臉頰的姿勢研究圖" loading="lazy"></div><figcaption><div class="heading"><h2>吃果子與藏食</h2><a href="../client/public/images/pet/motion-studies/food.png">開啟原圖</a></div><p>拿起果子、啃食，並將食物塞進鼓起的臉頰。</p></figcaption></figure>
+      <figure><div class="image"><img src="../client/public/images/pet/motion-studies/attention.png" alt="花栗鼠望向玩家的期待表情姿勢研究圖" loading="lazy"></div><figcaption><div class="heading"><h2>望向你</h2><a href="../client/public/images/pet/motion-studies/attention.png">開啟原圖</a></div><p>被點擊後回頭、抬眼，以及好奇期待的神情。</p></figcaption></figure>
+      <figure><div class="image"><img src="../client/public/images/pet/motion-studies/petting.png" alt="花栗鼠接受撫摸的近距離姿勢研究圖" loading="lazy"></div><figcaption><div class="heading"><h2>親近與撫摸</h2><a href="../client/public/images/pet/motion-studies/petting.png">開啟原圖</a></div><p>放大互動時，摸頭、摸臉和摸肚子可能出現的反應。</p></figcaption></figure>
+      <figure><div class="image"><img src="../client/public/images/pet/motion-studies/play.png" alt="花栗鼠玩耍和休息姿勢研究圖" loading="lazy"></div><figcaption><div class="heading"><h2>玩耍與休息</h2><a href="../client/public/images/pet/motion-studies/play.png">開啟原圖</a></div><p>探索調皮、警覺與放鬆時的自然姿態。</p></figcaption></figure>
+    </div>
+    <footer>這些圖像供視覺審查；後續可依確認結果補充動作、拆分影格並接上互動。</footer>
+  </main>
+  <script>
+    (() => {
+      const canvas = document.getElementById('run-preview');
+      const context = canvas.getContext('2d');
+      const toggle = document.getElementById('run-toggle');
+      const speed = document.getElementById('run-speed');
+      const status = document.getElementById('run-status');
+      const counter = document.getElementById('frame-counter');
+      const choice = document.getElementById('motion-choice');
+      const previousFrame = document.getElementById('previous-frame');
+      const nextFrame = document.getElementById('next-frame');
+      const base = '../client/public/images/pet/motion-studies/';
+      const actions = {
+        'run-contact': ['run-contact-review.png', 2, 5],
+        'run-push': ['run-push-aligned.png', 2, 4, null, [], [], false],
+        'run-v2': ['run-v2-aligned.png', 2],
+        run: ['run-aligned.png', 3],
+        launch: ['jump-segments/launch-atlas.png', 2, 4, null, [0, 0, 0, -8, -18, -28, -40, -50], [], false],
+        landing: ['jump-segments/landing-atlas.png', 2, 4, null, [-50, -38, -20, -8, -3, 0, 0, 0], [], false],
+        'jump-v3': ['jump-food-prepared/jump-v3-atlas.png', 3, 4, null, [0, 0, 0, -10, -32, -52, -68, -80, -80, -55, -15, 0]],
+        jump: ['jump-food-prepared/jump-atlas.png', 2],
+        'food-v4': ['jump-food-prepared/food-sequence-v4-atlas.png', 5, 4, null, [], [], false],
+        'food-v3': ['jump-food-prepared/food-v3-atlas.png', 3],
+        food: ['jump-food-prepared/food-atlas.png', 2],
+        blink: ['registered-blink/blink-study-atlas.png', 2, 4, [0, 1, 2, 3, 4, 3, 2, 1], [], [1200, 83, 83, 83, 125, 83, 83, 83]],
+        thinking: ['agent-states/thinking-atlas.png', 2],
+        success: ['agent-states/success-atlas.png', 2],
+        confused: ['agent-states/confused-atlas.png', 2],
+        attention: ['registered-interactions/attention-atlas.png', 2],
+        petting: ['registered-interactions/petting-atlas.png', 2],
+        play: ['registered-interactions/play-atlas.png', 2],
+        idle: ['registered-closeups/idle-atlas.png', 2],
+        'head-rub': ['registered-closeups/head-rub-atlas.png', 2],
+        'belly-rub': ['registered-closeups/belly-rub-atlas.png', 2],
+        groom: ['registered-closeups/groom-atlas.png', 2],
+      };
+      let sheet, rows = 3, columns = 4, sequence = [], offsets = [], durations = [], loop = true, padding = 0, frame = 0, playing = false, previous = 0, elapsed = 0, request = 0, loadId = 0;
+      const setControls = enabled => { toggle.disabled = !enabled; previousFrame.disabled = !enabled; nextFrame.disabled = !enabled; };
+      const stop = () => { playing = false; toggle.textContent = '播放'; previous = 0; elapsed = 0; cancelAnimationFrame(request); };
+      const draw = () => {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        const width = sheet.naturalWidth / columns, height = sheet.naturalHeight / rows, sourceFrame = sequence[frame];
+        context.drawImage(sheet, sourceFrame % columns * width, Math.floor(sourceFrame / columns) * height, width, height, 0, padding + (offsets[sourceFrame] || 0), width, height);
+        counter.textContent = `第 ${frame + 1} / ${sequence.length} 格。這是待驗收的動作素材。`;
+      };
+      const tick = time => {
+        if (!playing) return;
+        if (previous) elapsed += Math.min(250, time - previous);
+        previous = time;
+        let changed = false;
+        let duration = durations.length ? durations[frame] * 12 / Number(speed.value) : 1000 / Number(speed.value);
+        while (elapsed >= duration) {
+          elapsed -= duration;
+          if (!loop && frame === sequence.length - 1) { stop(); break; }
+          frame = (frame + 1) % sequence.length; changed = true;
+          duration = durations.length ? durations[frame] * 12 / Number(speed.value) : 1000 / Number(speed.value);
+        }
+        if (changed) draw();
+        if (playing) request = requestAnimationFrame(tick);
+      };
+      toggle.addEventListener('click', () => {
+        if (!playing && !loop && frame === sequence.length - 1) { frame = 0; draw(); }
+        playing = !playing;
+        toggle.textContent = playing ? '暫停' : '播放';
+        previous = 0;
+        if (playing) request = requestAnimationFrame(tick);
+        else cancelAnimationFrame(request);
+      });
+      speed.addEventListener('change', () => { elapsed = 0; previous = 0; });
+      const step = amount => { stop(); frame = (frame + amount + sequence.length) % sequence.length; draw(); };
+      previousFrame.addEventListener('click', () => step(-1));
+      nextFrame.addEventListener('click', () => step(1));
+      const load = () => {
+        stop(); setControls(false); context.clearRect(0, 0, canvas.width, canvas.height);
+        status.textContent = '正在載入素材…'; counter.textContent = ''; frame = 0;
+        const current = ++loadId, [path, rowCount, columnCount = 4, playbackSequence = null, frameOffsets = [], frameDurations = [], shouldLoop = true] = actions[choice.value], candidate = new Image();
+        candidate.onload = () => {
+          if (current !== loadId) return;
+          sheet = candidate; rows = rowCount; columns = columnCount; offsets = frameOffsets; durations = frameDurations; loop = shouldLoop;
+          sequence = playbackSequence || Array.from({length: rows * columns}, (_, i) => i);
+          padding = Math.max(0, -Math.min(0, ...offsets));
+          canvas.width = sheet.naturalWidth / columns; canvas.height = sheet.naturalHeight / rows + padding;
+          draw(); setControls(true); status.textContent = '已載入。';
+        };
+        candidate.onerror = () => {
+          if (current !== loadId) return;
+          status.textContent = '這組素材尚未載入，請稍後重新整理或改選其他動作。';
+        };
+        candidate.src = base + path;
+      };
+      choice.addEventListener('change', load);
+      load();
+    })();
+  </script>
+</body>
+</html>

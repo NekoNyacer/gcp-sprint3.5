@@ -1,0 +1,183 @@
+{
+  "source": "../../motion-studies/petting-unified/idle-unified-source.png",
+  "reference": "idle-common-neutral.png (derived from head-unified-source frame 1); old runtime reference used for approximate coordinate template only",
+  "atlas": "idle-atlas.png",
+  "columns": 5,
+  "rows": 2,
+  "frameCount": 10,
+  "frameWidth": 521,
+  "frameHeight": 549,
+  "scale": 1.181242,
+  "baseline": 508,
+  "anchor": [
+    359,
+    195
+  ],
+  "framesPerSecond": 6,
+  "loop": true,
+  "frames": [
+    {
+      "frame": 1,
+      "source": "idle-common-neutral.png (exact shared neutral)"
+    },
+    {
+      "frame": 2,
+      "sourceFrame": 1,
+      "nose": {
+        "x": 299,
+        "y": 162,
+        "score": 8307
+      },
+      "translation": [
+        5.81,
+        5.97
+      ],
+      "sourceBounds": {
+        "left": 31,
+        "top": 32,
+        "right": 406,
+        "bottom": 425
+      }
+    },
+    {
+      "frame": 3,
+      "sourceFrame": 2,
+      "nose": {
+        "x": 309,
+        "y": 162,
+        "score": 12769
+      },
+      "translation": [
+        -6,
+        5.97
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 32,
+        "right": 416,
+        "bottom": 425
+      }
+    },
+    {
+      "frame": 4,
+      "sourceFrame": 3,
+      "nose": {
+        "x": 309,
+        "y": 161,
+        "score": 13484
+      },
+      "translation": [
+        -6,
+        5.97
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 32,
+        "right": 417,
+        "bottom": 425
+      }
+    },
+    {
+      "frame": 5,
+      "sourceFrame": 4,
+      "nose": {
+        "x": 309,
+        "y": 161,
+        "score": 8640
+      },
+      "translation": [
+        -6,
+        5.97
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 32,
+        "right": 416,
+        "bottom": 425
+      }
+    },
+    {
+      "frame": 6,
+      "sourceFrame": 5,
+      "nose": {
+        "x": 299,
+        "y": 171,
+        "score": 15000
+      },
+      "translation": [
+        5.81,
+        -7.02
+      ],
+      "sourceBounds": {
+        "left": 31,
+        "top": 42,
+        "right": 407,
+        "bottom": 436
+      }
+    },
+    {
+      "frame": 7,
+      "sourceFrame": 6,
+      "nose": {
+        "x": 309,
+        "y": 170,
+        "score": 6801
+      },
+      "translation": [
+        -6,
+        -7.02
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 42,
+        "right": 416,
+        "bottom": 436
+      }
+    },
+    {
+      "frame": 8,
+      "sourceFrame": 7,
+      "nose": {
+        "x": 309,
+        "y": 170,
+        "score": 18767
+      },
+      "translation": [
+        -6,
+        -7.02
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 42,
+        "right": 416,
+        "bottom": 436
+      }
+    },
+    {
+      "frame": 9,
+      "sourceFrame": 8,
+      "nose": {
+        "x": 308,
+        "y": 171,
+        "score": 16473
+      },
+      "translation": [
+        -4.82,
+        -7.02
+      ],
+      "sourceBounds": {
+        "left": 42,
+        "top": 42,
+        "right": 416,
+        "bottom": 436
+      }
+    },
+    {
+      "frame": 10,
+      "source": "idle-common-neutral.png (exact shared neutral)"
+    }
+  ],
+  "limitations": "The previous runtime idle first frame has a pre-existing cropped right side. These studies share a new complete neutral instead, which differs from the current app idle. Approximate nose template and lowest-paw alignment; same scale for all source frames, no per-frame resizing. Source poses may still shift or change proportions. Connections to the existing idle and transitions between frames require visual review; not animation-quality certification.",
+  "sourceManifest": "../../motion-studies/petting-unified/idle-review.json",
+  "endpointVerification": "first and last RGBA pixels equal the shared neutral; interior poses still contain source-art variation"
+}

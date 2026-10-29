@@ -1,0 +1,102 @@
+{
+  "source": "pick-v4-source.png",
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "frameWidth": 560,
+  "frameHeight": 500,
+  "baseline": 450,
+  "loop": false,
+  "registration": "same scale; centered opaque silhouette, lowest point on baseline; detached berries retained",
+  "note": "Small incremental motions but berry and paws may drift; review.",
+  "frames": [
+    {
+      "index": 0,
+      "sourceBounds": {
+        "id": 1,
+        "left": 22,
+        "right": 472,
+        "top": 81,
+        "bottom": 458,
+        "area": 93105
+      }
+    },
+    {
+      "index": 1,
+      "sourceBounds": {
+        "id": 2,
+        "left": 462,
+        "right": 896,
+        "top": 82,
+        "bottom": 459,
+        "area": 89395
+      }
+    },
+    {
+      "index": 2,
+      "sourceBounds": {
+        "id": 3,
+        "left": 872,
+        "right": 1309,
+        "top": 83,
+        "bottom": 461,
+        "area": 93155
+      }
+    },
+    {
+      "index": 3,
+      "sourceBounds": {
+        "id": 4,
+        "left": 1299,
+        "right": 1699,
+        "top": 87,
+        "bottom": 463,
+        "area": 84565
+      }
+    },
+    {
+      "index": 4,
+      "sourceBounds": {
+        "id": 6,
+        "left": 19,
+        "right": 452,
+        "top": 506,
+        "bottom": 860,
+        "area": 94069
+      }
+    },
+    {
+      "index": 5,
+      "sourceBounds": {
+        "id": 8,
+        "left": 445,
+        "right": 864,
+        "top": 508,
+        "bottom": 860,
+        "area": 90964
+      }
+    },
+    {
+      "index": 6,
+      "sourceBounds": {
+        "id": 7,
+        "left": 871,
+        "right": 1282,
+        "top": 507,
+        "bottom": 861,
+        "area": 91035
+      }
+    },
+    {
+      "index": 7,
+      "sourceBounds": {
+        "id": 9,
+        "left": 1296,
+        "right": 1689,
+        "top": 509,
+        "bottom": 862,
+        "area": 87720
+      }
+    }
+  ]
+}

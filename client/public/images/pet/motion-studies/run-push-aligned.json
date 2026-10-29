@@ -1,0 +1,88 @@
+{
+  "columns": 4,
+  "rows": 2,
+  "frameCount": 8,
+  "framesPerSecond": 12,
+  "loop": false,
+  "frameWidth": 506,
+  "frameHeight": 378,
+  "sourcePath": "client\\public\\images\\pet\\motion-studies\\run-push-study.png",
+  "sourceWidth": 2027,
+  "sourceHeight": 776,
+  "registration": "shared scale; silhouette-centered X; shared baseline per generated row",
+  "status": "Push-off study only, not a loop: first-to-second frame jumps, and later repeated poses and leg contact need further animation work.",
+  "frames": [
+    {
+      "id": 1,
+      "left": 48,
+      "top": 58,
+      "right": 463,
+      "bottom": 367,
+      "area": 68200,
+      "row": 0
+    },
+    {
+      "id": 2,
+      "left": 537,
+      "top": 59,
+      "right": 985,
+      "bottom": 366,
+      "area": 68519,
+      "row": 0
+    },
+    {
+      "id": 3,
+      "left": 1032,
+      "top": 59,
+      "right": 1490,
+      "bottom": 367,
+      "area": 70760,
+      "row": 0
+    },
+    {
+      "id": 4,
+      "left": 1540,
+      "top": 59,
+      "right": 1999,
+      "bottom": 367,
+      "area": 71548,
+      "row": 0
+    },
+    {
+      "id": 8,
+      "left": 25,
+      "top": 420,
+      "right": 479,
+      "bottom": 741,
+      "area": 74337,
+      "row": 1
+    },
+    {
+      "id": 5,
+      "left": 532,
+      "top": 414,
+      "right": 984,
+      "bottom": 718,
+      "area": 68722,
+      "row": 1
+    },
+    {
+      "id": 6,
+      "left": 1028,
+      "top": 415,
+      "right": 1505,
+      "bottom": 719,
+      "area": 70697,
+      "row": 1
+    },
+    {
+      "id": 7,
+      "left": 1542,
+      "top": 415,
+      "right": 2000,
+      "bottom": 711,
+      "area": 69133,
+      "row": 1
+    }
+  ]
+}

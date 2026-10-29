@@ -1,5 +1,314 @@
 # CAT WALK project context
 
+## CMS 1716-site import rejection diagnosis (2026-10-30)
+
+- The user's Desktop `seed-data-gcp-hackathon-03-2026-10-27.json` is valid:
+  663,929 file bytes, 1,716 tree presets, 92 merchants, and valid unique IDs.
+  The current workspace validator accepts it; changing the supplied data is
+  unnecessary. The tracked seed with the same filename also validates.
+- Read back deployed `cmsCommand` revision `cmscommand-00005-mak`, last updated
+  2026-10-22T08:42:16Z. Its downloaded source still rejects more than 100 trees
+  or JSON strings longer than 350,000 characters, reproducing the user's 400.
+- Prepared an isolated deployment source at
+  `functions/.tmp/cmscommand-hotfix` from that exact deployed source, changing
+  only `src/cms-domain.ts`: permit 2,500 trees and measure the 850,000-byte
+  configuration limit in UTF-8. Rebuilt its JavaScript successfully. This
+  avoids shipping unrelated newer workspace changes through this repair.
+- The attached file passes the rebuilt deployment validator. Boundary checks
+  accept 2,500 sites / 850,000 bytes and reject 2,501 sites / 850,001 bytes.
+  The staged callable's mocked save/publish regression passes with 1,716 sites.
+  Corrected the workspace domain regression's missing fixture path to the
+  tracked seed filename and added byte/count boundary and callable regressions.
+  Workspace Functions build succeeds; 60 of 62 CMS tests pass. Two AI merchant
+  recommendation expectations fail outside the import changes; no full-suite
+  success is claimed.
+- Automatic approval review initially blocked deployment pending explicit
+  authorization. The user then approved deploying the `cmsCommand` limit fix.
+  Deployed the isolated source successfully on 2026-10-30 at 01:06 Asia/Taipei
+  (2026-10-29T17:06:51Z): revision `cmscommand-00006-son` is ACTIVE, Ready and
+  serving 100% of traffic. Source generation is `1793293554328890` in
+  `gcf-v2-sources-1039933163857-asia-east1/cmsCommand/function-source.zip`.
+  Compared staged source against the original deployed archive: only the two
+  approved limits and their compiled JavaScript changed. Preserved 256Mi memory,
+  60-second timeout, max instances 3 and the existing service identity. An HTTP
+  smoke check returns the expected 401 UNAUTHENTICATED / 請先登入 response.
+  No live catalog save or publication was performed; the operator can now retry
+  the same JSON in CMS. Authenticated end-to-end saving remains unverified.
+
+## Profile companion visibility switch (2026-10-30)
+
+- User requests an enable/disable pet switch at the bottom of the personal page.
+  Place a native Ionic toggle labelled 啟用寵物 after recent records, matching the
+  existing white profile sections. Keep its native switch semantics and keyboard
+  support; explain that disabling hides the chipmunk.
+- A root CompanionPreferencesService defaults to enabled and saves the choice
+  locally on this device under cat-walk.companion-enabled. Storage failure still
+  applies the choice for the current session. This is a local display preference,
+  not a new cloud/profile schema or account reward rule.
+- AppShell mounts the companion only while enabled, so disabling also runs the
+  existing animation/listener/pointer/chat/modal cleanup. Reenabling creates the
+  companion on the currently viewed tab.
+- Verification: development build passed; actual browser checks at 320px, 390px
+  and 1024px confirmed the bottom switch layout, immediate hiding across tabs,
+  on/off persistence across reloads and Space-key reenabling. No runtime errors.
+  Review images: .impeccable/review/pet-toggle. No deployment requested.
+
+## Drag-driven tab scene transitions (2026-10-30)
+
+- User requests a visible scene transition when carrying the companion across
+  tab edges. Use a directional 120ms slide/fade out, then a 180ms slide/fade in
+  from the destination side. Distance is 32px. Keep the live companion and bottom
+  tab bar fixed outside these page/header animations, retaining pointer capture
+  and pointer movement throughout. The existing bounded order/rearm rules remain.
+- Ionic 9 intentionally suppresses cross-tab stack animations, including custom
+  builders with a forced zero duration. A shell-scoped CompanionTabTransitionService
+  animates the live nested outlet and shared header, waits for ionTabsDidChange
+  after Ionic's page-cache cleanup, then reveals the destination. Do not clone
+  canvases or patch Ionic internals. Normal tab clicks retain their existing flow.
+- Respect reduced motion by navigating without spatial animation. Cancellation,
+  route rejection or shell destruction removes animations and restores visibility
+  and pointer events. The own-drag navigation remains pending through both phases.
+- Verification: development build and all 67 companion tests pass. The browser
+  drag-tabs check exercises actual mobile touch (390x844) and desktop mouse
+  (1024x768), both directional phases, continued pet movement/capture at midframe,
+  bounded ends, cleanup, manual tab clicks and reduced motion. Midpoint screenshots
+  are in .impeccable/review/drag-tabs. Local Demo, external HTTPS blocked; no
+  physical-device or live map/AI acceptance and no backend/Hosting deployment.
+
+## Drag a held companion between bounded tabs (2026-10-30)
+
+- User explicitly requests dragging a held pet to a screen edge to navigate
+  the adjacent visible tab. Order: Home → Task → Shop → Collection → Profile.
+  Unlike autonomous roaming, player-dragged navigation never wraps past either end.
+- Once a drag has crossed its 8px pickup threshold, pointer positions within
+  16px of the left/right edge request the adjacent route. A 32px inner rearm zone
+  prevents jitter or a stationary pointer from cascading through multiple tabs;
+  move inward then back to an edge for another switch.
+- Keep the same captured pointer, grip, height and pickup/held/fall state across
+  the gesture's own router events; update viewedTab and petTab together on success.
+  This applies even if the pointer is released while navigation is loading.
+  Unrelated navigation still cancels the drag normally. Failed navigation leaves
+  the current tab and gesture usable. Existing click suppression and landing remain.
+- This intentionally supersedes the earlier prohibition on tab navigation during
+  user dragging. Autonomous circular tab roaming remains unchanged and does not
+  navigate the player. Build and 59 companion tests pass, including bounded order,
+  preserved drag, rearming, release during navigation and failure/cancellation.
+
+## Integrate all newly delivered companion artwork (2026-10-30)
+
+- User requests all additions from 補齊花栗鼠寵物動作 be connected. Read both
+  latest art handoffs: unified close-up art and the earlier drag/drop, directional
+  jump and sleep sheets. This supersedes their prior review-only runtime deferral.
+- Adopt all four unified close-up atlases together: idle, head, belly and expression.
+  Runtime files are in animations/petting-unified; all 5x2, ten frames, 521x549.
+  scripts/prepare-companion-unified.mjs copies without rescaling and verifies
+  each first/last frame is RGBA-identical to the shared neutral. No legacy
+  close-up idle/blink/reaction is mixed into this set. Idle loops at 6fps and
+  inserts the new expression sequence every three cycles; touch reactions use
+  the supplied 8fps timing and return through the common neutral. Shared endpoint
+  switches omit the old blending overlay; interrupted poses retain decoded blending.
+  A common-neutral still remains visible while atlases initially decode.
+- Prepare the preferred six drag-drop handoff sheets into bounded runtime atlases
+  with manifests/source hashes: pickup-v2, held, release-fall, jump-up, jump-down
+  and sleep-study. Earlier pickup-source/jump-down-alternate remain studies.
+  scripts/prepare-companion-drag-animations.mjs uses connected-component extraction
+  to preserve poses crossing source grid rows, constant scale per sheet, 460x400
+  cells and baseline376. Source art itself still contains minor anatomy/whisker
+  variation; one falling source edge already clips a whisker and cannot be restored.
+- Drag the roaming pet beyond 8px to pick it up, hold/move it, then release.
+  Preserve the grip point, clamp within the viewport, fall under gravity onto the
+  nearest eligible visible card/control edge below or the tab edge, then resume
+  observation/roaming. Pointer capture, cancellation, re-grab and synthetic-click
+  suppression keep the gesture from opening chat or navigating tabs accidentally.
+  Below-threshold taps and keyboard activation retain the existing pet interaction.
+- Up/down jumps use distinct authored clips synchronized to flight progress;
+  pickup/fall/landing likewise follow physical progress. Sleeping uses the new
+  compact transparent atlas and matching static fallback, avoiding the oversized
+  old sleeping image. Keep the original burst cadence, platform tracking,
+  transient speech, agent planning and petting-modal accessibility.
+- Verification: client development build and 54 companion tests pass (including
+  seven pure drag/drop cases, two UI gesture cases and nine renderer cases).
+  scripts/verify-companion-new-art.mjs exercises actual mouse/touch at 320x568,
+  390x844 and 1024x768, all four close-up clips, shared-neutral returns without
+  ghost overlays, held/falling/settled states, both jump directions and sleep;
+  no runtime errors/missing assets. Uses local Demo with external HTTPS blocked;
+  no live map/AI acceptance or physical-device claim. No backend/Hosting deployment.
+
+## Petting proportion artwork review (2026-10-30)
+
+- The user requests art-level consistency between petting idle and touch
+  reactions: shared head/body proportions, foot baseline and camera, plus
+  authored transitions back to idle. More frames alone do not resolve the issue.
+- New review artwork is under `client/public/images/pet/motion-studies/petting-unified/`;
+  the independent review page is `docs/petting-unified-preview.html`. Idle,
+  head and belly studies use the same new neutral at their first and last frames
+  and a common canvas, with one scale per source sheet. The new neutral is not
+  the same as the current runtime idle and must be adopted consistently if the
+  artwork is later integrated. Source frames can still drift in face, fur and
+  proportions; transition quality remains subject to visual review.
+- This increment produces review images and a standalone preview only. It does
+  not modify or deploy the existing petting interaction.
+
+## Petting transitions and temporary speech (2026-10-29)
+
+- User reports a flash when returning to idle and inconsistent body proportions
+  between idle/reaction images. Preload/decode all four close-up atlases, keep
+  the prior pose until the target is decoded, and blend the old pose out over
+  180ms on clip switches. Sequence guards discard late decode completions after
+  another action, dismissal or destruction. This mitigates loading/hard cuts;
+  it does not repair differently drawn anatomy or create missing poses.
+- The prior registration uses each sheet's silhouette bounds, not shared
+  anatomical landmarks. Asset proportions still require art consistency work
+  (same head/torso/feet/camera and a shared neutral pose, then reaction-to-idle
+  transitions). Do not claim that adding more frames alone fixes proportions.
+- User additionally requests speech bubbles that disappear. Petting bubbles
+  have a rounded shape/tail and fade after three seconds; a new touch restarts
+  that timer. General companion speech expires after five seconds, preserving
+  input, pending status, recoverable errors and actionable route proposals.
+- Build and 42 companion tests pass, including delayed decode, transition cleanup
+  and renewed speech expiry. No new artwork or deployment in this change.
+
+## Full-scene petting reference and new idle artwork (2026-10-29)
+
+- User supplied a reference replacing the previous white header/footer with a
+  nearly full-height grass scene, a large chipmunk, a centred top drag handle and
+  a small floating reaction bubble. Implement that composition in the existing
+  bottom-up native modal. Tap/pull the 48px handle target to close; Escape and
+  backdrop dismissal remain. Retain labelled keyboard-only head/belly controls,
+  which become visible on keyboard focus, without a permanent button footer.
+- Use the user's existing newly prepared petting-idle/breathing-source.png and
+  blinking-4-source.png. scripts/prepare-companion-petting-idle.mjs slices and
+  registers those poses into runtime animations/petting-idle atlases with source
+  manifests. No new poses are generated. The in-modal idle breathes and blinks
+  about every 6 seconds; touch reactions play once, hold briefly, then return to
+  idle automatically. Reduced motion retains a static idle. This close-up idle
+  does not replace the small roaming sprite's existing idle.
+- Build and 40 companion tests pass, including breathing/blinking, reaction-to-idle
+  return and reduced-motion behavior. Keep this change local; no Hosting/backend
+  deployment is requested. Generated poses can still contain source-art variations;
+  registration is not a claim of anatomically perfect transitions.
+
+## Chipmunk darting cadence and bottom petting modal (2026-10-29)
+
+- The user finds the constant-speed roaming too placid for a chipmunk and
+  requests quick movement with clear stops. Replace the 96px/s long walks with
+  short .28–.62s bursts at 280–420px/s (initial 330px/s), 35ms acceleration and
+  braking, and a mandatory stationary observation/activity between bursts.
+  Idle stops last .35–1.2s; feeding, play and sleep retain longer quiet periods.
+  Integrate burst distance by elapsed time to preserve cadence across frame rates.
+  The existing ten-pose run atlas now plays at 26fps. Preserve tab wrapping,
+  ledge support/jumps, off-tab autonomy, engagement pauses and reduced motion.
+- Replace the central petting panel with a native modal dialog anchored at the
+  bottom (full phone width, maximum 560px on desktop), sliding upward over 320ms
+  and downward over 180ms. Reduced motion omits sliding. Reuse the grass foreground
+  of the existing sunny-day scene artwork, cropped to exclude the sky/mountains;
+  no generated assets are added. Preserve head/belly touch and keyboard controls.
+- Native modal focus/inert behavior, explicit close, Escape and backdrop dismissal
+  keep focus within the interaction; restore focus/body scrolling on removal.
+  Dismissal is guarded against duplicate emission and timers clean up on destroy.
+- Verification: development build and all 39 companion tests pass, including
+  frame-rate-independent bursts/complete stops and modal dismissal cleanup.
+  Actual compiled App checks at 320x568, 390x844 and 1024x768 confirm bottom
+  anchoring, visible controls, actual head/belly touch, Escape/backdrop close,
+  focus containment, grass loading and reduced motion. A deterministic live
+  motion sample shows fast darts above 250px/s and fully stationary intervals.
+  Independent scoped visual review disposition is ship; still images do not
+  establish perfect anatomical motion quality. Physical-device acceptance
+  remains pending. No backend or Hosting deployment in this refinement.
+
+## Companion motion and petting integration (2026-10-29)
+
+- The user approved implementing the reviewed chipmunk motion studies and the
+  associated interactions, superseding the earlier deferral. Keep the existing
+  Gemini conversation, explicit walking-planning FAB and route confirmation.
+- The companion can move along the bottom tab edge and explicitly marked,
+  visible card/control tops, jump between reachable ledges and return safely
+  when a support disappears or scrolls out. It continues across tabs without
+  navigating the player. Reduced motion keeps it on the bottom edge.
+- Authored atlases provide running, jump, food/cheek-pouch, play, greeting,
+  blink and agent reactions. The petting FAB opens a central close-up with
+  direct head/belly touch and accessible controls; close resumes the existing
+  interaction. Preserve the original research artwork separately from runtime
+  atlases; the build excludes motion-studies and the runtime image cache is
+  bounded. Existing generated pose transitions may still exhibit the drift
+  described below; user approval is not a claim of perfectly natural motion.
+- Validation: development build and 36 companion tests passed. Browser Demo
+  checks covered the pet jumping onto the Home action edge, pet menu, head and
+  belly reactions, closing the close-up and a 375 × 812 simulated viewport.
+  Mobile touch was simulated; physical-device behavior and live map/services
+  were not verified by this increment. No Hosting deployment was performed.
+
+## Companion walking agent first increment (2026-10-29)
+
+- User authorizes the smallest-change GCP agent implementation on the existing
+  companion, reusing the deployed Vertex AI chat and existing route planning.
+  They clarify that Open-Meteo weather already exists in the cultivation scene;
+  reuse LiveEnvironmentService rather than introducing another weather system.
+- Add the explicit 幫我安排 FAB. The player provides a time budget and optional
+  game-water requirement. The client prepares Mapbox routes for up to three nearby
+  planted, visitable trees (direct plus optional water stop, at most six options),
+  existing resource state and tree-location Open-Meteo observations. The server
+  receives advisory summaries, not exact GPS or route geometry.
+- companionChat now uses a bounded Gemini function-calling sequence: player state,
+  route filtering, feasible proposal, then text. Tool mode requires each needed
+  stage, preventing a planning request from silently becoming text-only. Missing
+  time requires clarification; no fitting option produces no actionable proposal.
+  Model calls are bounded to four rounds/eight tools/25 seconds per user request.
+- Show a reviewable proposal, explicit single-journey distance/time excluding
+  stops/return, Demo/current-location origin, game-water and weather attribution.
+  套用路線 revalidates identity, CMS version, five-minute expiry, origin movement
+  within 50m and current availability. It populates the existing Home planning
+  store only after confirmation; preserve the separate departure confirmation,
+  proximity checks, resource rules and reward logic. Existing plans are not
+  overwritten. No durable plans, long-term memory or background reminders added.
+- User's latest steering explicitly defers unfinished animation integration.
+  Keep existing runtime sprites and idle/greeting actions. Do not use motion-study
+  atlases until the user approves readiness. The user authorized contacting
+  補齊花栗鼠寵物動作; requests for thinking/success/confused artwork were sent
+  there, with instructions not to edit the shared companion runtime or context.
+- Deployed only companionChat in asia-east1, revision companionchat-00003-lis,
+  preserving the existing service identity, Node 22, max instances 3 and model
+  Gemini 2.5 Flash. Timeout is now 60s. Firebase CLI cached login had expired;
+  deployment succeeded through the existing authorized gcloud account. Hosting
+  and all other Functions remain unchanged by this increment.
+- Verification: Functions/client development builds pass; 13 backend tests and
+  100 companion/Home/WalkSession tests pass. Home fixtures now provide the backpack
+  display-name SessionStore stub and reflect confirmed 更新路線 text/route seed
+  drops, without changing production reward behavior. Actual compiled App browser
+  checks cover six viewports, keyboard/IME, scroll-reachable 44px apply control,
+  real store application, roaming and reduced motion with external-service fixtures.
+  Independent scoped UI review/documentation passes cover 320x568, 390x844 and
+  1024x768. Live Gemini smoke checks with synthetic advisory route summaries pass
+  for feasible 20-minute/water and impossible 1-minute/water requests (about 5.5s
+  and 3.3s). Temporary test identities were deleted. This is not a full live
+  Mapbox/weather/mobile-device end-to-end acceptance test.
+- Implementation and verification details: docs/architecture/companion-agent.md.
+
+## Chipmunk motion studies follow-up (2026-10-29)
+
+- The user accepted the motion sketches and asked to continue. Continue preparing and reviewing animation artwork without implementing app behavior; integration remains for a later session after image approval.
+- Additional idle, grooming, head-petting and belly-petting pose sheets, an alternative run cycle, and jump/food transition studies were generated and registered for independent preview. The existing App runtime assets remain unchanged.
+- The animation quality is still pending review: registration reduces placement jitter but the generated running, jumping, eating and other sequences contain missing or abrupt transitions; do not describe them as finished, natural animation or silently integrate them.
+
+## Chipmunk motion studies (2026-10-29)
+
+- The user requests additional visual pose studies in the current natural
+  chipmunk style, including more lifelike running, jumping, play, eating and
+  storing fruit in its cheeks, attentive reactions and close-up petting.
+- Future roaming surfaces are the tops of the bottom tab bar and suitable cards
+  and controls marked in the user's screenshots. This increment prepares art
+  for review only; behavior and interaction logic will be connected later.
+  Visual acceptance and animation readiness remain subject to user review.
+
+## Temporary local client startup fix (2026-10-29)
+
+- At the user's request, temporarily comment out the CMS iconfont stylesheet
+  entry in `client/angular.json` because its package is unavailable locally.
+  Restore the marked line when that dependency is available; font-based icons
+  may be absent until then. Keep existing icon markup for easy restoration.
+- The local Mapbox token file is `client/mapbox-config.ts`; the runtime helper
+  under `client/src` imports it through `../mapbox-config`.
+
 ## Latest preview delivery (2026-10-29)
 
 - At the user's request, rebuilt the current checkout and deployed App,

@@ -1,17 +1,23 @@
-<button #pet type="button" class="pet-body" [class.pet-body--roaming]="!engaged() && behavior() === 'walking' && !reducedMotion()"
+<button #pet type="button" class="pet-body" [hidden]="pettingOpen()" [class.pet-body--roaming]="!engaged() && behavior() === 'walking' && !reducedMotion()"
   aria-label="和花栗鼠打招呼" [attr.aria-expanded]="engaged()" aria-controls="companion-menu" [attr.tabindex]="isHere() ? 0 : -1"
-  (click)="greet()" (focus)="focusPet(true)" (blur)="focusPet(false)">
+  (click)="petClick($event)" (focus)="focusPet(true)" (blur)="focusPet(false)"
+  (dragstart)="$event.preventDefault()"
+  (pointerdown)="beginDrag($event)" (pointermove)="moveDrag($event)" (pointerup)="endDrag($event)" (pointercancel)="endDrag($event)" (lostpointercapture)="endDrag($event)">
   <chipmunk-motion class="pet-art" [action]="renderedAction()"
-    [actionSerial]="actionSerial()" [active]="isHere()" />
+    [actionSerial]="actionSerial()" [clipProgress]="motionProgress()" [active]="isHere()" />
 </button>
 
-<div #menu id="companion-menu" class="pet-fabs" [hidden]="!engaged()" role="group" aria-label="花栗鼠互動選項">
+<div #menu id="companion-menu" class="pet-fabs" [hidden]="!engaged() || pettingOpen()" role="group" aria-label="花栗鼠互動選項" [attr.inert]="applying() ? '' : null">
   <button class="pet-fab" type="button" [class.pet-fab--active]="talking()" [disabled]="chatPending()"
     [attr.aria-label]="chatError() ? '重新傳送對話' : '與花栗鼠對話'" (click)="chatError() ? retryChat() : talk()">
     <span class="fab-icon">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8 9 9 0 0 1-4-.9L3 20l1.4-4.7A8 8 0 1 1 20 11.5Z"/><path d="M8 10h8M8 14h5"/></svg>
     </span>
-    <span class="fab-label">{{ chatPending() ? '想一想' : chatError() ? '重試' : '對話' }}</span>
+    <span class="fab-label">{{ chatPending() ? '想一想' : chatError() ? '重試' : planning() ? '調整需求' : '對話' }}</span>
+  </button>
+  <button class="pet-fab" type="button" aria-label="請花栗鼠安排健走路線" [disabled]="chatPending()" (click)="planWalk()">
+    <span class="fab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Zm6-3v15m6-12v15"/></svg></span>
+    <span class="fab-label">幫我安排</span>
   </button>
   <button class="pet-fab" type="button" aria-label="撫摸花栗鼠" (click)="petChipmunk()">
     <span class="fab-icon">
@@ -27,12 +33,32 @@
   </button>
 </div>
 
-<div #feedback class="pet-feedback" [hidden]="!engaged()" [class.pet-feedback--listening]="talking()">
+<div #feedback class="pet-feedback" [hidden]="!engaged() || pettingOpen() || (!speechVisible() && !talking() && !chatPending() && !chatError() && !agent.proposal())" [class.pet-feedback--listening]="talking()">
   @if (talking() && draft()) {
     <p class="pet-speech pet-speech--draft">{{ draft() }}<span class="typing-caret" aria-hidden="true"></span></p>
     <span class="speech-hint">Enter 傳送</span>
   } @else {
-    <p class="pet-speech" role="status" [attr.aria-busy]="chatPending()">{{ message() }}</p>
+    <div class="pet-speech" [attr.aria-busy]="chatPending() || applying()">
+      <p class="speech-message" role="status">{{ chatPending() && planning() ? agent.status() || message() : message() }}</p>
+      @if (agent.proposal(); as plan) {
+        <div class="walking-proposal">
+          <strong>{{ plan.treeName }}</strong>
+          <span>{{ plan.place }} · {{ plan.care }}</span>
+          <span class="walking-metrics">單程約 {{ plan.minutes }} 分鐘 · {{ plan.meters }} 公尺</span>
+          <small>起點：{{ plan.locationLabel }}</small>
+          <span>{{ plan.station ? '遊戲補水：' + plan.station.name : '不經補給站' }}</span>
+          @if (plan.weather.source === 'open-meteo') {
+            <span>當地天氣：{{ plan.weather.condition === 'rainy' ? '有雨' : plan.weather.condition === 'sunny' ? '晴朗' : '多雲' }} · {{ plan.weather.temperatureC }}°C（Open-Meteo）</span>
+          } @else { <span>暫時無法取得當地天氣</span> }
+          <small>Mapbox 步行估計，不含停留與回程。補水為遊戲資源。</small>
+          <button type="button" class="apply-plan" [disabled]="applying()" (click)="applyPlan()">{{ applying() ? '正在套用…' : '套用路線' }}</button>
+          <small>套用後，請在首頁確認出發。</small>
+        </div>
+      }
+      @if (planning() && agent.steps().length && !chatPending()) {
+        <details class="agent-steps"><summary>查看安排紀錄</summary><ol>@for (step of agent.steps(); track step) { <li>{{ step }}</li> }</ol></details>
+      }
+    </div>
   }
 </div>
 
@@ -41,3 +67,7 @@
   autocomplete="off" autocapitalize="sentences" [spellcheck]="false"
   (input)="updateDraft()" (keydown)="inputKeydown($event)" (beforeinput)="beforeInput($event)"
   (compositionstart)="compositionStart()" (compositionend)="compositionEnd()"></textarea>
+
+@if (pettingOpen()) {
+  <app-companion-petting [reducedMotion]="reducedMotion()" (closed)="closePetting()" />
+}
