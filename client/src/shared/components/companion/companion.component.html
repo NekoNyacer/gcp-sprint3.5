@@ -1,0 +1,43 @@
+<button #pet type="button" class="pet-body" [class.pet-body--roaming]="!engaged() && behavior() === 'walking' && !reducedMotion()"
+  aria-label="和花栗鼠打招呼" [attr.aria-expanded]="engaged()" aria-controls="companion-menu" [attr.tabindex]="isHere() ? 0 : -1"
+  (click)="greet()" (focus)="focusPet(true)" (blur)="focusPet(false)">
+  <chipmunk-motion class="pet-art" [action]="renderedAction()"
+    [actionSerial]="actionSerial()" [active]="isHere()" />
+</button>
+
+<div #menu id="companion-menu" class="pet-fabs" [hidden]="!engaged()" role="group" aria-label="花栗鼠互動選項">
+  <button class="pet-fab" type="button" [class.pet-fab--active]="talking()" [disabled]="chatPending()"
+    [attr.aria-label]="chatError() ? '重新傳送對話' : '與花栗鼠對話'" (click)="chatError() ? retryChat() : talk()">
+    <span class="fab-icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-8 8 9 9 0 0 1-4-.9L3 20l1.4-4.7A8 8 0 1 1 20 11.5Z"/><path d="M8 10h8M8 14h5"/></svg>
+    </span>
+    <span class="fab-label">{{ chatPending() ? '想一想' : chatError() ? '重試' : '對話' }}</span>
+  </button>
+  <button class="pet-fab" type="button" aria-label="撫摸花栗鼠" (click)="petChipmunk()">
+    <span class="fab-icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 12V6a1.5 1.5 0 0 1 3 0v5-7a1.5 1.5 0 0 1 3 0v7-5a1.5 1.5 0 0 1 3 0v6-2a1.5 1.5 0 0 1 3 0v5c0 4-2 6-6 6h-1c-2 0-3-1-4-2l-5-6a1.5 1.5 0 0 1 2-2l2 2Z"/></svg>
+    </span>
+    <span class="fab-label">撫摸</span>
+  </button>
+  <button class="pet-fab" type="button" aria-label="讓花栗鼠繼續散步" (click)="close()">
+    <span class="fab-icon fab-icon--quiet">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+    </span>
+    <span class="fab-label">繼續散步</span>
+  </button>
+</div>
+
+<div #feedback class="pet-feedback" [hidden]="!engaged()" [class.pet-feedback--listening]="talking()">
+  @if (talking() && draft()) {
+    <p class="pet-speech pet-speech--draft">{{ draft() }}<span class="typing-caret" aria-hidden="true"></span></p>
+    <span class="speech-hint">Enter 傳送</span>
+  } @else {
+    <p class="pet-speech" role="status" [attr.aria-busy]="chatPending()">{{ message() }}</p>
+  }
+</div>
+
+<textarea #keyboardInput class="pet-keyboard-input" tabindex="-1" rows="1" maxlength="200"
+  aria-label="對花栗鼠說話，按 Enter 傳送" enterkeyhint="send" inputmode="text"
+  autocomplete="off" autocapitalize="sentences" [spellcheck]="false"
+  (input)="updateDraft()" (keydown)="inputKeydown($event)" (beforeinput)="beforeInput($event)"
+  (compositionstart)="compositionStart()" (compositionend)="compositionEnd()"></textarea>

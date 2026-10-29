@@ -22,7 +22,7 @@
 
 <ion-tabs id="main-content" [class.home-map-screen]="currentUrl() === '/home'">
   @if (hasTabBar()) {
-    <ion-tab-bar slot="bottom" [animate.leave]="'tab-bar-descend'" [animate.enter]="'tab-bar-rise'">
+    <ion-tab-bar #petFloor slot="bottom" [animate.leave]="'tab-bar-descend'" [animate.enter]="'tab-bar-rise'">
       <ion-tab-button tab="home">
         <ion-icon
           [name]="currentUrl() === '/home' ? 'navigate-circle' : 'navigate-circle-outline'"
@@ -84,6 +84,8 @@
     </ion-tab-bar>
   }
 </ion-tabs>
+
+<app-companion [floor]="petFloor()?.nativeElement ?? null" />
 
 <!-- 底部彈窗 -->
 <cub-modal />

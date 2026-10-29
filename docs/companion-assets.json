@@ -1,0 +1,26 @@
+{
+  "generator": "built-in imagegen",
+  "reference": "client/public/images/pet/chipmunk-neutral.png",
+  "assets": [
+    {
+      "file": "client/public/images/pet/chipmunk-running.png",
+      "prompt": "Same chipmunk identity and naturalistic 3D fur, screen-right quadruped running pose, whole body visible, separate legs and tail, transparent background, no props, ground, shadows or effects. Used only as the static fallback for running."
+    },
+    {
+      "file": "client/public/images/pet/chipmunk-eating.png",
+      "prompt": "Same warm brown and cream striped chipmunk, full body, upright happily nibbling an acorn held in both paws, subtly full cheeks, mischievous joy, exact reference identity and fur style, transparent background, no scenery or effects."
+    },
+    {
+      "file": "client/public/images/pet/chipmunk-sleeping.png",
+      "prompt": "Same warm brown and cream striped chipmunk, sleeping peacefully curled low with shut eyes and head on forepaws, fluffy tail around body, exact reference identity and naturalistic fur style, transparent background, no bed, symbols, scenery or effects."
+    },
+    {
+      "file": "client/public/images/pet/chipmunk-run-cycle.png",
+      "prompt": "Production 2D game sprite animation sheet, exactly twelve sequential full-body screen-right quadruped bounding-run poses in a 4-column by 3-row grid. Preserve the reference chipmunk identity, warm striped fur and naturalistic 3D style. Articulate all four legs through hind-leg push-off, airborne extension, front-paw contact, weight-bearing compression and leg recovery. Consistent character size and camera, ample transparent gutters, no ground, shadows, text, labels or effects.",
+      "processing": "Connected-component extraction and shared-scale registration by scripts/prepare-companion-run.mjs; no poses synthesized by code.",
+      "sourceFrames": 12,
+      "playbackFramesPerSecond": 24,
+      "layout": "4 columns by 3 rows"
+    }
+  ]
+}

@@ -131,7 +131,7 @@ export class CmsClientService {
     if (!auth.currentUser) throw new Error('請先登入再使用雲端功能。');
     if (identity !== this.identityKey()) throw new Error('帳號已切換，請重新操作。');
     const result = await httpsCallable<object, T>(getFunctions(app, 'asia-east1'), name, {
-      timeout: name === 'cmsRecommend' ? 30000 : 20000,
+      timeout: ['cmsRecommend', 'companionChat'].includes(name) ? 30000 : 20000,
     })({ ...input, scope });
     if (identity !== this.identityKey()) throw new Error('帳號已切換，請重新載入。');
     return result.data;

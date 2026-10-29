@@ -1,5 +1,73 @@
 # CAT WALK project context
 
+## Chipmunk companion exploration (2026-10-29)
+
+- The user wants to explore a chipmunk companion inspired by the app's existing
+  tree visuals: natural rather than overly cartoonish, with a lively, mischievous
+  and food-loving personality. Initial sketches are for style review.
+- The user likes the second situation-study image and the subsequent pose sheet,
+  and requests a 2D interactive companion in that style. They want smoother,
+  more detailed motion than a low-frame-count pet.
+- The intended future role includes AI-assisted route and stop suggestions and
+  warm greetings informed by time and weather, such as rain or heat reminders.
+  Route execution and live-weather integration remain future work. The later
+  Gemini conversation decision below supersedes the initial text-only demo.
+- The user confirms that the pet should roam above the bottom tabs, rather than
+  appear as a fixed launcher/card. It belongs to one tab at a time and crosses
+  between the cyclic order Home → Task → Shop → Collection → Profile → Home.
+  Exiting right goes to the next tab; exiting left goes to the previous tab.
+  Never navigate the player automatically.
+- The pet keeps acting independently while the player views another tab; it does
+  not wait to be discovered. It may roam, eat, play, idle or sleep. Clicking it
+  pauses its activity, greets the player and opens options above its head for
+  conversation and petting. The initial local demo conversation is superseded
+  by the later Gemini conversation integration below.
+- The user rejects the initial running animation as extremely unnatural. Running
+  must show a complete articulated gait, with actual leg recovery, foot contact
+  and suspension phases; deforming a single running pose is insufficient.
+- Running now uses a generated 12-pose atlas played at 24 frames per second,
+  with connected-component extraction and shared-scale registration. The single
+  running image remains a static fallback. Stationary actions retain continuous
+  local deformation. Treat visual motion quality as subject to user review;
+  do not equate continuous rendering with additional authored poses.
+- The user prefers inspecting animation directly in the Web preview; do not
+  generate or attach separate preview videos unless requested.
+- On interaction, show separate circular FAB-style actions above the pet instead
+  of a popup/card. Conversation uses an invisible native editor focused directly
+  by the Talk tap so mobile keyboards can open, with composing text shown as a
+  speech bubble and Enter to send. Enter during IME candidate selection must not
+  submit. No visible input box or separate send button.
+- The user authorizes Gemini conversation with the chipmunk persona. Reuse the
+  existing server-side Vertex AI service identity; keep recent conversation in
+  memory only, show loading/failure states, and discard dismissed responses.
+  Route execution and live weather are not connected by this chat increment.
+- `companionChat` was deployed successfully to `asia-east1` in
+  `cathay-ai-hackathon-team-03` on 2026-10-29, using Gemini 2.5 Flash through
+  Vertex AI. Two authenticated Demo turns returned `source: gemini` in about
+  2.7 and 1.4 seconds. Browser CORS preflight passed. The temporary test Auth
+  identity was deleted; only its bounded quota counter remains on the server.
+  Conversation text is not stored in Firestore by this implementation.
+- Verification: Functions TypeScript and client development builds passed,
+  seven backend tests and twelve frontend tests passed. Actual compiled Demo
+  UI checks cover six viewports (320–1024px), FAB actions, hidden native editor
+  focus, Enter submission, per-tab roaming and reduced motion. Keyboard overlay
+  geometry was simulated with VisualViewport; physical mobile keyboard behavior
+  still requires device verification. Hosting was not redeployed; use the local
+  Web preview for the updated client.
+
+## Native Angular presentation (2026-10-29)
+
+- The user requests converting the existing presentation template into an
+  Angular component. The client root `/` now renders the presentation template,
+  chapter navigation and explanations directly through Angular, superseding the
+  outer iframe wrapper around the standalone HTML.
+- Preserve layout B, responsive device framing, queued chapter selection before
+  login, App-to-chapter synchronization and hover/focus explanations. Only the
+  real App inside the phone remains in a same-origin iframe so its session and
+  navigation remain independent of the presentation route.
+- Keep the existing standalone public HTML URL available for compatibility;
+  the Angular root no longer depends on that document.
+
 ## Destination metric tags (2026-10-29)
 
 - Wrap the destination card's duration, distance, step and supply tags when

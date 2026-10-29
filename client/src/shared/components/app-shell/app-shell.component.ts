@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonLabel,
@@ -82,12 +82,14 @@ import { DialogComponent } from '../dialog/dialog.component';
 import { WalkSessionStore } from '../../stores/walk-session-store';
 import { CubModalComponent } from '../modal/modal.component';
 import { ProfileIdentityComponent } from '../profile-identity/profile-identity.component';
+import { CompanionComponent } from '../companion/companion.component';
 
 @Component({
   selector: 'app-shell',
   templateUrl: './app-shell.component.html',
   styleUrls: ['./app-shell.component.scss'],
   imports: [
+    CompanionComponent,
     ProfileIdentityComponent,
     TaskRewardDialogComponent,
     IonButton,
@@ -106,6 +108,7 @@ import { ProfileIdentityComponent } from '../profile-identity/profile-identity.c
   ],
 })
 export class AppShellComponent {
+  readonly petFloor = viewChild('petFloor', { read: ElementRef });
   private readonly router = inject(Router);
   private readonly navController = inject(NavController);
   private readonly sessionStore = inject(SessionStore);
