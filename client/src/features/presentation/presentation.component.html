@@ -1,0 +1,51 @@
+<main class="layout variant-b">
+  <section class="guide-left" aria-label="App 簡報說明">
+    <nav class="slide-rail" aria-label="簡報章節">
+      @for (tab of tabs; track tab; let index = $index) {
+        <button
+          type="button"
+          class="rail-step"
+          [class.active]="activeTab() === tab"
+          [attr.aria-current]="activeTab() === tab ? 'step' : null"
+          (click)="navigateApp(tab)"
+        >
+          <span class="step-number">{{ (index + 1).toString().padStart(2, '0') }}</span>
+          <span class="step-label">{{ topics[tab].title }}</span>
+        </button>
+      }
+    </nav>
+    <div class="note-content">
+      <div class="brandline">
+        <span class="brand-name">CATHAY PLANET / APP WALKTHROUGH</span>
+      </div>
+      <p class="page-kicker">{{ topic().kicker }}</p>
+      <h1>{{ headline()[0] }}<br />{{ headline()[1] }}</h1>
+      <p class="intro-copy">{{ topic().intro }}</p>
+      <article class="note-card" aria-live="polite">
+        <span class="note-label">{{ note().label }}</span>
+        <h2>{{ note().title }}</h2>
+        <p>{{ note().body }}</p>
+      </article>
+    </div>
+  </section>
+  <section class="app-right" aria-label="本機 App 即時畫面">
+    <div class="device-presentation">
+      <div class="device-stage">
+        <div class="phone-shell">
+          <div class="phone-screen">
+            <iframe
+              #liveApp
+              class="live-app-frame"
+              title="CAT WALK 本機 App · iPhone 11 Pro"
+              width="375"
+              height="812"
+              src="/login"
+              allow="geolocation; camera; fullscreen"
+              (load)="syncApp()"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
