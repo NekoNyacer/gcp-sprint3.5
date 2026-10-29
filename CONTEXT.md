@@ -1,5 +1,20 @@
 # CAT WALK project context
 
+## Cross-repository release handoff (2026-10-30)
+
+- User requests a committed and pushed handoff for merging this delivery into
+  another repository on 2026-10-31 (Asia/Taipei). Target repository and branch
+  remain unspecified; this request does not perform that merge or a cloud deploy.
+- Feature snapshot is `db89c675382cf2004a33cb8ead72242ff88ba6d4`, based on
+  `021eba9cdb3f207d598a7e7ebf5db2cf47fe9257`. Integration instructions, dependencies,
+  deployment boundaries and caveats are in
+  `docs/handoffs/2026-10-30-cross-repo-release.md`.
+- Keep the relocated local `client/mapbox-config.ts` ignored; a blank
+  `client/mapbox-config.example.ts` is tracked for target-environment setup.
+- Revalidation: client development build and 149 selected tests pass; Functions
+  build passes and 73/75 selected tests pass, reproducing the two already recorded
+  CMS AI merchant recommendation failures. No new browser/live-service acceptance.
+
 ## CMS 1716-site import rejection diagnosis (2026-10-30)
 
 - The user's Desktop `seed-data-gcp-hackathon-03-2026-10-27.json` is valid:
