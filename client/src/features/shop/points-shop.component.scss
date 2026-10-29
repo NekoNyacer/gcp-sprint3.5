@@ -58,6 +58,46 @@ a:focus-visible {
   font-weight: 400;
   color: #81817c;
 }
+.wallet-summary {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  padding: 8px 24px;
+  border-bottom: 1px solid #f4f4f4;
+  background: #fff;
+  box-shadow: 0 2px 6px #0000000a;
+}
+.wallet-summary-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  max-width: 512px;
+  margin: 0 auto;
+}
+.wallet-summary-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #1f1f1f;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-decoration: none;
+  white-space: nowrap;
+
+  strong {
+    color: #ee6a17;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  small {
+    color: #1f1f1f;
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
 .orange {
   color: #ff6509;
 }
@@ -213,6 +253,9 @@ ion-modal.detail-modal {
   padding: 12px;
   text-align: center;
 }
+.detail-product .charity-detail-image {
+  width: min(100%, 252px);
+}
 .detail-product h3 {
   font-size: 16px;
   margin: 8px 0 2px;
@@ -354,9 +397,16 @@ dd {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 0;
   color: #26473c;
   font-size: 56px;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .points-strip b {

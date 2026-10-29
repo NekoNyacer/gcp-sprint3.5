@@ -60,7 +60,7 @@
   border: 0;
   border-radius: 3px;
   background: transparent;
-  color: #b3c38b;
+  color: #f5f5f5;
   font: inherit;
   font-size: 12px;
   line-height: 1.4;
@@ -81,6 +81,32 @@
   }
 
   font-weight: 400;
+}
+
+.logout-button {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  align-self: stretch;
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0 6px;
+  border: 0;
+  background: transparent;
+  color: #f5f5f5;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #f5f5f5;
+    outline-offset: 2px;
+  }
 }
 
 @media (max-width: 360px) {

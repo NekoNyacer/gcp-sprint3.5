@@ -59,15 +59,12 @@
 
 .route-info {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px 6px;
   min-width: 0;
-  overflow-x: auto;
   margin: 0;
   padding: 0;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
   > div {
     flex: 0 0 auto;
     padding: 3px 7px;
@@ -226,6 +223,6 @@ button:focus-visible {
     padding: 10px;
   }
   .route-info {
-    gap: 5px;
+    column-gap: 5px;
   }
 }

@@ -7,14 +7,44 @@ ion-card {
   flex-direction: column;
   min-height: 100%;
 
-  > ion-toolbar {
-    flex-shrink: 0;
-    padding: 0 24px;
-  }
-
   &.map-mode {
     height: 100%;
     overflow: hidden;
+  }
+}
+
+.collection-controls {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  flex-shrink: 0;
+  background: #f5f4ed;
+}
+
+.collection-controls > ion-toolbar {
+  padding: 0 8px;
+
+  ion-segment-button {
+    min-width: 0;
+    --padding-start: 4px;
+    --padding-end: 4px;
+  }
+
+  ion-label {
+    white-space: nowrap;
+    text-overflow: clip;
+  }
+}
+
+.collection-filter-button {
+  width: 44px;
+  margin: 0;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --color: #777671;
+
+  &.has-filters {
+    --color: #ee6a17;
   }
 }
 

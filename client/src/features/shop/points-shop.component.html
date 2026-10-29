@@ -1,6 +1,20 @@
-<ion-content>
+<ion-content [scrollEvents]="true" (ionScroll)="updateWalletSummary()">
+  @if (walletSummaryVisible()) {
+    <aside slot="fixed" class="wallet-summary" aria-label="錢包摘要">
+      <div class="wallet-summary-inner">
+        <div class="wallet-summary-row">
+          <span>我的小樹點</span>
+          <strong>{{ balance() === null ? '—' : (balance() | number) }}</strong>
+        </div>
+        <a class="wallet-summary-row" routerLink="/shop/history">
+          <span>可用兌換券</span>
+          <strong>{{ availableVouchers() }} <small>張</small></strong>
+        </a>
+      </div>
+    </aside>
+  }
   <main>
-    <section class="wallet card">
+    <section #walletCard class="wallet card">
       <div><span>我的小樹點</span><strong class="orange">{{ balance() === null ? '—' : (balance() | number) }}</strong></div>
       <a routerLink="/shop/history"><span>可用兌換券</span><strong>{{ availableVouchers() }} <small>張</small></strong></a>
     </section>
@@ -10,7 +24,13 @@
     <h2>投入生態公益</h2>
     @for (reward of charities(); track reward.id) {
       <button class="charity card" (click)="select(reward)" [disabled]="loading() || balance() === null">
-        <div class="charity-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true"><span [class]="'cub-icon-' + (reward.icon || 'gift-money')"></span></div>
+        <div class="charity-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true">
+          @if (rewardImage(reward); as image) {
+            <img [src]="image" alt="" loading="lazy" />
+          } @else {
+            <span [class]="'cub-icon-' + (reward.icon || 'gift-money')"></span>
+          }
+        </div>
         <div class="charity-copy"><h3>{{ reward.name }}</h3><p>使用 {{ reward.requiredPoints | number }} 小樹點投入公益</p><p>NT${{ reward.costNtd | number }} 公益投入</p></div>
       </button>
     } @empty { <p class="empty">目前尚無開放的公益計畫</p> }
@@ -18,7 +38,13 @@
     <section class="products" aria-label="可兌換商品">
       @for (reward of products(); track reward.id) {
         <button class="product card" (click)="select(reward)" [disabled]="loading() || balance() === null">
-          <div class="product-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true"><span [class]="'cub-icon-' + (reward.icon || 'gift-money')"></span></div><h3>{{ reward.name }}</h3><b class="orange">{{ reward.requiredPoints | number }} 點</b>
+          <div class="product-image reward-avatar" [style.background-color]="reward.backgroundColor || '#E4F2E7'" aria-hidden="true">
+            @if (rewardImage(reward); as image) {
+              <img [src]="image" alt="" loading="lazy" />
+            } @else {
+              <span [class]="'cub-icon-' + (reward.icon || 'gift-money')"></span>
+            }
+          </div><h3>{{ reward.name }}</h3><b class="orange">{{ reward.requiredPoints | number }} 點</b>
         </button>
       } @empty { <p class="empty">目前尚無開放兌換的商品</p> }
     </section>
@@ -33,7 +59,16 @@
     <div class="points-strip"><b>我的小樹點</b><b class="orange">{{ balance() | number }}</b></div>
     <ion-content>
       <div class="detail-content">
-        <section class="detail-product card"><div class="product-image reward-avatar" [style.background-color]="selected()?.reward?.backgroundColor || '#E4F2E7'" aria-hidden="true"><span [class]="'cub-icon-' + (selected()?.reward?.icon || 'gift-money')"></span></div><h3>{{ selected()?.reward?.name }}</h3><b class="orange">{{ selected()?.reward?.requiredPoints | number }} 點</b></section>
+        <section class="detail-product card">
+          <div class="product-image reward-avatar" [class.charity-detail-image]="selected()?.reward?.kind === 'CHARITY' && !!rewardImage(selected()?.reward)" [style.background-color]="selected()?.reward?.backgroundColor || '#E4F2E7'" aria-hidden="true">
+            @if (rewardImage(selected()?.reward); as image) {
+              <img [src]="image" alt="" />
+            } @else {
+              <span [class]="'cub-icon-' + (selected()?.reward?.icon || 'gift-money')"></span>
+            }
+          </div>
+          <h3>{{ selected()?.reward?.name }}</h3><b class="orange">{{ selected()?.reward?.requiredPoints | number }} 點</b>
+        </section>
         <h2>兌獎說明</h2><section class="copy card">{{ selected()?.reward?.kind === 'CHARITY' ? '使用小樹點參與生態公益計畫。' : '兌換後可至交易紀錄查看本次兌換明細。' }}<br>目前為模擬展示，不提供實體店家核銷。</section>
         <h2>注意事項</h2><section class="copy card"><ul><li>兌換所需點數以本頁顯示為準。</li><li>請確認商品與點數後再進行兌換。</li><li>若網路中斷，請重試同一筆操作，系統會確認交易結果，避免重複扣點。</li><li>商品與價格更新時，需返回列表重新確認。</li><li>本示範商品與公益投入不具真實兌換或捐款效力。</li></ul></section>
         @if ((balance() ?? 0) < (selected()?.reward?.requiredPoints ?? 0)) { <p class="error" role="alert">小樹點不足，請先散步種樹累積點數。</p> }

@@ -55,6 +55,10 @@ export class CollectionComponent {
   private readonly treeNavigation = inject(TreeNavigationService);
   protected readonly filterModalOpen = signal(false);
   protected filterWords = signal<FilterWords>({ region: [], cultivar: [] });
+  readonly hasActiveFilters = computed(() => {
+    const { region, cultivar } = this.filterWords();
+    return region.length > 0 || cultivar.length > 0;
+  });
   protected readonly draftRegion = signal<string[]>([]);
   protected readonly draftCultivar = signal<string[]>([]);
   readonly cultivarOptions = computed(() => {

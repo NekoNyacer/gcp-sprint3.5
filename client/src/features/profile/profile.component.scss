@@ -1,4 +1,4 @@
-﻿:host {
+:host {
   display: block;
   color: #282828;
 }
@@ -216,21 +216,33 @@ ion-progress-bar {
   width: 18px;
   height: 18px;
 }
-.logout-button {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-}
-
 .cube-plan-label {
   display: block;
   margin: 12px 0 6px;
   font-size: 14px;
   font-weight: 400;
 }
+.cube-plan-field {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline-end: 16px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+}
 .cube-plan-select {
+  appearance: none;
+  box-sizing: border-box;
   width: 100%;
-  padding: 12px;
+  padding: 12px 40px 12px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   background: white;

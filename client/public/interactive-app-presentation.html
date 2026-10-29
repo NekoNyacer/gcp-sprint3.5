@@ -34,11 +34,19 @@
     .left-footer { position:absolute; left:clamp(34px,6vw,92px); bottom:27px; color:#90958b; font-size:11px; }
     .slide-rail,.feature-index { display:none; }
     .variant-b .guide-left {
+      --guide-top:clamp(34px,6vw,92px);
       display:grid; grid-template-columns:minmax(130px,170px) minmax(0,1fr); align-items:center; gap:clamp(22px,3vw,48px);
+      height:100dvh; min-height:0; grid-template-rows:minmax(0,1fr);
       padding-left:clamp(28px,4vw,64px); padding-right:clamp(28px,4vw,64px);
     }
     .variant-b .slide-rail { display:flex; flex-direction:column; gap:0; }
-    .variant-b .note-content { min-width:0; }
+    .variant-b .note-content {
+      --note-offset:max(0px,calc(50dvh - 260px - var(--guide-top)));
+      display:flex; flex-direction:column; align-self:start; min-width:0; min-height:0;
+      margin-top:var(--note-offset); max-height:calc(100% - var(--note-offset));
+    }
+    .variant-b .note-content > :not(.note-card) { flex-shrink:0; }
+    .variant-b .note-card { flex-shrink:1; min-height:0; overflow-y:auto; }
     .variant-b .brandline { margin-bottom:33px; }
     .variant-b h1 { font-size:clamp(30px,3.3vw,46px); }
     .variant-c .guide-left { justify-content:flex-start; padding-top:clamp(32px,5vh,58px); padding-left:clamp(34px,5vw,78px); padding-right:clamp(34px,5vw,78px); }
@@ -126,6 +134,7 @@
     }
     @media (max-height:680px) and (min-width:901px) {
       .guide-left { padding-top:28px; padding-bottom:66px; } .brandline { margin-bottom:24px; }
+      .variant-b .guide-left { --guide-top:28px; }
       .note-card { margin-top:20px; padding:18px 20px; }
       .variant-c .guide-left { padding-top:24px; } .variant-c .note-card { margin-bottom:16px; }
     }

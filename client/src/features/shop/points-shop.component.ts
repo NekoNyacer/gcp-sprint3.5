@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, signal, untracked, viewChild } from '@angular/core';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { IonContent, IonButton, IonModal, IonSpinner } from '@ionic/angular';
@@ -35,14 +35,26 @@ const offlineRewards: Reward[] = [
     enabled: true,
   },
 ];
+
+const rewardImages: Record<string, string> = {
+  'CHARITY:台灣動植物保育計畫': '/images/rewards/taiwan-conservation.webp',
+  'PRODUCT:飲品折抵券': '/images/rewards/refreshing-drink.webp',
+  'PRODUCT:綠色交通折抵券': '/images/rewards/green-transport.webp',
+};
+
 @Component({
   selector: 'app-points-shop',
   imports: [IonContent, IonButton, IonModal, IonSpinner, DecimalPipe, DatePipe, RouterLink],
   templateUrl: './points-shop.component.html',
   styleUrl: './points-shop.component.scss',
+  host: { '(window:resize)': 'updateWalletSummary()' },
 })
 
 export class PointsShopComponent {
+  rewardImage(reward: Reward | null | undefined): string | null {
+    return reward ? rewardImages[`${reward.kind}:${reward.name}`] ?? null : null;
+  }
+
   readonly cms = inject(CMS_CONNECTION, { optional: true });
   readonly session = inject(SessionStore);
   private readonly shop = inject(ShopStore);
@@ -60,6 +72,8 @@ export class PointsShopComponent {
   readonly availableVouchers = computed(() => this.snapshot()?.entitlements.filter(e => e.status === 'AVAILABLE').length ?? 0);
   readonly selected = signal<{ reward: Reward; version: number; requestId: string } | null>(null);
   readonly balance = computed(() => this.snapshot()?.treePointsBalance ?? null);
+  readonly walletSummaryVisible = signal(false);
+  private readonly walletCard = viewChild<ElementRef<HTMLElement>>('walletCard');
   readonly rewards = computed(() =>
     this.cms?.managed()
       ? (this.cms.config()?.rewards ?? []).filter((r) => r.enabled)
@@ -102,8 +116,16 @@ export class PointsShopComponent {
     });
   }
   ionViewDidEnter() {
+    this.updateWalletSummary();
     this.cms?.track('shop_view');
     void this.load();
+  }
+  updateWalletSummary(): void {
+    const card = this.walletCard()?.nativeElement;
+    const content = card?.closest('ion-content');
+    this.walletSummaryVisible.set(
+      !!card && !!content && card.getBoundingClientRect().bottom <= content.getBoundingClientRect().top,
+    );
   }
   async load() {
     const generation = ++this.generation;

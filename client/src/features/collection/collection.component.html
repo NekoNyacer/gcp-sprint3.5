@@ -1,27 +1,31 @@
 <ion-content [scrollY]="isGridMode()">
   <div class="collection-layout" [class.map-mode]="!isGridMode()">
-    <ion-toolbar>
-      <ion-segment
-        [value]="segment()"
-        (ionChange)="segment.set($any($event.detail.value) ?? 'cultivating')"
-      >
-        <ion-segment-button value="cultivating">
-          <ion-label>種植中</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="harvested">
-          <ion-label>已收成</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="longTimeNoSee">
-          <ion-label>長久無造訪</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-      <ion-button slot="end" (click)="openFilterModal()">
-        <ion-icon color="primary" slot="icon-only" name="options"></ion-icon>
-      </ion-button>
-    </ion-toolbar>
+    <div class="collection-controls">
+      <ion-toolbar>
+        <ion-segment
+          [value]="segment()"
+          (ionChange)="segment.set($any($event.detail.value) ?? 'cultivating')"
+        >
+          <ion-segment-button value="cultivating">
+            <ion-label>種植中</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="harvested">
+            <ion-label>已收成</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="longTimeNoSee">
+            <ion-label>長久無造訪</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+        <ion-button class="collection-filter-button" slot="end" [class.has-filters]="hasActiveFilters()"
+          [attr.aria-label]="hasActiveFilters() ? '篩選回憶林（已套用篩選）' : '篩選回憶林'"
+          aria-haspopup="dialog" [attr.aria-expanded]="filterModalOpen()" (click)="openFilterModal()">
+          <ion-icon slot="icon-only" name="options"></ion-icon>
+        </ion-button>
+      </ion-toolbar>
+    </div>
 
-    <!-- 頂部資訊與模式切換 -->
     <div class="collection-body">
+      <!-- 頂部資訊與模式切換 -->
       <div class="top" [class.float]="!isGridMode()">
         <p>
           共 {{ collectionList().length }} 棵樹木
@@ -46,7 +50,6 @@
           </ion-button>
         </div>
       </div>
-
       @if (isGridMode()) {
         @if (collectionList().length === 0) {
           <p class="ion-padding" role="status">

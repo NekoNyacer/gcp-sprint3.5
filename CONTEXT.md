@@ -1,7 +1,63 @@
 # CAT WALK project context
 
+## Destination metric tags (2026-10-29)
+
+- Wrap the destination card's duration, distance, step and supply tags when
+  space is insufficient, with a 4px gap between rows and no horizontal
+  scrollbar. This supersedes the earlier single-row/scrolling chip treatment.
+
+## Profile, collection and redemption presentation (2026-10-29)
+
+- Move logout from the Profile page bottom to the right of its identity header.
+  Traveler ID and the underlined logout action use 12px text in `#f5f5f5`.
+  Keep the CUBE plan select arrow inset within its right padding.
+- Collection segment labels must remain fully visible without ellipses on
+  mobile. Reduce horizontal spacing rather than reducing the text size.
+  The filter icon uses `#777671` with no applied region/species filters and
+  `#EE6A17` when either applied filter has values. Opening the sheet or editing
+  its draft alone does not activate the icon.
+- Keep only Collection segments/filter sticky beneath the fixed page title.
+  The tree count and grid/map controls scroll with the grid content. In map
+  mode, retain these summary controls as an overlay below the segment toolbar.
+- When the redemption wallet card scrolls completely out of view, pin a compact
+  white wallet summary below the page title. Keep both groups on one line:
+  points on the left and available vouchers on the right, each with its label
+  next to its value. Numbers use 16px `#EE6A17`; labels and the voucher unit
+  use 14px `#1F1F1F`. Returning to the wallet card hides the compact summary;
+  the voucher count remains a link to transaction history.
+  Verified at 320/375/390/430px: tabs remain pinned while the Collection summary
+  scrolls, the compact wallet appears/disappears without changing scroll height,
+  its values update live, and the history link and return navigation work.
+  All 17 existing Collection/redemption tests passed. Browser checks used an
+  isolated Demo with external HTTPS blocked.
+- Redemption reward artwork has square corners, including charity images'
+  bottom corners and the green product images. Retain the surrounding cards.
+- Use realistic photographic images for the three displayed redemption
+  examples: a Taiwanese black bear and leopard cat for conservation, a drink
+  voucher and a prominent Taipei city bus for green transportation. Reuse the
+  same image in each reward's detail view. Other CMS
+  rewards retain their configured icon and background when there is no matching
+  subject image.
+  The conservation detail uses a wide image area so both animals remain visible.
+  Browser Demo checks at 320/375/390/430px confirm all three photos load in
+  the list and detail views and custom reward icons still render. Five existing
+  redemption tests passed.
+- Verified in a local browser Demo at 320/375/390/430px: full segment labels,
+  applied/draft/cleared filter colors, image corners and header logout returning
+  to login. The CUBE select used a local catalog fixture with external HTTPS
+  blocked. All 12 existing Collection tests passed.
+
 ## Local interactive app presentation (2026-10-28)
 
+- On 2026-10-29, anchor the left presentation copy independently of the dynamic
+  note card height, slightly above its former centered position. Longer screen
+  explanations grow downward without moving the brand, kicker, headline, intro
+  or chapter navigation. In short viewports, scroll the note card internally
+  once it reaches the available space; retain the centered device and mobile
+  sidebar hiding.
+  Verified all five chapters with short/long notes, actual product hover, and
+  desktop/short/mobile viewports: the header anchor does not move, the note grows
+  downward, and the presentation and device remain within the viewport.
 - The user confirmed that the Angular client root `/` opens the presentation.
   A lazy-loaded presentation component embeds the existing same-origin public
   HTML, preserving its layout and interaction scripts. `/login` and `/home`

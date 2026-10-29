@@ -31,6 +31,10 @@ export class ProfileIdentityComponent {
     this.failedPortraitUrl.set(this.portraitUrl());
   }
 
+  logOut(): void {
+    this.sessionStore.logOut();
+  }
+
   async copyTravelerId(): Promise<void> {
     try {
       await navigator.clipboard.writeText(this.travelerId());

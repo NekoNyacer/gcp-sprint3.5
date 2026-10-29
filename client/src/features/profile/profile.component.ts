@@ -1,6 +1,6 @@
-﻿import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { IonButton, IonContent, IonIcon, IonProgressBar, IonSpinner } from '@ionic/angular';
+import { IonContent, IonIcon, IonProgressBar, IonSpinner } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { ShopStore } from '../shop/shop-store';
 import { SessionStore } from '../../shared/stores/session-store';
@@ -19,7 +19,6 @@ type WalkingStats = {
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
   imports: [
-    IonButton,
     DecimalPipe,
     DatePipe,
     RouterLink,
@@ -66,8 +65,4 @@ export class ProfileComponent {
   readonly todayGoalProgress = computed(() =>
     Math.min(this.walkingStats().today / this.dailyGoal(), 1),
   );
-
-  logOut(): void {
-    this.sessionStore.logOut();
-  }
 }
